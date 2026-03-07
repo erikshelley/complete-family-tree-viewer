@@ -64,7 +64,7 @@ function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHei
     if (!node) return;
 
     // Draw current node
-    createPersonBoxInSVG(svg, centerX - boxWidth/2, centerY, boxWidth, boxHeight, node.individual);
+    createPersonBoxInSVG(svg, centerX - boxWidth/2, centerY, boxWidth, boxHeight, node.individual, node.generation);
 
     // Draw children (parents in higher generations)
     if (node.children.length > 0) {
@@ -95,6 +95,12 @@ function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHei
             const parentsCenterX = (fatherX + motherX) / 2;
             const horizontalLineY = parentY + boxHeight / 2; // Vertically centered on parent boxes
 
+            // Calculate line color based on parent's generation (use father's generation)
+            const parentHue = (node.children[0].generation * 60) % 360;
+            const parentChroma = 50;
+            const parentLuminance = 50;
+            const lineColor = d3.hcl(parentHue, parentChroma, parentLuminance);
+
             // Horizontal line from right edge of husband to left edge of wife
             const fatherRightEdge = fatherX + boxWidth / 2;
             const motherLeftEdge = motherX - boxWidth / 2;
@@ -103,7 +109,7 @@ function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHei
                 .attr('y1', horizontalLineY)
                 .attr('x2', motherLeftEdge)
                 .attr('y2', horizontalLineY)
-                .attr('stroke', '#666')
+                .attr('stroke', lineColor)
                 .attr('stroke-width', 2);
 
             // Circle in the middle of the horizontal line
@@ -112,7 +118,7 @@ function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHei
                 .attr('cx', lineCenterX)
                 .attr('cy', horizontalLineY)
                 .attr('r', 10) // 20px diameter = 10px radius
-                .attr('fill', '#666');
+                .attr('fill', lineColor);
 
             // Vertical line from circle to child
             svg.append('line')
@@ -120,12 +126,18 @@ function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHei
                 .attr('y1', horizontalLineY + 10) // Start from bottom of circle
                 .attr('x2', centerX)
                 .attr('y2', childBottomY)
-                .attr('stroke', '#666')
+                .attr('stroke', lineColor)
                 .attr('stroke-width', 2);
         } else if (node.children.length === 1) {
             // One parent: draw vertical line directly from parent to child
             const parentX = startX;
             const horizontalLineY = (childBottomY + parentTopY) / 2;
+
+            // Calculate line color based on parent's generation
+            const parentHue = (node.children[0].generation * 60) % 360;
+            const parentChroma = 50;
+            const parentLuminance = 50;
+            const lineColor = d3.hcl(parentHue, parentChroma, parentLuminance);
 
             // Vertical line from parent to child
             svg.append('line')
@@ -133,32 +145,42 @@ function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHei
                 .attr('y1', parentTopY)
                 .attr('x2', centerX)
                 .attr('y2', childBottomY)
-                .attr('stroke', '#666')
+                .attr('stroke', lineColor)
                 .attr('stroke-width', 2);
         }
     }
 }
 
-function createPersonBoxInSVG(svg, x, y, width, height, individual) {
+function createPersonBoxInSVG(svg, x, y, width, height, individual, generation) {
     const g = svg.append('g')
         .attr('transform', `translate(${x}, ${y})`);
+
+    // Calculate background color based on generation
+    // Use HCL for equal luminance regardless of hue
+    const hue = (generation * 60) % 360; // 60 degrees apart for distinct colors
+    const chroma = 50; // Colorfulness/chroma
+    const luminance = 75; // Equal luminance for all backgrounds
+    const borderLuminance = 50; // 25% darker for borders
+    
+    const fillColor = d3.hcl(hue, chroma, luminance);
+    const strokeColor = d3.hcl(hue, chroma, borderLuminance);
 
     // Draw rectangle
     g.append('rect')
         .attr('width', width)
         .attr('height', height)
-        .attr('fill', '#e3f2fd')
-        .attr('stroke', '#1976d2')
+        .attr('fill', fillColor)
+        .attr('stroke', strokeColor)
         .attr('stroke-width', 2)
         .attr('rx', 8);
 
     // Add text with 3 lines: name (2 lines), birth-death (1 line)
     const textElement = g.append('text')
         .attr('x', width / 2)
-        .attr('y', 15)
+        .attr('y', 19) // Vertically centered in 80px box
         .attr('text-anchor', 'middle')
         .attr('font-family', 'Arial, sans-serif')
-        .attr('fill', '#1976d2');
+        .attr('fill', '#000000'); // Black font
 
     // Split name into two lines if too long
     const name = individual.name || '';
