@@ -23,8 +23,14 @@ function createFamilyTree(selectedIndividual, generations = 1) {
         .attr('height', svgHeight)
         .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
 
+    // Track occupied positions per generation to prevent overlaps
+    const positionsByGeneration = new Map();
+    for (let i = 0; i < generations; i++) {
+        positionsByGeneration.set(i, []);
+    }
+
     // Draw the tree
-    drawTree(svg, treeData, 0, generations - 1, svgWidth / 2, svgHeight - boxHeight - 20, boxWidth, boxHeight, levelHeight);
+    drawTree(svg, treeData, 0, generations - 1, svgWidth / 2, svgHeight - boxHeight - 20, boxWidth, boxHeight, levelHeight, positionsByGeneration);
 }
 
 function buildFamilyTree(individual, generations, currentGen = 0) {
@@ -60,11 +66,61 @@ function buildFamilyTree(individual, generations, currentGen = 0) {
     return node;
 }
 
-function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHeight, levelHeight) {
+function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHeight, levelHeight, positionsByGeneration) {
     if (!node) return;
 
-    // Draw current node
-    createPersonBoxInSVG(svg, centerX - boxWidth/2, centerY, boxWidth, boxHeight, node.individual, node.generation);
+    // Check for position conflicts and adjust centerX if needed
+    const positions = positionsByGeneration.get(node.generation) || [];
+    const minX = centerX - boxWidth / 2;
+    const maxX = centerX + boxWidth / 2;
+    
+    let adjustedCenterX = centerX;
+    let hasConflict = positions.some(pos => {
+        const posMinX = pos - boxWidth / 2;
+        const posMaxX = pos + boxWidth / 2;
+        // Check if boxes would overlap (with small margin)
+        return (minX < posMaxX + 5 && maxX > posMinX - 5);
+    });
+    
+    if (hasConflict) {
+        // Find nearest available position
+        let offset = boxWidth + 60; // spacing between boxes
+        let found = false;
+        for (let shift = offset; shift < 800; shift += offset) {
+            // Try right
+            adjustedCenterX = centerX + shift;
+            const checkMinX = adjustedCenterX - boxWidth / 2;
+            const checkMaxX = adjustedCenterX + boxWidth / 2;
+            if (!positions.some(pos => {
+                const posMinX = pos - boxWidth / 2;
+                const posMaxX = pos + boxWidth / 2;
+                return (checkMinX < posMaxX + 5 && checkMaxX > posMinX - 5);
+            })) {
+                found = true;
+                break;
+            }
+            // Try left
+            adjustedCenterX = centerX - shift;
+            if (adjustedCenterX > 0) {
+                const checkMinX = adjustedCenterX - boxWidth / 2;
+                const checkMaxX = adjustedCenterX + boxWidth / 2;
+                if (!positions.some(pos => {
+                    const posMinX = pos - boxWidth / 2;
+                    const posMaxX = pos + boxWidth / 2;
+                    return (checkMinX < posMaxX + 5 && checkMaxX > posMinX - 5);
+                })) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+    }
+    
+    // Record this position
+    positions.push(adjustedCenterX);
+
+    // Draw current node at adjusted position
+    createPersonBoxInSVG(svg, adjustedCenterX - boxWidth/2, centerY, boxWidth, boxHeight, node.individual, node.generation);
 
     // Draw children (parents in higher generations)
     if (node.children.length > 0) {
@@ -76,22 +132,32 @@ function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHei
         const spacing = 180; // Space between siblings
         const startX = centerX - ((node.children.length - 1) * spacing) / 2;
 
+        // Track actual X positions of drawn children
+        const childPositions = [];
+
         // Draw children and their connecting lines
         node.children.forEach((child, index) => {
             if (!child) return;
 
             const childX = startX + (index * spacing);
-            const childCenterX = childX; // childX is already the center of the box
+            
+            // Track the child's actual position by recording current number of positions
+            const positionsBeforeChild = (positionsByGeneration.get(child.generation) || []).length;
 
             // Recursively draw child
-            drawTree(svg, child, level + 1, maxLevel, childX, parentY, boxWidth, boxHeight, levelHeight);
+            drawTree(svg, child, level + 1, maxLevel, childX, parentY, boxWidth, boxHeight, levelHeight, positionsByGeneration);
+            
+            // Get the actual position used for this child
+            const allChildPositions = positionsByGeneration.get(child.generation) || [];
+            const actualChildX = allChildPositions[allChildPositions.length - 1];
+            childPositions.push(actualChildX);
         });
 
         // Draw connection lines based on number of parents
         if (node.children.length === 2) {
             // Two parents: draw horizontal line between parents, circle in middle, vertical to child
-            const fatherX = startX;
-            const motherX = startX + spacing;
+            const fatherX = childPositions[0];
+            const motherX = childPositions[1];
             const parentsCenterX = (fatherX + motherX) / 2;
             const horizontalLineY = parentY + boxHeight / 2; // Vertically centered on parent boxes
 
@@ -120,17 +186,17 @@ function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHei
                 .attr('r', 10) // 20px diameter = 10px radius
                 .attr('fill', lineColor);
 
-            // Vertical line from circle to child
+            // Vertical line from circle to child (using adjusted center position)
             svg.append('line')
                 .attr('x1', lineCenterX)
                 .attr('y1', horizontalLineY + 10) // Start from bottom of circle
-                .attr('x2', centerX)
+                .attr('x2', adjustedCenterX)
                 .attr('y2', childBottomY)
                 .attr('stroke', lineColor)
                 .attr('stroke-width', 2);
         } else if (node.children.length === 1) {
             // One parent: draw vertical line directly from parent to child
-            const parentX = startX;
+            const parentX = childPositions[0];
             const horizontalLineY = (childBottomY + parentTopY) / 2;
 
             // Calculate line color based on parent's generation
@@ -143,7 +209,7 @@ function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHei
             svg.append('line')
                 .attr('x1', parentX)
                 .attr('y1', parentTopY)
-                .attr('x2', centerX)
+                .attr('x2', adjustedCenterX)
                 .attr('y2', childBottomY)
                 .attr('stroke', lineColor)
                 .attr('stroke-width', 2);
