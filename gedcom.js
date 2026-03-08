@@ -1,6 +1,8 @@
 // GEDCOM parsing and validation functionality
-window.currentIndividuals = []; // Store parsed individuals globally
-window.currentFamilies = []; // Store parsed families globally
+window.gedcom_content = ''; // Store raw GEDCOM content globally
+window.individuals = []; // Store parsed individuals globally
+window.families = []; // Store parsed families globally
+window.generations = 1; // Default generation depth
 
 function validateGedcom(content) {
     const lines = content.trim().split('\n');
@@ -11,16 +13,14 @@ function validateGedcom(content) {
     }
 
     // Check if there's a "0 TRLR" line
-    const hasTrailer = lines.some(line => line.trim().startsWith('0 TRLR'));
-    if (!hasTrailer) {
-        return false;
-    }
+    const has_trailer = lines.some(line => line.trim().startsWith('0 TRLR'));
+    if (!has_trailer) return false;
 
     // Basic structure check: lines should start with level numbers 0-9
-    const levelRegex = /^[0-9]/;
+    const level_regex = /^[0-9]/;
     for (let line of lines) {
         line = line.trim();
-        if (line && !levelRegex.test(line)) {
+        if (line && !level_regex.test(line)) {
             return false;
         }
     }
@@ -32,8 +32,9 @@ function parseGedcomData(content) {
     const lines = content.trim().split('\n');
     const individuals = [];
     const families = [];
-    let currentIndividual = null;
-    let currentFamily = null;
+    let current_individual = null;
+    let current_family = null;
+    let current_event = null;
 
     for (let line of lines) {
         line = line.trim();
@@ -44,82 +45,82 @@ function parseGedcomData(content) {
 
         if (level === 0 && parts.length >= 3 && parts[2] === 'INDI') {
             // New individual: 0 @Ixxx@ INDI
-            if (currentIndividual) {
-                individuals.push(currentIndividual);
-            }
-            currentIndividual = { id: parts[1], name: '', famc: null, birth: '', death: '' };
-            currentFamily = null; // Reset family
-            currentEvent = null;
+            if (current_individual) individuals.push(current_individual);
+            current_individual = { id: parts[1], name: '', famc: null, fams: [], birth: '', death: '' };
+            current_family = null; // Reset family
+            current_event = null;
         } else if (level === 0 && parts.length >= 3 && parts[2] === 'FAM') {
             // New family: 0 @Fxxx@ FAM
-            if (currentFamily) {
-                families.push(currentFamily);
-            }
-            currentFamily = { id: parts[1], husb: null, wife: null, chil: [] };
-            currentIndividual = null; // Reset individual
-            currentEvent = null;
-        } else if (level === 1 && parts[1] === 'NAME' && currentIndividual) {
+            if (current_family) families.push(current_family);
+            current_family = { id: parts[1], husb: null, wife: null, chil: [] };
+            current_individual = null; // Reset individual
+            current_event = null;
+        } else if (level === 1 && parts[1] === 'NAME' && current_individual) {
             // Name line: 1 NAME Given /Surname/
             const nameParts = parts.slice(2);
             let name = nameParts.join(' ');
             // Remove all slashes
             name = name.replace(/\//g, '');
-            currentIndividual.name = name.trim();
-            currentEvent = null;
-        } else if (level === 1 && parts[1] === 'FAMC' && currentIndividual) {
+            current_individual.name = name.trim();
+            current_event = null;
+        } else if (level === 1 && parts[1] === 'FAMC' && current_individual) {
             // Family as child: 1 FAMC @Fxxx@
-            currentIndividual.famc = parts[2];
-            currentEvent = null;
-        } else if (level === 1 && parts[1] === 'BIRT' && currentIndividual) {
+            current_individual.famc = parts[2];
+            current_event = null;
+        } else if (level === 1 && parts[1] === 'FAMS' && current_individual) {
+            // Family as spouse: 1 FAMS @Fxxx@
+            current_individual.fams.push(parts[2]);
+            current_event = null;
+        } else if (level === 1 && parts[1] === 'BIRT' && current_individual) {
             // Birth event
-            currentEvent = 'BIRT';
-        } else if (level === 1 && parts[1] === 'DEAT' && currentIndividual) {
+            current_event = 'BIRT';
+        } else if (level === 1 && parts[1] === 'DEAT' && current_individual) {
             // Death event
-            currentEvent = 'DEAT';
-        } else if (level === 2 && parts[1] === 'DATE' && currentEvent) {
+            current_event = 'DEAT';
+        } else if (level === 2 && parts[1] === 'DATE' && current_event && current_individual) {
             // Date for current event
-            const dateParts = parts.slice(2);
-            const date = dateParts.join(' ');
-            if (currentEvent === 'BIRT' && currentIndividual) {
-                currentIndividual.birth = extractYear(date);
-                currentEvent = null; // Reset after processing
-            } else if (currentEvent === 'DEAT' && currentIndividual) {
-                currentIndividual.death = extractYear(date);
-                currentEvent = null; // Reset after processing
+            const date_parts = parts.slice(2);
+            const date = date_parts.join(' ');
+            if (current_event === 'BIRT' && current_individual) {
+                current_individual.birth = extractYear(date);
+                current_event = null; // Reset after processing
+            } else if (current_event === 'DEAT' && current_individual) {
+                current_individual.death = extractYear(date);
+                current_event = null; // Reset after processing
             }
-        } else if (level === 1 && parts[1] === 'HUSB' && currentFamily) {
+        } else if (level === 1 && parts[1] === 'HUSB' && current_family) {
             // Husband: 1 HUSB @Ixxx@
-            currentFamily.husb = parts[2];
-            currentEvent = null;
-        } else if (level === 1 && parts[1] === 'WIFE' && currentFamily) {
+            current_family.husb = parts[2];
+            current_event = null;
+        } else if (level === 1 && parts[1] === 'WIFE' && current_family) {
             // Wife: 1 WIFE @Ixxx@
-            currentFamily.wife = parts[2];
-            currentEvent = null;
-        } else if (level === 1 && parts[1] === 'CHIL' && currentFamily) {
+            current_family.wife = parts[2];
+            current_event = null;
+        } else if (level === 1 && parts[1] === 'CHIL' && current_family) {
             // Child: 1 CHIL @Ixxx@
-            currentFamily.chil.push(parts[2]);
-            currentEvent = null;
+            current_family.chil.push(parts[2]);
+            current_event = null;
         } else if (level === 1) {
-            // Any other level 1 event - reset currentEvent
-            currentEvent = null;
+            // Any other level 1 event - reset current_event
+            current_event = null;
         }
     }
 
     // Add the last individual and family
-    if (currentIndividual) {
-        individuals.push(currentIndividual);
+    if (current_individual) {
+        individuals.push(current_individual);
     }
-    if (currentFamily) {
-        families.push(currentFamily);
+    if (current_family) {
+        families.push(current_family);
     }
 
-    console.log('Parsed individuals:', individuals.map(i => ({id: i.id, name: i.name, famc: i.famc, birth: i.birth, death: i.death})));
+    console.log('Parsed individuals:', individuals.map(i => ({id: i.id, name: i.name, famc: i.famc, fams: i.fams, birth: i.birth, death: i.death})));
     console.log('Parsed families:', families);
     return { individuals, families };
 }
 
-function extractYear(dateString) {
+function extractYear(date_string) {
     // Extract year from GEDCOM date format
-    const yearMatch = dateString.match(/\b(\d{4})\b/);
+    const yearMatch = date_string.match(/\b(\d{4})\b/);
     return yearMatch ? yearMatch[1] : '';
 }

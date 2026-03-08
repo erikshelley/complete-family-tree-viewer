@@ -1,82 +1,131 @@
 // Tree drawing and visualization functionality using D3.js
 
-function createFamilyTree(selectedIndividual, generations = 1) {
-    const fileContent = document.getElementById('fileContent');
-
+function createFamilyTree(selected_individual) {
     // Clear previous content
-    fileContent.innerHTML = '';
+    const family_tree_div = document.getElementById('family-tree-div');
+    family_tree_div.innerHTML = '';
 
     // Build tree data structure
-    const treeData = buildFamilyTree(selectedIndividual, generations);
+    const treeData = buildFamilyTree(selected_individual);
+    console.log(treeData);
 
-    // Calculate SVG dimensions
-    const boxWidth = 120;
-    const boxHeight = 80;
-    const levelHeight = 160;
-    const svgWidth = 800;
-    const svgHeight = generations * levelHeight + boxHeight + 40;
+    // Set SVG dimensions
+    const box_width = 120;
+    const box_height = 80;
+    const level_height = 160;
+    const svg_width = 800;
+    const svg_height = window.generations * level_height + box_height + 40;
 
     // Track occupied positions per generation to prevent overlaps
-    const positionsByGeneration = new Map();
-    for (let i = 0; i < generations; i++) {
-        positionsByGeneration.set(i, []);
-    }
+    //const positionsByGeneration = new Map();
+    //for (let i = 0; i < generations; i++) {
+        //positionsByGeneration.set(i, []);
+    //}
 
     // Initial SVG
-    const svg = d3.select('#fileContent')
+    const svg = d3.select('#familyTreeDiv')
         .append('svg')
-        .attr('width', svgWidth)
-        .attr('height', svgHeight);
+        .attr('width', svg_width)
+        .attr('height', svg_height);
 
-    drawTree(svg, treeData, 0, generations - 1, svgWidth / 2, svgHeight - boxHeight - 20, boxWidth, boxHeight, levelHeight, positionsByGeneration);
+    //drawTree(svg, treeData, 0, generations - 1, svgWidth / 2, svgHeight - boxHeight - 20, boxWidth, boxHeight, levelHeight, positionsByGeneration);
 
     // Calculate maximum width using positionsByGeneration
-    const allPositions = [];
-    positionsByGeneration.forEach(posList => {
-        allPositions.push(...posList);
-    });
-    const svgMinX = Math.min(...allPositions) - boxWidth / 2 - 60;
-    const svgMaxX = Math.max(...allPositions) + boxWidth / 2 + 60;
-    const contentWidth = svgMaxX - svgMinX;
-    const scale = contentWidth / svgWidth;
-    svg.attr('height', svgHeight / scale);
-    svg.attr('viewBox', `${svgMinX} 0 ${scale * svgWidth} ${svgHeight}`);
+    //const allPositions = [];
+    //positionsByGeneration.forEach(posList => {
+        //allPositions.push(...posList);
+    //});
+    //const svgMinX = Math.min(...allPositions) - boxWidth / 2 - 60;
+    //const svgMaxX = Math.max(...allPositions) + boxWidth / 2 + 60;
+    //const contentWidth = svgMaxX - svgMinX;
+    //const scale = contentWidth / svgWidth;
+    //svg.attr('height', svgHeight / scale);
+    //svg.attr('viewBox', `${svgMinX} 0 ${scale * svgWidth} ${svgHeight}`);
+    svg.attr('height', svg_height);
+    svg.attr('viewBox', `0 0 ${svg_width} ${svg_height}`);
 }
 
-function buildFamilyTree(individual, generations, currentGen = 0) {
-    if (!individual || currentGen >= generations) {
-        return null;
-    }
+function buildFamilyTree(individual, current_gen = window.generations, anchor_gen = window.generations, type = 'root') {
+    if (!individual || current_gen >= 2 * window.generations) return null;
 
     const node = {
         individual: individual,
-        generation: currentGen,
-        children: []
+        type: type,
+        generation: current_gen,
+        parent_family: null,
+        father_node: null,
+        mother_node: null,
+        spouse_nodes: [],
+        children_nodes: []
     };
 
-    // Find parents
-    if (individual.famc && currentGen < generations - 1) {
-        const family = window.currentFamilies.find(fam => fam.id === individual.famc);
-        if (family) {
-            if (family.husb) {
-                const father = window.currentIndividuals.find(ind => ind.id === family.husb);
+    if (node.individual.famc && node.generation < 2 * window.generations - 1 && ['root', 'ancestor'].includes(node.type)) {
+        node.parent_family = window.families.find(fam => fam.id === node.individual.famc);
+        if (node.parent_family) {
+            if (node.parent_family.husb) {
+                const father = window.individuals.find(ind => ind.id === node.parent_family.husb);
                 if (father) {
-                    node.children.push(buildFamilyTree(father, generations, currentGen + 1));
+                    father.pedigree_family = node.parent_family;
+                    father.pedigree_child = node.individual;
+                    father.is_father = true;
+                    node.father_node = buildFamilyTree(father, current_gen + 1, anchor_gen + 1, 'ancestor');
                 }
             }
-            if (family.wife) {
-                const mother = window.currentIndividuals.find(ind => ind.id === family.wife);
+            if (node.parent_family.wife) {
+                const mother = window.individuals.find(ind => ind.id === node.parent_family.wife);
                 if (mother) {
-                    node.children.push(buildFamilyTree(mother, generations, currentGen + 1));
+                    mother.pedigree_family = node.parent_family;
+                    mother.pedigree_child = node.individual;
+                    node.mother_node = buildFamilyTree(mother, current_gen + 1, anchor_gen + 1, 'ancestor');
                 }
             }
+        }
+    }
+
+    if (node.individual.fams && ['root', 'ancestor', 'relative'].includes(node.type)) {
+        node.individual.fams.map(fam_id => {
+            if (node.individual.pedigree_family && node.individual.pedigree_family.id === fam_id) {
+                if (node.individual.is_father) {
+                    node.individual.pedigree_family.chil.filter(child_id => child_id != node.individual.pedigree_child.id).map(child_id => {
+                        const child = window.individuals.find(ind => ind.id === child_id);
+                        if (child) {
+                            const child_node = buildFamilyTree(child, current_gen - 1, anchor_gen, 'relative');
+                            if (child_node) node.children_nodes.push(child_node);
+                        }
+                    });
+                }
+            }
+            else {
+                const spouse_family = window.families.find(fam => fam.id === fam_id);
+                if (spouse_family) {
+                    const spouse_id = spouse_family.husb === node.individual.id ? spouse_family.wife : spouse_family.husb;
+                    const spouse = window.individuals.find(ind => ind.id === spouse_id);
+                    if (spouse) {
+                        spouse.spouse_family = spouse_family;
+                        const spouse_node = buildFamilyTree(spouse, current_gen, anchor_gen, 'inlaw');
+                        if (spouse_node) node.spouse_nodes.push(spouse_node);
+                    }
+                }
+            }
+        });
+    }
+
+    if (node.individual.fams && (anchor_gen - current_gen < window.generations) && node.type === 'inlaw') {
+        if (node.individual.spouse_family && node.individual.spouse_family.chil.length > 0) {
+            node.individual.spouse_family.chil.map(child_id => {
+                const child = window.individuals.find(ind => ind.id === child_id);
+                if (child) {
+                    const child_node = buildFamilyTree(child, current_gen - 1, anchor_gen, 'relative');
+                    if (child_node) node.children_nodes.push(child_node);
+                }
+            });
         }
     }
 
     return node;
 }
 
-function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHeight, levelHeight, positionsByGeneration) {
+/*function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHeight, levelHeight, positionsByGeneration) {
     if (!node) return;
 
     // Check for position conflicts and adjust centerX if needed
@@ -225,7 +274,7 @@ function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHei
                 .attr('stroke-width', 2);
         }
     }
-}
+}*/
 
 function createPersonBoxInSVG(svg, x, y, width, height, individual, generation) {
     const g = svg.append('g')
@@ -236,22 +285,22 @@ function createPersonBoxInSVG(svg, x, y, width, height, individual, generation) 
     const hue = (generation * 60) % 360; // 60 degrees apart for distinct colors
     const chroma = 50; // Colorfulness/chroma
     const luminance = 75; // Equal luminance for all backgrounds
-    const borderLuminance = 50; // 25% darker for borders
+    const border_luminance = 50; // 25% darker for borders
     
-    const fillColor = d3.hcl(hue, chroma, luminance);
-    const strokeColor = d3.hcl(hue, chroma, borderLuminance);
+    const fill_color = d3.hcl(hue, chroma, luminance);
+    const stroke_color = d3.hcl(hue, chroma, border_luminance);
 
     // Draw rectangle
     g.append('rect')
         .attr('width', width)
         .attr('height', height)
-        .attr('fill', fillColor)
-        .attr('stroke', strokeColor)
+        .attr('fill', fill_color)
+        .attr('stroke', stroke_color)
         .attr('stroke-width', 2)
         .attr('rx', 8);
 
     // Add text with 3 lines: name (2 lines), birth-death (1 line)
-    const textElement = g.append('text')
+    const text_element = g.append('text')
         .attr('x', width / 2)
         .attr('y', 24) // Vertically centered in 80px box
         .attr('text-anchor', 'middle')
@@ -260,10 +309,10 @@ function createPersonBoxInSVG(svg, x, y, width, height, individual, generation) 
 
     // Split name into two lines if too long
     const name = individual.name || '';
-    const maxLineLength = 14; // Approximate characters per line for 2-line name
+    const max_line_length = 14; // Approximate characters per line for 2-line name
 
     let line1, line2;
-    if (name.length <= maxLineLength) {
+    if (name.length <= max_line_length) {
         line1 = name;
         line2 = '';
     } else {
@@ -271,7 +320,7 @@ function createPersonBoxInSVG(svg, x, y, width, height, individual, generation) 
         const words = name.split(' ');
         line1 = words[0];
         let i = 1;
-        while (i < words.length && (line1 + ' ' + words[i]).length <= maxLineLength) {
+        while (i < words.length && (line1 + ' ' + words[i]).length <= max_line_length) {
             line1 += ' ' + words[i];
             i++;
         }
@@ -280,20 +329,20 @@ function createPersonBoxInSVG(svg, x, y, width, height, individual, generation) 
 
     // Add name lines
     if (line1) {
-        textElement.append('tspan')
+        text_element.append('tspan')
             .attr('x', width / 2)
             .attr('dy', '0em')
             .text(line1);
     }
     if (line2) {
-        textElement.append('tspan')
+        text_element.append('tspan')
             .attr('x', width / 2)
             .attr('dy', '1.2em')
             .text(line2);
     }
 
     // Add birth-death line
-    const birthDeath = individual.birth && individual.death ? 
+    const birth_death = individual.birth && individual.death ? 
         `${individual.birth}-${individual.death}` : 
         individual.birth ? 
         `${individual.birth}-` : 
@@ -301,23 +350,23 @@ function createPersonBoxInSVG(svg, x, y, width, height, individual, generation) 
         `-${individual.death}` : 
         '';
 
-    if (birthDeath) {
-        textElement.append('tspan')
+    if (birth_death) {
+        text_element.append('tspan')
             .attr('x', width / 2)
             .attr('dy', line2 ? '1.4em' : '1.2em')
-            .text(birthDeath);
+            .text(birth_death);
     }
 
     // Adjust font size if needed
-    let fontSize = 12;
-    const minFontSize = 8;
+    let font_size = 12;
+    const min_font_size = 8;
     const padding = 6;
-    const maxWidth = width - padding;
+    const max_width = width - padding;
 
     // Check if text fits
-    const bbox = textElement.node().getBBox();
-    if (bbox.width > maxWidth) {
-        fontSize = Math.max(minFontSize, fontSize * (maxWidth / bbox.width));
-        textElement.attr('font-size', fontSize + 'px');
+    const bbox = text_element.node().getBBox();
+    if (bbox.width > max_width) {
+        font_size = Math.max(min_font_size, font_size * (max_width / bbox.width));
+        text_element.attr('font-size', font_size + 'px');
     }
 }
