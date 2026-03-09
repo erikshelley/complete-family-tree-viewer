@@ -1,4 +1,8 @@
 // Tree drawing and visualization functionality using D3.js
+window.box_width = 120;
+window.box_height = 80;
+window.h_spacing = 60;
+window.v_spacing = 120;
 
 function createFamilyTree(selected_individual) {
     // Clear previous content
@@ -6,27 +10,27 @@ function createFamilyTree(selected_individual) {
     family_tree_div.innerHTML = '';
 
     // Build tree data structure
-    const treeData = buildFamilyTree(selected_individual);
-    console.log(treeData);
+    const tree_data = buildTree(selected_individual);
+    console.log(tree_data);
+    const tree_positions = positionTree(tree_data);
+    console.log(tree_positions);
 
     // Set SVG dimensions
-    const box_width = 120;
-    const box_height = 80;
-    const level_height = 160;
-    const svg_width = 800;
-    const svg_height = window.generations * level_height + box_height + 40;
-
-    // Track occupied positions per generation to prevent overlaps
-    //const positionsByGeneration = new Map();
-    //for (let i = 0; i < generations; i++) {
-        //positionsByGeneration.set(i, []);
-    //}
+    const svg_width = 700;
+    const svg_height = 700;
 
     // Initial SVG
-    const svg = d3.select('#familyTreeDiv')
+    const svg = d3.select('#family-tree-div')
         .append('svg')
         .attr('width', svg_width)
         .attr('height', svg_height);
+
+    const [max_x, max_y] = getMaximumDimensions(tree_positions);
+    const scale_x = max_x / svg_width;
+    const scale_y = max_y / svg_height;
+    const max_scale = Math.max(scale_x, scale_y);
+    //svg.attr('height', svg_height / max_scale);
+    svg.attr('viewBox', `0 0 ${max_scale * svg_width} ${max_scale * svg_height}`);
 
     //drawTree(svg, treeData, 0, generations - 1, svgWidth / 2, svgHeight - boxHeight - 20, boxWidth, boxHeight, levelHeight, positionsByGeneration);
 
@@ -41,17 +45,22 @@ function createFamilyTree(selected_individual) {
     //const scale = contentWidth / svgWidth;
     //svg.attr('height', svgHeight / scale);
     //svg.attr('viewBox', `${svgMinX} 0 ${scale * svgWidth} ${svgHeight}`);
-    svg.attr('height', svg_height);
-    svg.attr('viewBox', `0 0 ${svg_width} ${svg_height}`);
+
+    //svg.attr('height', svg_height);
+    //svg.attr('viewBox', `0 0 ${svg_width} ${svg_height}`);
+
+    drawTree(tree_positions);
 }
 
-function buildFamilyTree(individual, current_gen = window.generations, anchor_gen = window.generations, type = 'root') {
+function buildTree(individual, current_gen = window.generations, anchor_gen = window.generations, type = 'root') {
     if (!individual || current_gen >= 2 * window.generations) return null;
 
     const node = {
         individual: individual,
         type: type,
+        inlaw_type: null,
         generation: current_gen,
+        anchor_generation: anchor_gen,
         parent_family: null,
         father_node: null,
         mother_node: null,
@@ -59,37 +68,37 @@ function buildFamilyTree(individual, current_gen = window.generations, anchor_ge
         children_nodes: []
     };
 
-    if (node.individual.famc && node.generation < 2 * window.generations - 1 && ['root', 'ancestor'].includes(node.type)) {
+    if (node.individual.famc && node.generation < 2 * window.generations && ['root', 'ancestor'].includes(node.type)) {
         node.parent_family = window.families.find(fam => fam.id === node.individual.famc);
         if (node.parent_family) {
             if (node.parent_family.husb) {
                 const father = window.individuals.find(ind => ind.id === node.parent_family.husb);
                 if (father) {
                     father.pedigree_family = node.parent_family;
-                    father.pedigree_child = node.individual;
+                    if (node.type != 'root') father.pedigree_child = node.individual;
                     father.is_father = true;
-                    node.father_node = buildFamilyTree(father, current_gen + 1, anchor_gen + 1, 'ancestor');
+                    node.father_node = buildTree(father, current_gen + 1, anchor_gen + 1, 'ancestor');
                 }
             }
             if (node.parent_family.wife) {
                 const mother = window.individuals.find(ind => ind.id === node.parent_family.wife);
                 if (mother) {
                     mother.pedigree_family = node.parent_family;
-                    mother.pedigree_child = node.individual;
-                    node.mother_node = buildFamilyTree(mother, current_gen + 1, anchor_gen + 1, 'ancestor');
+                    if (node.type != 'root') mother.pedigree_child = node.individual;
+                    node.mother_node = buildTree(mother, current_gen + 1, anchor_gen + 1, 'ancestor');
                 }
             }
         }
     }
 
     if (node.individual.fams && ['root', 'ancestor', 'relative'].includes(node.type)) {
-        node.individual.fams.map(fam_id => {
+        node.individual.fams.forEach(fam_id => {
             if (node.individual.pedigree_family && node.individual.pedigree_family.id === fam_id) {
                 if (node.individual.is_father) {
-                    node.individual.pedigree_family.chil.filter(child_id => child_id != node.individual.pedigree_child.id).map(child_id => {
+                    node.individual.pedigree_family.chil.filter(child_id => !node.individual.pedigree_child || child_id != node.individual.pedigree_child.id).forEach(child_id => {
                         const child = window.individuals.find(ind => ind.id === child_id);
                         if (child) {
-                            const child_node = buildFamilyTree(child, current_gen - 1, anchor_gen, 'relative');
+                            const child_node = buildTree(child, current_gen - 1, anchor_gen, 'relative');
                             if (child_node) node.children_nodes.push(child_node);
                         }
                     });
@@ -102,8 +111,11 @@ function buildFamilyTree(individual, current_gen = window.generations, anchor_ge
                     const spouse = window.individuals.find(ind => ind.id === spouse_id);
                     if (spouse) {
                         spouse.spouse_family = spouse_family;
-                        const spouse_node = buildFamilyTree(spouse, current_gen, anchor_gen, 'inlaw');
-                        if (spouse_node) node.spouse_nodes.push(spouse_node);
+                        const spouse_node = buildTree(spouse, current_gen, anchor_gen, 'inlaw');
+                        if (spouse_node) {
+                            spouse_node.inlaw_type = node.type;
+                            node.spouse_nodes.push(spouse_node);
+                        }
                     }
                 }
             }
@@ -112,10 +124,10 @@ function buildFamilyTree(individual, current_gen = window.generations, anchor_ge
 
     if (node.individual.fams && (anchor_gen - current_gen < window.generations) && node.type === 'inlaw') {
         if (node.individual.spouse_family && node.individual.spouse_family.chil.length > 0) {
-            node.individual.spouse_family.chil.map(child_id => {
+            node.individual.spouse_family.chil.forEach(child_id => {
                 const child = window.individuals.find(ind => ind.id === child_id);
                 if (child) {
-                    const child_node = buildFamilyTree(child, current_gen - 1, anchor_gen, 'relative');
+                    const child_node = buildTree(child, current_gen - 1, anchor_gen, 'relative');
                     if (child_node) node.children_nodes.push(child_node);
                 }
             });
@@ -123,6 +135,83 @@ function buildFamilyTree(individual, current_gen = window.generations, anchor_ge
     }
 
     return node;
+}
+
+function positionTree(node, rows = []) {
+    if (!node || node.is_positioned) return rows;
+
+    node.level = node.anchor_generation - window.generations;
+    //if (!node.father_node && !node.mother_node) node.level++;
+    if (!node.sub_level) node.sub_level = node.anchor_generation - node.generation;
+
+    if (!rows[node.level]) rows[node.level] = [];
+    if (!rows[node.level][node.sub_level]) rows[node.level][node.sub_level] = [];
+
+    if ((node.type === 'root') || (node.individual.gender === 'M' && node.type === 'ancestor')) {
+        positionTree(node.father_node, rows);
+        positionTree(node.mother_node, rows);
+        if ((node.type === 'ancestor') || (node.type === 'root' && !node.father_node && !node.mother_node)) {
+            node.children_nodes.forEach(child_node => { positionTree(child_node, rows); });
+            node.spouse_nodes.forEach(spouse_node => { 
+                if (node.type === 'root') spouse_node.sub_level = node.sub_level + 1;
+                positionTree(spouse_node, rows); 
+            });
+            positionNode(node, rows);
+        }
+    }
+
+    if ((node.type === 'relative') || (node.individual.gender === 'F' && node.type === 'ancestor')) {
+        positionNode(node, rows);
+        node.spouse_nodes.forEach(spouse_node => { 
+            spouse_node.sub_level = node.sub_level + 1;
+            positionTree(spouse_node, rows); 
+        });
+        if (node.type === 'ancestor') {
+            positionTree(node.father_node, rows);
+            positionTree(node.mother_node, rows);
+        }
+    }
+
+    if (node.type == 'inlaw') {
+        positionNode(node, rows);
+        node.children_nodes.forEach(child_node => { 
+            child_node.sub_level = node.sub_level + 1;
+            positionTree(child_node, rows); 
+        });
+    }
+
+    return rows;
+}
+
+function positionNode(node, rows) {
+    node.x = rows[node.level][node.sub_level].length * (window.box_width + window.h_spacing);
+    node.y = (((window.generations - 1) * (2 * (window.generations - 1) - node.level)) + node.sub_level) * (window.box_height + window.v_spacing);
+    node.is_positioned = true;
+    rows[node.level][node.sub_level].push(node);
+}
+
+function getMaximumDimensions(rows) {
+    let max_x = -Infinity;
+    let max_y = -Infinity;
+    rows.forEach(level => {
+        level.forEach(sub_level => {
+            sub_level.forEach(node => {
+                max_x = Math.max(max_x, node.x + window.box_width);
+                max_y = Math.max(max_y, node.y + window.box_height);
+            });
+        });
+    });
+    return [max_x, max_y];
+}
+
+function drawTree(rows) {
+    rows.forEach(level => {
+        level.forEach(sub_level => {
+            sub_level.forEach(node => {
+                createPersonBoxInSVG(d3.select('svg'), node.x, node.y, window.box_width, window.box_height, node.individual, node.generation);
+            });
+        });
+    });
 }
 
 /*function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHeight, levelHeight, positionsByGeneration) {

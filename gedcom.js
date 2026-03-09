@@ -46,7 +46,7 @@ function parseGedcomData(content) {
         if (level === 0 && parts.length >= 3 && parts[2] === 'INDI') {
             // New individual: 0 @Ixxx@ INDI
             if (current_individual) individuals.push(current_individual);
-            current_individual = { id: parts[1], name: '', famc: null, fams: [], birth: '', death: '' };
+            current_individual = { id: parts[1], name: '', famc: null, fams: [], birth: '', death: '', gender: '' };
             current_family = null; // Reset family
             current_event = null;
         } else if (level === 0 && parts.length >= 3 && parts[2] === 'FAM') {
@@ -62,6 +62,10 @@ function parseGedcomData(content) {
             // Remove all slashes
             name = name.replace(/\//g, '');
             current_individual.name = name.trim();
+            current_event = null;
+        } else if (level === 1 && parts[1] === 'SEX' && current_individual) {
+            // Gender line: 1 SEX M or 1 SEX F
+            current_individual.gender = parts[2];
             current_event = null;
         } else if (level === 1 && parts[1] === 'FAMC' && current_individual) {
             // Family as child: 1 FAMC @Fxxx@
@@ -107,14 +111,11 @@ function parseGedcomData(content) {
     }
 
     // Add the last individual and family
-    if (current_individual) {
-        individuals.push(current_individual);
-    }
-    if (current_family) {
-        families.push(current_family);
-    }
+    if (current_individual) individuals.push(current_individual);
+    if (current_family) families.push(current_family);
 
-    console.log('Parsed individuals:', individuals.map(i => ({id: i.id, name: i.name, famc: i.famc, fams: i.fams, birth: i.birth, death: i.death})));
+    //console.log('Parsed individuals:', individuals.forEach(i => ({id: i.id, name: i.name, famc: i.famc, fams: i.fams, birth: i.birth, death: i.death, gender: i.gender})));
+    console.log('Parsed individuals:', individuals);
     console.log('Parsed families:', families);
     return { individuals, families };
 }
