@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (is_valid_gedcom) {
                     family_tree_div.innerHTML = '<p style="color: green;">Valid GEDCOM file loaded!</p>';
                     //family_tree_div.innerHTML += `<pre>${content}</pre>`;
-                    console.log('Valid GEDCOM file loaded into memory');
+                    //console.log('Valid GEDCOM file loaded into memory');
 
                     // Parse GEDCOM data
                     const parsed_data = parseGedcomData(window.gedcom_content);
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     populateIndividualSelect(window.individuals);
                 } else {
                     family_tree_div.innerHTML = '<p style="color: red;">Invalid GEDCOM file. Please select a valid GEDCOM file.</p>';
-                    console.log('Invalid file selected');
+                    //console.log('Invalid file selected');
                     // Clear the dropdown
                     individual_select.innerHTML = '<option>Select an individual...</option>';
                     window.individuals = [];

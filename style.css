@@ -42,3 +42,11 @@ h2 {
 p {
     color: #666;
 }
+
+#individual-select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}

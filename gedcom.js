@@ -115,8 +115,8 @@ function parseGedcomData(content) {
     if (current_family) families.push(current_family);
 
     //console.log('Parsed individuals:', individuals.forEach(i => ({id: i.id, name: i.name, famc: i.famc, fams: i.fams, birth: i.birth, death: i.death, gender: i.gender})));
-    console.log('Parsed individuals:', individuals);
-    console.log('Parsed families:', families);
+    //console.log('Parsed individuals:', individuals);
+    //console.log('Parsed families:', families);
     return { individuals, families };
 }
 
