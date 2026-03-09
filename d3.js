@@ -2,7 +2,7 @@
 window.box_width = 120;
 window.box_height = 80;
 window.h_spacing = 60;
-window.v_spacing = 120;
+window.v_spacing = 60;
 
 function createFamilyTree(selected_individual) {
     // Clear previous content
@@ -31,6 +31,9 @@ function createFamilyTree(selected_individual) {
     const max_scale = Math.max(scale_x, scale_y);
     //svg.attr('height', svg_height / max_scale);
     svg.attr('viewBox', `0 0 ${max_scale * svg_width} ${max_scale * svg_height}`);
+    svg.call(d3.zoom().scaleExtent([1, 40]).on("zoom", zoomed));
+    const svg_node = svg.append("g");
+    function zoomed({transform}) { svg_node.attr("transform", transform); }
 
     //drawTree(svg, treeData, 0, generations - 1, svgWidth / 2, svgHeight - boxHeight - 20, boxWidth, boxHeight, levelHeight, positionsByGeneration);
 
@@ -49,7 +52,7 @@ function createFamilyTree(selected_individual) {
     //svg.attr('height', svg_height);
     //svg.attr('viewBox', `0 0 ${svg_width} ${svg_height}`);
 
-    drawTree(tree_positions);
+    drawTree(svg_node, tree_positions);
 }
 
 function buildTree(individual, current_gen = window.generations, anchor_gen = window.generations, type = 'root') {
@@ -58,7 +61,7 @@ function buildTree(individual, current_gen = window.generations, anchor_gen = wi
     const node = {
         individual: individual,
         type: type,
-        inlaw_type: null,
+        //inlaw_type: null,
         generation: current_gen,
         anchor_generation: anchor_gen,
         parent_family: null,
@@ -113,7 +116,7 @@ function buildTree(individual, current_gen = window.generations, anchor_gen = wi
                         spouse.spouse_family = spouse_family;
                         const spouse_node = buildTree(spouse, current_gen, anchor_gen, 'inlaw');
                         if (spouse_node) {
-                            spouse_node.inlaw_type = node.type;
+                            //spouse_node.inlaw_type = node.type;
                             node.spouse_nodes.push(spouse_node);
                         }
                     }
@@ -141,7 +144,6 @@ function positionTree(node, rows = []) {
     if (!node || node.is_positioned) return rows;
 
     node.level = node.anchor_generation - window.generations;
-    //if (!node.father_node && !node.mother_node) node.level++;
     if (!node.sub_level) node.sub_level = node.anchor_generation - node.generation;
 
     if (!rows[node.level]) rows[node.level] = [];
@@ -151,11 +153,11 @@ function positionTree(node, rows = []) {
         positionTree(node.father_node, rows);
         positionTree(node.mother_node, rows);
         if ((node.type === 'ancestor') || (node.type === 'root' && !node.father_node && !node.mother_node)) {
-            node.children_nodes.forEach(child_node => { positionTree(child_node, rows); });
             node.spouse_nodes.forEach(spouse_node => { 
                 if (node.type === 'root') spouse_node.sub_level = node.sub_level + 1;
                 positionTree(spouse_node, rows); 
             });
+            node.children_nodes.forEach(child_node => { positionTree(child_node, rows); });
             positionNode(node, rows);
         }
     }
@@ -163,7 +165,7 @@ function positionTree(node, rows = []) {
     if ((node.type === 'relative') || (node.individual.gender === 'F' && node.type === 'ancestor')) {
         positionNode(node, rows);
         node.spouse_nodes.forEach(spouse_node => { 
-            spouse_node.sub_level = node.sub_level + 1;
+            if (node.type === 'relative') spouse_node.sub_level = node.sub_level + 1;
             positionTree(spouse_node, rows); 
         });
         if (node.type === 'ancestor') {
@@ -204,11 +206,12 @@ function getMaximumDimensions(rows) {
     return [max_x, max_y];
 }
 
-function drawTree(rows) {
+function drawTree(svg_node, rows) {
     rows.forEach(level => {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
-                createPersonBoxInSVG(d3.select('svg'), node.x, node.y, window.box_width, window.box_height, node.individual, node.generation);
+                createPersonBoxInSVG(svg_node, node.x, node.y, window.box_width, window.box_height, node.individual, node.generation, node.type);
+                //createPersonBoxInSVG(d3.select('svg'), node.x, node.y, window.box_width, window.box_height, node.individual, node.generation);
             });
         });
     });
@@ -365,16 +368,16 @@ function drawTree(rows) {
     }
 }*/
 
-function createPersonBoxInSVG(svg, x, y, width, height, individual, generation) {
+function createPersonBoxInSVG(svg, x, y, width, height, individual, generation, type) {
     const g = svg.append('g')
         .attr('transform', `translate(${x}, ${y})`);
 
     // Calculate background color based on generation
     // Use HCL for equal luminance regardless of hue
     const hue = (generation * 60) % 360; // 60 degrees apart for distinct colors
-    const chroma = 50; // Colorfulness/chroma
-    const luminance = 75; // Equal luminance for all backgrounds
-    const border_luminance = 50; // 25% darker for borders
+    const chroma = type === 'inlaw' ? 0 : 25;
+    const luminance = 75;
+    const border_luminance = 50;
     
     const fill_color = d3.hcl(hue, chroma, luminance);
     const stroke_color = d3.hcl(hue, chroma, border_luminance);
