@@ -78,7 +78,7 @@ function buildTree(individual, current_gen = window.generations, anchor_gen = wi
                 const father = window.individuals.find(ind => ind.id === node.parent_family.husb);
                 if (father) {
                     father.pedigree_family = node.parent_family;
-                    if (node.type != 'root') father.pedigree_child = node.individual;
+                    if (node.type != 'root') father.pedigree_child_node = node;
                     father.is_father = true;
                     node.father_node = buildTree(father, current_gen + 1, anchor_gen + 1, 'ancestor');
                 }
@@ -87,7 +87,7 @@ function buildTree(individual, current_gen = window.generations, anchor_gen = wi
                 const mother = window.individuals.find(ind => ind.id === node.parent_family.wife);
                 if (mother) {
                     mother.pedigree_family = node.parent_family;
-                    if (node.type != 'root') mother.pedigree_child = node.individual;
+                    if (node.type != 'root') mother.pedigree_child_node = node;
                     node.mother_node = buildTree(mother, current_gen + 1, anchor_gen + 1, 'ancestor');
                 }
             }
@@ -98,7 +98,7 @@ function buildTree(individual, current_gen = window.generations, anchor_gen = wi
         node.individual.fams.forEach(fam_id => {
             if (node.individual.pedigree_family && node.individual.pedigree_family.id === fam_id) {
                 if (node.individual.is_father) {
-                    node.individual.pedigree_family.chil.filter(child_id => !node.individual.pedigree_child || child_id != node.individual.pedigree_child.id).forEach(child_id => {
+                    node.individual.pedigree_family.chil.filter(child_id => !node.individual.pedigree_child_node || child_id != node.individual.pedigree_child_node.individual.id).forEach(child_id => {
                         const child = window.individuals.find(ind => ind.id === child_id);
                         if (child) {
                             const child_node = buildTree(child, current_gen - 1, anchor_gen, 'relative');
@@ -187,7 +187,10 @@ function positionTree(node, rows = []) {
 
 function positionNode(node, rows) {
     node.x = rows[node.level][node.sub_level].length * (window.box_width + window.h_spacing);
-    node.y = (((window.generations - 1) * (2 * (window.generations - 1) - node.level)) + node.sub_level) * (window.box_height + window.v_spacing);
+    const sub_level_height = window.box_height + window.v_spacing;
+    const level_height = 2 * (window.generations + 1) * sub_level_height;
+    const total_height = (window.generations - 1) * level_height;
+    node.y = total_height - node.level * level_height + node.sub_level * sub_level_height;
     node.is_positioned = true;
     rows[node.level][node.sub_level].push(node);
 }
@@ -210,172 +213,69 @@ function drawTree(svg_node, rows) {
     rows.forEach(level => {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
-                createPersonBoxInSVG(svg_node, node.x, node.y, window.box_width, window.box_height, node.individual, node.generation, node.type);
-                //createPersonBoxInSVG(d3.select('svg'), node.x, node.y, window.box_width, window.box_height, node.individual, node.generation);
+
+                if (node.type === 'relative') {
+                    node.spouse_nodes.forEach(spouse_node => {
+                        // Draw link between relative and spouse
+                        drawLink(svg_node, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, {x: spouse_node.x + window.box_width / 2, y: spouse_node.y});
+                    });
+                }
+
+                if (node.type === 'inlaw') {
+                    node.children_nodes.forEach(child_node => {
+                        // Draw link between in-law and child
+                        drawLink(svg_node, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, {x: child_node.x + window.box_width / 2, y: child_node.y});
+                    });
+                }
+
+                if (node.type === 'ancestor' && node.individual.gender == 'M') {
+                    // Draw links from father and mother to center point
+                    drawLink(svg_node, {x: node.x + window.box_width / 2,                    y: node.y}, 
+                                       {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height});
+                    drawLink(svg_node, {x: node.x + 3 * window.box_width / 2 + window.h_spacing, y: node.y}, 
+                                       {x: node.x + window.box_width + window.h_spacing / 2,     y: node.y + window.box_height});
+
+                    node.children_nodes.forEach(child_node => {
+                        // Draw link between ancestor and child
+                        drawLink(svg_node, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
+                                           {x: child_node.x + window.box_width / 2,              y: child_node.y});
+                    });
+
+                    if (node.individual.pedigree_child_node) {
+                        // Draw link between ancestor and pedigree child
+                        drawLink(svg_node, {x: node.x + window.box_width + window.h_spacing / 2,             y: node.y + window.box_height}, 
+                                           {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y});
+                    }
+                }
+
+                if (node.type === 'ancestor') {
+                    node.spouse_nodes.forEach(spouse_node => {
+                        // Draw link between ancestor and spouse
+                        drawLink(svg_node, {x: node.x + window.box_width / 2,         y: node.y}, 
+                                           {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height});
+                    });
+                }
+            });
+        });
+    });
+
+    // Draw nodes on top of links
+    rows.forEach(level => {
+        level.forEach(sub_level => {
+            sub_level.forEach(node => {
+                drawNode(svg_node, node);
             });
         });
     });
 }
 
-/*function drawTree(svg, node, level, maxLevel, centerX, centerY, boxWidth, boxHeight, levelHeight, positionsByGeneration) {
-    if (!node) return;
-
-    // Check for position conflicts and adjust centerX if needed
-    const positions = positionsByGeneration.get(node.generation) || [];
-    const minX = centerX - boxWidth / 2;
-    const maxX = centerX + boxWidth / 2;
-    
-    let adjustedCenterX = centerX;
-    let hasConflict = positions.some(pos => {
-        const posMinX = pos - boxWidth / 2;
-        const posMaxX = pos + boxWidth / 2;
-        // Check if boxes would overlap (with small margin)
-        return (minX < posMaxX + 5 && maxX > posMinX - 5);
-    });
-    
-    if (hasConflict) {
-        // Find nearest available position
-        let offset = boxWidth + 60; // spacing between boxes
-        let found = false;
-        for (let shift = offset; shift < 800; shift += offset) {
-            // Try right
-            adjustedCenterX = centerX + shift;
-            const checkMinX = adjustedCenterX - boxWidth / 2;
-            const checkMaxX = adjustedCenterX + boxWidth / 2;
-            if (!positions.some(pos => {
-                const posMinX = pos - boxWidth / 2;
-                const posMaxX = pos + boxWidth / 2;
-                return (checkMinX < posMaxX + 5 && checkMaxX > posMinX - 5);
-            })) {
-                found = true;
-                break;
-            }
-            // Try left
-            adjustedCenterX = centerX - shift;
-            if (adjustedCenterX > 0) {
-                const checkMinX = adjustedCenterX - boxWidth / 2;
-                const checkMaxX = adjustedCenterX + boxWidth / 2;
-                if (!positions.some(pos => {
-                    const posMinX = pos - boxWidth / 2;
-                    const posMaxX = pos + boxWidth / 2;
-                    return (checkMinX < posMaxX + 5 && checkMaxX > posMinX - 5);
-                })) {
-                    found = true;
-                    break;
-                }
-            }
-        }
-    }
-    
-    // Record this position
-    positionsByGeneration.get(node.generation).push(adjustedCenterX);
-
-    // Draw current node at adjusted position
-    createPersonBoxInSVG(svg, adjustedCenterX - boxWidth/2, centerY, boxWidth, boxHeight, node.individual, node.generation);
-
-    // Draw children (parents in higher generations)
-    if (node.children.length > 0) {
-        const parentY = centerY - levelHeight;
-        const childBottomY = centerY; // Bottom of current node
-        const parentTopY = parentY + boxHeight; // Top of parent nodes
-
-        // Calculate positions for children
-        const spacing = 180; // Space between siblings
-        const startX = centerX - ((node.children.length - 1) * spacing) / 2;
-
-        // Track actual X positions of drawn children
-        const childPositions = [];
-
-        // Draw children and their connecting lines
-        node.children.forEach((child, index) => {
-            if (!child) return;
-
-            const childX = startX + (index * spacing);
-            
-            // Track the child's actual position by recording current number of positions
-            const positionsBeforeChild = (positionsByGeneration.get(child.generation) || []).length;
-
-            // Recursively draw child
-            drawTree(svg, child, level + 1, maxLevel, childX, parentY, boxWidth, boxHeight, levelHeight, positionsByGeneration);
-            
-            // Get the actual position used for this child
-            const allChildPositions = positionsByGeneration.get(child.generation) || [];
-            const actualChildX = allChildPositions[allChildPositions.length - 1];
-            childPositions.push(actualChildX);
-        });
-
-        // Draw connection lines based on number of parents
-        if (node.children.length === 2) {
-            // Two parents: draw horizontal line between parents, circle in middle, vertical to child
-            const fatherX = childPositions[0];
-            const motherX = childPositions[1];
-            const parentsCenterX = (fatherX + motherX) / 2;
-            const horizontalLineY = parentY + boxHeight / 2; // Vertically centered on parent boxes
-
-            // Calculate line color based on parent's generation (use father's generation)
-            const parentHue = (node.children[0].generation * 60) % 360;
-            const parentChroma = 50;
-            const parentLuminance = 50;
-            const lineColor = d3.hcl(parentHue, parentChroma, parentLuminance);
-
-            // Horizontal line from right edge of husband to left edge of wife
-            const fatherRightEdge = fatherX + boxWidth / 2;
-            const motherLeftEdge = motherX - boxWidth / 2;
-            svg.append('line')
-                .attr('x1', fatherRightEdge)
-                .attr('y1', horizontalLineY)
-                .attr('x2', motherLeftEdge)
-                .attr('y2', horizontalLineY)
-                .attr('stroke', lineColor)
-                .attr('stroke-width', 2);
-
-            // Circle in the middle of the horizontal line
-            const lineCenterX = (fatherRightEdge + motherLeftEdge) / 2;
-            svg.append('circle')
-                .attr('cx', lineCenterX)
-                .attr('cy', horizontalLineY)
-                .attr('r', 10) // 20px diameter = 10px radius
-                .attr('fill', lineColor);
-
-            // Vertical line from circle to child (using adjusted center position)
-            svg.append('line')
-                .attr('x1', lineCenterX)
-                .attr('y1', horizontalLineY + 10) // Start from bottom of circle
-                .attr('x2', adjustedCenterX)
-                .attr('y2', childBottomY)
-                .attr('stroke', lineColor)
-                .attr('stroke-width', 2);
-        } else if (node.children.length === 1) {
-            // One parent: draw vertical line directly from parent to child
-            const parentX = childPositions[0];
-            const horizontalLineY = (childBottomY + parentTopY) / 2;
-
-            // Calculate line color based on parent's generation
-            const parentHue = (node.children[0].generation * 60) % 360;
-            const parentChroma = 50;
-            const parentLuminance = 50;
-            const lineColor = d3.hcl(parentHue, parentChroma, parentLuminance);
-
-            // Vertical line from parent to child
-            svg.append('line')
-                .attr('x1', parentX)
-                .attr('y1', parentTopY)
-                .attr('x2', adjustedCenterX)
-                .attr('y2', childBottomY)
-                .attr('stroke', lineColor)
-                .attr('stroke-width', 2);
-        }
-    }
-}*/
-
-function createPersonBoxInSVG(svg, x, y, width, height, individual, generation, type) {
-    const g = svg.append('g')
-        .attr('transform', `translate(${x}, ${y})`);
+function drawNode(svg, node) {
+    const g = svg.append('g').attr('transform', `translate(${node.x}, ${node.y})`);
 
     // Calculate background color based on generation
     // Use HCL for equal luminance regardless of hue
-    const hue = (generation * 60) % 360; // 60 degrees apart for distinct colors
-    const chroma = type === 'inlaw' ? 0 : 25;
+    const hue = (node.generation * 60) % 360; // 60 degrees apart for distinct colors
+    const chroma = node.type === 'inlaw' ? 0 : 25;
     const luminance = 75;
     const border_luminance = 50;
     
@@ -384,8 +284,8 @@ function createPersonBoxInSVG(svg, x, y, width, height, individual, generation, 
 
     // Draw rectangle
     g.append('rect')
-        .attr('width', width)
-        .attr('height', height)
+        .attr('width', window.box_width)
+        .attr('height', window.box_height)
         .attr('fill', fill_color)
         .attr('stroke', stroke_color)
         .attr('stroke-width', 2)
@@ -393,14 +293,14 @@ function createPersonBoxInSVG(svg, x, y, width, height, individual, generation, 
 
     // Add text with 3 lines: name (2 lines), birth-death (1 line)
     const text_element = g.append('text')
-        .attr('x', width / 2)
+        .attr('x', window.box_width / 2)
         .attr('y', 24) // Vertically centered in 80px box
         .attr('text-anchor', 'middle')
         .attr('font-family', 'Arial, sans-serif')
         .attr('fill', '#000000'); // Black font
 
     // Split name into two lines if too long
-    const name = individual.name || '';
+    const name = node.individual.name || '';
     const max_line_length = 14; // Approximate characters per line for 2-line name
 
     let line1, line2;
@@ -422,29 +322,29 @@ function createPersonBoxInSVG(svg, x, y, width, height, individual, generation, 
     // Add name lines
     if (line1) {
         text_element.append('tspan')
-            .attr('x', width / 2)
+            .attr('x', window.box_width / 2)
             .attr('dy', '0em')
             .text(line1);
     }
     if (line2) {
         text_element.append('tspan')
-            .attr('x', width / 2)
+            .attr('x', window.box_width / 2)
             .attr('dy', '1.2em')
             .text(line2);
     }
 
     // Add birth-death line
-    const birth_death = individual.birth && individual.death ? 
-        `${individual.birth}-${individual.death}` : 
-        individual.birth ? 
-        `${individual.birth}-` : 
-        individual.death ? 
-        `-${individual.death}` : 
+    const birth_death = node.individual.birth && node.individual.death ? 
+        `${node.individual.birth}-${node.individual.death}` : 
+        node.individual.birth ? 
+        `${node.individual.birth}-` : 
+        node.individual.death ? 
+        `-${node.individual.death}` : 
         '';
 
     if (birth_death) {
         text_element.append('tspan')
-            .attr('x', width / 2)
+            .attr('x', window.box_width / 2)
             .attr('dy', line2 ? '1.4em' : '1.2em')
             .text(birth_death);
     }
@@ -453,7 +353,7 @@ function createPersonBoxInSVG(svg, x, y, width, height, individual, generation, 
     let font_size = 12;
     const min_font_size = 8;
     const padding = 6;
-    const max_width = width - padding;
+    const max_width = window.box_width - padding;
 
     // Check if text fits
     const bbox = text_element.node().getBBox();
@@ -462,3 +362,35 @@ function createPersonBoxInSVG(svg, x, y, width, height, individual, generation, 
         text_element.attr('font-size', font_size + 'px');
     }
 }
+
+function drawLink(svg_node, point1, point2) {
+    svg_node.append("path")
+        .attr("d", customLink(point1, point2))
+        .attr("fill", "none")
+        .attr("stroke", d3.hcl(0, 0, 50))
+        .attr("stroke-width", 2);
+}
+
+const customLink = (point1, point2) => {
+    var x1 = point1.x;
+    var x2 = point2.x;
+    var y1 = point1.y;
+    var y2 = point2.y;
+    //const ymid = (y1 + y2) / 2;
+    const ymid = y2 - window.v_spacing / 2;
+    const corner_radius = 10;
+    const context = d3.path();
+    context.moveTo(x1, y1);
+    context.lineTo(x1, ymid - corner_radius);
+    if (x2 > x1) {
+        context.bezierCurveTo(x1, ymid, x1 + corner_radius, ymid, x1 + corner_radius, ymid);
+        context.lineTo(x2 - corner_radius, ymid);
+    }
+    if (x2 < x1) {
+        context.bezierCurveTo(x1, ymid, x1 - corner_radius, ymid, x1 - corner_radius, ymid);
+        context.lineTo(x2 + corner_radius, ymid);
+    }
+    context.bezierCurveTo(x2, ymid, x2, ymid + corner_radius, x2, ymid + corner_radius);
+    context.lineTo(x2, y2);
+    return context.toString();
+};
