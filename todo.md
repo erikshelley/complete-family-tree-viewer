@@ -4,18 +4,18 @@
 
 ### Positioning
 - Sometimes siblings and spouses are spaced unevenly when some have children and some do not
+- Sometimes there is blank space at the left of the tree, like everything was shifted right
 
 
 ## New Features
 
 ### Positioning
-- Separate options for generations up and generations down
+- ~~Separate options for generations up and generations down~~
 - Handle duplicates when relatives have children together
 - Option to stack children if a parent has no grandchildren (also hides childrens' spouses)
   - Option for maximum stack size
 
 ### Style
-- ~~Option for background color~~
 - Highlight pedigree nodes and paths
 - Option for saturation
 - Option for brightness

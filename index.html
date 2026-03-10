@@ -12,14 +12,25 @@
     <div class="container">
         <div class="left-column">
             <h2>Inputs</h2>
+
             <h3>Gedcom File</h3>
             <input type="file" id="file-input" accept=".ged,.gedcom">
+
             <h3>Root Person</h3>
             <select id="individual-select" size="10">
                 <option>Select an individual...</option>
             </select>
+
             <h3>Generations</h3>
-            <input type="number" id="generations-input" min="1" max="10" value="1">
+            <p>
+            <input type="number" id="generations-up" min="0" max="10" value="1">
+            <label for="generations-up">Up</label>
+            </p>
+            <p>
+            <input type="number" id="generations-down" min="0" max="10" value="1">
+            <label for="generations-down">Down</label>
+            </p>
+
             <h3>Background Color</h3>
             <input type="color" id="color-picker" value="#000000">
         </div>

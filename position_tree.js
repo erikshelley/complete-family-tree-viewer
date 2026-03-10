@@ -10,7 +10,7 @@ window.level_heights = [];
 function positionTree(node, rows = []) {
     if (!node || node.is_positioned) return rows;
 
-    node.level = node.anchor_generation - window.generations;
+    node.level = node.anchor_generation;
     if (!node.sub_level) node.sub_level = node.anchor_generation - node.generation;
 
     if (!rows[node.level]) {

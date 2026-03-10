@@ -4,7 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const file_input = document.getElementById('file-input');
     const family_tree_div = document.getElementById('family-tree-div');
     const individual_select = document.getElementById('individual-select');
-    const generations_input = document.getElementById('generations-input');
+    const generations_up = document.getElementById('generations-up');
+    const generations_down = document.getElementById('generations-down');
     const color_picker = document.getElementById('color-picker');
 
     // Set initial tree color
@@ -51,11 +52,13 @@ document.addEventListener('DOMContentLoaded', function() {
         updateFamilyTree(); 
     });
 
-    generations_input.addEventListener('input', function(event) { updateFamilyTree(); });
+    generations_up.addEventListener('input', function(event) { updateFamilyTree(); });
+    generations_down.addEventListener('input', function(event) { updateFamilyTree(); });
 
     function updateFamilyTree() {
         const selected_id = individual_select.value;
-        window.generations = parseInt(generations_input.value) || 1;
+        window.generations_up = parseInt(generations_up.value) || 0;
+        window.generations_down = parseInt(generations_down.value) || 0;
 
         if (selected_id && selected_id !== 'Select an individual...') {
             const selected_individual = window.individuals.find(ind => ind.id === selected_id);

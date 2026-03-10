@@ -73,7 +73,7 @@ function drawNode(svg, node) {
 
     // Calculate background color based on generation
     // Use HCL for equal luminance regardless of hue
-    const hue = (node.generation * 60) % 360; // 60 degrees apart for distinct colors
+    const hue = ((node.generation - window.generations_down) * 60 + 360) % 360; // 60 degrees apart for distinct colors
     const chroma = node.type === 'inlaw' ? 0 : 33;
     const luminance = 60;
     const border_luminance = 50;
