@@ -187,7 +187,7 @@ function centerPersonAboveSpouses(node) {
     }
     if (shift_x < 0) {
         node.x -= shift_x;
-        if (node.individual.is_root) shiftSiblings(node, -shift_x);
+        if (node.individual.is_root && (node.individual.gender === 'M')) shiftSiblings(node, -shift_x);
     }
 }
 

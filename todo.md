@@ -3,9 +3,8 @@
 ## Bugs
 
 ### Positioning
-- ~~Parent centering issue : when wife has parents but husband does not~~
-- Overlapping node issue : when root has multiple children and so does their nearest sibling
-- Kai's 8th generation tree has several issues
+- ~~Overlapping node issue : when root has multiple children and so does their nearest sibling~~
+- Kai's 8th generation tree has issues
 - Sometimes siblings and spouses are spaced unevenly when some have children and some do not
 
 
