@@ -33,8 +33,6 @@ function positionMaleAncestor(node, rows) {
             let sib_max_x = -Infinity;
             node.father_node.children_nodes.forEach(sibling_node => { sib_max_x = Math.max(sib_max_x, sibling_node.max_x); });
             let shift_x = sib_max_x - node.x;
-            //console.log(`Shifting ${node.individual.name} and descendants by ${shift_x} to be to the right of siblings`);
-            //shift_x = 0;
             if (shift_x > 0) {
                 node.x += shift_x;
                 node.min_x += shift_x;
@@ -47,8 +45,6 @@ function positionMaleAncestor(node, rows) {
         // Male ancestor needs to be to the right of his inlaws and their descendants
         if (node.spouse_nodes.length > 0 && node.type != 'root') {
             let shift_x = spouse_max_x + window.h_spacing - node.x - window.box_width;
-            //console.log(`Shifting ${node.individual.name} and descendants by ${shift_x} to be to the right of in-laws`);
-            //shift_x = 0;
             if (shift_x > 0) {
                 node.x += shift_x;
                 node.min_x += shift_x;
@@ -73,7 +69,6 @@ function positionMaleAncestor(node, rows) {
 
         node.min_x = Math.min(node.x, child_min_x);
         node.max_x = Math.max(node.x + window.box_width, child_max_x);
-        //console.log(`${node.individual.name} : [${node.min_x} - ${node.max_x}]`);
 
         // Male ancestors need to be to the right of the level boundary's max_x
         if (window.level_boundaries[node.level]) {
@@ -131,16 +126,13 @@ function positionRelative(node, rows) {
         if (node.father_node && !node.mother_node) max_x = node.father_node.x + window.box_width / 2;
         if (!node.father_node && node.mother_node) max_x = node.mother_node.x + window.box_width / 2;
 
-        if (!pedigree_spouse_node) min_x = max_x;
+        if (!pedigree_spouse_node || (!pedigree_spouse_node.father_node && !pedigree_spouse_node.mother_node)) min_x = max_x;
         if (!node.father_node && !node.mother_node) max_x = min_x;
 
         let shift_x = (min_x + max_x) / 2 - (node.x - window.h_spacing / 2);
-        //shift_x = 0;
-        //console.log(`Shifting ${node.individual.name} and spouse by ${shift_x} to be centered between parents`);
         
         // Move couple to the right
         if (shift_x > 0) {
-            //shift_x = 0;
             shiftSubtree(pedigree_spouse_node, shift_x);
             shiftSiblings(pedigree_spouse_node, shift_x);
             shiftSubtree(node, shift_x);
@@ -148,7 +140,6 @@ function positionRelative(node, rows) {
         }
         
         // Move their parents to the right
-        //shift_x = 0;
         if (shift_x < 0) {
             if (pedigree_spouse_node.father_node) {
                 shiftSupertree(pedigree_spouse_node.father_node, -shift_x);
@@ -188,7 +179,6 @@ function positionInlaw(node, rows) {
 }
 
 function centerPersonAboveSpouses(node) {
-    //console.log(`Centering ${node.individual.name} above spouses : `, node.type, node.individual.is_root, node.father_node);
     let shift_x = node.x + window.box_width / 2 - getSpouseCenter(node);
     if (shift_x > 0) {
         node.spouse_nodes.forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
@@ -243,13 +233,10 @@ function positionChildren(node, rows, drop_sub_level) {
 
 function shiftSubtree(node, shift_x) {
     if (!node) return;
-    //console.log('Shifting', node.individual.name, 'by', shift_x);
     node.x += shift_x;
     node.min_x += shift_x;
     node.max_x += shift_x;
-    //if (node.spouse_nodes && node.type === 'relative') node.spouse_nodes.forEach(spouse_node => shiftSubtree(spouse_node, shift_x));
     if (node.spouse_nodes) node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, shift_x) });
-    //if (node.children_nodes && shift_children) node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x) });
     const shift_children = node.children_nodes && (node.type != 'ancestor' || !node.individual.pedigree_child_node);
     if (shift_children) node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x) });
 }
@@ -266,8 +253,6 @@ function shiftSupertree(node, shift_x) {
 }
 
 function shiftSiblings(node, shift_x) {
-    //if (!node || !node.father_node) return;
-    //node.father_node.children_nodes.filter(child_node => child_node != node).forEach(sibling_node => { shiftSubtree(sibling_node, shift_x); });
     const parent_node = node.father_node ? node.father_node : node.parent_node;
     if (!node || !parent_node) return;
     parent_node.children_nodes.filter(child_node => child_node != node).forEach(sibling_node => { shiftSubtree(sibling_node, shift_x); });

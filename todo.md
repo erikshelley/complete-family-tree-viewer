@@ -3,13 +3,7 @@
 ## Bugs
 
 ### Positioning
-- ~~Sibling positioning issue : shifted too much~~
-  - ~~My 5th generation tree : Mom's siblings~~
-  - ~~Becka's 4th generation tree : Bernie's siblings~~
-- ~~Sibling positioning issue : not shifted enough~~
-  - ~~Emma Smith's 3rd generation tree : James Smith's siblings~~
-  - ~~William Spicer's 2nd generation tree : his siblings~~
-- Parent centering issue : when wife has parents but husband does not
+- ~~Parent centering issue : when wife has parents but husband does not~~
 - Overlapping node issue : when root has multiple children and so does their nearest sibling
 - Kai's 8th generation tree has several issues
 - Sometimes siblings and spouses are spaced unevenly when some have children and some do not
