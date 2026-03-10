@@ -1,10 +1,3 @@
-window.box_width = 120;
-window.box_height = 80;
-window.h_spacing = 40;
-window.v_spacing = 80;
-window.level_boundaries = [];
-window.level_heights = [];
-
 function createFamilyTree(selected_individual) {
     // Clear previous content
     const family_tree_div = document.getElementById('family-tree-div');
@@ -44,10 +37,12 @@ function createFamilyTree(selected_individual) {
     drawTree(svg_node, tree_positions);
 }
 
+
 function createUnknownPerson(gender, node) {
     const person = { id: null, name: 'Unknown', famc: null, fams: [node.parent_family], birth: '', death: '', gender: gender };
     return person;
 }
+
 
 function buildTree(individual, current_gen = window.generations, anchor_gen = window.generations, type = 'root') {
     if (!individual || current_gen >= 2 * window.generations) return null;

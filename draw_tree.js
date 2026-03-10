@@ -59,6 +59,7 @@ function drawTree(svg_node, rows) {
     });
 }
 
+
 function drawNode(svg, node) {
     const g = svg.append('g').attr('transform', `translate(${node.x}, ${node.y})`);
 
@@ -152,6 +153,7 @@ function drawNode(svg, node) {
         text_element.attr('font-size', font_size + 'px');
     }
 }
+
 
 function drawLink(svg_node, point1, point2) {
     const customLink = (point1, point2) => {

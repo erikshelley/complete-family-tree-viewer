@@ -3,8 +3,7 @@
 ## Bugs
 
 ### Positioning
-- ~~Overlapping node issue : when root has multiple children and so does their nearest sibling~~
-- Kai's 8th generation tree has issues
+- ~~Kai's 8th generation tree not respecting left boundary~~
 - Sometimes siblings and spouses are spaced unevenly when some have children and some do not
 
 

@@ -1,3 +1,12 @@
+window.box_width = 120;
+window.box_height = 80;
+window.h_spacing = 40;
+window.v_spacing = 80;
+window.level_boundary_node_leaf = [];
+window.level_boundary_node_ancestor = [];
+window.level_heights = [];
+
+
 function positionTree(node, rows = []) {
     if (!node || node.is_positioned) return rows;
 
@@ -6,7 +15,8 @@ function positionTree(node, rows = []) {
 
     if (!rows[node.level]) {
         rows[node.level] = [];
-        window.level_boundaries[node.level] = 0;
+        window.level_boundary_node_ancestor[node.level] = null;
+        window.level_boundary_node_leaf[node.level] = null;
         window.level_heights[node.level] = 0;
     }
     if (!rows[node.level][node.sub_level]) rows[node.level][node.sub_level] = [];
@@ -17,6 +27,7 @@ function positionTree(node, rows = []) {
 
     return rows;
 }
+
 
 function positionMaleAncestor(node, rows) {
     positionTree(node.father_node, rows);
@@ -38,7 +49,6 @@ function positionMaleAncestor(node, rows) {
                 node.min_x += shift_x;
                 node.max_x += shift_x;
                 node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
-                //node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x); });
             }
         }
 
@@ -71,23 +81,21 @@ function positionMaleAncestor(node, rows) {
         node.max_x = Math.max(node.x + window.box_width, child_max_x);
 
         // Male ancestors need to be to the right of the level boundary's max_x
-        if (window.level_boundaries[node.level]) {
-            const boundary_node = window.level_boundaries[node.level];
-            let max_x = boundary_node.max_x;
-            //const boundary_spouse_node = boundary_node.pedigree_spouse_node;
-            //if (boundary_spouse_node) max_x = Math.max(max_x, boundary_spouse_node.max_x);
-            let shift_x = max_x + window.h_spacing - (node.x + window.box_width + window.h_spacing / 2);
+        if (window.level_boundary_node_leaf[node.level]) {
+            const boundary_node = window.level_boundary_node_leaf[node.level];
+            let max_x = boundary_node.x + window.box_width + window.h_spacing;
+            let shift_x = max_x - (node.x + window.box_width + window.h_spacing / 2);
             if (shift_x > 0) {
                 node.x += shift_x;
                 node.min_x += shift_x;
                 node.max_x += shift_x;
                 node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
                 node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x); });
-                //shiftSiblings(node, shift_x);
             }
         }
     }
 }
+
 
 function positionRelative(node, rows) {
     positionNode(node, rows);
@@ -95,7 +103,7 @@ function positionRelative(node, rows) {
     node.max_x = -Infinity;
 
     // Keep track of this female ancestor as the boundary of her level so that later nodes do not cross the line down to her children
-    if (node.type === 'ancestor') window.level_boundaries[node.level] = node;
+    if (node.type === 'ancestor') window.level_boundary_node_ancestor[node.level] = node;
 
     if (node.spouse_nodes.length == 0) {
         node.min_x = node.x;
@@ -155,6 +163,7 @@ function positionRelative(node, rows) {
     }
 }
 
+
 function positionInlaw(node, rows) {
     positionNode(node, rows);
     node.min_x = Infinity, node.max_x = -Infinity;
@@ -178,6 +187,7 @@ function positionInlaw(node, rows) {
     }
 }
 
+
 function centerPersonAboveSpouses(node) {
     let shift_x = node.x + window.box_width / 2 - getSpouseCenter(node);
     if (shift_x > 0) {
@@ -185,11 +195,9 @@ function centerPersonAboveSpouses(node) {
         node.min_x += shift_x;
         node.max_x += shift_x;
     }
-    if (shift_x < 0) {
-        node.x -= shift_x;
-        if (node.individual.is_root && (node.individual.gender === 'M')) shiftSiblings(node, -shift_x);
-    }
+    if (shift_x < 0) node.x -= shift_x;
 }
+
 
 function getSpouseCenter(node) {
     let min_x = Infinity, max_x = -Infinity;
@@ -200,6 +208,7 @@ function getSpouseCenter(node) {
     return (min_x + max_x) / 2;
 }
 
+
 function getChildCenter(node) {
     let min_x = Infinity, max_x = -Infinity;
     node.children_nodes.forEach(child_node => {
@@ -208,6 +217,7 @@ function getChildCenter(node) {
     });
     return (min_x + max_x) / 2;
 }
+
 
 function positionSpouses(node, rows, type_to_drop) {
     let spouse_min_x = Infinity, spouse_max_x = -Infinity;
@@ -220,6 +230,7 @@ function positionSpouses(node, rows, type_to_drop) {
     return [spouse_min_x, spouse_max_x];
 }
 
+
 function positionChildren(node, rows, drop_sub_level) {
     let child_min_x = Infinity, child_max_x = -Infinity;
     node.children_nodes.forEach(child_node => { 
@@ -231,6 +242,7 @@ function positionChildren(node, rows, drop_sub_level) {
     return [child_min_x, child_max_x];
 }
 
+
 function shiftSubtree(node, shift_x) {
     if (!node) return;
     node.x += shift_x;
@@ -240,6 +252,7 @@ function shiftSubtree(node, shift_x) {
     const shift_children = node.children_nodes && (node.type != 'ancestor' || !node.individual.pedigree_child_node);
     if (shift_children) node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x) });
 }
+
 
 function shiftSupertree(node, shift_x) {
     if (!node) return;
@@ -252,21 +265,25 @@ function shiftSupertree(node, shift_x) {
     node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
 }
 
+
 function shiftSiblings(node, shift_x) {
     const parent_node = node.father_node ? node.father_node : node.parent_node;
     if (!node || !parent_node) return;
     parent_node.children_nodes.filter(child_node => child_node != node).forEach(sibling_node => { shiftSubtree(sibling_node, shift_x); });
 }
 
+
 function positionNode(node, rows) {
     const length = rows[node.level][node.sub_level].length;
     if (length === 0) node.x = 0;
     else node.x = rows[node.level][node.sub_level][length - 1].x + window.box_width + window.h_spacing;
-    if (window.level_boundaries[node.level]) node.x = Math.max(node.x, window.level_boundaries[node.level].x + window.h_spacing);
+    if (window.level_boundary_node_ancestor[node.level]) node.x = Math.max(node.x, window.level_boundary_node_ancestor[node.level].x + window.h_spacing);
+    if (!window.level_boundary_node_leaf[node.level] || (node.x >= window.level_boundary_node_leaf[node.level].x)) window.level_boundary_node_leaf[node.level] = node;
     window.level_heights[node.level] = Math.max(window.level_heights[node.level], node.sub_level + 1);
     node.is_positioned = true;
     rows[node.level][node.sub_level].push(node);
 }
+
 
 function getMaximumDimensions(rows) {
     let max_x = -Infinity;
@@ -281,6 +298,7 @@ function getMaximumDimensions(rows) {
     });
     return [max_x, max_y];
 }
+
 
 function setHeights(rows) {
     let total_height = 0;

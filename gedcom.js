@@ -4,6 +4,7 @@ window.individuals = []; // Store parsed individuals globally
 window.families = []; // Store parsed families globally
 window.generations = 1; // Default generation depth
 
+
 function validateGedcom(content) {
     const lines = content.trim().split('\n');
 
@@ -119,6 +120,7 @@ function parseGedcomData(content) {
     //console.log('Parsed families:', families);
     return { individuals, families };
 }
+
 
 function extractYear(date_string) {
     // Extract year from GEDCOM date format
