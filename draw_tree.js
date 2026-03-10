@@ -1,19 +1,27 @@
 // Tree drawing and visualization functionality using D3.js
-function drawTree(svg_node, rows) {
+function drawTree(svg_node, tree_width, tree_height, rows) {
+    // Add background rectangle
+    svg_node.append('rect')
+        .attr('width', tree_width)
+        .attr('height', tree_height)
+        .attr('fill', window.tree_color || "#000")
+        .attr('stroke', "000")
+        .attr('stroke-width', 0);
+
     rows.forEach(level => {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
 
+                // Draw link between relative and spouse
                 if (node.type === 'relative' || node.type === 'root') {
                     node.spouse_nodes.forEach(spouse_node => {
-                        // Draw link between relative and spouse
                         drawLink(svg_node, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, {x: spouse_node.x + window.box_width / 2, y: spouse_node.y});
                     });
                 }
 
+                // Draw link between in-law and child
                 if (node.type === 'inlaw') {
                     node.children_nodes.forEach(child_node => {
-                        // Draw link between in-law and child
                         drawLink(svg_node, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, {x: child_node.x + window.box_width / 2, y: child_node.y});
                     });
                 }
@@ -25,22 +33,22 @@ function drawTree(svg_node, rows) {
                     drawLink(svg_node, {x: node.x + 3 * window.box_width / 2 + window.h_spacing, y: node.y}, 
                                        {x: node.x + window.box_width + window.h_spacing / 2,     y: node.y + window.box_height});
 
+                    // Draw link between ancestor and child
                     node.children_nodes.forEach(child_node => {
-                        // Draw link between ancestor and child
                         drawLink(svg_node, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
                                            {x: child_node.x + window.box_width / 2,              y: child_node.y});
                     });
 
+                    // Draw link between ancestor and pedigree child
                     if (node.individual.pedigree_child_node) {
-                        // Draw link between ancestor and pedigree child
                         drawLink(svg_node, {x: node.x + window.box_width + window.h_spacing / 2,             y: node.y + window.box_height}, 
                                            {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y});
                     }
                 }
 
+                // Draw link between ancestor and spouse
                 if (node.type === 'ancestor') {
                     node.spouse_nodes.forEach(spouse_node => {
-                        // Draw link between ancestor and spouse
                         drawLink(svg_node, {x: node.x + window.box_width / 2,         y: node.y}, 
                                            {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height});
                     });

@@ -3,7 +3,6 @@
 ## Bugs
 
 ### Positioning
-- ~~Kai's 8th generation tree not respecting left boundary~~
 - Sometimes siblings and spouses are spaced unevenly when some have children and some do not
 
 
@@ -16,11 +15,12 @@
   - Option for maximum stack size
 
 ### Style
+- ~~Option for background color~~
 - Highlight pedigree nodes and paths
 - Option for saturation
 - Option for brightness
 - Option to choose hue for root
-- Option for background color
+- Option for transparent background
 - Reduce distance between hues to avoid repeats when many generations
 - Dynamically sized svg to fit the available space instead of fixed size
 - Automatically pan to the root node when creating the tree

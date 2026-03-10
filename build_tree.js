@@ -11,7 +11,6 @@ function createFamilyTree(selected_individual) {
     const tree_positions = positionTree(tree_data);
     setHeights(tree_positions);
     console.log(tree_positions);
-    //console.log(window.level_heights);
 
     // Set SVG dimensions
     const svg_width = 980;
@@ -34,7 +33,7 @@ function createFamilyTree(selected_individual) {
     const svg_node = svg.append("g");
     function zoomed({transform}) { svg_node.attr("transform", transform); }
 
-    drawTree(svg_node, tree_positions);
+    drawTree(svg_node, max_x, max_y, tree_positions);
 }
 
 

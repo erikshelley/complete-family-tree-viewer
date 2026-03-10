@@ -5,6 +5,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const family_tree_div = document.getElementById('family-tree-div');
     const individual_select = document.getElementById('individual-select');
     const generations_input = document.getElementById('generations-input');
+    const color_picker = document.getElementById('color-picker');
+
+    // Set initial tree color
+    window.tree_color = color_picker.value;
+
+    color_picker.addEventListener('input', function(event) {
+        window.tree_color = event.target.value;
+        updateFamilyTree();
+    });
 
     file_input.addEventListener('change', function(event) {
         const file = event.target.files[0];
@@ -16,8 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (is_valid_gedcom) {
                     family_tree_div.innerHTML = '<p style="color: green;">Valid GEDCOM file loaded!</p><p>Select a root person to view their tree.</p>';
-                    //family_tree_div.innerHTML += `<pre>${content}</pre>`;
-                    //console.log('Valid GEDCOM file loaded into memory');
 
                     // Parse GEDCOM data
                     const parsed_data = parseGedcomData(window.gedcom_content);
@@ -27,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     populateIndividualSelect(window.individuals);
                 } else {
                     family_tree_div.innerHTML = '<p style="color: red;">Invalid GEDCOM file. Please select a valid GEDCOM file.</p>';
-                    //console.log('Invalid file selected');
                     // Clear the dropdown
                     individual_select.innerHTML = '<option>Select an individual...</option>';
                     window.individuals = [];
