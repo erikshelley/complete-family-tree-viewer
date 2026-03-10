@@ -62,8 +62,10 @@ function buildTree(individual, current_gen = window.generations, anchor_gen = wi
         mother_node: null,
         parent_node: null,
         spouse_nodes: [],
-        children_nodes: []
+        children_nodes: [],
     };
+
+    if (type === 'root') node.individual.is_root = true;
 
     // Add parents
     if (node.individual.famc && node.generation < 2 * window.generations && ['root', 'ancestor'].includes(node.type)) {

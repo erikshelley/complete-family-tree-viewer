@@ -3,23 +3,23 @@
 ## Bugs
 
 ### Positioning
-- ~~1st generation trees have several issues~~
-  - ~~No line from root to spouses~~
-  - ~~Root not centered over spouses~~
-  - ~~Similar problem showing Eva's tree, even with more generations since she has no parents~~
-- Sibling positioning issue
-  - My 5th generation tree : Mom's siblings
-  - Becka's 4th generation tree : Bernie's siblings
-  - Emma Smith's 3rd generation tree : James Smith's siblings
-  - William Spicer's 2nd generation tree : his siblings
+- ~~Sibling positioning issue : shifted too much~~
+  - ~~My 5th generation tree : Mom's siblings~~
+  - ~~Becka's 4th generation tree : Bernie's siblings~~
+- ~~Sibling positioning issue : not shifted enough~~
+  - ~~Emma Smith's 3rd generation tree : James Smith's siblings~~
+  - ~~William Spicer's 2nd generation tree : his siblings~~
+- Parent centering issue : when wife has parents but husband does not
+- Overlapping node issue : when root has multiple children and so does their nearest sibling
 - Kai's 8th generation tree has several issues
-- Sometimes siblings are spaced unevenly
+- Sometimes siblings and spouses are spaced unevenly when some have children and some do not
 
 
 ## New Features
 
 ### Positioning
 - Separate options for generations up and generations down
+- Handle duplicates when relatives have children together
 - Option to stack children if a parent has no grandchildren (also hides childrens' spouses)
   - Option for maximum stack size
 
@@ -32,6 +32,7 @@
 - Reduce distance between hues to avoid repeats when many generations
 - Dynamically sized svg to fit the available space instead of fixed size
 - Automatically pan to the root node when creating the tree
+- Different connector style for parent-child relationship vs spouse-spouse relationship
 
 ### Interface
 - Smart filtering of person list

@@ -67,6 +67,7 @@ function positionMaleAncestor(node, rows) {
             if (shift_x < 0) { // Move the parent to the right
                 node.x -= shift_x;
                 node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, -shift_x); });
+                shiftSiblings(node, -shift_x);
             }
         }
 
@@ -187,13 +188,17 @@ function positionInlaw(node, rows) {
 }
 
 function centerPersonAboveSpouses(node) {
+    //console.log(`Centering ${node.individual.name} above spouses : `, node.type, node.individual.is_root, node.father_node);
     let shift_x = node.x + window.box_width / 2 - getSpouseCenter(node);
     if (shift_x > 0) {
         node.spouse_nodes.forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
         node.min_x += shift_x;
         node.max_x += shift_x;
     }
-    if (shift_x < 0) node.x -= shift_x;
+    if (shift_x < 0) {
+        node.x -= shift_x;
+        if (node.individual.is_root) shiftSiblings(node, -shift_x);
+    }
 }
 
 function getSpouseCenter(node) {
@@ -244,7 +249,9 @@ function shiftSubtree(node, shift_x) {
     node.max_x += shift_x;
     //if (node.spouse_nodes && node.type === 'relative') node.spouse_nodes.forEach(spouse_node => shiftSubtree(spouse_node, shift_x));
     if (node.spouse_nodes) node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, shift_x) });
-    if (node.children_nodes) node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x) });
+    //if (node.children_nodes && shift_children) node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x) });
+    const shift_children = node.children_nodes && (node.type != 'ancestor' || !node.individual.pedigree_child_node);
+    if (shift_children) node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x) });
 }
 
 function shiftSupertree(node, shift_x) {
@@ -259,8 +266,11 @@ function shiftSupertree(node, shift_x) {
 }
 
 function shiftSiblings(node, shift_x) {
-    if (!node || !node.father_node) return;
-    node.father_node.children_nodes.forEach(sibling_node => { shiftSubtree(sibling_node, shift_x); });
+    //if (!node || !node.father_node) return;
+    //node.father_node.children_nodes.filter(child_node => child_node != node).forEach(sibling_node => { shiftSubtree(sibling_node, shift_x); });
+    const parent_node = node.father_node ? node.father_node : node.parent_node;
+    if (!node || !parent_node) return;
+    parent_node.children_nodes.filter(child_node => child_node != node).forEach(sibling_node => { shiftSubtree(sibling_node, shift_x); });
 }
 
 function positionNode(node, rows) {
