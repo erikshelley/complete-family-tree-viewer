@@ -4,7 +4,7 @@ function drawTree(svg_node, rows) {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
 
-                if (node.type === 'relative') {
+                if (node.type === 'relative' || node.type === 'root') {
                     node.spouse_nodes.forEach(spouse_node => {
                         // Draw link between relative and spouse
                         drawLink(svg_node, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, {x: spouse_node.x + window.box_width / 2, y: spouse_node.y});

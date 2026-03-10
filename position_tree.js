@@ -26,6 +26,7 @@ function positionMaleAncestor(node, rows) {
         let [spouse_min_x, spouse_max_x] = positionSpouses(node, rows, 'root');
         let [child_min_x, child_max_x] = positionChildren(node, rows, false);
         positionNode(node, rows);
+        if (node.type == 'root') centerPersonAboveSpouses(node);
 
         // Male ancestor needs to be to the right of his siblings and their descendants
         if (node.father_node) {
@@ -44,7 +45,7 @@ function positionMaleAncestor(node, rows) {
         }
 
         // Male ancestor needs to be to the right of his inlaws and their descendants
-        if (node.spouse_nodes.length > 0) {
+        if (node.spouse_nodes.length > 0 && node.type != 'root') {
             let shift_x = spouse_max_x + window.h_spacing - node.x - window.box_width;
             //console.log(`Shifting ${node.individual.name} and descendants by ${shift_x} to be to the right of in-laws`);
             //shift_x = 0;
@@ -110,16 +111,7 @@ function positionRelative(node, rows) {
     node.min_x = Math.min(node.min_x, spouse_min_x);
     node.max_x = Math.max(node.max_x, spouse_max_x);
 
-    // Center person above their spouses
-    if (node.type == 'relative') {
-        let shift_x = node.x + window.box_width / 2 - getSpouseCenter(node);
-        if (shift_x > 0) {
-            node.spouse_nodes.forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
-            node.min_x += shift_x;
-            node.max_x += shift_x;
-        }
-        if (shift_x < 0) node.x -= shift_x;
-    }
+    if (node.type == 'relative') centerPersonAboveSpouses(node);
 
     if (node.type === 'ancestor') {
         positionTree(node.father_node, rows);
@@ -192,6 +184,16 @@ function positionInlaw(node, rows) {
         }
         if (shift_x < 0) node.x -= shift_x;
     }
+}
+
+function centerPersonAboveSpouses(node) {
+    let shift_x = node.x + window.box_width / 2 - getSpouseCenter(node);
+    if (shift_x > 0) {
+        node.spouse_nodes.forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
+        node.min_x += shift_x;
+        node.max_x += shift_x;
+    }
+    if (shift_x < 0) node.x -= shift_x;
 }
 
 function getSpouseCenter(node) {
