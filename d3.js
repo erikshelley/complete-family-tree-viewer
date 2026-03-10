@@ -4,17 +4,22 @@ window.box_height = 80;
 window.h_spacing = 40;
 window.v_spacing = 80;
 window.level_boundaries = [];
+window.level_heights = [];
 
 function createFamilyTree(selected_individual) {
     // Clear previous content
     const family_tree_div = document.getElementById('family-tree-div');
     family_tree_div.innerHTML = '';
+    window.level_boundaries = [];
+    window.level_heights = [];
 
     // Build tree data structure
     const tree_data = buildTree(selected_individual);
     //console.log(tree_data);
     const tree_positions = positionTree(tree_data);
+    setHeights(tree_positions);
     console.log(tree_positions);
+    //console.log(window.level_heights);
 
     // Set SVG dimensions
     const svg_width = 980;
@@ -148,6 +153,7 @@ function positionTree(node, rows = []) {
     if (!rows[node.level]) {
         rows[node.level] = [];
         window.level_boundaries[node.level] = 0;
+        window.level_heights[node.level] = 0;
     }
     if (!rows[node.level][node.sub_level]) rows[node.level][node.sub_level] = [];
 
@@ -385,10 +391,11 @@ function positionNode(node, rows) {
     if (length === 0) node.x = 0;
     else node.x = rows[node.level][node.sub_level][length - 1].x + window.box_width + window.h_spacing;
     if (window.level_boundaries[node.level]) node.x = Math.max(node.x, window.level_boundaries[node.level].x + window.h_spacing);
-    const sub_level_height = window.box_height + window.v_spacing;
-    const level_height = 2 * (window.generations + 1) * sub_level_height;
-    const total_height = (window.generations - 1) * level_height;
-    node.y = total_height - node.level * level_height + node.sub_level * sub_level_height;
+    window.level_heights[node.level] = Math.max(window.level_heights[node.level], node.sub_level + 1);
+    //const sub_level_height = window.box_height + window.v_spacing;
+    //const level_height = 2 * (window.generations + 1) * sub_level_height;
+    //const total_height = (window.generations - 1) * level_height;
+    //node.y = total_height - node.level * level_height + node.sub_level * sub_level_height;
     node.is_positioned = true;
     rows[node.level][node.sub_level].push(node);
 }
@@ -405,6 +412,20 @@ function getMaximumDimensions(rows) {
         });
     });
     return [max_x, max_y];
+}
+
+function setHeights(rows) {
+    let total_height = 0;
+    window.level_heights.forEach(height => { total_height += height * (window.box_height + window.v_spacing) + window.v_spacing; });
+    let y = total_height - window.box_height - window.v_spacing; // Start from the bottom of the tree
+    rows.forEach((level, index) => {
+        y -= window.level_heights[index] * (window.box_height + window.v_spacing) + window.v_spacing;
+        let sub_y = y;
+        level.forEach((sub_level, sub_index) => {
+            if (sub_level.length > 0) sub_y += window.box_height + window.v_spacing;
+            sub_level.forEach(node => { node.y = sub_y; });
+        });
+    });
 }
 
 function drawTree(svg_node, rows) {
