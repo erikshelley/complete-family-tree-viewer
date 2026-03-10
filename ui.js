@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const is_valid_gedcom = validateGedcom(window.gedcom_content);
 
                 if (is_valid_gedcom) {
-                    family_tree_div.innerHTML = '<p style="color: green;">Valid GEDCOM file loaded! Select a root person to view their tree.</p>';
+                    family_tree_div.innerHTML = '<p style="color: green;">Valid GEDCOM file loaded!</p><p>Select a root person to view their tree.</p>';
                     //family_tree_div.innerHTML += `<pre>${content}</pre>`;
                     //console.log('Valid GEDCOM file loaded into memory');
 

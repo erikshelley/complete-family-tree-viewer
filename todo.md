@@ -3,7 +3,6 @@
 ## Bugs
 
 ### Positioning
-- ~~There is extra vertical spacing, rows with no nodes~~
 - 1st generation trees have several issues
   - No line from root to spouses
   - Root not centered over spouses
@@ -20,7 +19,7 @@
 ## New Features
 
 ### Positioning
-- Center parents over their direct children rather than their full descendant tree
+- ~~Center parents over their direct children rather than their full descendant tree~~
 
 ### Inputs
 - Separate options for generations up and generations down
