@@ -17,8 +17,8 @@ function createFamilyTree(selected_individual) {
     console.log(tree_positions);
 
     // Set SVG dimensions
-    const svg_width = 900;
-    const svg_height = 500;
+    const svg_width = 980;
+    const svg_height = 880;
 
     // Initial SVG
     const svg = d3.select('#family-tree-div')
@@ -68,24 +68,16 @@ function buildTree(individual, current_gen = window.generations, anchor_gen = wi
         node.parent_family = window.families.find(fam => fam.id === node.individual.famc);
         if (node.parent_family) {
             const father = node.parent_family.husb ? window.individuals.find(ind => ind.id === node.parent_family.husb) : createUnknownPerson('M', node);
-            //if (node.parent_family.husb) {
-                //const father = window.individuals.find(ind => ind.id === node.parent_family.husb);
-                //if (father) {
-                    father.pedigree_family = node.parent_family;
-                    if (node.type != 'root') father.pedigree_child_node = node;
-                    father.is_father = true;
-                    node.father_node = buildTree(father, current_gen + 1, anchor_gen + 1, 'ancestor');
-                //}
-            //}
+            father.pedigree_family = node.parent_family;
+            if (node.type != 'root') father.pedigree_child_node = node;
+            father.is_father = true;
+            node.father_node = buildTree(father, current_gen + 1, anchor_gen + 1, 'ancestor');
+
             const mother = node.parent_family.wife ? window.individuals.find(ind => ind.id === node.parent_family.wife) : createUnknownPerson('F', node);
-            //if (node.parent_family.wife) {
-                //const mother = window.individuals.find(ind => ind.id === node.parent_family.wife);
-                //if (mother) {
-                    mother.pedigree_family = node.parent_family;
-                    if (node.type != 'root') mother.pedigree_child_node = node;
-                    node.mother_node = buildTree(mother, current_gen + 1, anchor_gen + 1, 'ancestor');
-                //}
-            //}
+            mother.pedigree_family = node.parent_family;
+            if (node.type != 'root') mother.pedigree_child_node = node;
+            node.mother_node = buildTree(mother, current_gen + 1, anchor_gen + 1, 'ancestor');
+
             if (node.father_node && node.mother_node) {
                 node.father_node.pedigree_spouse_node = node.mother_node;
                 node.mother_node.pedigree_spouse_node = node.father_node;
@@ -93,7 +85,7 @@ function buildTree(individual, current_gen = window.generations, anchor_gen = wi
         }
     }
 
-    // Add spouses
+    // Add spouses and non-inlaw children
     if (node.individual.fams && ['root', 'ancestor', 'relative'].includes(node.type)) {
         node.individual.fams.forEach(fam_id => {
             if (node.individual.pedigree_family && node.individual.pedigree_family.id === fam_id) {
@@ -101,7 +93,7 @@ function buildTree(individual, current_gen = window.generations, anchor_gen = wi
                     node.individual.pedigree_family.chil.filter(child_id => !node.individual.pedigree_child_node || child_id != node.individual.pedigree_child_node.individual.id).forEach(child_id => {
                         const child = window.individuals.find(ind => ind.id === child_id);
                         if (child) {
-                            const child_node = buildTree(child, current_gen - 1, anchor_gen, 'relative');
+                            const child_node = buildTree(child, current_gen - 1, anchor_gen - 1, 'relative');
                             if (child_node) {
                                 child_node.parent_node = node;
                                 node.children_nodes.push(child_node);
@@ -164,6 +156,7 @@ function positionTree(node, rows = []) {
         positionTree(node.mother_node, rows);
 
         if ((node.type === 'ancestor') || (node.type === 'root' && !node.father_node && !node.mother_node)) {
+
             // Position inlaws of male ancestor (or root if they have no parents)
             let spouse_min_x = Infinity, spouse_max_x = -Infinity;
             node.spouse_nodes.forEach(spouse_node => { 
@@ -184,9 +177,26 @@ function positionTree(node, rows = []) {
             // Position male ancestor (or root if they have no parents)
             positionNode(node, rows);
 
-            // Male ancestor needs to be to the right of the right-most part of his inlaw trees
+            // Male ancestor needs to be to the right of his siblings and their descendants
+            if (node.father_node) {
+                let sib_max_x = -Infinity;
+                node.father_node.children_nodes.forEach(sibling_node => { sib_max_x = Math.max(sib_max_x, sibling_node.max_x); });
+                let shift_x = sib_max_x - node.x;
+                //console.log(`Shifting ${node.individual.name} and descendants by ${shift_x} to be to the right of siblings`);
+                //shift_x = 0;
+                if (shift_x > 0) {
+                    node.x += shift_x;
+                    node.min_x += shift_x;
+                    node.max_x += shift_x;
+                    node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
+                }
+            }
+
+            // Male ancestor needs to be to the right of his inlaws and their descendants
             if (node.spouse_nodes.length > 0) {
                 let shift_x = spouse_max_x + window.h_spacing - node.x - window.box_width;
+                //console.log(`Shifting ${node.individual.name} and descendants by ${shift_x} to be to the right of in-laws`);
+                //shift_x = 0;
                 if (shift_x > 0) {
                     node.x += shift_x;
                     node.min_x += shift_x;
@@ -194,41 +204,30 @@ function positionTree(node, rows = []) {
                 }
             }
 
-            if (node.children_nodes.length > 0) {
-                // Center children under ancestor if there is no pedigree child (ie. these are the parents of root)
+            // Center children under ancestor if there is no pedigree child (ie. these are the parents of root)
+            if (node.children_nodes.length > 0 && !node.individual.pedigree_child_node) {
                 let shift_x = node.x + window.box_width + window.h_spacing / 2 - (child_min_x + child_max_x) / 2;
-                if (node.individual.pedigree_child_node) {
-                    // Siblings of male ancestors should be to the left of their parents
-                    if (node.individual.pedigree_child_node.individual.gender === 'M') shift_x = node.x + window.h_spacing - child_max_x;
-                    // Siblings of female ancestors should be to the right of their parents
-                    if (node.individual.pedigree_child_node.individual.gender === 'F') shift_x = node.x + window.box_width + 2 * window.h_spacing - child_min_x;
-                } 
-
-                // Move the children to the right
-                if (shift_x > 0) {
+                if (shift_x > 0) { // Move the children to the right
                     node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x); });
                     child_min_x += shift_x;
                     child_max_x += shift_x;
                 }
-
-                // Move the parent to the right
-                if (shift_x < 0) node.x -= shift_x;
-
-                node.min_x = Math.min(node.x, child_min_x);
-                node.max_x = Math.max(node.x + window.box_width, child_max_x);
-                //console.log(`${node.individual.name} : [${node.min_x} - ${node.max_x}]`);
+                if (shift_x < 0) { // Move the parent to the right
+                    node.x -= shift_x;
+                    node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, -shift_x); });
+                }
             }
-            else {
-                node.min_x = node.x;
-                node.max_x = node.x + window.box_width;
-            }
+
+            node.min_x = Math.min(node.x, child_min_x);
+            node.max_x = Math.max(node.x + window.box_width, child_max_x);
+            //console.log(`${node.individual.name} : [${node.min_x} - ${node.max_x}]`);
 
             // Male ancestors need to be to the right of the level boundary's max_x
             if (window.level_boundaries[node.level]) {
                 const boundary_node = window.level_boundaries[node.level];
                 let max_x = boundary_node.max_x;
-                const boundary_spouse_node = boundary_node.pedigree_spouse_node;
-                if (boundary_spouse_node) max_x = Math.max(max_x, boundary_spouse_node.max_x);
+                //const boundary_spouse_node = boundary_node.pedigree_spouse_node;
+                //if (boundary_spouse_node) max_x = Math.max(max_x, boundary_spouse_node.max_x);
                 let shift_x = max_x + window.h_spacing - (node.x + window.box_width + window.h_spacing / 2);
                 if (shift_x > 0) {
                     node.x += shift_x;
@@ -236,6 +235,7 @@ function positionTree(node, rows = []) {
                     node.max_x += shift_x;
                     node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
                     node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x); });
+                    //shiftSiblings(node, shift_x);
                 }
             }
         }
@@ -294,14 +294,30 @@ function positionTree(node, rows = []) {
             if (!node.father_node && !node.mother_node) max_x = min_x;
 
             let shift_x = (min_x + max_x) / 2 - (node.x - window.h_spacing / 2);
+            //shift_x = 0;
+            //console.log(`Shifting ${node.individual.name} and spouse by ${shift_x} to be centered between parents`);
+            
+            // Move couple to the right
             if (shift_x > 0) {
+                //shift_x = 0;
                 shiftSubtree(pedigree_spouse_node, shift_x);
+                shiftSiblings(pedigree_spouse_node, shift_x);
                 shiftSubtree(node, shift_x);
+                shiftSiblings(node, shift_x);
             }
+            
+            // Move their parents to the right
+            //shift_x = 0;
             if (shift_x < 0) {
-                if (pedigree_spouse_node.father_node) shiftSupertree(pedigree_spouse_node.father_node, -shift_x);
+                if (pedigree_spouse_node.father_node) {
+                    shiftSupertree(pedigree_spouse_node.father_node, -shift_x);
+                    shiftSiblings(pedigree_spouse_node, shift_x);
+                }
                 if (pedigree_spouse_node.mother_node) shiftSupertree(pedigree_spouse_node.mother_node, -shift_x);
-                if (node.father_node) shiftSupertree(node.father_node, -shift_x);
+                if (node.father_node) {
+                    shiftSupertree(node.father_node, -shift_x);
+                    shiftSiblings(node, shift_x);
+                }
                 if (node.mother_node) shiftSupertree(node.mother_node, -shift_x);
             }
         }
@@ -321,6 +337,8 @@ function positionTree(node, rows = []) {
             node.min_x = Math.min(node.min_x, child_node.min_x);
             node.max_x = Math.max(node.max_x, child_node.max_x);
         });
+
+        // Center inlaw over their children
         if (node.children_nodes.length > 0) {
             let shift_x = node.x + window.box_width / 2 - (node.min_x + node.max_x) / 2;
             if (shift_x > 0) {
@@ -355,6 +373,11 @@ function shiftSupertree(node, shift_x) {
     if (node.mother_node) shiftSupertree(node.mother_node, shift_x);
     node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x); })
     node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
+}
+
+function shiftSiblings(node, shift_x) {
+    if (!node || !node.father_node) return;
+    node.father_node.children_nodes.forEach(sibling_node => { shiftSubtree(sibling_node, shift_x); });
 }
 
 function positionNode(node, rows) {
@@ -450,7 +473,7 @@ function drawNode(svg, node) {
     // Calculate background color based on generation
     // Use HCL for equal luminance regardless of hue
     const hue = (node.generation * 60) % 360; // 60 degrees apart for distinct colors
-    const chroma = node.type === 'inlaw' ? 0 : 25;
+    const chroma = node.type === 'inlaw' ? 0 : 33;
     const luminance = 60;
     const border_luminance = 50;
     
@@ -567,5 +590,5 @@ function drawLink(svg_node, point1, point2) {
         .attr("d", customLink(point1, point2))
         .attr("fill", "none")
         .attr("stroke", d3.hcl(0, 0, 50))
-        .attr("stroke-width", 2);
+        .attr("stroke-width", 3);
 }
