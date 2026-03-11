@@ -73,10 +73,13 @@ function drawNode(svg, node) {
 
     // Calculate background color based on generation
     // Use HCL for equal luminance regardless of hue
-    const hue = ((node.generation - window.generations_down) * 60 + 360) % 360; // 60 degrees apart for distinct colors
-    const chroma = node.type === 'inlaw' ? 0 : 33;
-    const luminance = 60;
-    const border_luminance = 50;
+    var hue_spacing = 60;
+    if (window.generations_up + window.generations_down > 6) hue_spacing = 360 / (window.generations_up + window.generations_down);
+    const base_hue = window.root_hue || 0;
+    const hue = ((node.generation - window.generations_down) * hue_spacing + base_hue + 360) % 360;
+    const chroma = node.type === 'inlaw' ? 0 : (window.node_saturation || 33);
+    const luminance = window.node_brightness || 40;
+    const border_luminance = Math.max(1, luminance * 1.2);
     
     const fill_color = d3.hcl(hue, chroma, luminance);
     const stroke_color = d3.hcl(hue, chroma, border_luminance);
@@ -91,12 +94,14 @@ function drawNode(svg, node) {
         .attr('rx', 8);
 
     // Add text with 3 lines: name (2 lines), birth-death (1 line)
+    const text_luminance = window.text_brightness || 0;
+    const text_color = d3.hcl(hue, chroma, text_luminance);
     const text_element = g.append('text')
         .attr('x', window.box_width / 2)
         .attr('y', 24) // Vertically centered in 80px box
         .attr('text-anchor', 'middle')
         .attr('font-family', 'Arial, sans-serif')
-        .attr('fill', '#000000'); // Black font
+        .attr('fill', text_color);
 
     // Split name into two lines if too long
     const name = node.individual.name || '';

@@ -13,8 +13,10 @@ function createFamilyTree(selected_individual) {
     console.log(tree_positions);
 
     // Set SVG dimensions
-    const svg_width = 980;
-    const svg_height = 880;
+    const bounding_box = family_tree_div.getBoundingClientRect();
+    const svg_width = bounding_box.width;
+    const svg_height = bounding_box.height - 40; // bottom padding in div
+    console.log(svg_height);
 
     // Initial SVG
     const svg = d3.select('#family-tree-div')
@@ -26,10 +28,8 @@ function createFamilyTree(selected_individual) {
     const scale_x = max_x / svg_width;
     const scale_y = max_y / svg_height;
     const max_scale = Math.max(scale_x, scale_y);
-    //svg.attr('height', svg_height / max_scale);
-    //svg.attr('viewBox', `0 0 ${max_scale * svg_width} ${max_scale * svg_height}`);
-    svg.attr('viewBox', `0 0 ${svg_width} ${svg_height}`);
-    svg.call(d3.zoom().scaleExtent([0.01, 100]).on("zoom", zoomed));
+    svg.attr('viewBox', `0 0 ${max_scale * svg_width} ${max_scale * svg_height}`);
+    svg.call(d3.zoom().scaleExtent([1, 100]).on("zoom", zoomed));
     const svg_node = svg.append("g");
     function zoomed({transform}) { svg_node.attr("transform", transform); }
 

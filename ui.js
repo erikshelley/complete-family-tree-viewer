@@ -1,13 +1,46 @@
 // User interface and input handling functionality
 
 document.addEventListener('DOMContentLoaded', function() {
+        const text_brightness_slider = document.getElementById('text-brightness-slider');
+
+        // Set initial text brightness
+        window.text_brightness = parseInt(text_brightness_slider.value) || 90;
+
+        text_brightness_slider.addEventListener('input', function(event) {
+            window.text_brightness = parseInt(event.target.value) || 90;
+            updateFamilyTree();
+        });
     const file_input = document.getElementById('file-input');
     const family_tree_div = document.getElementById('family-tree-div');
     const individual_select = document.getElementById('individual-select');
     const generations_up = document.getElementById('generations-up');
     const generations_down = document.getElementById('generations-down');
     const color_picker = document.getElementById('color-picker');
+    const saturation_slider = document.getElementById('saturation-slider');
+    const brightness_slider = document.getElementById('brightness-slider');
+    const hue_slider = document.getElementById('hue-slider');
 
+    // Set initial root hue
+    window.root_hue = parseInt(hue_slider.value) || 0;
+
+    hue_slider.addEventListener('input', function(event) {
+        window.root_hue = parseInt(event.target.value) || 0;
+        updateFamilyTree();
+    });
+    // Set initial node brightness
+    window.node_brightness = parseInt(brightness_slider.value) || 40;
+
+    brightness_slider.addEventListener('input', function(event) {
+        window.node_brightness = parseInt(event.target.value) || 40;
+        updateFamilyTree();
+    });
+    // Set initial node saturation
+    window.node_saturation = parseInt(saturation_slider.value) || 33;
+
+    saturation_slider.addEventListener('input', function(event) {
+        window.node_saturation = parseInt(event.target.value) || 33;
+        updateFamilyTree();
+    });
     // Set initial tree color
     window.tree_color = color_picker.value;
 
@@ -69,7 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function populateIndividualSelect(individuals) {
     const select = document.getElementById('individual-select');
-    select.innerHTML = '<option>Select an individual...</option>';
+    //select.innerHTML = '<option>Select an individual...</option>';
+    select.innerHTML = '';
 
     individuals.forEach(individual => {
         const option = document.createElement('option');
