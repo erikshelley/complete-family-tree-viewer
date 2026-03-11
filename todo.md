@@ -13,12 +13,13 @@
 - Option to stack children if a parent has no grandchildren (also hides childrens' spouses)
   - Option for maximum stack size
 - Change tree options without repositioning tree (or save and restore viewpoint)
+  - Some changes don't require recreating the viewbox
 
 ### Style
 - Different connector style for parent-child relationship vs spouse-spouse relationship
 
 ### Interface
-- ~~Smart filtering of person list~~
+- ~~Auto load default root person~~
 - Zoom icons
     - Zoom in
     - Zoom out
