@@ -82,7 +82,7 @@ function positionMaleAncestor(node, rows) {
         node.max_x = Math.max(node.x + window.box_width, child_max_x);
 
         // Male ancestors need to be to the right of the level boundary's max_x
-        if (window.level_boundary_node_leaf[node.level] && (window.level_boundary_node_leaf[node.level] != node)) {
+        if ((node.type != 'root') && window.level_boundary_node_leaf[node.level] && (window.level_boundary_node_leaf[node.level] != node)) {
             const boundary_node = window.level_boundary_node_leaf[node.level];
             let max_x = boundary_node.x + window.box_width + window.h_spacing;
             let shift_x = max_x - (node.x + window.box_width + window.h_spacing / 2);
@@ -125,40 +125,44 @@ function positionRelative(node, rows) {
         const pedigree_spouse_node = node.pedigree_spouse_node;
         let min_x = node.x - window.h_spacing / 2;
         let max_x = min_x;
-        if (pedigree_spouse_node) {
+        if (pedigree_spouse_node && !pedigree_spouse_node.duplicate_parents) {
             if (pedigree_spouse_node.father_node && pedigree_spouse_node.mother_node) min_x = pedigree_spouse_node.mother_node.x - window.h_spacing / 2;
             if (pedigree_spouse_node.father_node && !pedigree_spouse_node.mother_node) min_x = pedigree_spouse_node.father_node.x + window.box_width / 2;
             if (!pedigree_spouse_node.father_node && pedigree_spouse_node.mother_node) min_x = pedigree_spouse_node.mother_node.x + window.box_width / 2;
         }
-        if (node.father_node && node.mother_node) max_x = node.mother_node.x - window.h_spacing / 2;
-        if (node.father_node && !node.mother_node) max_x = node.father_node.x + window.box_width / 2;
-        if (!node.father_node && node.mother_node) max_x = node.mother_node.x + window.box_width / 2;
+        if (!node.duplicate_parents) {
+            if (node.father_node && node.mother_node) max_x = node.mother_node.x - window.h_spacing / 2;
+            if (node.father_node && !node.mother_node) max_x = node.father_node.x + window.box_width / 2;
+            if (!node.father_node && node.mother_node) max_x = node.mother_node.x + window.box_width / 2;
+        }
 
         if (!pedigree_spouse_node || (!pedigree_spouse_node.father_node && !pedigree_spouse_node.mother_node)) min_x = max_x;
         if (!node.father_node && !node.mother_node) max_x = min_x;
 
         let shift_x = (min_x + max_x) / 2 - (node.x - window.h_spacing / 2);
-        
+
         // Move couple to the right
         if (shift_x > 0) {
             shiftSubtree(pedigree_spouse_node, shift_x);
-            shiftSiblings(pedigree_spouse_node, shift_x);
+            if (!pedigree_spouse_node.duplicate_parents) shiftSiblings(pedigree_spouse_node, shift_x);
             shiftSubtree(node, shift_x);
-            shiftSiblings(node, shift_x);
+            if (!node.duplicate_parents) shiftSiblings(node, shift_x);
         }
         
         // Move their parents to the right
         if (shift_x < 0) {
-            if (pedigree_spouse_node.father_node) {
-                shiftSupertree(pedigree_spouse_node.father_node, -shift_x);
-                shiftSiblings(pedigree_spouse_node, shift_x);
+            if (!pedigree_spouse_node.duplicate_parents && !node.duplicate_parents) {
+                if (pedigree_spouse_node.father_node) {
+                    shiftSupertree(pedigree_spouse_node.father_node, -shift_x);
+                    shiftSiblings(pedigree_spouse_node, shift_x);
+                }
+                if (pedigree_spouse_node.mother_node) shiftSupertree(pedigree_spouse_node.mother_node, -shift_x);
+                if (node.father_node) {
+                    shiftSupertree(node.father_node, -shift_x);
+                    shiftSiblings(node, shift_x);
+                }
+                if (node.mother_node) shiftSupertree(node.mother_node, -shift_x);
             }
-            if (pedigree_spouse_node.mother_node) shiftSupertree(pedigree_spouse_node.mother_node, -shift_x);
-            if (node.father_node) {
-                shiftSupertree(node.father_node, -shift_x);
-                shiftSiblings(node, shift_x);
-            }
-            if (node.mother_node) shiftSupertree(node.mother_node, -shift_x);
         }
     }
 }
@@ -261,8 +265,10 @@ function shiftSupertree(node, shift_x) {
     node.x += shift_x;
     node.min_x += shift_x;
     node.max_x += shift_x;
-    if (node.father_node) shiftSupertree(node.father_node, shift_x);
-    if (node.mother_node) shiftSupertree(node.mother_node, shift_x);
+    if (!node.duplicate_parents) {
+        if (node.father_node) shiftSupertree(node.father_node, shift_x);
+        if (node.mother_node) shiftSupertree(node.mother_node, shift_x);
+    }
     node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x); })
     node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
 }

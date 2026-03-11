@@ -19,7 +19,8 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                 let color = d3.hcl(hue, chroma, luminance * 1.25);
                 if (node.type === 'relative' || node.type === 'root') {
                     node.spouse_nodes.forEach(spouse_node => {
-                        drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, {x: spouse_node.x + window.box_width / 2, y: spouse_node.y});
+                        drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
+                                                  {x: spouse_node.x + window.box_width / 2, y: spouse_node.y}, false);
                     });
                 }
 
@@ -27,7 +28,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                 if (node.type === 'ancestor') {
                     node.spouse_nodes.forEach(spouse_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width / 2,         y: node.y}, 
-                                                  {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height});
+                                                  {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height}, false);
                     });
                 }
 
@@ -39,7 +40,8 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                 // Draw link between in-law and child
                 if (node.type === 'inlaw') {
                     node.children_nodes.forEach(child_node => {
-                        drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, {x: child_node.x + window.box_width / 2, y: child_node.y});
+                        drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
+                                                  {x: child_node.x + window.box_width / 2, y: child_node.y}, false);
                     });
                 }
 
@@ -47,7 +49,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                 if (node.type === 'ancestor' && node.individual.gender == 'M') {
                     node.children_nodes.filter(child_node => !child_node.individual.is_root).forEach(child_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
-                                                  {x: child_node.x + window.box_width / 2,              y: child_node.y});
+                                                  {x: child_node.x + window.box_width / 2,              y: child_node.y}, false);
                     });
                 }
             });
@@ -83,6 +85,13 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                     if (node.individual.pedigree_child_node) {
                         drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2,             y: node.y + window.box_height}, 
                                                   {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y}, true);
+                    }
+
+                    // Draw link between ancestor and duplicate pedigree child
+                    if (node.individual.duplicate_pedigree_child_node) {
+                        drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2,                       y: node.y + window.box_height}, 
+                                                  {x: node.individual.duplicate_pedigree_child_node.x + window.box_width / 2, y: node.individual.duplicate_pedigree_child_node.y}, 
+                                                  true, true);
                     }
                 }
             });
@@ -197,14 +206,14 @@ function drawNode(svg, node) {
 }
 
 
-function drawLink(svg_node, color, point1, point2, highlight = false) {
+function drawLink(svg_node, color, point1, point2, highlight, duplicate = false) {
     const customLink = (point1, point2) => {
         var x1 = point1.x;
         var x2 = point2.x;
         var y1 = point1.y;
         var y2 = point2.y;
         //const ymid = (y1 + y2) / 2;
-        const ymid = y2 - window.v_spacing / 2;
+        const ymid = y2 - window.v_spacing / 2 - (duplicate ? window.v_spacing / 2 : 0);
         const corner_radius = 10;
         const context = d3.path();
         context.moveTo(x1, y1);
@@ -226,7 +235,8 @@ function drawLink(svg_node, color, point1, point2, highlight = false) {
         .attr("d", customLink(point1, point2))
         .attr("fill", "none")
         .attr("stroke", color)
-        .attr("stroke-width", highlight ? 7 : 5);
+        .attr("stroke-width", highlight ? 7 : 5)
+        .attr("stroke-dasharray", duplicate ? "10,5" : "none");
 }
 
 

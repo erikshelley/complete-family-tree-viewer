@@ -14,7 +14,7 @@ function createFamilyTree(selected_individual) {
 
     // Set SVG dimensions
     const bounding_box = family_tree_div.getBoundingClientRect();
-    const svg_width = bounding_box.width;
+    const svg_width = bounding_box.width - 24; // horizontal padding in div
     const svg_height = bounding_box.height - 40; // bottom padding in div
     //console.log(svg_height);
 
@@ -43,8 +43,42 @@ function createUnknownPerson(gender, node) {
 }
 
 
+function removeSubTree(node) {
+    node.spouse_nodes.forEach(spouse_node => {
+        spouse_node.children_nodes.forEach(child_node => {
+            removeSubTree(child_node);
+            child_node.individual.node = null;
+        });
+    });
+    node.individual.node = null;
+}
+
 function buildTree(individual, current_gen = window.generations_down, anchor_gen = window.generations_down, type = 'root') {
     if (!individual || (current_gen > window.generations_up + window.generations_down)) return null;
+
+    // Handle duplicates from relatives having children together
+    if (individual.node) {
+        // If existing individual is ancestor or root and the new individual is inlaw or relative, return
+        if (['ancestor', 'root'].includes(individual.node.type) && ['inlaw', 'relative'].includes(type)) return null;
+        // If both individuals are inlaws or relatives, return
+        if (['inlaw', 'relative'].includes(individual.node.type) && ['inlaw', 'relative'].includes(type)) return null;
+        // If new individual is ancestor or root and the existing individual is inlaw or relative, remove the previous individual and continue
+        if (['inlaw', 'relative'].includes(individual.node.type) && ['ancestor', 'root'].includes(type)) {
+            if (individual.node.type == 'relative') {
+                // If the existing node has a parent node, remove the existing node from its children
+                if (individual.node.parent_node) individual.node.parent_node.children_nodes = individual.node.parent_node.children_nodes.filter(child => child !== individual.node);
+                // Visit existing node's subtree and remove the node from their individual elements
+                removeSubTree(individual.node);
+            }
+        }
+        else {
+            // If both individuals are ancestors, link pedigree child to previous ancestor and return
+            if (['ancestor', 'root'].includes(individual.node.type) && ['ancestor', 'root'].includes(type)) {
+                individual.duplicate_pedigree_child_node.duplicate_parents = true;
+                return individual.node;
+            }
+        }
+    }
 
     const node = {
         individual: individual,
@@ -59,7 +93,9 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
         children_nodes: [],
     };
 
+
     if (type === 'root') node.individual.is_root = true;
+    else individual.node = node;
 
     // Add parents
     if (node.individual.famc && (node.generation < window.generations_up + window.generations_down) && ['root', 'ancestor'].includes(node.type)) {
@@ -69,14 +105,20 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
             // Add father
             const father = node.parent_family.husb ? window.individuals.find(ind => ind.id === node.parent_family.husb) : createUnknownPerson('M', node);
             father.pedigree_family = node.parent_family;
-            if (node.type != 'root') father.pedigree_child_node = node;
+            if (node.type != 'root') {
+                if (!father.pedigree_child_node) father.pedigree_child_node = node;
+                else father.duplicate_pedigree_child_node = node;
+            }
             father.is_father = true;
             node.father_node = buildTree(father, current_gen + 1, anchor_gen + 1, 'ancestor');
 
             // Add mother
             const mother = node.parent_family.wife ? window.individuals.find(ind => ind.id === node.parent_family.wife) : createUnknownPerson('F', node);
             mother.pedigree_family = node.parent_family;
-            if (node.type != 'root') mother.pedigree_child_node = node;
+            if (node.type != 'root') {
+                if (!mother.pedigree_child_node) mother.pedigree_child_node = node;
+                else mother.duplicate_pedigree_child_node = node;
+            }
             node.mother_node = buildTree(mother, current_gen + 1, anchor_gen + 1, 'ancestor');
 
             if (node.father_node && node.mother_node) {

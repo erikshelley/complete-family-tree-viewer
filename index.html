@@ -13,62 +13,74 @@
     <h1>Complete Family Tree Viewer</h1>
     <div class="container">
         <div class="left-column">
-            <h2>Inputs</h2>
+            <div class="section-header">
+                <h2>Tree Content</h2>
+            </div>
 
-            <h3>Gedcom File</h3>
-            <input type="file" id="file-input" accept=".ged,.gedcom">
-            <br>
-            <span id="file-name"></span>
+            <div class="input-section">
+                <h3>Gedcom File</h3>
+                <input type="file" id="file-input" accept=".ged,.gedcom">
+                <br>
+                <span id="file-name"></span>
 
-            <h3>Tree Options</h3>
-            <label for="individual-select">Select Root</label>
-            <input type="text" id="individual-filter" placeholder="Type to filter names...">
-            <select id="individual-select" size="10">
-                <option>Populated from Gedcom file...</option>
-            </select>
+                <h3>Root Person</h3>
+                <input type="text" id="individual-filter" placeholder="Type to filter names...">
+                <select id="individual-select" size="5">
+                    <option>Populated from Gedcom file...</option>
+                </select>
 
-            <p>
-            <input type="number" id="generations-up" min="0" max="20" value="1">
-            <label for="generations-up">Generations Up</label>
-            </p>
+                <h3>Tree Size</h3>
+                <p>
+                    <input type="number" id="generations-up" min="0" max="20" value="1">
+                    <label for="generations-up">Generations Up</label>
+                </p>
+                <p>
+                    <input type="number" id="generations-down" min="0" max="20" value="1">
+                    <label for="generations-down">Generations Down</label>
+                </p>
+            </div>
 
-            <p>
-            <input type="number" id="generations-down" min="0" max="20" value="1">
-            <label for="generations-down">Generations Down</label>
-            </p>
+            <div class="section-header">
+                <h2>Tree Styling</h2>
+            </div>
 
-            <p>
-            <input type="range" id="hue-slider" min="1" max="359" value="0">
-            <label for="hue-slider">Hue (Root Generation)</label>
-            </p>
+            <div class="input-section">
+                <p>
+                    <input type="range" id="hue-slider" min="1" max="359" value="0">
+                    <label for="hue-slider">Hue (Root)</label>
+                </p>
 
-            <p>
-            <input type="range" id="saturation-slider" min="1" max="100" value="33">
-            <label for="saturation-slider">Saturation</label>
-            </p>
+                <p>
+                    <input type="range" id="saturation-slider" min="1" max="100" value="33">
+                    <label for="saturation-slider">Saturation</label>
+                </p>
 
-            <p>
-            <input type="range" id="brightness-slider" min="1" max="100" value="40">
-            <label for="brightness-slider">Brightness</label>
-            </p>
+                <p>
+                    <input type="range" id="brightness-slider" min="1" max="100" value="40">
+                    <label for="brightness-slider">Brightness</label>
+                </p>
 
-            <p>
-            <input type="range" id="text-brightness-slider" min="1" max="100" value="90">
-            <label for="text-brightness-slider">Text Brightness</label>
-            </p>
+                <p>
+                    <input type="range" id="text-brightness-slider" min="1" max="100" value="90">
+                    <label for="text-brightness-slider">Text Brightness</label>
+                </p>
 
-            <p>
-            <input type="checkbox" id="transparent-bg-rect" checked>
-            <label for="transparent-bg-rect">Transparent Background</label>
-            </p>
+                <p>
+                    <input type="checkbox" id="transparent-bg-rect" checked>
+                    <label for="transparent-bg-rect">Transparent Background</label>
+                </p>
 
-            <p>
-            <input type="color" id="color-picker" value="#000000">
-            <label for="color-picker">Background Color</label>
-            </p>
+                <p>
+                    <input type="color" id="color-picker" value="#000000">
+                    <label for="color-picker">Background Color</label>
+                </p>
+            </div>
         </div>
         <div class="right-column">
-            <h2>Family Tree</h2>
+            <div class="section-header">
+                <h2>Family Tree</h2>
+            </div>
+
             <div id="family-tree-div">
                 <p>Open a GEDCOM file to get started.</p>
                 <p>It will be processed in your browser and will not be uploaded to the server.</p>

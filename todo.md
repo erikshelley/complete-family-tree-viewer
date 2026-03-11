@@ -11,15 +11,17 @@
 ## New Features
 
 ### Positioning
-- Handle duplicates when relatives have children together
+- ~~Handle duplicates when relatives have children together~~
+- Redraw tree when window is resized
 - Option to stack children if a parent has no grandchildren (also hides childrens' spouses)
   - Option for maximum stack size
-- Change tree options without repositioning tree (or save and restore viewpoint)
-  - Some changes don't require recreating the viewbox
 
 ### Style
 - Different connector style for parent-child relationship vs spouse-spouse relationship
 - Configurable distance between hues
+- Configurable box width and height
+- Configurable line thickness
+- Configurable highlighting for pedigree path
 
 ### Interface
 - Zoom icons

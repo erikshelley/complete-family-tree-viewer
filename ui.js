@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const is_valid_gedcom = validateGedcom(window.gedcom_content);
 
                 if (is_valid_gedcom) {
-                    family_tree_div.innerHTML = '<p style="color: green;">Valid GEDCOM file loaded!</p><p>Select a root person to view their tree.</p>';
+                    family_tree_div.innerHTML = '<p style="color: hsl(120, 25%, 50%);">Valid GEDCOM file loaded!</p><p>Select a root person to view their tree.</p>';
 
                     // Parse GEDCOM data
                     const parsed_data = parseGedcomData(window.gedcom_content);
@@ -110,13 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    individual_select.addEventListener('change', function(event) { 
-        const parsed_data = parseGedcomData(window.gedcom_content);
-        window.individuals = parsed_data.individuals;
-        window.families = parsed_data.families;
-        updateFamilyTree(); 
-    });
-
+    individual_select.addEventListener('change', function(event) { updateFamilyTree(); });
     generations_up.addEventListener('input', function(event) { updateFamilyTree(); });
     generations_down.addEventListener('input', function(event) { updateFamilyTree(); });
 
@@ -137,6 +131,11 @@ document.addEventListener('DOMContentLoaded', function() {
     updateSliderThumbs();
 
     function updateFamilyTree() {
+        // The tree building process can change the data, so we reload to get a fresh copy each time
+        const parsed_data = parseGedcomData(window.gedcom_content);
+        window.individuals = parsed_data.individuals;
+        window.families = parsed_data.families;
+
         if (individual_select.value === '') createFamilyTree(window.selected_individual);
         const selected_id = individual_select.value;
         window.generations_up = parseInt(generations_up.value) || 0;
