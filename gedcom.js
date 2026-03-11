@@ -60,6 +60,13 @@ function parseGedcomData(content) {
             // Name line: 1 NAME Given /Surname/
             const nameParts = parts.slice(2);
             let name = nameParts.join(' ');
+            // Remove content after the second slash (if present)
+            const slashCount = (name.match(/\//g) || []).length;
+            if (slashCount > 1) {
+                const firstSlashIndex = name.indexOf('/');
+                const secondSlashIndex = name.indexOf('/', firstSlashIndex + 1);
+                name = name.substring(0, secondSlashIndex);
+            }
             // Remove all slashes
             name = name.replace(/\//g, '');
             current_individual.name = name.trim();
