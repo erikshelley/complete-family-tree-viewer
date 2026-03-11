@@ -55,13 +55,12 @@ svg {
     height: 100%;
 }
 
-#individual-select {
+#individual-select, #individual-filter {
     width: 100%;
     margin-top: 8px;
 }
 
-/* Dark dropdown for individual-select */
-#individual-select, #generations-up, #generations-down {
+#individual-select, #generations-up, #generations-down, #individual-filter {
     background-color: #202020;
     color: #aaa;
     border: 1px solid #444;

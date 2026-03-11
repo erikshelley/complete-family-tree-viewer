@@ -1,6 +1,17 @@
 // User interface and input handling functionality
 
 document.addEventListener('DOMContentLoaded', function() {
+        const individual_filter = document.getElementById('individual-filter');
+        window.individual_filter_value = '';
+
+        let filterTimeout = null;
+        individual_filter.addEventListener('input', function(event) {
+            window.individual_filter_value = event.target.value.toLowerCase();
+            if (filterTimeout) clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                populateIndividualSelect(window.individuals);
+            }, 100);
+        });
     const transparent_bg_rect_checkbox = document.getElementById('transparent-bg-rect');
 
     // Set initial states
@@ -112,10 +123,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function populateIndividualSelect(individuals) {
     const select = document.getElementById('individual-select');
-    //select.innerHTML = '<option>Select an individual...</option>';
     select.innerHTML = '';
-
-    individuals.forEach(individual => {
+    let filter = window.individual_filter_value || '';
+    let filtered = individuals;
+    if (filter.length > 0) {
+        filtered = individuals.filter(ind => (ind.name || ind.id).toLowerCase().includes(filter));
+    }
+    filtered.forEach(individual => {
         const option = document.createElement('option');
         option.value = individual.id;
         option.textContent = individual.name || individual.id;

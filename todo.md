@@ -15,11 +15,10 @@
 - Change tree options without repositioning tree (or save and restore viewpoint)
 
 ### Style
-- ~~Highlight pedigree nodes and paths~~
 - Different connector style for parent-child relationship vs spouse-spouse relationship
 
 ### Interface
-- Smart filtering of person list
+- ~~Smart filtering of person list~~
 - Zoom icons
     - Zoom in
     - Zoom out
