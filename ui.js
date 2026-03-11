@@ -2,6 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     const file_input = document.getElementById('file-input');
+    const file_name_span = document.getElementById('file-name');
     const family_tree_div = document.getElementById('family-tree-div');
     const individual_select = document.getElementById('individual-select');
     const individual_filter = document.getElementById('individual-filter');
@@ -77,6 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
     file_input.addEventListener('change', function(event) {
         const file = event.target.files[0];
         if (file) {
+            file_name_span.textContent = file.name;
             const reader = new FileReader();
             reader.onload = function(e) {
                 window.gedcom_content = e.target.result;
@@ -103,6 +105,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
             reader.readAsText(file);
+        } else {
+            file_name_span.textContent = '';
         }
     });
 
