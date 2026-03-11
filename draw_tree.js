@@ -31,20 +31,20 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                 if (node.type === 'ancestor' && node.individual.gender == 'M') {
                     // Draw links from father and mother to center point
                     drawLink(svg_node, {x: node.x + window.box_width / 2,                    y: node.y}, 
-                                       {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height});
+                                       {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, true);
                     drawLink(svg_node, {x: node.x + 3 * window.box_width / 2 + window.h_spacing, y: node.y}, 
-                                       {x: node.x + window.box_width + window.h_spacing / 2,     y: node.y + window.box_height});
+                                       {x: node.x + window.box_width + window.h_spacing / 2,     y: node.y + window.box_height}, true);
 
                     // Draw link between ancestor and child
                     node.children_nodes.forEach(child_node => {
                         drawLink(svg_node, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
-                                           {x: child_node.x + window.box_width / 2,              y: child_node.y});
+                                           {x: child_node.x + window.box_width / 2,              y: child_node.y}, child_node.individual.is_root);
                     });
 
                     // Draw link between ancestor and pedigree child
                     if (node.individual.pedigree_child_node) {
                         drawLink(svg_node, {x: node.x + window.box_width + window.h_spacing / 2,             y: node.y + window.box_height}, 
-                                           {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y});
+                                           {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y}, true);
                     }
                 }
 
@@ -82,9 +82,10 @@ function drawNode(svg, node) {
     const chroma = node.type === 'inlaw' ? 0 : (window.node_saturation || 33);
     const luminance = window.node_brightness || 40;
     const border_luminance = Math.max(1, luminance * 1.3);
+    const highlight = ((node.type === 'ancestor') || node.individual.is_root);
     
-    const fill_color = d3.hcl(hue, chroma, luminance);
-    const stroke_color = d3.hcl(hue, chroma, border_luminance);
+    const fill_color = d3.hcl(hue, chroma, luminance * (highlight ? 1.5 : 1));
+    const stroke_color = d3.hcl(hue, chroma, border_luminance * (highlight ? 1.5 : 1));
 
     // Draw rectangle
     g.append('rect')
@@ -103,6 +104,7 @@ function drawNode(svg, node) {
         .attr('y', 24) // Vertically centered in 80px box
         .attr('text-anchor', 'middle')
         .attr('font-family', 'Arial, sans-serif')
+        .attr('font-weight', highlight ? 'bold' : 'normal')
         .attr('fill', text_color);
 
     // Split name into two lines if too long
@@ -157,20 +159,20 @@ function drawNode(svg, node) {
 
     // Adjust font size if needed
     let font_size = 12;
-    const min_font_size = 8;
-    const padding = 4;
+    const min_font_size = 6;
+    const padding = 0;
     const max_width = window.box_width - padding;
 
     // Check if text fits
     const bbox = text_element.node().getBBox();
     if (bbox.width > max_width) {
-        font_size = Math.max(min_font_size, font_size * (max_width / bbox.width));
+        font_size = Math.round(10 * Math.max(min_font_size, font_size * (max_width / bbox.width))) / 10;
         text_element.attr('font-size', font_size + 'px');
     }
 }
 
 
-function drawLink(svg_node, point1, point2) {
+function drawLink(svg_node, point1, point2, highlight = false) {
     const customLink = (point1, point2) => {
         var x1 = point1.x;
         var x2 = point2.x;
@@ -198,6 +200,6 @@ function drawLink(svg_node, point1, point2) {
     svg_node.append("path")
         .attr("d", customLink(point1, point2))
         .attr("fill", "none")
-        .attr("stroke", d3.hcl(0, 0, 50))
-        .attr("stroke-width", 3);
+        .attr("stroke", highlight ? d3.hcl(0, 0, 1.5 * 50) : d3.hcl(0, 0, 50))
+        .attr("stroke-width", highlight ? 6 : 3);
 }
