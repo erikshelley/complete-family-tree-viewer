@@ -1,12 +1,14 @@
 // Tree drawing and visualization functionality using D3.js
 function drawTree(svg_node, tree_width, tree_height, rows) {
-    // Add background rectangle
-    svg_node.append('rect')
-        .attr('width', tree_width)
-        .attr('height', tree_height)
-        .attr('fill', window.tree_color || "#000")
-        .attr('stroke', "000")
-        .attr('stroke-width', 0);
+    // Add background rectangle if enabled
+    if (!window.transparent_bg_rect) {
+        svg_node.append('rect')
+            .attr('width', tree_width)
+            .attr('height', tree_height)
+            .attr('fill', window.tree_color || "#000")
+            .attr('stroke', "000")
+            .attr('stroke-width', 0);
+    }
 
     rows.forEach(level => {
         level.forEach(sub_level => {
@@ -79,7 +81,7 @@ function drawNode(svg, node) {
     const hue = ((node.generation - window.generations_down) * hue_spacing + base_hue + 360) % 360;
     const chroma = node.type === 'inlaw' ? 0 : (window.node_saturation || 33);
     const luminance = window.node_brightness || 40;
-    const border_luminance = Math.max(1, luminance * 1.2);
+    const border_luminance = Math.max(1, luminance * 1.3);
     
     const fill_color = d3.hcl(hue, chroma, luminance);
     const stroke_color = d3.hcl(hue, chroma, border_luminance);

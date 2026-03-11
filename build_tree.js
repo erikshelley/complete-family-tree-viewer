@@ -16,7 +16,7 @@ function createFamilyTree(selected_individual) {
     const bounding_box = family_tree_div.getBoundingClientRect();
     const svg_width = bounding_box.width;
     const svg_height = bounding_box.height - 40; // bottom padding in div
-    console.log(svg_height);
+    //console.log(svg_height);
 
     // Initial SVG
     const svg = d3.select('#family-tree-div')

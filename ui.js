@@ -1,15 +1,25 @@
 // User interface and input handling functionality
 
 document.addEventListener('DOMContentLoaded', function() {
-        const text_brightness_slider = document.getElementById('text-brightness-slider');
+    const transparent_bg_rect_checkbox = document.getElementById('transparent-bg-rect');
 
-        // Set initial text brightness
-        window.text_brightness = parseInt(text_brightness_slider.value) || 90;
+    // Set initial states
+    window.transparent_bg_rect = transparent_bg_rect_checkbox.checked;
 
-        text_brightness_slider.addEventListener('input', function(event) {
-            window.text_brightness = parseInt(event.target.value) || 90;
-            updateFamilyTree();
-        });
+    transparent_bg_rect_checkbox.addEventListener('change', function(event) {
+        window.transparent_bg_rect = event.target.checked;
+        updateFamilyTree();
+    });
+
+    const text_brightness_slider = document.getElementById('text-brightness-slider');
+
+    // Set initial text brightness
+    window.text_brightness = parseInt(text_brightness_slider.value) || 90;
+
+    text_brightness_slider.addEventListener('input', function(event) {
+        window.text_brightness = parseInt(event.target.value) || 90;
+        updateFamilyTree();
+    });
     const file_input = document.getElementById('file-input');
     const family_tree_div = document.getElementById('family-tree-div');
     const individual_select = document.getElementById('individual-select');
