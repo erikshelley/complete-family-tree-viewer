@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', function() {
     window.tree_color = color_picker.value;
     window.selected_individual = '';
 
+    // Update family tree on window resize
+    window.addEventListener('resize', function() { updateFamilyTree(); });
+
     let filterTimeout = null;
     individual_filter.addEventListener('input', function(event) {
         window.individual_filter_value = event.target.value.toLowerCase();

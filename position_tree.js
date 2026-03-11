@@ -296,6 +296,18 @@ function positionNode(node, rows) {
                 node.x = Math.max(node.x, window.level_boundary_node_ancestor[node.level + 1].x + window.h_spacing);
             }
         }
+        // Do not intersect with the horizontal line from a female to her children (applies to lines under male ancestors)
+        if (window.level_boundary_node_ancestor[node.level] && (node.type === 'ancestor') && (node.individual.gender === 'M')) {
+            if (node.individual.pedigree_child_node && node.individual.pedigree_child_node.individual.gender === 'M') {
+                // Calculate max x for children of boundary node ancestor's pedigree spouse (if exists) and shift if intersecting
+                const pedigree_spouse_node = window.level_boundary_node_ancestor[node.level].pedigree_spouse_node;
+                if (pedigree_spouse_node) {
+                    let spouse_children_max_x = -Infinity;
+                    pedigree_spouse_node.children_nodes.forEach(child_node => { spouse_children_max_x = Math.max(spouse_children_max_x, child_node.x); });
+                    node.x = Math.max(node.x, spouse_children_max_x);
+                }
+            }
+        }
         // Use this node as a boundary for future male ancestors
         if (!window.level_boundary_node_leaf[node.level] || (node.x >= window.level_boundary_node_leaf[node.level].x)) window.level_boundary_node_leaf[node.level] = node;
     }
@@ -308,15 +320,17 @@ function positionNode(node, rows) {
 function getMaximumDimensions(rows) {
     let max_x = -Infinity;
     let max_y = -Infinity;
+    let node_count = 0;
     rows.forEach(level => {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
                 max_x = Math.max(max_x, node.x + window.box_width + window.padding);
                 max_y = Math.max(max_y, node.y + window.box_height + window.padding);
+                node_count += 1;
             });
         });
     });
-    return [max_x, max_y];
+    return [max_x, max_y, node_count];
 }
 
 

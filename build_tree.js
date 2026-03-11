@@ -5,18 +5,24 @@ function createFamilyTree(selected_individual) {
     window.level_boundaries = [];
     window.level_heights = [];
 
-    // Build tree data structure
+    // Measure buildTree
+    const t0 = performance.now();
     const tree_data = buildTree(selected_individual);
-    //console.log(tree_data);
+    const t1 = performance.now();
+    console.log(selected_individual.name);
+    //console.log(`buildTree: ${(t1 - t0).toFixed(2)} ms`);
+
+    // Measure positionTree
+    const t2 = performance.now();
     const tree_positions = positionTree(tree_data);
     setHeights(tree_positions);
-    //console.log(tree_positions);
+    const t3 = performance.now();
+    //console.log(`positionTree: ${(t3 - t2).toFixed(2)} ms`);
 
     // Set SVG dimensions
     const bounding_box = family_tree_div.getBoundingClientRect();
     const svg_width = bounding_box.width - 24; // horizontal padding in div
     const svg_height = bounding_box.height - 40; // bottom padding in div
-    //console.log(svg_height);
 
     // Initial SVG
     const svg = d3.select('#family-tree-div')
@@ -24,7 +30,7 @@ function createFamilyTree(selected_individual) {
         .attr('width', svg_width)
         .attr('height', svg_height);
 
-    const [max_x, max_y] = getMaximumDimensions(tree_positions);
+    const [max_x, max_y, node_count] = getMaximumDimensions(tree_positions);
     const scale_x = max_x / svg_width;
     const scale_y = max_y / svg_height;
     const max_scale = Math.max(scale_x, scale_y);
@@ -33,7 +39,16 @@ function createFamilyTree(selected_individual) {
     const svg_node = svg.append("g");
     function zoomed({transform}) { svg_node.attr("transform", transform); }
 
+    // Measure drawTree
+    const t4 = performance.now();
     drawTree(svg_node, max_x, max_y, tree_positions);
+    const t5 = performance.now();
+    //console.log(`drawTree: ${(t5 - t4).toFixed(2)} ms`);
+    const total_time = (t1 - t0) + (t3 - t2) + (t5 - t4);
+    console.log(`Total time: ${total_time.toFixed(2)} ms`);
+    console.log(`Total nodes: ${node_count}`);
+    const nodes_per_second = node_count / (total_time / 1000);
+    console.log(`Nodes per second: ${nodes_per_second.toFixed(2)}`);
 }
 
 
