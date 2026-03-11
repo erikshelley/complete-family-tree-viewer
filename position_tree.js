@@ -44,7 +44,7 @@ function positionMaleAncestor(node, rows) {
         if (node.father_node) {
             let sib_max_x = -Infinity;
             node.father_node.children_nodes.forEach(sibling_node => { sib_max_x = Math.max(sib_max_x, sibling_node.max_x); });
-            let shift_x = sib_max_x - node.x;
+            let shift_x = sib_max_x - (node.x + window.box_width - window.h_spacing);
             if (shift_x > 0) {
                 node.x += shift_x;
                 node.min_x += shift_x;
@@ -55,7 +55,7 @@ function positionMaleAncestor(node, rows) {
 
         // Male ancestor needs to be to the right of his inlaws and their descendants
         if ((node.spouse_nodes.length > 0) && (node.type != 'root')) {
-            let shift_x = spouse_max_x + window.h_spacing - node.x - window.box_width;
+            let shift_x = spouse_max_x - (node.x + window.box_width - window.h_spacing);
             if (shift_x > 0) {
                 node.x += shift_x;
                 node.min_x += shift_x;
@@ -91,7 +91,6 @@ function positionMaleAncestor(node, rows) {
                 node.min_x += shift_x;
                 node.max_x += shift_x;
                 node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
-                node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x); });
             }
         }
     }
@@ -252,6 +251,8 @@ function shiftSubtree(node, shift_x) {
     if (node.spouse_nodes) node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, shift_x) });
     const shift_children = node.children_nodes && (node.type != 'ancestor' || !node.individual.pedigree_child_node);
     if (shift_children) node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x) });
+    // Use this node as a boundary for future male ancestors
+    if (!window.level_boundary_node_leaf[node.level] || (node.x >= window.level_boundary_node_leaf[node.level].x)) window.level_boundary_node_leaf[node.level] = node;
 }
 
 
@@ -276,10 +277,20 @@ function shiftSiblings(node, shift_x) {
 
 function positionNode(node, rows) {
     const length = rows[node.level][node.sub_level].length;
+    // Start at the left most position of the level or to the right of the last node in this sub-level
     if (length === 0) node.x = window.padding;
     else node.x = rows[node.level][node.sub_level][length - 1].x + window.box_width + window.h_spacing;
+
     if (window.level_boundary_node_ancestor[node.level]) {
+        // Do not cross the vertical line below a female ancestor
         node.x = Math.max(node.x, window.level_boundary_node_ancestor[node.level].x + window.h_spacing);
+        // Do not intersect with the horizontal line from a female to her parents (applies to siblings to the left of male ancestors)
+        if (window.level_boundary_node_ancestor[node.level + 1] && (node.sub_level == 0) && (node.type == 'relative')) {
+            if (node.parent_node && (node.parent_node.individual.pedigree_child_node) && (node.parent_node.individual.pedigree_child_node.individual.gender === 'M')) {
+                node.x = Math.max(node.x, window.level_boundary_node_ancestor[node.level + 1].x + window.h_spacing);
+            }
+        }
+        // Use this node as a boundary for future male ancestors
         if (!window.level_boundary_node_leaf[node.level] || (node.x >= window.level_boundary_node_leaf[node.level].x)) window.level_boundary_node_leaf[node.level] = node;
     }
     window.level_heights[node.level] = Math.max(window.level_heights[node.level], node.sub_level + 1);

@@ -13,18 +13,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const hue_slider = document.getElementById('hue-slider');
     const transparent_bg_rect_checkbox = document.getElementById('transparent-bg-rect');
     const text_brightness_slider = document.getElementById('text-brightness-slider');
-    const default_text_brightness = 90;
-    const default_node_brightness = 40;
-    const default_node_saturation = 33;
-    const default_node_hue = 0;
+    window.default_text_brightness = 90;
+    text_brightness_slider.value = window.default_text_brightness;
+    window.default_node_brightness = 33;
+    brightness_slider.value = window.default_node_brightness;
+    window.default_node_saturation = 33;
+    saturation_slider.value = window.default_node_saturation;
+    window.default_node_hue = 120;
+    hue_slider.value = window.default_node_hue;
 
-    window.root_hue = parseInt(hue_slider.value) || default_node_hue;
+    window.root_hue = parseInt(hue_slider.value) || window.default_node_hue;
     window.individual_filter_value = '';
     window.transparent_bg_rect = transparent_bg_rect_checkbox.checked;
-    window.text_brightness = parseInt(text_brightness_slider.value) || default_text_brightness;
-    window.node_brightness = parseInt(brightness_slider.value) || default_node_brightness;
-    window.node_saturation = parseInt(saturation_slider.value) || default_node_saturation;
+    window.text_brightness = parseInt(text_brightness_slider.value) || window.default_text_brightness;
+    window.node_brightness = parseInt(brightness_slider.value) || window.default_node_brightness;
+    window.node_saturation = parseInt(saturation_slider.value) || window.default_node_saturation;
     window.tree_color = color_picker.value;
+    window.selected_individual = '';
 
     let filterTimeout = null;
     individual_filter.addEventListener('input', function(event) {
@@ -36,25 +41,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     hue_slider.addEventListener('input', function(event) {
-        window.root_hue = parseInt(event.target.value) || default_node_hue;
+        window.root_hue = parseInt(event.target.value) || window.default_node_hue;
         updateSliderThumbs();
         updateFamilyTree();
     });
 
     brightness_slider.addEventListener('input', function(event) {
-        window.node_brightness = parseInt(event.target.value) || default_node_brightness;
+        window.node_brightness = parseInt(event.target.value) || window.default_node_brightness;
         updateSliderThumbs();
         updateFamilyTree();
     });
 
     saturation_slider.addEventListener('input', function(event) {
-        window.node_saturation = parseInt(event.target.value) || default_node_saturation;
+        window.node_saturation = parseInt(event.target.value) || window.default_node_saturation;
         updateSliderThumbs();
         updateFamilyTree();
     });
 
     text_brightness_slider.addEventListener('input', function(event) {
-        window.text_brightness = parseInt(event.target.value) || default_text_brightness;
+        window.text_brightness = parseInt(event.target.value) || window.default_text_brightness;
         updateSliderThumbs();
         updateFamilyTree();
     });
@@ -112,15 +117,15 @@ document.addEventListener('DOMContentLoaded', function() {
     generations_down.addEventListener('input', function(event) { updateFamilyTree(); });
 
     function updateSliderThumbs() {
-        let hue = parseInt(hue_slider.value) || default_node_hue;
-        let sat = parseInt(saturation_slider.value) || default_node_saturation;
-        let lum = parseInt(brightness_slider.value) || default_node_brightness;
+        let hue = parseInt(hue_slider.value) || window.default_node_hue;
+        let sat = parseInt(saturation_slider.value) || window.default_node_saturation;
+        let lum = parseInt(brightness_slider.value) || window.default_node_brightness;
         let color = d3.hcl(hue, sat, lum);
         hue_slider.style.setProperty('--range-thumb-color', color);
         saturation_slider.style.setProperty('--range-thumb-color', color);
         brightness_slider.style.setProperty('--range-thumb-color', color);
         sat = 0;
-        lum = parseInt(text_brightness_slider.value) || default_text_brightness;
+        lum = parseInt(text_brightness_slider.value) || window.default_text_brightness;
         color = d3.hcl(hue, sat, lum);
         text_brightness_slider.style.setProperty('--range-thumb-text-color', color);
     }
@@ -128,13 +133,17 @@ document.addEventListener('DOMContentLoaded', function() {
     updateSliderThumbs();
 
     function updateFamilyTree() {
+        if (individual_select.value === '') createFamilyTree(window.selected_individual);
         const selected_id = individual_select.value;
         window.generations_up = parseInt(generations_up.value) || 0;
         window.generations_down = parseInt(generations_down.value) || 0;
 
         if (selected_id && selected_id !== 'Select an individual...') {
             const selected_individual = window.individuals.find(ind => ind.id === selected_id);
-            if (selected_individual) createFamilyTree(selected_individual);
+            if (selected_individual) {
+                window.selected_individual = selected_individual;
+                createFamilyTree(selected_individual);
+            }
         }
     }
 

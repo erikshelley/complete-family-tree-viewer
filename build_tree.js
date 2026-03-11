@@ -10,7 +10,7 @@ function createFamilyTree(selected_individual) {
     //console.log(tree_data);
     const tree_positions = positionTree(tree_data);
     setHeights(tree_positions);
-    console.log(tree_positions);
+    //console.log(tree_positions);
 
     // Set SVG dimensions
     const bounding_box = family_tree_div.getBoundingClientRect();

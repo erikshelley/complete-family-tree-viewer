@@ -60,6 +60,10 @@ svg {
     margin-top: 8px;
 }
 
+#individual-filter {
+    width: calc(100% - 12px);
+}
+
 #individual-select, #generations-up, #generations-down, #individual-filter {
     background-color: #202020;
     color: #aaa;

@@ -16,7 +16,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
 
                 // Draw link between relative and spouse
                 let [hue, chroma, luminance] = getNodeHCL(node, false);
-                let color = d3.hcl(hue, chroma, luminance * 1);
+                let color = d3.hcl(hue, chroma, luminance * 1.25);
                 if (node.type === 'relative' || node.type === 'root') {
                     node.spouse_nodes.forEach(spouse_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, {x: spouse_node.x + window.box_width / 2, y: spouse_node.y});
@@ -33,7 +33,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
 
                 if (node.children_nodes.length > 0) {
                     [hue, chroma, luminance] = getNodeHCL(node.children_nodes[0], false);
-                    color = d3.hcl(hue, chroma, luminance * 1);
+                    color = d3.hcl(hue, chroma, luminance * 1.25);
                 }
 
                 // Draw link between in-law and child
@@ -62,7 +62,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
 
                     // Draw links from father and mother to center point
                     let [hue, chroma, luminance] = getNodeHCL(node, false);
-                    let color = d3.hcl(hue, chroma, luminance * 1.5);
+                    let color = d3.hcl(hue, chroma, luminance * 1.5 * 1.25);
                     drawLink(svg_node, color, {x: node.x + window.box_width / 2,                    y: node.y}, 
                                               {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, true);
                     drawLink(svg_node, color, {x: node.x + 3 * window.box_width / 2 + window.h_spacing, y: node.y}, 
@@ -70,7 +70,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
 
                     if (node.children_nodes.length > 0) {
                         [hue, chroma, luminance] = getNodeHCL(node.children_nodes[0], false);
-                        color = d3.hcl(hue, chroma, luminance * 1.5);
+                        color = d3.hcl(hue, chroma, luminance * 1.5 * 1.25);
                     }
 
                     // Draw link between ancestor and child
@@ -108,7 +108,7 @@ function drawNode(svg, node) {
     const fill_color = d3.hcl(hue, chroma, luminance * (highlight ? 1.5 : 1));
 
     [hue, chroma, luminance] = getNodeHCL(node, false);
-    const border_luminance = Math.max(1, luminance * 1.3);
+    const border_luminance = Math.max(1, luminance * 1.25);
     const stroke_color = d3.hcl(hue, chroma, border_luminance * (highlight ? 1.5 : 1));
 
     // Draw rectangle
@@ -117,7 +117,7 @@ function drawNode(svg, node) {
         .attr('height', window.box_height)
         .attr('fill', fill_color)
         .attr('stroke', stroke_color)
-        .attr('stroke-width', 2)
+        .attr('stroke-width', 3)
         .attr('rx', 8);
 
     // Add text with 3 lines: name (2 lines), birth-death (1 line)
@@ -225,9 +225,8 @@ function drawLink(svg_node, color, point1, point2, highlight = false) {
     svg_node.append("path")
         .attr("d", customLink(point1, point2))
         .attr("fill", "none")
-        //.attr("stroke", highlight ? d3.hcl(0, 0, 1.5 * 50) : d3.hcl(0, 0, 50))
         .attr("stroke", color)
-        .attr("stroke-width", highlight ? 6 : 3);
+        .attr("stroke-width", highlight ? 7 : 5);
 }
 
 
@@ -235,10 +234,10 @@ function getNodeHCL(node, inlaw_desaturated = true) {
     // Calculate fill color based on generation
     // Use HCL for equal luminance regardless of hue
     var hue_spacing = 60;
-    if (window.generations_up + window.generations_down > 6) hue_spacing = 360 / (window.generations_up + window.generations_down);
-    const base_hue = window.root_hue || 0;
+    if (window.generations_up + window.generations_down >= 6) hue_spacing = 360 / (window.generations_up + window.generations_down + 1);
+    const base_hue = window.root_hue || window.default_node_hue;
     const hue = ((node.generation - window.generations_down) * hue_spacing + base_hue + 360) % 360;
-    const chroma = (inlaw_desaturated && (node.type === 'inlaw')) ? 0 : (window.node_saturation || 33);
-    const luminance = window.node_brightness || 40;
+    const chroma = (inlaw_desaturated && (node.type === 'inlaw')) ? 0 : (window.node_saturation || window.default_node_saturation);
+    const luminance = window.node_brightness || window.default_node_brightness;
     return [hue, chroma, luminance];
 }
