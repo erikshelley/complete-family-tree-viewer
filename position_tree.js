@@ -38,6 +38,16 @@ function positionMaleAncestor(node, rows) {
         let [spouse_min_x, spouse_max_x] = positionSpouses(node, rows, 'root');
         let [child_min_x, child_max_x] = positionChildren(node, rows, false);
         positionNode(node, rows);
+        
+        // If there is a gap between the inlaws and the ancestor, close the gap
+        if (node.spouse_nodes.length > 0) {
+            let shift_x = node.x - (spouse_max_x + window.h_spacing);
+            if (shift_x > 0) {
+                node.spouse_nodes.forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
+                shiftSiblings(node, shift_x);
+            }
+        }
+
         if (node.type == 'root') centerPersonAboveSpouses(node);
 
         // Male ancestor needs to be to the right of his siblings and their descendants
@@ -110,6 +120,8 @@ function positionRelative(node, rows) {
         node.max_x = node.x + window.box_width;
     }
     
+    if (node.stacked) return;
+
     // Position spouses
     let [spouse_min_x, spouse_max_x] = positionSpouses(node, rows, 'relative');
     node.min_x = Math.min(node.min_x, spouse_min_x);
@@ -235,14 +247,42 @@ function positionSpouses(node, rows, type_to_drop) {
 }
 
 
+function hasGrandChildren(node) {
+    let result = false;
+    node.children_nodes.forEach(child_node => { 
+        child_node.spouse_nodes.forEach(spouse_node => { 
+            if (spouse_node.children_nodes && spouse_node.children_nodes.length > 0) {
+                result = true; 
+            }
+        });
+    });
+    return result;
+}
+
+
+// drop_sub_level will be true for inlaws so that their children are positioned one sub-level lower than the inlaw
 function positionChildren(node, rows, drop_sub_level) {
     let child_min_x = Infinity, child_max_x = -Infinity;
+    let stack_sub_level = node.sub_level + 1;
+    const has_grandchildren = hasGrandChildren(node);
     node.children_nodes.forEach(child_node => { 
-        if (drop_sub_level) child_node.sub_level = node.sub_level + 1;
+        if (drop_sub_level) {
+            if (!has_grandchildren && window.stack_leaf_nodes) {
+                child_node.sub_level = stack_sub_level;
+                child_node.stacked = true;
+                child_node.stack_parent = node;
+                stack_sub_level += 1;
+            }
+            else child_node.sub_level = node.sub_level + 1;
+        }
         positionTree(child_node, rows); 
         child_min_x = Math.min(child_min_x, child_node.min_x);
         child_max_x = Math.max(child_max_x, child_node.max_x);
     });
+    // If stack isn't aligned, align it to the max child
+    if (!has_grandchildren && drop_sub_level && window.stack_leaf_nodes && (child_max_x > node.x)) {
+        node.children_nodes.forEach(child_node => { child_node.x = child_max_x - window.box_width; });
+    }
     return [child_min_x, child_max_x];
 }
 
@@ -284,8 +324,16 @@ function shiftSiblings(node, shift_x) {
 function positionNode(node, rows) {
     const length = rows[node.level][node.sub_level].length;
     // Start at the left most position of the level or to the right of the last node in this sub-level
-    if (length === 0) node.x = window.padding;
-    else node.x = rows[node.level][node.sub_level][length - 1].x + window.box_width + window.h_spacing;
+    if (node.stacked) {
+        if (rows[node.level][node.sub_level][length - 1]) {
+            node.x = Math.max(node.stack_parent.x, rows[node.level][node.sub_level][length - 1].x + window.box_width + window.h_spacing);
+        }
+        else node.x = node.stack_parent.x;
+    }
+    else {
+        if (length === 0) node.x = window.padding;
+        else node.x = rows[node.level][node.sub_level][length - 1].x + window.box_width + window.h_spacing;
+    }
 
     if (window.level_boundary_node_ancestor[node.level]) {
         // Do not cross the vertical line below a female ancestor

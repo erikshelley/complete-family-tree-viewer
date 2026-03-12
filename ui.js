@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const individual_filter = document.getElementById('individual-filter');
     const generations_up = document.getElementById('generations-up');
     const generations_down = document.getElementById('generations-down');
+    const hide_childless_inlaws = document.getElementById('hide-childless-inlaws');
+    const stack_leaf_nodes = document.getElementById('stack-leaf-nodes');
     const color_picker = document.getElementById('color-picker');
     const saturation_slider = document.getElementById('saturation-slider');
     const brightness_slider = document.getElementById('brightness-slider');
@@ -31,6 +33,8 @@ document.addEventListener('DOMContentLoaded', function() {
     window.node_saturation = parseInt(saturation_slider.value) || window.default_node_saturation;
     window.tree_color = color_picker.value;
     window.selected_individual = '';
+    window.hide_childless_inlaws = hide_childless_inlaws.checked || false;
+    window.stack_leaf_nodes = stack_leaf_nodes.checked || false;
 
     // Update family tree on window resize
     window.addEventListener('resize', function() { updateFamilyTree(); });
@@ -65,6 +69,16 @@ document.addEventListener('DOMContentLoaded', function() {
     text_brightness_slider.addEventListener('input', function(event) {
         window.text_brightness = parseInt(event.target.value) || window.default_text_brightness;
         updateSliderThumbs();
+        updateFamilyTree();
+    });
+
+    hide_childless_inlaws.addEventListener('change', function(event) {
+        window.hide_childless_inlaws = event.target.checked;
+        updateFamilyTree();
+    });
+
+    stack_leaf_nodes.addEventListener('change', function(event) {
+        window.stack_leaf_nodes = event.target.checked;
         updateFamilyTree();
     });
 
@@ -134,21 +148,23 @@ document.addEventListener('DOMContentLoaded', function() {
     updateSliderThumbs();
 
     function updateFamilyTree() {
-        // The tree building process can change the data, so we reload to get a fresh copy each time
-        const parsed_data = parseGedcomData(window.gedcom_content);
-        window.individuals = parsed_data.individuals;
-        window.families = parsed_data.families;
+        if (window.gedcom_content) {
+            // The tree building process can change the data, so we reload to get a fresh copy each time
+            const parsed_data = parseGedcomData(window.gedcom_content);
+            window.individuals = parsed_data.individuals;
+            window.families = parsed_data.families;
 
-        if (individual_select.value === '') createFamilyTree(window.selected_individual);
-        const selected_id = individual_select.value;
-        window.generations_up = parseInt(generations_up.value) || 0;
-        window.generations_down = parseInt(generations_down.value) || 0;
+            if (individual_select.value === '') createFamilyTree(window.selected_individual);
+            const selected_id = individual_select.value;
+            window.generations_up = parseInt(generations_up.value) || 0;
+            window.generations_down = parseInt(generations_down.value) || 0;
 
-        if (selected_id && selected_id !== 'Select an individual...') {
-            const selected_individual = window.individuals.find(ind => ind.id === selected_id);
-            if (selected_individual) {
-                window.selected_individual = selected_individual;
-                createFamilyTree(selected_individual);
+            if (selected_id && selected_id !== 'Select an individual...') {
+                const selected_individual = window.individuals.find(ind => ind.id === selected_id);
+                if (selected_individual) {
+                    window.selected_individual = selected_individual;
+                    createFamilyTree(selected_individual);
+                }
             }
         }
     }

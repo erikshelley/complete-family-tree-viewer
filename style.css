@@ -238,8 +238,14 @@ input[type="range"] {
     background: transparent;
 }
 
-input[type="checkbox"] {
-    margin: 0px 8px 0px 4px;
+input[type="checkbox"] { margin: 0px 8px 0px 4px; }
+
+input[type="checkbox"],
+label[for="hide-childless-inlaws"],
+label[for="stack-leaf-nodes"],
+label[for="transparent-bg-rect"],
+label[for="color-picker"] {
+    cursor: pointer;
 }
 
 input[type="color"] {

@@ -14,9 +14,10 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
 
-                // Draw link between relative and spouse
                 let [hue, chroma, luminance] = getNodeHCL(node, false);
                 let color = d3.hcl(hue, chroma, luminance * 1.25);
+
+                // Draw link between relative and spouse
                 if (node.type === 'relative' || node.type === 'root') {
                     node.spouse_nodes.forEach(spouse_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
@@ -62,9 +63,10 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
 
                 if (node.type === 'ancestor' && node.individual.gender == 'M') {
 
-                    // Draw links from father and mother to center point
                     let [hue, chroma, luminance] = getNodeHCL(node, false);
                     let color = d3.hcl(hue, chroma, luminance * 1.5 * 1.25);
+
+                    // Draw links from father and mother to center point
                     drawLink(svg_node, color, {x: node.x + window.box_width / 2,                    y: node.y}, 
                                               {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, true);
                     drawLink(svg_node, color, {x: node.x + 3 * window.box_width / 2 + window.h_spacing, y: node.y}, 
@@ -75,16 +77,26 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                         color = d3.hcl(hue, chroma, luminance * 1.5 * 1.25);
                     }
 
-                    // Draw link between ancestor and child
+                    // Draw link between ancestor and root child
                     node.children_nodes.filter(child_node => child_node.individual.is_root).forEach(child_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
                                                   {x: child_node.x + window.box_width / 2,              y: child_node.y}, true);
                     });
 
+                    if (node.individual.pedigree_child_node) {
+                        [hue, chroma, luminance] = getNodeHCL(node.individual.pedigree_child_node, false);
+                        color = d3.hcl(hue, chroma, luminance * 1.5 * 1.25);
+                    }
+
                     // Draw link between ancestor and pedigree child
                     if (node.individual.pedigree_child_node) {
                         drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2,             y: node.y + window.box_height}, 
                                                   {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y}, true);
+                    }
+
+                    if (node.individual.duplicate_pedigree_child_node) {
+                        [hue, chroma, luminance] = getNodeHCL(node.individual.duplicate_pedigree_child_node, false);
+                        color = d3.hcl(hue, chroma, luminance * 1.5 * 1.25);
                     }
 
                     // Draw link between ancestor and duplicate pedigree child
