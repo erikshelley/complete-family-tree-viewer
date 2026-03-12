@@ -1,6 +1,6 @@
 function createFamilyTree(selected_individual) {
     const family_tree_header = document.getElementById('family-tree-header');
-    family_tree_header.innerHTML = 'Family Tree for ' + selected_individual.name;
+    family_tree_header.innerHTML = `Family Tree for <span class="root-name">${selected_individual.name}</span>`;
 
     // Clear previous content
     const family_tree_div = document.getElementById('family-tree-div');
@@ -24,8 +24,8 @@ function createFamilyTree(selected_individual) {
 
     // Set SVG dimensions
     const bounding_box = family_tree_div.getBoundingClientRect();
-    const svg_width = bounding_box.width - 24; // horizontal padding in div
-    const svg_height = bounding_box.height - 40; // bottom padding in div
+    let svg_width = bounding_box.width - 24; // horizontal padding in div
+    let svg_height = bounding_box.height - 40; // bottom padding in div
 
     // Initial SVG
     const svg = d3.select('#family-tree-div')
@@ -37,6 +37,14 @@ function createFamilyTree(selected_individual) {
     const scale_x = max_x / svg_width;
     const scale_y = max_y / svg_height;
     const max_scale = Math.max(scale_x, scale_y);
+    if (scale_x < scale_y) {
+        svg_width *= scale_x / scale_y;
+        svg.attr('width', svg_width);
+    }
+    if (scale_x > scale_y) {
+        svg_height *= scale_y / scale_x;
+        svg.attr('height', svg_height);
+    }
     svg.attr('viewBox', `0 0 ${max_scale * svg_width} ${max_scale * svg_height}`);
     svg.call(d3.zoom().scaleExtent([1, 100]).on("zoom", zoomed));
     const svg_node = svg.append("g");

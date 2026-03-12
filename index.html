@@ -56,7 +56,7 @@
 
             <div class="input-section">
                 <p>
-                    <input type="range" id="hue-slider" min="1" max="359" value="0">
+                    <input type="range" id="hue-slider" min="1" max="359" value="120">
                     <label for="hue-slider">Hue (Root)</label>
                 </p>
                 <p>
@@ -64,7 +64,7 @@
                     <label for="saturation-slider">Saturation</label>
                 </p>
                 <p>
-                    <input type="range" id="brightness-slider" min="1" max="100" value="40">
+                    <input type="range" id="brightness-slider" min="1" max="100" value="33">
                     <label for="brightness-slider">Brightness</label>
                 </p>
                 <p>
@@ -81,12 +81,14 @@
                 </p>
                 <p>
                     <input type="checkbox" id="highlight-ancestors" checked>
-                    <label for="highlight-ancestors">Highlight Ancestors</label>
+                    <label for="highlight-ancestors">Highlight Root's Ancestors</label>
                 </p>
             </div>
         </div>
         <div class="right-column">
             <div class="section-header">
+                <button id="save-svg-btn">Save SVG</button>
+                <button id="save-png-btn">Save PNG</button>
                 <h2 id="family-tree-header">Family Tree</h2>
             </div>
 

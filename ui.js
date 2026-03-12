@@ -194,15 +194,111 @@ document.addEventListener('DOMContentLoaded', function() {
         if (filter.length > 0) {
             filtered = individuals.filter(ind => (ind.name || ind.id).toLowerCase().includes(filter));
         }
-        //let first = true;
         filtered.forEach(individual => {
             const option = document.createElement('option');
             option.value = individual.id;
-            option.textContent = individual.name || individual.id;
-            //if (first) option.selected = true;
+            let birthYear = '';
+            let deathYear = '';
+            if (individual.birth) {
+                const match = individual.birth.match(/\b(\d{4})\b/);
+                if (match) birthYear = match[1];
+            }
+            if (individual.death) {
+                const match = individual.death.match(/\b(\d{4})\b/);
+                if (match) deathYear = match[1];
+            }
+            let years = '';
+            if (birthYear || deathYear) {
+                years = ` (${birthYear}${deathYear ? '–' + deathYear : ''})`;
+            }
+            option.textContent = (individual.name || individual.id) + years;
             select.appendChild(option);
-            //first = false;
         });
-        //updateFamilyTree(); 
+    }
+
+    // Save SVG button functionality
+    const saveSvgBtn = document.getElementById('save-svg-btn');
+    if (saveSvgBtn) {
+        saveSvgBtn.addEventListener('click', function() {
+            const svg = family_tree_div.querySelector('svg');
+            if (!svg) {
+                alert('No SVG found to save.');
+                return;
+            }
+            let serializer = new XMLSerializer();
+            let source = serializer.serializeToString(svg);
+            // Add XML declaration
+            if (!source.match(/^<svg[^>]+xmlns="http:\/\/www.w3.org\/2000\/svg"/)) {
+                source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+            }
+            const blob = new Blob([source], {type: 'image/svg+xml'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'family-tree.svg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    }
+
+    // Save PNG button functionality
+    const savePngBtn = document.getElementById('save-png-btn');
+    if (savePngBtn) {
+        savePngBtn.addEventListener('click', function() {
+            savePngBtn.disabled = true;
+            const svg = family_tree_div.querySelector('svg');
+            if (!svg) {
+                alert('No SVG found to save.');
+                savePngBtn.disabled = false;
+                return;
+            }
+            const serializer = new XMLSerializer();
+            let source = serializer.serializeToString(svg);
+            if (!source.match(/^<svg[^>]+xmlns="http:\/\/www.w3.org\/2000\/svg"/)) {
+                source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+            }
+            const svgBlob = new Blob([source], {type: 'image/svg+xml'});
+            const url = URL.createObjectURL(svgBlob);
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let vbWidth = 1200, vbHeight = 800;
+                const viewBox = svg.getAttribute('viewBox');
+                if (viewBox) {
+                    const vbVals = viewBox.split(/\s+|,/);
+                    if (vbVals.length === 4) {
+                        vbWidth = parseFloat(vbVals[2]);
+                        vbHeight = parseFloat(vbVals[3]);
+                    }
+                }
+                canvas.width = vbWidth;
+                canvas.height = vbHeight;
+                const ctx = canvas.getContext('2d');
+                let errorOccurred = false;
+                try {
+                    ctx.drawImage(img, 0, 0, vbWidth, vbHeight);
+                } catch (err) {
+                    errorOccurred = true;
+                    alert('Error saving PNG: The canvas size may exceed the browser or system limit. Try reducing the tree size or saving it as an SVG.');
+                    savePngBtn.disabled = false;
+                    return;
+                }
+                if (!errorOccurred) {
+                    canvas.toBlob(function(blob) {
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob);
+                        a.download = 'family-tree.png';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        savePngBtn.disabled = false;
+                    }, 'image/png');
+                }
+            };
+            img.src = url;
+        });
     }
 });

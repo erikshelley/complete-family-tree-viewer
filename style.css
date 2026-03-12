@@ -10,12 +10,13 @@ html, body {
 
 h1 {
     text-align: center;
-    padding: 10px 0;
+    text-shadow: 4px 4px 8px rgba(0,0,0,0.5);
 }
 
 h2 { 
     padding: 8px 0; 
     margin: 0px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
 p { 
@@ -23,13 +24,11 @@ p {
     margin: 12px 0px;
 }
 
-svg { cursor: pointer; }
-
 .container {
     display: flex;
     gap: 20px;
     margin: 0 40px 0px 40px;
-    height: calc(100% - 170px);
+    height: calc(100% - 130px);
 }
 
 .left-column {
@@ -49,6 +48,10 @@ svg { cursor: pointer; }
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     height: 100%;
+}
+
+.root-name {
+    color: #aaa;
 }
 
 .section-header {
@@ -108,7 +111,7 @@ svg { cursor: pointer; }
     color: #aaa;
     border: 1px solid #444;
     border-radius: 6px;
-    padding: 6px;
+    padding: 4px 6px;
     font-size: 1em;
 }
 
@@ -125,22 +128,20 @@ svg { cursor: pointer; }
 }
 
 /* Modern file input styling */
-#file-input {
+#file-input, #save-svg-btn, #save-png-btn {
     color: transparent;
     width: 180px;
     height: 40px;
     border: none;
     background: none;
     font-size: 0;
-    /*--button-color-1: #4f8cff;
-    --button-color-2: #38c6ff;*/
     --button-color-1: hsl(200, 60%, 50%);
     --button-color-2: hsl(210, 60%, 40%);
 }
 
 #file-input::-webkit-file-upload-button {
     visibility: visible;
-    background: linear-gradient(90deg, var(--button-color-1) 0%, var(--button-color-2) 100%);
+    background: linear-gradient(180deg, var(--button-color-1) 0%, var(--button-color-2) 100%);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -153,12 +154,12 @@ svg { cursor: pointer; }
 }
 
 #file-input::-webkit-file-upload-button:hover {
-    background: linear-gradient(90deg, var(--button-color-2) 0%, var(--button-color-1) 100%);
+    background: linear-gradient(180deg, var(--button-color-2) 0%, var(--button-color-1) 100%);
 }
 
 #file-input::file-selector-button {
     visibility: visible;
-    background: linear-gradient(90deg, var(--button-color-1) 0%, var(--button-color-2) 100%);
+    background: linear-gradient(180deg, var(--button-color-1) 0%, var(--button-color-2) 100%);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -171,7 +172,29 @@ svg { cursor: pointer; }
 }
 
 #file-input::file-selector-button:hover {
-    background: linear-gradient(90deg, var(--button-color-2) 0%, var(--button-color-1) 100%);
+    background: linear-gradient(180deg, var(--button-color-2) 0%, var(--button-color-1) 100%);
+}
+
+#save-svg-btn, #save-png-btn {
+    visibility: visible;
+    background: linear-gradient(180deg, var(--button-color-1) 0%, var(--button-color-2) 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0px 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 2px 8px rgba(80,130,255,0.12);
+    float: right;
+    width: 120px;
+    height: 30px;
+    margin: 8px 0px 0px 8px;
+}
+
+#save-svg-btn:hover, #save-png-btn:hover {
+    background: linear-gradient(180deg, var(--button-color-2) 0%, var(--button-color-1) 100%);
 }
 
 /* Style all range slider tracks */
@@ -223,12 +246,14 @@ input[type="range"]::-webkit-slider-runnable-track {
     height: 9px;
     background: #555;
     border-radius: 4px;
+    cursor: pointer;
 }
 
 input[type="range"]::-moz-range-track {
     height: 9px;
     background: #555;
     border-radius: 4px;
+    cursor: pointer;
 }
 
 input[type="range"]::-ms-fill-lower,
@@ -236,6 +261,7 @@ input[type="range"]::-ms-fill-upper {
     height: 9px;
     background: #555;
     border-radius: 4px;
+    cursor: pointer;
 }
 
 label {
