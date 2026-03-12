@@ -171,12 +171,12 @@ document.addEventListener('DOMContentLoaded', function() {
             window.individuals = parsed_data.individuals;
             window.families = parsed_data.families;
 
-            if (individual_select.value === '') createFamilyTree(window.selected_individual);
-            const selected_id = individual_select.value;
+            //if (individual_select.value === '') createFamilyTree(window.selected_individual);
+            const selected_id = individual_select.value || window.selected_individual.id;
             window.generations_up = parseInt(generations_up.value) || 0;
             window.generations_down = parseInt(generations_down.value) || 0;
 
-            if (selected_id && selected_id !== 'Select an individual...') {
+            if (selected_id && (selected_id !== 'Select an individual...')) {
                 const selected_individual = window.individuals.find(ind => ind.id === selected_id);
                 if (selected_individual) {
                     window.selected_individual = selected_individual;

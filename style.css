@@ -24,6 +24,11 @@ p {
     margin: 12px 0px;
 }
 
+svg { 
+    overflow: visible; 
+    cursor: move;
+}
+
 .container {
     display: flex;
     gap: 20px;
@@ -88,6 +93,7 @@ p {
     cursor: pointer;
     color: #aaa;
 }
+
 #family-tree-div {
     background-color: #202020;
     width: calc(100% - 24px);
@@ -95,6 +101,7 @@ p {
     padding: 12px;
     box-shadow: 4px 4px 12px rgba(0,0,0,0.2);
     border-radius: 0 0 6px 6px;
+    overflow: hidden;
 }
 
 #individual-select {

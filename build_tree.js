@@ -107,7 +107,7 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
     }
 
     if (window.hide_childless_inlaws && (type === 'inlaw')) {
-        if (!individual.spouse_family || (individual.spouse_family.chil.length === 0)) return null;
+        if (!individual.spouse_family || (individual.spouse_family.chil.length === 0) || (current_gen === 0)) return null;
     }
 
     const node = {
