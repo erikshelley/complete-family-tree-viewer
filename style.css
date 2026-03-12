@@ -60,7 +60,10 @@ h2 {
     margin: 0px;
 }
 
-p { color: #aaa; }
+p { 
+    color: #aaa; 
+    margin: 12px 0px;
+}
 
 svg { cursor: pointer; }
 
@@ -99,7 +102,7 @@ svg { cursor: pointer; }
 /* Styling for file name display */
 #file-name {
     display: block;
-    margin-top: 8px;
+    margin: 0px 0px 8px;
     color: hsl(120, 25%, 50%);
 }
 

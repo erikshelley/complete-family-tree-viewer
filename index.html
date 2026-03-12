@@ -19,9 +19,8 @@
 
             <div class="input-section">
                 <h3>Gedcom File</h3>
-                <input type="file" id="file-input" accept=".ged,.gedcom">
-                <br>
                 <span id="file-name"></span>
+                <input type="file" id="file-input" accept=".ged,.gedcom">
 
                 <h3>Root Person</h3>
                 <input type="text" id="individual-filter" placeholder="Type to filter names...">
@@ -39,12 +38,12 @@
                     <label for="generations-down">Generations Down</label>
                 </p>
                 <p>
-                    <input type="checkbox" id="hide-childless-inlaws">
-                    <label for="hide-childless-inlaws">Hide Childless Inlaws</label>
-                </p>
-                <p>
                     <input type="checkbox" id="stack-leaf-nodes">
                     <label for="stack-leaf-nodes">Stack Leaf Nodes</label>
+                </p>
+                <p>
+                    <input type="checkbox" id="hide-childless-inlaws">
+                    <label for="hide-childless-inlaws">Hide Childless Inlaws</label>
                 </p>
             </div>
 
@@ -57,36 +56,35 @@
                     <input type="range" id="hue-slider" min="1" max="359" value="0">
                     <label for="hue-slider">Hue (Root)</label>
                 </p>
-
                 <p>
                     <input type="range" id="saturation-slider" min="1" max="100" value="33">
                     <label for="saturation-slider">Saturation</label>
                 </p>
-
                 <p>
                     <input type="range" id="brightness-slider" min="1" max="100" value="40">
                     <label for="brightness-slider">Brightness</label>
                 </p>
-
                 <p>
                     <input type="range" id="text-brightness-slider" min="1" max="100" value="90">
                     <label for="text-brightness-slider">Text Brightness</label>
                 </p>
-
                 <p>
                     <input type="checkbox" id="transparent-bg-rect" checked>
                     <label for="transparent-bg-rect">Transparent Background</label>
                 </p>
-
                 <p>
                     <input type="color" id="color-picker" value="#000000">
                     <label for="color-picker">Background Color</label>
+                </p>
+                <p>
+                    <input type="checkbox" id="highlight-ancestors" checked>
+                    <label for="highlight-ancestors">Highlight Ancestors</label>
                 </p>
             </div>
         </div>
         <div class="right-column">
             <div class="section-header">
-                <h2>Family Tree</h2>
+                <h2 id="family-tree-header">Family Tree</h2>
             </div>
 
             <div id="family-tree-div">

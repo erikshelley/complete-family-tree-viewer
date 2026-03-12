@@ -9,17 +9,23 @@
 
 ## New Features
 
+### Misc
+- Limit generation up and generation down based on root person
+
 ### Positioning
-- ~~Option to hide childless inlaws~~
-- ~~Option to stack children if a parent has no grandchildren~~
+- Stack all loose leaf nodes
+  - Ancestor siblings
+  - Multiple childless inlaws for one relative
+  - Childless children with siblings who have children
+  - Don't auto hide childless inlaws - rely on checkbox
 - Option for maximum stack size
 
 ### Style
+- ~~Configurable highlighting for pedigree path~~
 - Different connector style for parent-child relationship vs spouse-spouse relationship
 - Configurable distance between hues
 - Configurable box width and height
 - Configurable line thickness
-- Configurable highlighting for pedigree path
 
 ### Interface
 - Zoom icons

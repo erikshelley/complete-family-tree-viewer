@@ -1,4 +1,7 @@
 function createFamilyTree(selected_individual) {
+    const family_tree_header = document.getElementById('family-tree-header');
+    family_tree_header.innerHTML = 'Family Tree for ' + selected_individual.name;
+
     // Clear previous content
     const family_tree_div = document.getElementById('family-tree-div');
     family_tree_div.innerHTML = '';

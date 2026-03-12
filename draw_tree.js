@@ -64,7 +64,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                 if (node.type === 'ancestor' && node.individual.gender == 'M') {
 
                     let [hue, chroma, luminance] = getNodeHCL(node, false);
-                    let color = d3.hcl(hue, chroma, luminance * 1.5 * 1.25);
+                    let color = d3.hcl(hue, chroma, luminance * 1.25 * (window.highlight_ancestors ? 1.5 : 1));
 
                     // Draw links from father and mother to center point
                     drawLink(svg_node, color, {x: node.x + window.box_width / 2,                    y: node.y}, 
@@ -74,7 +74,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
 
                     if (node.children_nodes.length > 0) {
                         [hue, chroma, luminance] = getNodeHCL(node.children_nodes[0], false);
-                        color = d3.hcl(hue, chroma, luminance * 1.5 * 1.25);
+                        color = d3.hcl(hue, chroma, luminance * 1.25 * (window.highlight_ancestors ? 1.5 : 1));
                     }
 
                     // Draw link between ancestor and root child
@@ -85,7 +85,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
 
                     if (node.individual.pedigree_child_node) {
                         [hue, chroma, luminance] = getNodeHCL(node.individual.pedigree_child_node, false);
-                        color = d3.hcl(hue, chroma, luminance * 1.5 * 1.25);
+                        color = d3.hcl(hue, chroma, luminance * 1.25 * (window.highlight_ancestors ? 1.5 : 1));
                     }
 
                     // Draw link between ancestor and pedigree child
@@ -123,7 +123,8 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
 
 function drawNode(svg, node) {
     const g = svg.append('g').attr('transform', `translate(${node.x}, ${node.y})`);
-    const highlight = ((node.type === 'ancestor') || node.individual.is_root);
+    let highlight = ((node.type === 'ancestor') || node.individual.is_root);
+    if (!window.highlight_ancestors) highlight = false;
 
     let [hue, chroma, luminance] = getNodeHCL(node);
     const fill_color = d3.hcl(hue, chroma, luminance * (highlight ? 1.5 : 1));
@@ -219,6 +220,7 @@ function drawNode(svg, node) {
 
 
 function drawLink(svg_node, color, point1, point2, highlight, duplicate = false) {
+    if (!window.highlight_ancestors) highlight = false;
     const customLink = (point1, point2) => {
         var x1 = point1.x;
         var x2 = point2.x;

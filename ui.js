@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const hue_slider = document.getElementById('hue-slider');
     const transparent_bg_rect_checkbox = document.getElementById('transparent-bg-rect');
     const text_brightness_slider = document.getElementById('text-brightness-slider');
+    const highlight_ancestors = document.getElementById('highlight-ancestors');
     window.default_text_brightness = 90;
     text_brightness_slider.value = window.default_text_brightness;
     window.default_node_brightness = 33;
@@ -35,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.selected_individual = '';
     window.hide_childless_inlaws = hide_childless_inlaws.checked || false;
     window.stack_leaf_nodes = stack_leaf_nodes.checked || false;
+    window.highlight_ancestors = highlight_ancestors.checked || true;
 
     // Update family tree on window resize
     window.addEventListener('resize', function() { updateFamilyTree(); });
@@ -89,6 +91,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     color_picker.addEventListener('input', function(event) {
         window.tree_color = event.target.value;
+        updateFamilyTree();
+    });
+
+    highlight_ancestors.addEventListener('change', function(event) {
+        window.highlight_ancestors = event.target.checked;
         updateFamilyTree();
     });
 
