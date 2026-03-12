@@ -156,6 +156,11 @@ document.addEventListener('DOMContentLoaded', function() {
         hue_slider.style.setProperty('--range-thumb-color', color);
         saturation_slider.style.setProperty('--range-thumb-color', color);
         brightness_slider.style.setProperty('--range-thumb-color', color);
+        const root_name = document.getElementById('root-name');
+        if (root_name) {
+            color = d3.hcl(hue, sat, 75);
+            root_name.style.setProperty('--root-name-text-color', color);
+        }
         sat = 0;
         lum = parseInt(text_brightness_slider.value) || window.default_text_brightness;
         color = d3.hcl(hue, sat, lum);

@@ -35,9 +35,9 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                     color = d3.hcl(hue, chroma, luminance * 1.25);
                 }
 
-                // Draw link between in-law and child
+                // Draw link between in-law and unstacked child
                 if (node.type === 'inlaw') {
-                    node.children_nodes.forEach(child_node => {
+                    node.children_nodes.filter(child_node => !(child_node.stacked && (child_node.stack_top != child_node))).forEach(child_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
                                                   {x: child_node.x + window.box_width / 2, y: child_node.y}, false);
                     });
@@ -45,7 +45,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
 
                 // Draw link between ancestor and unstacked child
                 if (node.type === 'ancestor' && node.individual.gender == 'M') {
-                    node.children_nodes.filter(child_node => !child_node.individual.is_root && !(child_node.stacked && (child_node.sub_level > 0))).forEach(child_node => {
+                    node.children_nodes.filter(child_node => !child_node.individual.is_root && !(child_node.stacked && (child_node.stack_top != child_node))).forEach(child_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
                                                   {x: child_node.x + window.box_width / 2,              y: child_node.y}, false);
                     });
@@ -55,7 +55,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                 color = d3.hcl(hue, chroma, luminance * 1.25);
 
                 // Draw link stacked child and previous stacked child
-                if ((node.type === 'relative') && node.stacked && (node.sub_level > 0)) {
+                if ((node.type === 'relative') && node.stacked && (node != node.stack_top)) {
                     drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y}, 
                                               {x: node.x + window.box_width / 2, y: node.y - window.v_spacing}, false);
                 }

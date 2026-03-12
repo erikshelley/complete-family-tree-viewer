@@ -55,9 +55,7 @@ svg {
     height: 100%;
 }
 
-.root-name {
-    color: #aaa;
-}
+#node-count { color: #aaa; }
 
 .section-header {
     padding: 0px 12px 0px;
@@ -211,6 +209,11 @@ input[type="range"] {
     --range-border-color: #202020;
     --range-thumb-color: #000000;
     --range-thumb-text-color: #f0f0f0;
+}
+
+#root-name {
+    --root-name-text-color: hsl(120, 25%, 75%);
+    color: var(--root-name-text-color);
 }
 
 #text-brightness-slider::-webkit-slider-thumb { background: var(--range-thumb-text-color); }

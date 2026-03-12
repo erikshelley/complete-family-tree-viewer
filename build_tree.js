@@ -1,7 +1,4 @@
 function createFamilyTree(selected_individual) {
-    const family_tree_header = document.getElementById('family-tree-header');
-    family_tree_header.innerHTML = `Family Tree for <span class="root-name">${selected_individual.name}</span>`;
-
     // Clear previous content
     const family_tree_div = document.getElementById('family-tree-div');
     family_tree_div.innerHTML = '';
@@ -60,6 +57,13 @@ function createFamilyTree(selected_individual) {
     //console.log(`Total nodes: ${node_count}`);
     //const nodes_per_second = node_count / (total_time / 1000);
     //console.log(`Nodes per second: ${nodes_per_second.toFixed(2)}`);
+
+    const root_name_span = document.getElementById('root-name');
+    root_name_span.innerHTML = selected_individual.name;
+
+    const node_count_span = document.getElementById('node-count');
+    if (node_count === "1") node_count_span.innerHTML = `${node_count} Person`;
+    else node_count_span.innerHTML = `${node_count} People`;
 }
 
 
