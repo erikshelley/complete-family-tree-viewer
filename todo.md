@@ -21,7 +21,6 @@
 - Option for maximum stack size
 
 ### Style
-- ~~Configurable highlighting for pedigree path~~
 - Different connector style for parent-child relationship vs spouse-spouse relationship
 - Configurable distance between hues
 - Configurable box width and height

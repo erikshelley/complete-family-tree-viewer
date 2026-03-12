@@ -13,6 +13,18 @@ h1 {
     padding: 10px 0;
 }
 
+h2 { 
+    padding: 8px 0; 
+    margin: 0px;
+}
+
+p { 
+    color: #aaa; 
+    margin: 12px 0px;
+}
+
+svg { cursor: pointer; }
+
 .container {
     display: flex;
     gap: 20px;
@@ -55,18 +67,24 @@ h1 {
     margin: 0px 0px 1px;
 }
 
-h2 { 
-    padding: 8px 0; 
-    margin: 0px;
+/* Filter input and clear button styling moved from index.html */
+.filter-container {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
-
-p { 
-    color: #aaa; 
-    margin: 12px 0px;
+.filter-input {
+    flex: 1;
+    padding-right: 2em;
 }
-
-svg { cursor: pointer; }
-
+.clear-filter-btn {
+    position: absolute;
+    right: 0.3em;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #aaa;
+}
 #family-tree-div {
     background-color: #202020;
     width: calc(100% - 24px);

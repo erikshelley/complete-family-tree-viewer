@@ -23,7 +23,10 @@
                 <input type="file" id="file-input" accept=".ged,.gedcom">
 
                 <h3>Root Person</h3>
-                <input type="text" id="individual-filter" placeholder="Type to filter names...">
+                <div class="filter-container">
+                    <input type="text" id="individual-filter" class="filter-input" placeholder="Type to filter names...">
+                    <button id="clear-individual-filter" type="button" class="clear-filter-btn">&#10005;</button>
+                </div>
                 <select id="individual-select" size="5">
                     <option>Populated from Gedcom file...</option>
                 </select>

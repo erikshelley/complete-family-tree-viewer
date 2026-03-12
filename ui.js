@@ -50,6 +50,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
     });
 
+        // Add clear button functionality for individual-filter
+        const clearIndividualFilterBtn = document.getElementById('clear-individual-filter');
+        if (clearIndividualFilterBtn) {
+            clearIndividualFilterBtn.addEventListener('click', function() {
+                individual_filter.value = '';
+                window.individual_filter_value = '';
+                populateIndividualSelect(window.individuals);
+            });
+        }
+
     hue_slider.addEventListener('input', function(event) {
         window.root_hue = parseInt(event.target.value) || window.default_node_hue;
         updateSliderThumbs();
