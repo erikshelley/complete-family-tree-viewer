@@ -96,7 +96,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
 
                     if (node.individual.duplicate_pedigree_child_node) {
                         [hue, chroma, luminance] = getNodeHCL(node.individual.duplicate_pedigree_child_node, false);
-                        color = d3.hcl(hue, chroma, luminance * 1.5 * 1.25);
+                        color = d3.hcl(hue, chroma, luminance * 1.25 * (window.highlight_ancestors ? 1.5 : 1));
                     }
 
                     // Draw link between ancestor and duplicate pedigree child

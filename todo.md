@@ -14,9 +14,7 @@
 ## New Features
 
 ### Misc
-- ~~Add years of birth and death to drop down~~
-- ~~Save as SVG~~
-- ~~Save as PNG~~
+- Hide childless inlaws should mean no children visible in tree rather than no children even if the tree were expanded
 - Limit generation up and generation down based on root person
   - Perhaps just keep track of whether there are any more than what was chosen
   - Or if the chosen value wasn't fully realized, limit retroactively
@@ -29,10 +27,11 @@
   - Childless children with siblings who have children
   - Don't auto hide childless inlaws - rely on checkbox
 - Option for maximum stack size
+- Option to hide siblings
+- Option to hide inlaws
 - Pan and zoom using keys
 
 ### Style
-- ~~Different connector style for parent-child relationship vs spouse-spouse relationship~~
 - Configurable distance between hues
 - Configurable box width and height
 - Configurable line thickness
