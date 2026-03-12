@@ -2,8 +2,11 @@ function createFamilyTree(selected_individual) {
     // Clear previous content
     const family_tree_div = document.getElementById('family-tree-div');
     family_tree_div.innerHTML = '';
-    window.level_boundaries = [];
     window.level_heights = [];
+    window.level_boundary_node_leaf = [];
+    window.level_boundary_node_ancestor = [];
+    window.max_gen_up = 0;
+    window.max_gen_down = 0;
 
     // Measure buildTree
     //const t0 = performance.now();
@@ -59,11 +62,11 @@ function createFamilyTree(selected_individual) {
     //console.log(`Nodes per second: ${nodes_per_second.toFixed(2)}`);
 
     const root_name_span = document.getElementById('root-name');
-    root_name_span.innerHTML = selected_individual.name;
+    root_name_span.innerHTML = selected_individual.name.replace(/ /g, '&nbsp;');
 
     const node_count_span = document.getElementById('node-count');
-    if (node_count === "1") node_count_span.innerHTML = `${node_count} Person`;
-    else node_count_span.innerHTML = `${node_count} People`;
+    if (node_count === "1") node_count_span.innerHTML = `${node_count}&nbsp;Person&nbsp;Shown`;
+    else node_count_span.innerHTML = `${node_count}&nbsp;People&nbsp;Shown`;
 }
 
 
@@ -127,6 +130,8 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
         children_nodes: [],
     };
 
+    window.max_gen_up = Math.max(window.max_gen_up, anchor_gen - window.generations_down);
+    window.max_gen_down = Math.max(window.max_gen_down, window.generations_down - current_gen);
 
     if (type === 'root') node.individual.is_root = true;
     else individual.node = node;

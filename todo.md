@@ -14,23 +14,21 @@
 ## New Features
 
 ### Misc
-- Limit generation up and generation down based on root person
-  - Perhaps just keep track of whether there are any more than what was chosen
-  - Or if the chosen value wasn't fully realized, limit retroactively
-- Sort drop down
+- ~~Limit generation up and generation down based on root person~~
+- ? Button/link to show max generations
+- ? Sort drop down
 
 ### Positioning
-- ~~Stack all loose leaf nodes~~
-- Raise horizontal lines to female ancestor so horizontal line from male ancestor siblings can slide underneath
 - Option for maximum stack size
-- Option to hide siblings
-- Option to hide inlaws
 - Pan and zoom using keys
+- ? Option to hide siblings (and ancestor inlaws)
+- ? Raise horizontal lines to female ancestor so horizontal line from male ancestor siblings can slide underneath
 
 ### Style
-- Configurable distance between hues
-- Configurable box width and height
-- Configurable line thickness
+- Configure which text to show
+- Configure distance between hues
+- Configure box width and height
+- Configure line thickness
 
 ### Interface
 - Zoom icons

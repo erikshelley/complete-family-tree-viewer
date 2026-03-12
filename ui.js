@@ -176,7 +176,6 @@ document.addEventListener('DOMContentLoaded', function() {
             window.individuals = parsed_data.individuals;
             window.families = parsed_data.families;
 
-            //if (individual_select.value === '') createFamilyTree(window.selected_individual);
             const selected_id = individual_select.value || window.selected_individual.id;
             window.generations_up = parseInt(generations_up.value) || 0;
             window.generations_down = parseInt(generations_down.value) || 0;
@@ -186,6 +185,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (selected_individual) {
                     window.selected_individual = selected_individual;
                     createFamilyTree(selected_individual);
+                    if (generations_up.value > window.max_gen_up) generations_up.value = window.max_gen_up;
+                    if (generations_down.value > window.max_gen_down) generations_down.value = window.max_gen_down;
                 }
             }
         }

@@ -6,6 +6,8 @@ window.padding = 80;
 window.level_boundary_node_leaf = [];
 window.level_boundary_node_ancestor = [];
 window.level_heights = [];
+window.max_gen_up = 0;
+window.max_gen_down = 0;
 
 
 function positionTree(node, rows = []) {

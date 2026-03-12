@@ -264,7 +264,7 @@ function getNodeHCL(node, inlaw_desaturated = true) {
     // Calculate fill color based on generation
     // Use HCL for equal luminance regardless of hue
     var hue_spacing = 60;
-    if (window.generations_up + window.generations_down >= 6) hue_spacing = 360 / (window.generations_up + window.generations_down + 1);
+    if (window.max_gen_up + window.max_gen_down >= 6) hue_spacing = 360 / (window.max_gen_up + window.max_gen_down + 1);
     const base_hue = window.root_hue || window.default_node_hue;
     const hue = ((node.generation - window.generations_down) * hue_spacing + base_hue + 360) % 360;
     const chroma = (inlaw_desaturated && (node.type === 'inlaw')) ? 0 : (window.node_saturation || window.default_node_saturation);
