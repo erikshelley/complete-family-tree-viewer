@@ -26,7 +26,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                 if (node.type === 'ancestor') {
                     node.spouse_nodes.forEach(spouse_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width / 2,         y: node.y}, 
-                                                  {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height}, false, 'inlaw');
+                                                  {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height}, false, 'inlaw-center');
                     });
                 }
 
@@ -210,11 +210,9 @@ function drawNode(svg, node) {
     // Add text with 3 lines: name (2 lines), birth-death (1 line)
     const text_luminance = window.text_brightness || 0;
     const text_color = d3.hcl(0, 0, text_luminance);
-    //const text_color = d3.hcl(hue, chroma, text_luminance);
     const text_element = g.append('text')
         .attr('x', window.box_width / 2)
         .attr('y', window.box_height / 2) // Initial vertical center
-        //.attr('dy', '0.35em') // Adjust for better vertical centering
         .attr('text-anchor', 'middle')
         .attr('font-family', 'Arial, sans-serif')
         .attr('font-weight', highlight ? 'bold' : 'normal')
@@ -223,22 +221,27 @@ function drawNode(svg, node) {
 
     // Split name into two lines if too long
     const name = node.individual.name || '';
-    const max_line_length = 14; // Approximate characters per line for 2-line name
+    const max_line_length = node.individual.name.length / 2;
 
     let line1, line2;
-    if (name.length <= max_line_length) {
+    let splitIdx = -1;
+    let minDist = name.length;
+    const mid = Math.floor(name.length / 2);
+    for (let i = 0; i < name.length; i++) {
+        if (name[i] === ' ') {
+            const dist = Math.abs(i - mid);
+            if (dist < minDist) {
+                minDist = dist;
+                splitIdx = i;
+            }
+        }
+    }
+    if (splitIdx !== -1) {
+        line1 = name.slice(0, splitIdx);
+        line2 = name.slice(splitIdx + 1);
+    } else {
         line1 = name;
         line2 = '';
-    } else {
-        // Find a good break point
-        const words = name.split(' ');
-        line1 = words[0];
-        let i = 1;
-        while (i < words.length && (line1 + ' ' + words[i]).length <= max_line_length) {
-            line1 += ' ' + words[i];
-            i++;
-        }
-        line2 = words.slice(i).join(' ');
     }
 
     // Add name lines if enabled
@@ -315,7 +318,7 @@ function drawLink(svg_node, color, point1, point2, highlight, special) {
         var x2 = point2.x;
         var y1 = point1.y;
         var y2 = point2.y;
-        const ymid = (special === 'center' ? y1 + window.box_height / 2 : y2 - window.v_spacing / 2) - (special === 'duplicate' ? window.v_spacing / 2 : 0);
+        const ymid = (special && special.includes('center') ? y1 + window.box_height / 2 : y2 - window.v_spacing / 2) - (special === 'duplicate' ? window.v_spacing / 2 : 0);
         const corner_radius = 10;
         const context = d3.path();
         context.moveTo(x1, y1);
@@ -333,13 +336,13 @@ function drawLink(svg_node, color, point1, point2, highlight, special) {
         return context.toString();
     };
 
-    const strokeWidth = window.link_width || 3;
+    const stroke_width = window.link_width || 3;
     svg_node.append("path")
         .attr("d", customLink(point1, point2))
         .attr("fill", "none")
         .attr("stroke", color)
-        .attr("stroke-width", strokeWidth)
-        .attr("stroke-dasharray", special === 'duplicate' ? "10,5" : special === 'inlaw' ? "5,5" : "none");
+        .attr("stroke-width", stroke_width)
+        .attr("stroke-dasharray", special === 'duplicate' ? `${2*stroke_width},${stroke_width}` : special && special.includes('inlaw') ? `${2*stroke_width},${stroke_width}` : "none");
 }
 
 

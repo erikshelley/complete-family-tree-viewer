@@ -3,11 +3,15 @@
 🔴🟠🟡🟢
 
 ## Bugs
-- Error on Ellie's 10th gen tree
+- ~~Failing on newest gedcom file~~
+- ~~Horizontal link to inlaw not always vertically centered~~
+- ~~Zero hue on the slider is showing as 120~~
+- ~~Are names always being split in the middle?~~
+- Warning showing dates for Unknown Person
 - Vertical centering is off for one-liners
 
 ### Positioning
-- Sometimes siblings and spouses are spaced unevenly when some have children and some do not
+- ? Sometimes siblings and spouses are spaced unevenly when some have children and some do not
   - Fixing this could sometimes force a choice between keeping parents centered above their children vs making the tree wider
   - To move a child, first confirm parents can move if the center point changes
   - Can probably compress siblings of male ancestors
@@ -17,10 +21,10 @@
 ## New Features
 
 ### Misc
-- ~~Button/link to show max generations (or checkboxes to always use max)~~
-- ~~Button/link to use max stack (or checkboxes to always use max)~~
 - Show locations in nodes
-- Sort drop down
+- Queue second request to update family tree to keep interface responsive
+- Disable [max] and [auto] links if there is no tree displayed
+- ? Sort drop down
 
 ### Positioning
 - *Pedigree only - option to hide siblings (and ancestor inlaws)*
@@ -29,17 +33,19 @@
 - Pan and zoom using keys
 
 ### Style
-- ~~Text shadows~~
-- ~~Auto-detect box width and height needed to fit text (optional checkbox)~~
-- ~~Vertically center text in node~~
-- ~~Configure horizontal and vertical spacing~~
+- ~~Min width for left column~~
+- ~~Make size of dashes responsive to the line size~~
+- Responsive design
 - Highlight descendants (all pedigree)
 - Node borders
 - Hue direction
-- Font size
-- Distance between hues
+- Node rounding
+- Link rounding
+- ? Font size
+- ? Distance between hues
 
 ### Interface
+- Number inputs for each range input
 - Zoom icons
   - Zoom in
   - Zoom out

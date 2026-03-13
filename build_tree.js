@@ -65,11 +65,11 @@ function createFamilyTree(selected_individual) {
     //console.log(`Nodes per second: ${nodes_per_second.toFixed(2)}`);
 
     const root_name_span = document.getElementById('root-name');
-    root_name_span.innerHTML = selected_individual.name.replace(/ /g, '&nbsp;');
+    root_name_span.innerHTML = `${selected_individual.name.replace(/ /g, '&nbsp;')}'s`;
 
     const node_count_span = document.getElementById('node-count');
-    if (node_count === "1") node_count_span.innerHTML = `${node_count}&nbsp;Person&nbsp;Shown`;
-    else node_count_span.innerHTML = `${node_count}&nbsp;People&nbsp;Shown`;
+    if (node_count === "1") node_count_span.innerHTML = `:&nbsp;${node_count}&nbsp;Person&nbsp;Shown`;
+    else node_count_span.innerHTML = `:&nbsp;${node_count}&nbsp;People&nbsp;Shown`;
 
     //console.log(window.auto_box_width);
     //console.log(window.auto_box_height);
@@ -77,7 +77,7 @@ function createFamilyTree(selected_individual) {
 
 
 function createUnknownPerson(gender, node) {
-    const person = { id: null, name: 'Unknown', famc: null, fams: [node.parent_family], birth: '', death: '', gender: gender };
+    const person = { id: null, name: 'Unknown', famc: null, fams: [node.parent_family], gender: gender };
     return person;
 }
 
@@ -148,7 +148,8 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
         if (node.parent_family) {
 
             // Add father
-            const father = node.parent_family.husb ? window.individuals.find(ind => ind.id === node.parent_family.husb) : createUnknownPerson('M', node);
+            let father = node.parent_family.husb ? window.individuals.find(ind => ind.id === node.parent_family.husb) : createUnknownPerson('M', node);
+            if (!father) father = createUnknownPerson('M', node);
             father.pedigree_family = node.parent_family;
             if (node.type != 'root') {
                 if (!father.pedigree_child_node) father.pedigree_child_node = node;
@@ -158,7 +159,8 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
             node.father_node = buildTree(father, current_gen + 1, anchor_gen + 1, 'ancestor');
 
             // Add mother
-            const mother = node.parent_family.wife ? window.individuals.find(ind => ind.id === node.parent_family.wife) : createUnknownPerson('F', node);
+            let mother = node.parent_family.wife ? window.individuals.find(ind => ind.id === node.parent_family.wife) : createUnknownPerson('F', node);
+            if (!mother) mother = createUnknownPerson('F', node);
             mother.pedigree_family = node.parent_family;
             if (node.type != 'root') {
                 if (!mother.pedigree_child_node) mother.pedigree_child_node = node;

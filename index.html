@@ -35,15 +35,15 @@
                 <h3>Tree Size</h3>
                 <p>
                     <input type="number" id="generations-up" min="0" max="99" value="1">
-                    <label for="generations-up">Generations Up</label>&nbsp;<a href="#" class="right-shortcut" id="generations-up-max-link">[max]</a>
+                    <label for="generations-up">Generations Up</label>&nbsp;<a href="#" class="right-shortcut" id="generations-up-max-link">[MAX]</a>
                 </p>
                 <p>
                     <input type="number" id="generations-down" min="0" max="99" value="1">
-                    <label for="generations-down">Generations Down</label>&nbsp;<a href="#" class="right-shortcut" id="generations-down-max-link">[max]</a>
+                    <label for="generations-down">Generations Down</label>&nbsp;<a href="#" class="right-shortcut" id="generations-down-max-link">[MAX]</a>
                 </p>
                 <p>
                     <input type="number" id="max-stack-size" min="1" max="99" value="1">
-                    <label for="max-stack-size">Maximum Stack Size</label>&nbsp;<a href="#" class="right-shortcut" id="max-stack-size-max-link">[max]</a>
+                    <label for="max-stack-size">Maximum Stack Size</label>&nbsp;<a href="#" class="right-shortcut" id="max-stack-size-max-link">[MAX]</a>
                 </p>
                 <p>
                     <input type="checkbox" id="hide-childless-inlaws">
@@ -61,31 +61,48 @@
             </div>
 
             <div class="input-section">
+                <h3>Nodes</h3>
                 <p>
                     <span class="range-value" id="node-width-value"></span>
                     <input type="range" id="node-width" min="20" max="480" value="140">
-                    <label for="node-width">Node Width</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-width-link">[auto]</a>
+                    <label for="node-width">Width</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-width-link">[AUTO]</a>
                 </p>
                 <p>
                     <span class="range-value" id="node-height-value"></span>
                     <input type="range" id="node-height" min="20" max="320" value="70">
-                    <label for="node-height">Node Height</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-height-link">[auto]</a>
-                </p>
-                <p>
-                    <span class="range-value" id="link-width-value"></span>
-                    <input type="range" id="link-width-slider" min="1" max="28" value="6">
-                    <label for="link-width-slider">Link Width</label>
+                    <label for="node-height">Height</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-height-link">[AUTO]</a>
                 </p>
                 <p>
                     <span class="range-value" id="h-spacing-value"></span>
                     <input type="range" id="h-spacing-slider" min="1" max="400" value="40">
-                    <label for="h-spacing-slider">Horizontal Spacing</label>
+                    <label for="h-spacing-slider">X Spacing</label>
                 </p>
                 <p>
                     <span class="range-value" id="v-spacing-value"></span>
                     <input type="range" id="v-spacing-slider" min="1" max="400" value="80">
-                    <label for="v-spacing-slider">Vertical Spacing</label>
+                    <label for="v-spacing-slider">Y Spacing</label>
                 </p>
+                <p>
+                    <input type="checkbox" id="show-names" checked>
+                    <label for="show-names">Show Names</label>
+                </p>
+                <p>
+                    <input type="checkbox" id="show-years" checked>
+                    <label for="show-years">Show Years of Birth/Death</label>
+                </p>
+                <p>
+                    <input type="checkbox" id="show-tooltips">
+                    <label for="show-tooltips">Show Tool Tips</label>
+                </p>
+
+                <h3>Links</h3>
+                <p>
+                    <span class="range-value" id="link-width-value"></span>
+                    <input type="range" id="link-width-slider" min="1" max="28" value="6">
+                    <label for="link-width-slider">Thickness</label>
+                </p>
+
+                <h3>Colors</h3>
                 <p>
                     <span class="range-value" id="hue-value"></span>
                     <input type="range" id="hue-slider" min="0" max="359" value="120">
@@ -107,6 +124,10 @@
                     <label for="text-brightness-slider">Text Brightness</label>
                 </p>
                 <p>
+                    <input type="checkbox" id="highlight-ancestors" checked>
+                    <label for="highlight-ancestors">Highlight Root's Ancestors</label>
+                </p>
+                <p>
                     <input type="checkbox" id="transparent-bg-rect" checked>
                     <label for="transparent-bg-rect">Transparent Background</label>
                 </p>
@@ -114,29 +135,13 @@
                     <input type="color" id="color-picker" value="#000000" disabled>
                     <label for="color-picker">Background Color</label>
                 </p>
-                <p>
-                    <input type="checkbox" id="highlight-ancestors" checked>
-                    <label for="highlight-ancestors">Highlight Root's Ancestors</label>
-                </p>
-                <p>
-                    <input type="checkbox" id="show-names" checked>
-                    <label for="show-names">Show Names</label>
-                </p>
-                <p>
-                    <input type="checkbox" id="show-years" checked>
-                    <label for="show-years">Show Years of Birth/Death</label>
-                </p>
-                <p>
-                    <input type="checkbox" id="show-tooltips">
-                    <label for="show-tooltips">Show Tool Tips</label>
-                </p>
             </div>
         </div>
         <div class="right-column">
             <div class="section-header">
                 <button id="save-svg-btn">Save SVG</button>
                 <button id="save-png-btn">Save PNG</button>
-                <h2 id="family-tree-header">Family&nbsp;Tree&nbsp;&nbsp;&nbsp;<span id="root-name"></span>&nbsp;&nbsp;&nbsp;<span id="node-count"></span></h2>
+                <h2 id="family-tree-header"><span id="root-name"></span>&nbsp;Family&nbsp;Tree&nbsp;<span id="node-count"></span></h2>
             </div>
 
             <div id="family-tree-div">

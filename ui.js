@@ -195,11 +195,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const hue_slider = document.getElementById('hue-slider');
     window.default_node_hue = 120;
     hue_slider.value = window.default_node_hue;
-    window.root_hue = parseInt(hue_slider.value) || window.default_node_hue;
+    window.root_hue = parseInt(hue_slider.value);
     const hue_value = document.getElementById('hue-value');
     hue_value.innerHTML = window.root_hue;
     hue_slider.addEventListener('input', function(event) {
-        window.root_hue = parseInt(event.target.value) || window.default_node_hue;
+        window.root_hue = parseInt(event.target.value);
         hue_value.innerHTML = window.root_hue;
         updateSliderThumbs();
         updateFamilyTree();
@@ -209,11 +209,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const saturation_slider = document.getElementById('saturation-slider');
     window.default_node_saturation = 33;
     saturation_slider.value = window.default_node_saturation;
-    window.node_saturation = parseInt(saturation_slider.value) || window.default_node_saturation;
+    window.node_saturation = parseInt(saturation_slider.value);
     const saturation_value = document.getElementById('saturation-value');
     saturation_value.innerHTML = window.node_saturation;
     saturation_slider.addEventListener('input', function(event) {
-        window.node_saturation = parseInt(event.target.value) || window.default_node_saturation;
+        window.node_saturation = parseInt(event.target.value);
         saturation_value.innerHTML = window.node_saturation;
         updateSliderThumbs();
         updateFamilyTree();
@@ -222,11 +222,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const brightness_slider = document.getElementById('brightness-slider');
     window.default_node_brightness = 33;
     brightness_slider.value = window.default_node_brightness;
-    window.node_brightness = parseInt(brightness_slider.value) || window.default_node_brightness;
+    window.node_brightness = parseInt(brightness_slider.value);
     const brightness_value = document.getElementById('brightness-value');
     brightness_value.innerHTML = window.node_brightness;
     brightness_slider.addEventListener('input', function(event) {
-        window.node_brightness = parseInt(event.target.value) || window.default_node_brightness;
+        window.node_brightness = parseInt(event.target.value);
         brightness_value.innerHTML = window.node_brightness;
         updateSliderThumbs();
         updateFamilyTree();
@@ -235,11 +235,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const text_brightness_slider = document.getElementById('text-brightness-slider');
     window.default_text_brightness = 90;
     text_brightness_slider.value = window.default_text_brightness;
-    window.text_brightness = parseInt(text_brightness_slider.value) || window.default_text_brightness;
+    window.text_brightness = parseInt(text_brightness_slider.value);
     const text_brightness_value = document.getElementById('text-brightness-value');
     text_brightness_value.innerHTML = window.text_brightness;
     text_brightness_slider.addEventListener('input', function(event) {
-        window.text_brightness = parseInt(event.target.value) || window.default_text_brightness ;
+        window.text_brightness = parseInt(event.target.value);
         text_brightness_value.innerHTML = window.text_brightness;
         updateSliderThumbs();
         updateFamilyTree();
