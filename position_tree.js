@@ -1,5 +1,5 @@
-window.box_width = 120;
-window.box_height = 80;
+window.box_width = 140;
+window.box_height = 70;
 window.h_spacing = 40;
 window.v_spacing = 80;
 window.padding = 80;
@@ -8,8 +8,10 @@ window.level_boundary_node_ancestor = [];
 window.level_heights = [];
 window.max_gen_up = 0;
 window.max_gen_down = 0;
-window.max_stack_size = 0;
+window.max_stack_size = 1;
 window.max_stack_actual = 0;
+window.auto_box_width = 0;
+window.auto_box_height = 0;
 
 
 function positionTree(node, rows = []) {
@@ -96,12 +98,11 @@ function positionMaleAncestor(node, rows) {
         node.max_x = Math.max(node.x + window.box_width, child_max_x);
 
         // Male ancestors need to be to the right of the level boundary's max_x
-        if (node.individual.name === 'Thomas Ryan') console.log(window.level_boundary_node_leaf[node.level].individual.name);
-
         if ((node.type != 'root') && window.level_boundary_node_leaf[node.level] && (window.level_boundary_node_leaf[node.level] != node)) {
             const boundary_node = window.level_boundary_node_leaf[node.level];
             let max_x = boundary_node.x + window.box_width + window.h_spacing;
-            let shift_x = max_x - (node.x + window.box_width - window.h_spacing / 2);
+            //let shift_x = max_x - (node.x + window.box_width + window.h_spacing / 2);
+            let shift_x = max_x - (node.x + window.box_width);
             if (shift_x > 0) {
                 node.x += shift_x;
                 node.min_x += shift_x;

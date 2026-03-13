@@ -35,19 +35,23 @@
                 <h3>Tree Size</h3>
                 <p>
                     <input type="number" id="generations-up" min="0" max="99" value="1">
-                    <label for="generations-up">Generations Up</label>
+                    <label for="generations-up">Generations Up</label>&nbsp;<a href="#" class="right-shortcut" id="generations-up-max-link">[max]</a>
                 </p>
                 <p>
                     <input type="number" id="generations-down" min="0" max="99" value="1">
-                    <label for="generations-down">Generations Down</label>
+                    <label for="generations-down">Generations Down</label>&nbsp;<a href="#" class="right-shortcut" id="generations-down-max-link">[max]</a>
                 </p>
                 <p>
                     <input type="number" id="max-stack-size" min="1" max="99" value="1">
-                    <label for="max-stack-size">Maximum Stack Size</label>
+                    <label for="max-stack-size">Maximum Stack Size</label>&nbsp;<a href="#" class="right-shortcut" id="max-stack-size-max-link">[max]</a>
                 </p>
                 <p>
                     <input type="checkbox" id="hide-childless-inlaws">
                     <label for="hide-childless-inlaws">Hide Childless Inlaws</label>
+                </p>
+                <p>
+                    <input type="checkbox" id="pedigree-only">
+                    <label for="pedigree-only">Show Pedigree Only</label>
                 </p>
             </div>
 
@@ -59,18 +63,28 @@
             <div class="input-section">
                 <p>
                     <span class="range-value" id="node-width-value"></span>
-                    <input type="range" id="node-width" min="20" max="480" value="120">
-                    <label for="node-width">Node Width</label>
+                    <input type="range" id="node-width" min="20" max="480" value="140">
+                    <label for="node-width">Node Width</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-width-link">[auto]</a>
                 </p>
                 <p>
                     <span class="range-value" id="node-height-value"></span>
-                    <input type="range" id="node-height" min="20" max="320" value="80">
-                    <label for="node-height">Node Height</label>
+                    <input type="range" id="node-height" min="20" max="320" value="70">
+                    <label for="node-height">Node Height</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-height-link">[auto]</a>
                 </p>
                 <p>
                     <span class="range-value" id="link-width-value"></span>
                     <input type="range" id="link-width-slider" min="1" max="28" value="6">
                     <label for="link-width-slider">Link Width</label>
+                </p>
+                <p>
+                    <span class="range-value" id="h-spacing-value"></span>
+                    <input type="range" id="h-spacing-slider" min="1" max="400" value="40">
+                    <label for="h-spacing-slider">Horizontal Spacing</label>
+                </p>
+                <p>
+                    <span class="range-value" id="v-spacing-value"></span>
+                    <input type="range" id="v-spacing-slider" min="1" max="400" value="80">
+                    <label for="v-spacing-slider">Vertical Spacing</label>
                 </p>
                 <p>
                     <span class="range-value" id="hue-value"></span>
@@ -113,7 +127,7 @@
                     <label for="show-years">Show Years of Birth/Death</label>
                 </p>
                 <p>
-                    <input type="checkbox" id="show-tooltips" checked>
+                    <input type="checkbox" id="show-tooltips">
                     <label for="show-tooltips">Show Tool Tips</label>
                 </p>
             </div>

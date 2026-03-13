@@ -75,9 +75,9 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
 
                     // Draw links from father and mother to center point
                     drawLink(svg_node, color, {x: node.x + window.box_width / 2,                    y: node.y}, 
-                                              {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, true);
+                                              {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, true, 'center');
                     drawLink(svg_node, color, {x: node.x + 3 * window.box_width / 2 + window.h_spacing, y: node.y}, 
-                                              {x: node.x + window.box_width + window.h_spacing / 2,     y: node.y + window.box_height}, true);
+                                              {x: node.x + window.box_width + window.h_spacing / 2,     y: node.y + window.box_height}, true, 'center');
 
                     if (node.children_nodes.length > 0) {
                         [hue, chroma, luminance] = getNodeHCL(node.children_nodes[0], false);
@@ -213,11 +213,13 @@ function drawNode(svg, node) {
     //const text_color = d3.hcl(hue, chroma, text_luminance);
     const text_element = g.append('text')
         .attr('x', window.box_width / 2)
-        .attr('y', 24) // Vertically centered in 80px box
+        .attr('y', window.box_height / 2) // Initial vertical center
+        //.attr('dy', '0.35em') // Adjust for better vertical centering
         .attr('text-anchor', 'middle')
         .attr('font-family', 'Arial, sans-serif')
         .attr('font-weight', highlight ? 'bold' : 'normal')
-        .attr('fill', text_color);
+        .attr('fill', text_color)
+        .style('text-shadow', '1px 1px 2px rgba(0,0,0,0.75)');
 
     // Split name into two lines if too long
     const name = node.individual.name || '';
@@ -240,21 +242,21 @@ function drawNode(svg, node) {
     }
 
     // Add name lines if enabled
-    let name_lines = 0;
+    let text_lines = 0;
     if (window.show_names) {
         if (line1) {
             text_element.append('tspan')
                 .attr('x', window.box_width / 2)
                 .attr('dy', '0em')
                 .text(line1);
-            name_lines++;
+            text_lines++;
         }
         if (line2) {
             text_element.append('tspan')
                 .attr('x', window.box_width / 2)
                 .attr('dy', '1.2em')
                 .text(line2);
-            name_lines++;
+            text_lines++;
         }
     }
 
@@ -262,31 +264,41 @@ function drawNode(svg, node) {
     if (window.show_years) {
         const birth_death = node.individual.birth && node.individual.death ? 
             `${node.individual.birth}-${node.individual.death}` : 
-            node.individual.birth ? 
-            `${node.individual.birth}-` : 
-            node.individual.death ? 
-            `-${node.individual.death}` : 
-            '';
+                node.individual.birth ? `${node.individual.birth}-` : 
+                    node.individual.death ? `-${node.individual.death}` : 
+                        '';
 
-        if (birth_death) {
+        if (birth_death != '') {
             text_element.append('tspan')
                 .attr('x', window.box_width / 2)
-                .attr('dy', name_lines === 2 ? '1.4em' : '1.2em')
+                //.attr('dy', text_lines === 2 ? '1.4em' : '1.2em')
+                .attr('dy', text_lines > 0 ? '1.2em' : '0em')
                 .text(birth_death);
+            text_lines++;
         }
     }
 
-    // Adjust font size if needed
-    let font_size = 12;
-    const min_font_size = 6;
-    const padding = 0;
-    const max_width = window.box_width - padding;
+    if (window.show_names || window.show_years) {
+        // Adjust font size if needed
+        let font_size = 12;
+        const min_font_size = 6;
+        const padding = 0;
+        const max_width = window.box_width - padding;
 
-    // Check if text fits
-    const bbox = text_element.node().getBBox();
-    if (bbox.width > max_width) {
-        font_size = Math.round(10 * Math.max(min_font_size, font_size * (max_width / bbox.width))) / 10;
-        text_element.attr('font-size', font_size + 'px');
+        // Check if text fits
+        const bbox = text_element.node().getBBox();
+        if (bbox.width > max_width) {
+            font_size = Math.round(10 * Math.max(min_font_size, font_size * (max_width / bbox.width))) / 10;
+            text_element.attr('font-size', font_size + 'px');
+        }
+        window.auto_box_width = Math.max(window.auto_box_width, window.box_width * (bbox.width / max_width), 20);
+        window.auto_box_height = Math.max(window.auto_box_height, bbox.height, 20);
+
+        // Vertically center text in node
+        // The bottom of the first row of text will be placed at y (not exactly)
+        const line_height = bbox.height / text_lines;
+        const text_y = line_height / 1.25 + (window.box_height - bbox.height) / 2;
+        text_element.attr('y', text_y);
     }
 
     // Only render tooltip if enabled
@@ -303,7 +315,7 @@ function drawLink(svg_node, color, point1, point2, highlight, special) {
         var x2 = point2.x;
         var y1 = point1.y;
         var y2 = point2.y;
-        const ymid = y2 - window.v_spacing / 2 - (special === 'duplicate' ? window.v_spacing / 2 : 0);
+        const ymid = (special === 'center' ? y1 + window.box_height / 2 : y2 - window.v_spacing / 2) - (special === 'duplicate' ? window.v_spacing / 2 : 0);
         const corner_radius = 10;
         const context = d3.path();
         context.moveTo(x1, y1);

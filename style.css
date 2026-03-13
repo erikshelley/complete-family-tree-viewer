@@ -94,6 +94,14 @@ svg {
     color: #aaa;
 }
 
+.right-shortcut {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 0.9em;
+    color: hsl(210, 50%, 70%);
+    text-decoration: none;
+}
+
 #family-tree-div {
     background-color: #202020;
     width: calc(100% - 24px);
@@ -165,6 +173,7 @@ label[for="stack-leaf-nodes"],
 label[for="transparent-bg-rect"],
 label[for="highlight-ancestors"],
 label[for="show-tooltips"],
+label[for="pedigree-only"],
 label[for="color-picker"] {
     cursor: pointer;
 }

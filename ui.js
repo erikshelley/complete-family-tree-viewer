@@ -17,23 +17,49 @@ document.addEventListener('DOMContentLoaded', function() {
     // Numbers
     const generations_up = document.getElementById('generations-up');
     generations_up.addEventListener('input', function(event) { updateFamilyTree(); });
+
+    const generations_up_max_link = document.getElementById('generations-up-max-link');
+    generations_up_max_link.addEventListener('click', function(e) {
+        e.preventDefault();
+        generations_up.value = 99;
+        updateFamilyTree();
+    });
+
     const generations_down = document.getElementById('generations-down');
     generations_down.addEventListener('input', function(event) { updateFamilyTree(); });
+    const generations_down_max_link = document.getElementById('generations-down-max-link');
+    generations_down_max_link.addEventListener('click', function(e) {
+        e.preventDefault();
+        generations_down.value = 99;
+        updateFamilyTree();
+    });
+
     const max_stack_size = document.getElementById('max-stack-size');
     max_stack_size.addEventListener('input', function(event) { updateFamilyTree(); });
-
+    const max_stack_size_max_link = document.getElementById('max-stack-size-max-link');
+    max_stack_size_max_link.addEventListener('click', function(e) {
+        e.preventDefault();
+        max_stack_size.value = 99;
+        updateFamilyTree();
+    });
 
     // Checkboxes
     const hide_childless_inlaws = document.getElementById('hide-childless-inlaws');
-    window.hide_childless_inlaws = hide_childless_inlaws.checked || false;
+    window.hide_childless_inlaws = hide_childless_inlaws.checked;
     hide_childless_inlaws.addEventListener('change', function(event) {
         window.hide_childless_inlaws = event.target.checked;
         updateFamilyTree();
     });
 
+    const pedigree_only = document.getElementById('pedigree-only');
+    window.pedigree_only = pedigree_only.checked;
+    pedigree_only.addEventListener('change', function(event) {
+        window.pedigree_only = event.target.checked;
+        updateFamilyTree();
+    });
+
     const transparent_bg_rect_checkbox = document.getElementById('transparent-bg-rect');
     window.transparent_bg_rect = transparent_bg_rect_checkbox.checked;
-    // Set initial color-picker state
     color_picker.disabled = transparent_bg_rect_checkbox.checked;
     transparent_bg_rect_checkbox.addEventListener('change', function(event) {
         window.transparent_bg_rect = event.target.checked;
@@ -42,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const highlight_ancestors = document.getElementById('highlight-ancestors');
-    window.highlight_ancestors = highlight_ancestors.checked || true;
+    window.highlight_ancestors = highlight_ancestors.checked;
     highlight_ancestors.addEventListener('change', function(event) {
         window.highlight_ancestors = event.target.checked;
         updateFamilyTree();
@@ -67,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const show_tooltips_checkbox = document.getElementById('show-tooltips');
-    window.show_tooltips = show_tooltips_checkbox ? show_tooltips_checkbox.checked : true;
+    window.show_tooltips = show_tooltips_checkbox ? show_tooltips_checkbox.checked : false;
     if (show_tooltips_checkbox) {
         show_tooltips_checkbox.addEventListener('change', function(event) {
             window.show_tooltips = event.target.checked;
@@ -77,32 +103,52 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Ranges
     const node_width_slider = document.getElementById('node-width');
-    window.default_box_width = 120;
+    window.default_box_width = 140;
     node_width_slider.value = window.default_box_width;
     window.box_width = parseInt(node_width_slider.value) || window.default_box_width;
     const node_width_value = document.getElementById('node-width-value');
     node_width_value.innerHTML = window.box_width;
     if (node_width_slider) {
         node_width_slider.addEventListener('input', function(event) {
-            window.box_width = parseInt(event.target.value) || 120;
+            window.box_width = parseInt(event.target.value) || 140;
             node_width_value.innerHTML = window.box_width;
             updateFamilyTree();
         });
     }
+    const auto_node_width_link = document.getElementById('auto-node-width-link');
+    auto_node_width_link.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (window.auto_box_width > 0) {
+            node_width_slider.value = Math.ceil(window.auto_box_width / 10) * 10;
+            window.box_width = parseInt(node_width_slider.value) || window.default_box_width;
+            node_width_value.innerHTML = window.box_width;
+            updateFamilyTree();
+        }
+    });
 
     const node_height_slider = document.getElementById('node-height');
-    window.default_box_height = 80;
+    window.default_box_height = 70;
     node_height_slider.value = window.default_box_height;
     window.box_height = parseInt(node_height_slider.value) || window.default_box_height;
     const node_height_value = document.getElementById('node-height-value');
     node_height_value.innerHTML = window.box_height;
     if (node_height_slider) {
         node_height_slider.addEventListener('input', function(event) {
-            window.box_height = parseInt(event.target.value) || 80;
+            window.box_height = parseInt(event.target.value) || 70;
             node_height_value.innerHTML = window.box_height;
             updateFamilyTree();
         });
     }
+    const auto_node_height_link = document.getElementById('auto-node-height-link');
+    auto_node_height_link.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (window.auto_box_height > 0) {
+            node_height_slider.value = Math.ceil(window.auto_box_height / 10) * 10;
+            window.box_height = parseInt(node_height_slider.value) || window.default_box_height;
+            node_height_value.innerHTML = window.box_height;
+            updateFamilyTree();
+        }
+    });
 
     const link_width_slider = document.getElementById('link-width-slider');
     window.default_link_width = 6;
@@ -112,8 +158,36 @@ document.addEventListener('DOMContentLoaded', function() {
     link_width_value.innerHTML = window.link_width;
     if (link_width_slider) {
         link_width_slider.addEventListener('input', function(event) {
-            window.link_width = parseInt(event.target.value) || 3;
+            window.link_width = parseInt(event.target.value) || window.default_link_width;
             link_width_value.innerHTML = window.link_width;
+            updateFamilyTree();
+        });
+    }
+
+    const h_spacing_slider = document.getElementById('h-spacing-slider');
+    window.default_h_spacing = 40;
+    h_spacing_slider.value = window.default_h_spacing;
+    window.h_spacing = parseInt(h_spacing_slider.value) || window.default_h_spacing;
+    const h_spacing_value = document.getElementById('h-spacing-value');
+    h_spacing_value.innerHTML = window.h_spacing;
+    if (h_spacing_slider) {
+        h_spacing_slider.addEventListener('input', function(event) {
+            window.h_spacing = parseInt(event.target.value) || window.default_h_spacing;
+            h_spacing_value.innerHTML = window.h_spacing;
+            updateFamilyTree();
+        });
+    }
+
+    const v_spacing_slider = document.getElementById('v-spacing-slider');
+    window.default_v_spacing = 80;
+    v_spacing_slider.value = window.default_v_spacing;
+    window.v_spacing = parseInt(v_spacing_slider.value) || window.default_v_spacing;
+    const v_spacing_value = document.getElementById('v-spacing-value');
+    v_spacing_value.innerHTML = window.v_spacing;
+    if (v_spacing_slider) {
+        v_spacing_slider.addEventListener('input', function(event) {
+            window.v_spacing = parseInt(event.target.value) || window.default_v_spacing;
+            v_spacing_value.innerHTML = window.v_spacing;
             updateFamilyTree();
         });
     }
@@ -121,11 +195,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const hue_slider = document.getElementById('hue-slider');
     window.default_node_hue = 120;
     hue_slider.value = window.default_node_hue;
-    window.root_hue = parseInt(hue_slider.value) || 0;
+    window.root_hue = parseInt(hue_slider.value) || window.default_node_hue;
     const hue_value = document.getElementById('hue-value');
     hue_value.innerHTML = window.root_hue;
     hue_slider.addEventListener('input', function(event) {
-        window.root_hue = parseInt(event.target.value) || 0;
+        window.root_hue = parseInt(event.target.value) || window.default_node_hue;
         hue_value.innerHTML = window.root_hue;
         updateSliderThumbs();
         updateFamilyTree();
@@ -135,11 +209,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const saturation_slider = document.getElementById('saturation-slider');
     window.default_node_saturation = 33;
     saturation_slider.value = window.default_node_saturation;
-    window.node_saturation = parseInt(saturation_slider.value) || 0;
+    window.node_saturation = parseInt(saturation_slider.value) || window.default_node_saturation;
     const saturation_value = document.getElementById('saturation-value');
     saturation_value.innerHTML = window.node_saturation;
     saturation_slider.addEventListener('input', function(event) {
-        window.node_saturation = parseInt(event.target.value) || 0;
+        window.node_saturation = parseInt(event.target.value) || window.default_node_saturation;
         saturation_value.innerHTML = window.node_saturation;
         updateSliderThumbs();
         updateFamilyTree();
@@ -148,11 +222,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const brightness_slider = document.getElementById('brightness-slider');
     window.default_node_brightness = 33;
     brightness_slider.value = window.default_node_brightness;
-    window.node_brightness = parseInt(brightness_slider.value) || 0;
+    window.node_brightness = parseInt(brightness_slider.value) || window.default_node_brightness;
     const brightness_value = document.getElementById('brightness-value');
     brightness_value.innerHTML = window.node_brightness;
     brightness_slider.addEventListener('input', function(event) {
-        window.node_brightness = parseInt(event.target.value) || 0;
+        window.node_brightness = parseInt(event.target.value) || window.default_node_brightness;
         brightness_value.innerHTML = window.node_brightness;
         updateSliderThumbs();
         updateFamilyTree();
@@ -161,11 +235,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const text_brightness_slider = document.getElementById('text-brightness-slider');
     window.default_text_brightness = 90;
     text_brightness_slider.value = window.default_text_brightness;
-    window.text_brightness = parseInt(text_brightness_slider.value) || 0;
+    window.text_brightness = parseInt(text_brightness_slider.value) || window.default_text_brightness;
     const text_brightness_value = document.getElementById('text-brightness-value');
     text_brightness_value.innerHTML = window.text_brightness;
     text_brightness_slider.addEventListener('input', function(event) {
-        window.text_brightness = parseInt(event.target.value) || 0;
+        window.text_brightness = parseInt(event.target.value) || window.default_text_brightness ;
         text_brightness_value.innerHTML = window.text_brightness;
         updateSliderThumbs();
         updateFamilyTree();
@@ -213,6 +287,14 @@ document.addEventListener('DOMContentLoaded', function() {
             window.link_width = window.default_link_width;
             link_width_value.innerHTML = window.link_width;
 
+            v_spacing_slider.value = window.default_v_spacing;
+            window.v_spacing = window.default_v_spacing;
+            v_spacing_value.innerHTML = window.v_spacing;
+
+            h_spacing_slider.value = window.default_h_spacing;
+            window.h_spacing = window.default_h_spacing;
+            h_spacing_value.innerHTML = window.h_spacing;
+
             hue_slider.value = window.default_node_hue;
             window.root_hue = window.default_node_hue;
             hue_value.innerHTML = window.root_hue;
@@ -244,8 +326,8 @@ document.addEventListener('DOMContentLoaded', function() {
             show_years_checkbox.checked = true;
             window.show_years = true;
 
-            show_tooltips_checkbox.checked = true;
-            window.show_tooltips = true;
+            show_tooltips_checkbox.checked = false;
+            window.show_tooltips = false;
 
             updateSliderThumbs();
             updateFamilyTree();
@@ -300,6 +382,8 @@ document.addEventListener('DOMContentLoaded', function() {
         node_width_slider.style.setProperty('--range-thumb-color', color);
         node_height_slider.style.setProperty('--range-thumb-color', color);
         link_width_slider.style.setProperty('--range-thumb-color', color);
+        h_spacing_slider.style.setProperty('--range-thumb-color', color);
+        v_spacing_slider.style.setProperty('--range-thumb-color', color);
         const root_name = document.getElementById('root-name');
         if (root_name) {
             color = d3.hcl(hue, sat, 75);
