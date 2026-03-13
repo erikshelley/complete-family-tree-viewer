@@ -1,6 +1,16 @@
 // User interface and input handling functionality
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Text shadow checkbox
+    const text_shadow_checkbox = document.getElementById('text-shadow');
+    window.text_shadow = text_shadow_checkbox ? text_shadow_checkbox.checked : true;
+    if (text_shadow_checkbox) {
+        text_shadow_checkbox.addEventListener('change', function(event) {
+            window.text_shadow = event.target.checked;
+            updateFamilyTree();
+        });
+    }
+
     // Buttons
     const file_input = document.getElementById('file-input');
     const reset_styling_btn = document.getElementById('reset-styling-btn');
@@ -67,13 +77,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateFamilyTree();
     });
 
-    const highlight_ancestors = document.getElementById('highlight-ancestors');
-    window.highlight_ancestors = highlight_ancestors.checked;
-    highlight_ancestors.addEventListener('change', function(event) {
-        window.highlight_ancestors = event.target.checked;
-        updateFamilyTree();
-    });
-
     const show_names_checkbox = document.getElementById('show-names');
     window.show_names = show_names_checkbox ? show_names_checkbox.checked : true;
     if (show_names_checkbox) {
@@ -103,15 +106,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Ranges
     const node_width_slider = document.getElementById('node-width');
-    window.default_box_width = 140;
+    window.default_box_width = 150;
     node_width_slider.value = window.default_box_width;
     window.box_width = parseInt(node_width_slider.value) || window.default_box_width;
     const node_width_value = document.getElementById('node-width-value');
-    node_width_value.innerHTML = window.box_width;
-    if (node_width_slider) {
+    node_width_value.value = window.box_width;
+    if (node_width_slider && node_width_value) {
         node_width_slider.addEventListener('input', function(event) {
-            window.box_width = parseInt(event.target.value) || 140;
-            node_width_value.innerHTML = window.box_width;
+            window.box_width = parseInt(event.target.value) || window.default_box_width;
+            node_width_value.value = window.box_width;
+            updateFamilyTree();
+        });
+        node_width_value.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value) || window.default_box_width;
+            //if (val < 20) val = 20;
+            if (val > 480) val = 480;
+            window.box_width = val;
+            node_width_slider.value = val;
+            node_width_value.value = val;
             updateFamilyTree();
         });
     }
@@ -121,21 +133,30 @@ document.addEventListener('DOMContentLoaded', function() {
         if (window.auto_box_width > 0) {
             node_width_slider.value = Math.ceil(window.auto_box_width / 10) * 10;
             window.box_width = parseInt(node_width_slider.value) || window.default_box_width;
-            node_width_value.innerHTML = window.box_width;
+            node_width_value.value = window.box_width;
             updateFamilyTree();
         }
     });
 
     const node_height_slider = document.getElementById('node-height');
-    window.default_box_height = 70;
+    window.default_box_height = 75;
     node_height_slider.value = window.default_box_height;
     window.box_height = parseInt(node_height_slider.value) || window.default_box_height;
     const node_height_value = document.getElementById('node-height-value');
-    node_height_value.innerHTML = window.box_height;
-    if (node_height_slider) {
+    node_height_value.value = window.box_height;
+    if (node_height_slider && node_height_value) {
         node_height_slider.addEventListener('input', function(event) {
-            window.box_height = parseInt(event.target.value) || 70;
-            node_height_value.innerHTML = window.box_height;
+            window.box_height = parseInt(event.target.value) || window.default_box_height;
+            node_height_value.value = window.box_height;
+            updateFamilyTree();
+        });
+        node_height_value.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value) || window.default_box_height;
+            //if (val < 20) val = 20;
+            if (val > 320) val = 320;
+            window.box_height = val;
+            node_height_slider.value = val;
+            node_height_value.value = val;
             updateFamilyTree();
         });
     }
@@ -145,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (window.auto_box_height > 0) {
             node_height_slider.value = Math.ceil(window.auto_box_height / 10) * 10;
             window.box_height = parseInt(node_height_slider.value) || window.default_box_height;
-            node_height_value.innerHTML = window.box_height;
+            node_height_value.value = window.box_height;
             updateFamilyTree();
         }
     });
@@ -155,11 +176,20 @@ document.addEventListener('DOMContentLoaded', function() {
     link_width_slider.value = window.default_link_width;
     window.link_width = parseInt(link_width_slider.value) || window.default_link_width;
     const link_width_value = document.getElementById('link-width-value');
-    link_width_value.innerHTML = window.link_width;
-    if (link_width_slider) {
+    link_width_value.value = window.link_width;
+    if (link_width_slider && link_width_value) {
         link_width_slider.addEventListener('input', function(event) {
             window.link_width = parseInt(event.target.value) || window.default_link_width;
-            link_width_value.innerHTML = window.link_width;
+            link_width_value.value = window.link_width;
+            updateFamilyTree();
+        });
+        link_width_value.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value) || window.default_link_width;
+            if (val < 1) val = 1;
+            if (val > 28) val = 28;
+            window.link_width = val;
+            link_width_slider.value = val;
+            link_width_value.value = val;
             updateFamilyTree();
         });
     }
@@ -169,11 +199,20 @@ document.addEventListener('DOMContentLoaded', function() {
     h_spacing_slider.value = window.default_h_spacing;
     window.h_spacing = parseInt(h_spacing_slider.value) || window.default_h_spacing;
     const h_spacing_value = document.getElementById('h-spacing-value');
-    h_spacing_value.innerHTML = window.h_spacing;
-    if (h_spacing_slider) {
+    h_spacing_value.value = window.h_spacing;
+    if (h_spacing_slider && h_spacing_value) {
         h_spacing_slider.addEventListener('input', function(event) {
             window.h_spacing = parseInt(event.target.value) || window.default_h_spacing;
-            h_spacing_value.innerHTML = window.h_spacing;
+            h_spacing_value.value = window.h_spacing;
+            updateFamilyTree();
+        });
+        h_spacing_value.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value) || window.default_h_spacing;
+            if (val < 1) val = 1;
+            if (val > 400) val = 400;
+            window.h_spacing = val;
+            h_spacing_slider.value = val;
+            h_spacing_value.value = val;
             updateFamilyTree();
         });
     }
@@ -183,11 +222,72 @@ document.addEventListener('DOMContentLoaded', function() {
     v_spacing_slider.value = window.default_v_spacing;
     window.v_spacing = parseInt(v_spacing_slider.value) || window.default_v_spacing;
     const v_spacing_value = document.getElementById('v-spacing-value');
-    v_spacing_value.innerHTML = window.v_spacing;
-    if (v_spacing_slider) {
+    v_spacing_value.value = window.v_spacing;
+    if (v_spacing_slider && v_spacing_value) {
         v_spacing_slider.addEventListener('input', function(event) {
             window.v_spacing = parseInt(event.target.value) || window.default_v_spacing;
-            v_spacing_value.innerHTML = window.v_spacing;
+            v_spacing_value.value = window.v_spacing;
+            updateFamilyTree();
+        });
+        v_spacing_value.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value) || window.default_v_spacing;
+            if (val < 1) val = 1;
+            if (val > 400) val = 400;
+            window.v_spacing = val;
+            v_spacing_slider.value = val;
+            v_spacing_value.value = val;
+            updateFamilyTree();
+        });
+    }
+
+    const node_rounding_slider = document.getElementById('node-rounding-slider');
+    const node_rounding_value = document.getElementById('node-rounding');
+    window.default_node_rounding = 25;
+    if (node_rounding_slider) node_rounding_slider.value = window.default_node_rounding;
+    if (node_rounding_value) node_rounding_value.value = window.default_node_rounding;
+    if (node_rounding_slider && node_rounding_value) {
+        node_rounding_slider.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value);
+            if (val < 0) val = 0;
+            if (val > 100) val = 100;
+            window.node_rounding = val;
+            node_rounding_value.value = val;
+            node_rounding_slider.value = val;
+            updateFamilyTree();
+        });
+        node_rounding_value.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value);
+            if (val < 0) val = 0;
+            if (val > 100) val = 100;
+            window.node_rounding = val;
+            node_rounding_slider.value = val;
+            node_rounding_value.value = val;
+            updateFamilyTree();
+        });
+    }
+
+    const link_rounding_slider = document.getElementById('link-rounding-slider');
+    const link_rounding_value = document.getElementById('link-rounding');
+    window.default_link_rounding = 50;
+    if (link_rounding_slider) link_rounding_slider.value = window.default_link_rounding;
+    if (link_rounding_value) link_rounding_value.value = window.default_link_rounding;
+    if (link_rounding_slider && link_rounding_value) {
+        link_rounding_slider.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value);
+            if (val < 0) val = 0;
+            if (val > 100) val = 100;
+            window.link_rounding = val;
+            link_rounding_value.value = val;
+            link_rounding_slider.value = val;
+            updateFamilyTree();
+        });
+        link_rounding_value.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value);
+            if (val < 0) val = 0;
+            if (val > 100) val = 100;
+            window.link_rounding = val;
+            link_rounding_slider.value = val;
+            link_rounding_value.value = val;
             updateFamilyTree();
         });
     }
@@ -197,13 +297,25 @@ document.addEventListener('DOMContentLoaded', function() {
     hue_slider.value = window.default_node_hue;
     window.root_hue = parseInt(hue_slider.value);
     const hue_value = document.getElementById('hue-value');
-    hue_value.innerHTML = window.root_hue;
-    hue_slider.addEventListener('input', function(event) {
-        window.root_hue = parseInt(event.target.value);
-        hue_value.innerHTML = window.root_hue;
-        updateSliderThumbs();
-        updateFamilyTree();
-    });
+    hue_value.value = window.root_hue;
+    if (hue_slider && hue_value) {
+        hue_slider.addEventListener('input', function(event) {
+            window.root_hue = parseInt(event.target.value);
+            hue_value.value = window.root_hue;
+            updateSliderThumbs();
+            updateFamilyTree();
+        });
+        hue_value.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value);
+            if (val < 0) val = 0;
+            if (val > 359) val = 359;
+            window.root_hue = val;
+            hue_slider.value = val;
+            hue_value.value = val;
+            updateSliderThumbs();
+            updateFamilyTree();
+        });
+    }
 
 
     const saturation_slider = document.getElementById('saturation-slider');
@@ -211,40 +323,133 @@ document.addEventListener('DOMContentLoaded', function() {
     saturation_slider.value = window.default_node_saturation;
     window.node_saturation = parseInt(saturation_slider.value);
     const saturation_value = document.getElementById('saturation-value');
-    saturation_value.innerHTML = window.node_saturation;
-    saturation_slider.addEventListener('input', function(event) {
-        window.node_saturation = parseInt(event.target.value);
-        saturation_value.innerHTML = window.node_saturation;
-        updateSliderThumbs();
-        updateFamilyTree();
-    });
+    saturation_value.value = window.node_saturation;
+    if (saturation_slider && saturation_value) {
+        saturation_slider.addEventListener('input', function(event) {
+            window.node_saturation = parseInt(event.target.value);
+            saturation_value.value = window.node_saturation;
+            updateSliderThumbs();
+            updateFamilyTree();
+        });
+        saturation_value.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value);
+            if (val < 0) val = 0;
+            if (val > 100) val = 100;
+            window.node_saturation = val;
+            saturation_slider.value = val;
+            saturation_value.value = val;
+            updateSliderThumbs();
+            updateFamilyTree();
+        });
+    }
 
     const brightness_slider = document.getElementById('brightness-slider');
     window.default_node_brightness = 33;
     brightness_slider.value = window.default_node_brightness;
     window.node_brightness = parseInt(brightness_slider.value);
     const brightness_value = document.getElementById('brightness-value');
-    brightness_value.innerHTML = window.node_brightness;
-    brightness_slider.addEventListener('input', function(event) {
-        window.node_brightness = parseInt(event.target.value);
-        brightness_value.innerHTML = window.node_brightness;
-        updateSliderThumbs();
-        updateFamilyTree();
-    });
+    brightness_value.value = window.node_brightness;
+    if (brightness_slider && brightness_value) {
+        brightness_slider.addEventListener('input', function(event) {
+            window.node_brightness = parseInt(event.target.value);
+            brightness_value.value = window.node_brightness;
+            updateSliderThumbs();
+            updateFamilyTree();
+        });
+        brightness_value.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value);
+            if (val < 0) val = 0;
+            if (val > 100) val = 100;
+            window.node_brightness = val;
+            brightness_slider.value = val;
+            brightness_value.value = val;
+            updateSliderThumbs();
+            updateFamilyTree();
+        });
+    }
+
+    const highlight_percent = document.getElementById('highlight-percent');
+    window.default_highlight_percent = 150;
+    highlight_percent.value = window.default_highlight_percent;
+    window.highlight_percent = parseInt(highlight_percent.value);
+    const highlight_percent_slider = document.getElementById('highlight-percent-slider');
+    highlight_percent_slider.value = window.default_highlight_percent;
+    if (highlight_percent && highlight_percent_slider) {
+        highlight_percent.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value);
+            if (val < 0) val = 0;
+            if (val > 200) val = 200;
+            window.highlight_percent = val;
+            highlight_percent.value = val;
+            updateSliderThumbs();
+            updateFamilyTree();
+        });
+        highlight_percent_slider.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value);
+            if (val < 0) val = 0;
+            if (val > 200) val = 200;
+            window.highlight_percent = val;
+            highlight_percent_slider.value = val;
+            highlight_percent.value = val;
+            updateSliderThumbs();
+            updateFamilyTree();
+        });
+    }
 
     const text_brightness_slider = document.getElementById('text-brightness-slider');
     window.default_text_brightness = 90;
     text_brightness_slider.value = window.default_text_brightness;
     window.text_brightness = parseInt(text_brightness_slider.value);
     const text_brightness_value = document.getElementById('text-brightness-value');
-    text_brightness_value.innerHTML = window.text_brightness;
-    text_brightness_slider.addEventListener('input', function(event) {
-        window.text_brightness = parseInt(event.target.value);
-        text_brightness_value.innerHTML = window.text_brightness;
-        updateSliderThumbs();
-        updateFamilyTree();
-    });
+    text_brightness_value.value = window.text_brightness;
+    if (text_brightness_slider && text_brightness_value) {
+        text_brightness_slider.addEventListener('input', function(event) {
+            window.text_brightness = parseInt(event.target.value);
+            text_brightness_value.value = window.text_brightness;
+            updateSliderThumbs();
+            updateFamilyTree();
+        });
+        text_brightness_value.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value);
+            if (val < 0) val = 0;
+            if (val > 100) val = 100;
+            window.text_brightness = val;
+            text_brightness_slider.value = val;
+            text_brightness_value.value = val;
+            updateSliderThumbs();
+            updateFamilyTree();
+        });
+    }
 
+    // Node text size
+    const node_text_size_slider = document.getElementById('node-text-size-slider');
+    const node_text_size_value = document.getElementById('node-text-size-value');
+    window.default_text_size = 16;
+    window.node_text_size = window.default_text_size;
+    if (node_text_size_slider) node_text_size_slider.value = window.node_text_size;
+    if (node_text_size_value) node_text_size_value.value = window.node_text_size;
+    if (node_text_size_slider && node_text_size_value) {
+        node_text_size_slider.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value) || window.default_text_size;
+            if (val < 8) val = 8;
+            if (val > 24) val = 24;
+            window.node_text_size = val;
+            node_text_size_value.value = val;
+            node_text_size_slider.value = val;
+            updateSliderThumbs();
+            updateFamilyTree();
+        });
+        node_text_size_value.addEventListener('input', function(event) {
+            let val = parseInt(event.target.value) || window.default_text_size;
+            if (val < 8) val = 8;
+            if (val > 24) val = 24;
+            window.node_text_size = val;
+            node_text_size_slider.value = val;
+            node_text_size_value.value = val;
+            updateSliderThumbs();
+            updateFamilyTree();
+        });
+    }
 
     // Update family tree on window resize
     window.addEventListener('resize', function() { updateFamilyTree(); });
@@ -277,39 +482,55 @@ document.addEventListener('DOMContentLoaded', function() {
         reset_styling_btn.addEventListener('click', function() {
             node_width_slider.value = window.default_box_width;
             window.box_width = window.default_box_width;
-            node_width_value.innerHTML = window.box_width;
+            node_width_value.value = window.box_width;
 
             node_height_slider.value = window.default_box_height;
             window.box_height = window.default_box_height;
-            node_height_value.innerHTML = window.box_height;
+            node_height_value.value = window.box_height;
 
             link_width_slider.value = window.default_link_width;
             window.link_width = window.default_link_width;
-            link_width_value.innerHTML = window.link_width;
+            link_width_value.value = window.link_width;
 
             v_spacing_slider.value = window.default_v_spacing;
             window.v_spacing = window.default_v_spacing;
-            v_spacing_value.innerHTML = window.v_spacing;
+            v_spacing_value.value = window.v_spacing;
 
             h_spacing_slider.value = window.default_h_spacing;
             window.h_spacing = window.default_h_spacing;
-            h_spacing_value.innerHTML = window.h_spacing;
+            h_spacing_value.value = window.h_spacing;
+
+            node_rounding_slider.value = window.default_node_rounding;
+            window.node_rounding = window.default_node_rounding;
+            node_rounding_value.value = window.node_rounding;
+
+            link_rounding_slider.value = window.default_link_rounding;
+            window.link_rounding = window.default_link_rounding;
+            link_rounding_value.value = window.link_rounding;
 
             hue_slider.value = window.default_node_hue;
             window.root_hue = window.default_node_hue;
-            hue_value.innerHTML = window.root_hue;
+            hue_value.value = window.root_hue;
 
             saturation_slider.value = window.default_node_saturation;
             window.node_saturation = window.default_node_saturation;
-            saturation_value.innerHTML = window.node_saturation;
+            saturation_value.value = window.node_saturation;
 
             brightness_slider.value = window.default_node_brightness;
             window.node_brightness = window.default_node_brightness;
-            brightness_value.innerHTML = window.node_brightness;
+            brightness_value.value = window.node_brightness;
+
+            highlight_percent.value = window.default_highlight_percent;
+            window.highlight_percent = window.default_highlight_percent;
+            highlight_percent_slider.value = window.highlight_percent;
 
             text_brightness_slider.value = window.default_text_brightness;
             window.text_brightness = window.default_text_brightness;
-            text_brightness_value.innerHTML = window.text_brightness;
+            text_brightness_value.value = window.text_brightness;
+
+            node_text_size_slider.value = window.default_text_size;
+            window.node_text_size = window.default_text_size;
+            node_text_size_value.value = window.node_text_size;
 
             transparent_bg_rect_checkbox.checked = true;
             window.transparent_bg_rect = true;
@@ -317,7 +538,6 @@ document.addEventListener('DOMContentLoaded', function() {
             color_picker.value = "#000000";
             window.tree_color = "#000000";
 
-            highlight_ancestors.checked = true;
             window.highlight_ancestors = true;
 
             show_names_checkbox.checked = true;
@@ -328,6 +548,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             show_tooltips_checkbox.checked = false;
             window.show_tooltips = false;
+
+            text_shadow_checkbox.checked = true;
+            window.text_shadow = true;
 
             updateSliderThumbs();
             updateFamilyTree();
@@ -384,15 +607,20 @@ document.addEventListener('DOMContentLoaded', function() {
         link_width_slider.style.setProperty('--range-thumb-color', color);
         h_spacing_slider.style.setProperty('--range-thumb-color', color);
         v_spacing_slider.style.setProperty('--range-thumb-color', color);
+        node_rounding_slider.style.setProperty('--range-thumb-color', color);
+        link_rounding_slider.style.setProperty('--range-thumb-color', color);
+        color = d3.hcl(hue, sat, lum * (window.highlight_percent / 100));
+        highlight_percent_slider.style.setProperty('--range-thumb-color', color);
         const root_name = document.getElementById('root-name');
         if (root_name) {
             color = d3.hcl(hue, sat, 75);
             root_name.style.setProperty('--root-name-text-color', color);
         }
         sat = 0;
-        lum = parseInt(text_brightness_slider.value) || window.default_text_brightness;
+        lum = parseInt(text_brightness_slider.value);
         color = d3.hcl(hue, sat, lum);
         text_brightness_slider.style.setProperty('--range-thumb-text-color', color);
+        node_text_size_slider.style.setProperty('--range-thumb-text-color', color);
     }
 
     updateSliderThumbs();

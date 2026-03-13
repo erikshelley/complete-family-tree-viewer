@@ -3,14 +3,8 @@
 🔴🟠🟡🟢
 
 ## Bugs
-- ~~Failing on newest gedcom file~~
-- ~~Horizontal link to inlaw not always vertically centered~~
-- ~~Zero hue on the slider is showing as 120~~
-- ~~Are names always being split in the middle?~~
-- Warning showing dates for Unknown Person
 - Vertical centering is off for one-liners
-
-### Positioning
+- Warning showing dates for Unknown Person
 - ? Sometimes siblings and spouses are spaced unevenly when some have children and some do not
   - Fixing this could sometimes force a choice between keeping parents centered above their children vs making the tree wider
   - To move a child, first confirm parents can move if the center point changes
@@ -18,36 +12,29 @@
   - Not going to happen with stacking
 
 
-## New Features
-
-### Misc
-- Show locations in nodes
+## Features
+- ~~Number inputs for each range input~~
+- ~~Node rounding~~
+- ~~Link rounding~~
+- ~~Text shadow toggle~~
+- ~~Highlight percentage (0% to 200%)~~
+- ~~Font size~~
 - Queue second request to update family tree to keep interface responsive
-- Disable [max] and [auto] links if there is no tree displayed
-- ? Sort drop down
-
-### Positioning
-- *Pedigree only - option to hide siblings (and ancestor inlaws)*
-- Raise horizontal lines to female ancestor so horizontal line from male ancestor siblings can slide underneath
-  - Raise the line for duplicates twice as much
-- Pan and zoom using keys
-
-### Style
-- ~~Min width for left column~~
-- ~~Make size of dashes responsive to the line size~~
-- Responsive design
 - Highlight descendants (all pedigree)
+- Show locations in nodes (left aligned)
 - Node borders
-- Hue direction
-- Node rounding
-- Link rounding
-- ? Font size
-- ? Distance between hues
-
-### Interface
-- Number inputs for each range input
+- Responsive design
+- *Pedigree only - option to hide siblings (and ancestor inlaws)*
+- *Raise horizontal lines to female ancestor so horizontal line from male ancestor siblings can slide underneath (raise duplicates twice as much)*
+- Style presets (dark, light, square, round, default)
+- Disable [max] and [auto] links if there is no tree displayed
+- Pan and zoom using keys
+- Max zoom should depend on svg size rather than being fixed at 100x
+- Tool tips should be the same size regardless of the zoom
 - Zoom icons
   - Zoom in
   - Zoom out
   - Zoom to full
-- Max zoom should depend on svg size rather than being fixed at 100x
+- Hue direction
+- ? Sort drop down
+- ? Distance between hues

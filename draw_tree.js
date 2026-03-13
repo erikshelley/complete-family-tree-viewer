@@ -11,14 +11,15 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
 
+                // Make inlaw lines slightly brighter since they are dotted lines
                 let [hue, chroma, luminance] = getNodeHCL(node, false);
-                let color = d3.hcl(hue, 0, luminance);
+                let color = d3.hcl(hue, 0, 1.5 * luminance);
 
                 // Draw link between relative and spouse
                 if (node.type === 'relative' || node.type === 'root') {
                     node.spouse_nodes.forEach(spouse_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
-                                                  {x: spouse_node.x + window.box_width / 2, y: spouse_node.y}, false, 'inlaw');
+                                                  {x: spouse_node.x + window.box_width / 2, y: spouse_node.y}, 'inlaw');
                     });
                 }
 
@@ -26,7 +27,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                 if (node.type === 'ancestor') {
                     node.spouse_nodes.forEach(spouse_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width / 2,         y: node.y}, 
-                                                  {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height}, false, 'inlaw-center');
+                                                  {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height}, 'inlaw-center');
                     });
                 }
 
@@ -39,7 +40,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                 if (node.type === 'inlaw') {
                     node.children_nodes.filter(child_node => !(child_node.stacked && !child_node.stack_top)).forEach(child_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
-                                                  {x: child_node.x + window.box_width / 2, y: child_node.y}, false);
+                                                  {x: child_node.x + window.box_width / 2, y: child_node.y});
                     });
                 }
 
@@ -47,7 +48,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                 if (node.type === 'ancestor' && node.individual.gender == 'M') {
                     node.children_nodes.filter(child_node => !child_node.individual.is_root && !(child_node.stacked && !child_node.stack_top)).forEach(child_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
-                                                  {x: child_node.x + window.box_width / 2,              y: child_node.y}, false);
+                                                  {x: child_node.x + window.box_width / 2,              y: child_node.y});
                     });
                 }
 
@@ -57,7 +58,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                 // Draw link stacked child and previous stacked child
                 if ((node.type === 'relative') && node.stacked && !node.stack_top) {
                     drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y}, 
-                                              {x: node.x + window.box_width / 2, y: node.y - window.v_spacing}, false);
+                                              {x: node.x + window.box_width / 2, y: node.y - window.v_spacing});
                 }
 
             });
@@ -71,46 +72,46 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
                 if (node.type === 'ancestor' && node.individual.gender == 'M') {
 
                     let [hue, chroma, luminance] = getNodeHCL(node, false);
-                    let color = d3.hcl(hue, chroma, calculateHighlight(luminance));
+                    let color = d3.hcl(hue, chroma, luminance * window.highlight_percent / 100);
 
                     // Draw links from father and mother to center point
                     drawLink(svg_node, color, {x: node.x + window.box_width / 2,                    y: node.y}, 
-                                              {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, true, 'center');
+                                              {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 'center');
                     drawLink(svg_node, color, {x: node.x + 3 * window.box_width / 2 + window.h_spacing, y: node.y}, 
-                                              {x: node.x + window.box_width + window.h_spacing / 2,     y: node.y + window.box_height}, true, 'center');
+                                              {x: node.x + window.box_width + window.h_spacing / 2,     y: node.y + window.box_height}, 'center');
 
                     if (node.children_nodes.length > 0) {
                         [hue, chroma, luminance] = getNodeHCL(node.children_nodes[0], false);
-                        color = d3.hcl(hue, chroma, calculateHighlight(luminance));
+                        color = d3.hcl(hue, chroma, luminance * window.highlight_percent / 100);
                     }
 
                     // Draw link between ancestor and root child
                     node.children_nodes.filter(child_node => child_node.individual.is_root).forEach(child_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
-                                                  {x: child_node.x + window.box_width / 2,              y: child_node.y}, true);
+                                                  {x: child_node.x + window.box_width / 2,              y: child_node.y});
                     });
 
                     if (node.individual.pedigree_child_node) {
                         [hue, chroma, luminance] = getNodeHCL(node.individual.pedigree_child_node, false);
-                        color = d3.hcl(hue, chroma, calculateHighlight(luminance));
+                        color = d3.hcl(hue, chroma, luminance * window.highlight_percent / 100);
                     }
 
                     // Draw link between ancestor and pedigree child
                     if (node.individual.pedigree_child_node) {
                         drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2,             y: node.y + window.box_height}, 
-                                                  {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y}, true);
+                                                  {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y});
                     }
 
                     if (node.individual.duplicate_pedigree_child_node) {
                         [hue, chroma, luminance] = getNodeHCL(node.individual.duplicate_pedigree_child_node, false);
-                        color = d3.hcl(hue, chroma, calculateHighlight(luminance));
+                        color = d3.hcl(hue, chroma, luminance * window.highlight_percent / 100);
                     }
 
                     // Draw link between ancestor and duplicate pedigree child
                     if (node.individual.duplicate_pedigree_child_node) {
                         drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2,                       y: node.y + window.box_height}, 
                                                   {x: node.individual.duplicate_pedigree_child_node.x + window.box_width / 2, y: node.individual.duplicate_pedigree_child_node.y}, 
-                                                  true, 'duplicate');
+                                                  'duplicate');
                     }
                 }
             });
@@ -143,7 +144,7 @@ function drawToolTip(g, node) {
     ];
 
     const padding = 12;
-    const tool_tip_font_size = 14;
+    const tool_tip_font_size = window.default_text_size;
 
     // Tooltip text (render first to measure size)
     const tooltipText = tooltip.append('text')
@@ -174,7 +175,7 @@ function drawToolTip(g, node) {
             .attr('height', bbox.height + 2 * padding)
             .attr('x', window.box_width / 2 - (bbox.width / 2) - padding)
             .attr('y', -(tooltipLines.length + 1) * tool_tip_font_size - 1.5 * padding) // Center text vertically based on number of lines
-            .attr('rx', 8)
+            .attr('rx', Math.min(window.box_width, window.box_height) * window.node_rounding / 100)
             .attr('fill', '#000')
             .attr('opacity', 0.95);
         tooltip.style('opacity', 1);
@@ -189,14 +190,13 @@ function drawNode(svg, node) {
     const g = svg.append('g').attr('transform', `translate(${node.x}, ${node.y})`);
 
     let highlight = ((node.type === 'ancestor') || node.individual.is_root);
-    if (!window.highlight_ancestors) highlight = false;
 
     let [hue, chroma, luminance] = getNodeHCL(node);
-    const fill_color = d3.hcl(hue, chroma, highlight ? calculateHighlight(luminance) : luminance);
+    const fill_color = d3.hcl(hue, chroma, highlight ? luminance * window.highlight_percent / 100 : luminance);
 
     [hue, chroma, luminance] = getNodeHCL(node, false);
     const border_luminance = Math.max(1, luminance);
-    const stroke_color = d3.hcl(hue, node.type === 'inlaw' ? 0 : chroma, highlight ? calculateHighlight(border_luminance) : border_luminance);
+    const stroke_color = d3.hcl(hue, node.type === 'inlaw' ? 0 : chroma, highlight ? border_luminance * window.highlight_percent / 100 : border_luminance);
 
     // Draw rectangle
     g.append('rect')
@@ -205,7 +205,7 @@ function drawNode(svg, node) {
         .attr('fill', fill_color)
         .attr('stroke', stroke_color)
         .attr('stroke-width', 3)
-        .attr('rx', 8);
+        .attr('rx', Math.min(window.box_width, window.box_height) * window.node_rounding / 100);
 
     // Add text with 3 lines: name (2 lines), birth-death (1 line)
     const text_luminance = window.text_brightness || 0;
@@ -216,8 +216,9 @@ function drawNode(svg, node) {
         .attr('text-anchor', 'middle')
         .attr('font-family', 'Arial, sans-serif')
         .attr('font-weight', highlight ? 'bold' : 'normal')
+        .attr('font-size', (window.node_text_size || window.default_text_size) + 'px')
         .attr('fill', text_color)
-        .style('text-shadow', '1px 1px 2px rgba(0,0,0,0.75)');
+        .style('text-shadow', (window.text_shadow !== false) ? '1px 1px 2px rgba(0,0,0,0.75)' : 'none');
 
     // Split name into two lines if too long
     const name = node.individual.name || '';
@@ -311,15 +312,14 @@ function drawNode(svg, node) {
 }
 
 
-function drawLink(svg_node, color, point1, point2, highlight, special) {
-    if (!window.highlight_ancestors) highlight = false;
+function drawLink(svg_node, color, point1, point2, special) {
     const customLink = (point1, point2) => {
         var x1 = point1.x;
         var x2 = point2.x;
         var y1 = point1.y;
         var y2 = point2.y;
         const ymid = (special && special.includes('center') ? y1 + window.box_height / 2 : y2 - window.v_spacing / 2) - (special === 'duplicate' ? window.v_spacing / 2 : 0);
-        const corner_radius = 10;
+        const corner_radius = Math.min(window.box_width, window.box_height) * window.link_rounding / 200;
         const context = d3.path();
         context.moveTo(x1, y1);
         context.lineTo(x1, ymid - corner_radius);
@@ -342,7 +342,7 @@ function drawLink(svg_node, color, point1, point2, highlight, special) {
         .attr("fill", "none")
         .attr("stroke", color)
         .attr("stroke-width", stroke_width)
-        .attr("stroke-dasharray", special === 'duplicate' ? `${2*stroke_width},${stroke_width}` : special && special.includes('inlaw') ? `${2*stroke_width},${stroke_width}` : "none");
+        .attr("stroke-dasharray", special === 'duplicate' ? `${stroke_width},${stroke_width}` : special && special.includes('inlaw') ? `${stroke_width},${stroke_width}` : "none");
 }
 
 
@@ -356,12 +356,4 @@ function getNodeHCL(node, inlaw_desaturated = true) {
     const chroma = (inlaw_desaturated && (node.type === 'inlaw')) ? 0 : (window.node_saturation || window.default_node_saturation);
     const luminance = window.node_brightness || window.default_node_brightness;
     return [hue, chroma, luminance];
-}
-
-function calculateHighlight(luminance) {
-    if (window.highlight_ancestors) {
-        if (luminance > 100/1.5) return luminance * 1/1.5;
-        else return luminance * 1.5;
-    }
-    else return luminance * 1.0;
 }

@@ -1,7 +1,9 @@
-window.box_width = 140;
-window.box_height = 70;
+window.box_width = 150;
+window.box_height = 75;
 window.h_spacing = 40;
 window.v_spacing = 80;
+window.node_rounding = 25;
+window.link_rounding = 50;
 window.padding = 80;
 window.level_boundary_node_leaf = [];
 window.level_boundary_node_ancestor = [];
