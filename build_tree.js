@@ -1,4 +1,4 @@
-function createFamilyTree(selected_individual) {
+async function createFamilyTree(selected_individual) {
     // Clear previous content
     const family_tree_div = document.getElementById('family-tree-div');
     family_tree_div.innerHTML = '';
@@ -55,7 +55,7 @@ function createFamilyTree(selected_individual) {
 
     // Measure drawTree
     //const t4 = performance.now();
-    drawTree(svg_node, max_x, max_y, tree_positions);
+    await drawTree(svg_node, max_x, max_y, tree_positions);
     //const t5 = performance.now();
     //console.log(`drawTree: ${(t5 - t4).toFixed(2)} ms`);
     //const total_time = (t1 - t0) + (t3 - t2) + (t5 - t4);

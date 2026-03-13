@@ -1,5 +1,5 @@
 // Tree drawing and visualization functionality using D3.js
-function drawTree(svg_node, tree_width, tree_height, rows) {
+async function drawTree(svg_node, tree_width, tree_height, rows) {
     svg_node.append('rect')
         .attr('width', tree_width)
         .attr('height', tree_height)
@@ -7,6 +7,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
         .attr('stroke', "000")
         .attr('stroke-width', 0);
 
+    // Handle non-bold links
     rows.forEach(level => {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
@@ -65,6 +66,7 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
         });
     });
 
+    // Handle bold links
     rows.forEach(level => {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
@@ -119,13 +121,16 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
     });
 
     // Draw nodes on top of links
-    rows.forEach(level => {
-        level.forEach(sub_level => {
-            sub_level.forEach(node => {
+    let node_count = 0;
+    for (const level of rows) {
+        for (const sub_level of level ? level : []) {
+            for (const node of sub_level) {
                 drawNode(svg_node, node);
-            });
-        });
-    });
+                node_count++;
+                if (node_count % 100 == 0) await scheduler.yield();
+            };
+        };
+    };
 }
 
 
@@ -207,6 +212,12 @@ function drawNode(svg, node) {
         .attr('stroke-width', 3)
         .attr('rx', Math.min(window.box_width, window.box_height) * window.node_rounding / 100);
 
+    drawText(g, node);
+    if (window.show_tooltips) { drawToolTip(g, node); }
+}
+
+
+function drawText(g, node) {
     // Add text with 3 lines: name (2 lines), birth-death (1 line)
     const text_luminance = window.text_brightness || 0;
     const text_color = d3.hcl(0, 0, text_luminance);
@@ -215,14 +226,13 @@ function drawNode(svg, node) {
         .attr('y', window.box_height / 2) // Initial vertical center
         .attr('text-anchor', 'middle')
         .attr('font-family', 'Arial, sans-serif')
-        .attr('font-weight', highlight ? 'bold' : 'normal')
+        .attr('font-weight', node.type === 'ancestor' || node.individual.is_root ? 'bold' : 'normal')
         .attr('font-size', (window.node_text_size || window.default_text_size) + 'px')
         .attr('fill', text_color)
         .style('text-shadow', (window.text_shadow !== false) ? '1px 1px 2px rgba(0,0,0,0.75)' : 'none');
 
     // Split name into two lines if too long
     const name = node.individual.name || '';
-    const max_line_length = node.individual.name.length / 2;
 
     let line1, line2;
     let splitIdx = -1;
@@ -305,10 +315,6 @@ function drawNode(svg, node) {
         text_element.attr('y', text_y);
     }
 
-    // Only render tooltip if enabled
-    if (window.show_tooltips) {
-        drawToolTip(g, node);
-    }
 }
 
 

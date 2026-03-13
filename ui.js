@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (text_shadow_checkbox) {
         text_shadow_checkbox.addEventListener('change', function(event) {
             window.text_shadow = event.target.checked;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -26,31 +26,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Numbers
     const generations_up = document.getElementById('generations-up');
-    generations_up.addEventListener('input', function(event) { updateFamilyTree(); });
+    generations_up.addEventListener('input', function(event) { requestFamilyTreeUpdate(); });
 
     const generations_up_max_link = document.getElementById('generations-up-max-link');
     generations_up_max_link.addEventListener('click', function(e) {
         e.preventDefault();
         generations_up.value = 99;
-        updateFamilyTree();
+        requestFamilyTreeUpdate();
     });
 
     const generations_down = document.getElementById('generations-down');
-    generations_down.addEventListener('input', function(event) { updateFamilyTree(); });
+    generations_down.addEventListener('input', function(event) { requestFamilyTreeUpdate(); });
     const generations_down_max_link = document.getElementById('generations-down-max-link');
     generations_down_max_link.addEventListener('click', function(e) {
         e.preventDefault();
         generations_down.value = 99;
-        updateFamilyTree();
+        requestFamilyTreeUpdate();
     });
 
     const max_stack_size = document.getElementById('max-stack-size');
-    max_stack_size.addEventListener('input', function(event) { updateFamilyTree(); });
+    max_stack_size.addEventListener('input', function(event) { requestFamilyTreeUpdate(); });
     const max_stack_size_max_link = document.getElementById('max-stack-size-max-link');
     max_stack_size_max_link.addEventListener('click', function(e) {
         e.preventDefault();
         max_stack_size.value = 99;
-        updateFamilyTree();
+        requestFamilyTreeUpdate();
     });
 
     // Checkboxes
@@ -58,14 +58,14 @@ document.addEventListener('DOMContentLoaded', function() {
     window.hide_childless_inlaws = hide_childless_inlaws.checked;
     hide_childless_inlaws.addEventListener('change', function(event) {
         window.hide_childless_inlaws = event.target.checked;
-        updateFamilyTree();
+        requestFamilyTreeUpdate();
     });
 
     const pedigree_only = document.getElementById('pedigree-only');
     window.pedigree_only = pedigree_only.checked;
     pedigree_only.addEventListener('change', function(event) {
         window.pedigree_only = event.target.checked;
-        updateFamilyTree();
+        requestFamilyTreeUpdate();
     });
 
     const transparent_bg_rect_checkbox = document.getElementById('transparent-bg-rect');
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
     transparent_bg_rect_checkbox.addEventListener('change', function(event) {
         window.transparent_bg_rect = event.target.checked;
         color_picker.disabled = event.target.checked;
-        updateFamilyTree();
+        requestFamilyTreeUpdate();
     });
 
     const show_names_checkbox = document.getElementById('show-names');
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (show_names_checkbox) {
         show_names_checkbox.addEventListener('change', function(event) {
             window.show_names = event.target.checked;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (show_years_checkbox) {
         show_years_checkbox.addEventListener('change', function(event) {
             window.show_years = event.target.checked;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (show_tooltips_checkbox) {
         show_tooltips_checkbox.addEventListener('change', function(event) {
             window.show_tooltips = event.target.checked;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
         node_width_slider.addEventListener('input', function(event) {
             window.box_width = parseInt(event.target.value) || window.default_box_width;
             node_width_value.value = window.box_width;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
         node_width_value.addEventListener('input', function(event) {
             let val = parseInt(event.target.value) || window.default_box_width;
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.box_width = val;
             node_width_slider.value = val;
             node_width_value.value = val;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
     const auto_node_width_link = document.getElementById('auto-node-width-link');
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
             node_width_slider.value = Math.ceil(window.auto_box_width / 10) * 10;
             window.box_width = parseInt(node_width_slider.value) || window.default_box_width;
             node_width_value.value = window.box_width;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         }
     });
 
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
         node_height_slider.addEventListener('input', function(event) {
             window.box_height = parseInt(event.target.value) || window.default_box_height;
             node_height_value.value = window.box_height;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
         node_height_value.addEventListener('input', function(event) {
             let val = parseInt(event.target.value) || window.default_box_height;
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.box_height = val;
             node_height_slider.value = val;
             node_height_value.value = val;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
     const auto_node_height_link = document.getElementById('auto-node-height-link');
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
             node_height_slider.value = Math.ceil(window.auto_box_height / 10) * 10;
             window.box_height = parseInt(node_height_slider.value) || window.default_box_height;
             node_height_value.value = window.box_height;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         }
     });
 
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         link_width_slider.addEventListener('input', function(event) {
             window.link_width = parseInt(event.target.value) || window.default_link_width;
             link_width_value.value = window.link_width;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
         link_width_value.addEventListener('input', function(event) {
             let val = parseInt(event.target.value) || window.default_link_width;
@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.link_width = val;
             link_width_slider.value = val;
             link_width_value.value = val;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
         h_spacing_slider.addEventListener('input', function(event) {
             window.h_spacing = parseInt(event.target.value) || window.default_h_spacing;
             h_spacing_value.value = window.h_spacing;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
         h_spacing_value.addEventListener('input', function(event) {
             let val = parseInt(event.target.value) || window.default_h_spacing;
@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.h_spacing = val;
             h_spacing_slider.value = val;
             h_spacing_value.value = val;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
         v_spacing_slider.addEventListener('input', function(event) {
             window.v_spacing = parseInt(event.target.value) || window.default_v_spacing;
             v_spacing_value.value = window.v_spacing;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
         v_spacing_value.addEventListener('input', function(event) {
             let val = parseInt(event.target.value) || window.default_v_spacing;
@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.v_spacing = val;
             v_spacing_slider.value = val;
             v_spacing_value.value = val;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.node_rounding = val;
             node_rounding_value.value = val;
             node_rounding_slider.value = val;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
         node_rounding_value.addEventListener('input', function(event) {
             let val = parseInt(event.target.value);
@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.node_rounding = val;
             node_rounding_slider.value = val;
             node_rounding_value.value = val;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.link_rounding = val;
             link_rounding_value.value = val;
             link_rounding_slider.value = val;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
         link_rounding_value.addEventListener('input', function(event) {
             let val = parseInt(event.target.value);
@@ -288,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.link_rounding = val;
             link_rounding_slider.value = val;
             link_rounding_value.value = val;
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.root_hue = parseInt(event.target.value);
             hue_value.value = window.root_hue;
             updateSliderThumbs();
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
         hue_value.addEventListener('input', function(event) {
             let val = parseInt(event.target.value);
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
             hue_slider.value = val;
             hue_value.value = val;
             updateSliderThumbs();
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.node_saturation = parseInt(event.target.value);
             saturation_value.value = window.node_saturation;
             updateSliderThumbs();
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
         saturation_value.addEventListener('input', function(event) {
             let val = parseInt(event.target.value);
@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
             saturation_slider.value = val;
             saturation_value.value = val;
             updateSliderThumbs();
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.node_brightness = parseInt(event.target.value);
             brightness_value.value = window.node_brightness;
             updateSliderThumbs();
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
         brightness_value.addEventListener('input', function(event) {
             let val = parseInt(event.target.value);
@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
             brightness_slider.value = val;
             brightness_value.value = val;
             updateSliderThumbs();
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -382,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.highlight_percent = val;
             highlight_percent.value = val;
             updateSliderThumbs();
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
         highlight_percent_slider.addEventListener('input', function(event) {
             let val = parseInt(event.target.value);
@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
             highlight_percent_slider.value = val;
             highlight_percent.value = val;
             updateSliderThumbs();
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -407,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.text_brightness = parseInt(event.target.value);
             text_brightness_value.value = window.text_brightness;
             updateSliderThumbs();
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
         text_brightness_value.addEventListener('input', function(event) {
             let val = parseInt(event.target.value);
@@ -417,7 +417,7 @@ document.addEventListener('DOMContentLoaded', function() {
             text_brightness_slider.value = val;
             text_brightness_value.value = val;
             updateSliderThumbs();
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -437,7 +437,7 @@ document.addEventListener('DOMContentLoaded', function() {
             node_text_size_value.value = val;
             node_text_size_slider.value = val;
             updateSliderThumbs();
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
         node_text_size_value.addEventListener('input', function(event) {
             let val = parseInt(event.target.value) || window.default_text_size;
@@ -447,35 +447,35 @@ document.addEventListener('DOMContentLoaded', function() {
             node_text_size_slider.value = val;
             node_text_size_value.value = val;
             updateSliderThumbs();
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
     // Update family tree on window resize
-    window.addEventListener('resize', function() { updateFamilyTree(); });
+    window.addEventListener('resize', function() { requestFamilyTreeUpdate(); });
 
-    let filterTimeout = null;
+    let filter_timeout = null;
     individual_filter.addEventListener('input', function(event) {
         window.individual_filter_value = event.target.value.toLowerCase();
-        if (filterTimeout) clearTimeout(filterTimeout);
-        filterTimeout = setTimeout(() => {
+        if (filter_timeout) clearTimeout(filter_timeout);
+        filter_timeout = setTimeout(() => {
             populateIndividualSelect(window.individuals);
         }, 100);
     });
 
-        // Add clear button functionality for individual-filter
-        const clearIndividualFilterBtn = document.getElementById('clear-individual-filter');
-        if (clearIndividualFilterBtn) {
-            clearIndividualFilterBtn.addEventListener('click', function() {
-                individual_filter.value = '';
-                window.individual_filter_value = '';
-                populateIndividualSelect(window.individuals);
-            });
-        }
+    // Add clear button functionality for individual-filter
+    const clearIndividualFilterBtn = document.getElementById('clear-individual-filter');
+    if (clearIndividualFilterBtn) {
+        clearIndividualFilterBtn.addEventListener('click', function() {
+            individual_filter.value = '';
+            window.individual_filter_value = '';
+            populateIndividualSelect(window.individuals);
+        });
+    }
 
     color_picker.addEventListener('input', function(event) {
         window.tree_color = event.target.value;
-        updateFamilyTree();
+        requestFamilyTreeUpdate();
     });
 
     if (reset_styling_btn) {
@@ -553,7 +553,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.text_shadow = true;
 
             updateSliderThumbs();
-            updateFamilyTree();
+            requestFamilyTreeUpdate();
         });
     }
 
@@ -592,7 +592,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    individual_select.addEventListener('change', function(event) { updateFamilyTree(); });
+    individual_select.addEventListener('change', function(event) { requestFamilyTreeUpdate(); });
 
     function updateSliderThumbs() {
         let hue = parseInt(hue_slider.value) || 0;
@@ -625,7 +625,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     updateSliderThumbs();
 
-    function updateFamilyTree() {
+    let update_in_progress = false;
+    let update_waiting = false;
+    let update_timeout = null;
+
+    function requestFamilyTreeUpdate() {
+        if (!update_in_progress) {
+            update_in_progress = true;
+            if (update_timeout) clearTimeout(update_timeout);
+            update_timeout = setTimeout(() => { updateFamilyTree(); }, 100);
+        }
+        else update_waiting = true;
+    }
+
+    async function updateFamilyTree() {
         if (window.gedcom_content) {
             // The tree building process can change the data, so we reload to get a fresh copy each time
             const parsed_data = parseGedcomData(window.gedcom_content);
@@ -641,12 +654,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 const selected_individual = window.individuals.find(ind => ind.id === selected_id);
                 if (selected_individual) {
                     window.selected_individual = selected_individual;
-                    createFamilyTree(selected_individual);
+                    await createFamilyTree(selected_individual);
                     if (generations_up.value > window.max_gen_up) generations_up.value = window.max_gen_up;
                     if (generations_down.value > window.max_gen_down) generations_down.value = window.max_gen_down;
                     if (max_stack_size.value > window.max_stack_actual) max_stack_size.value = window.max_stack_actual;
                 }
             }
+        }
+        update_in_progress = false;
+        if (update_waiting) {
+            update_waiting = false;
+            requestFamilyTreeUpdate();
         }
     }
 

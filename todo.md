@@ -13,13 +13,7 @@
 
 
 ## Features
-- ~~Number inputs for each range input~~
-- ~~Node rounding~~
-- ~~Link rounding~~
-- ~~Text shadow toggle~~
-- ~~Highlight percentage (0% to 200%)~~
-- ~~Font size~~
-- Queue second request to update family tree to keep interface responsive
+- ~~Queue second request to update family tree to keep interface responsive~~
 - Highlight descendants (all pedigree)
 - Show locations in nodes (left aligned)
 - Node borders
@@ -27,14 +21,11 @@
 - *Pedigree only - option to hide siblings (and ancestor inlaws)*
 - *Raise horizontal lines to female ancestor so horizontal line from male ancestor siblings can slide underneath (raise duplicates twice as much)*
 - Style presets (dark, light, square, round, default)
-- Disable [max] and [auto] links if there is no tree displayed
-- Pan and zoom using keys
-- Max zoom should depend on svg size rather than being fixed at 100x
 - Tool tips should be the same size regardless of the zoom
-- Zoom icons
-  - Zoom in
-  - Zoom out
-  - Zoom to full
-- Hue direction
+- Max zoom should depend on svg size rather than being fixed at 100x
+- Visibly disable / hide [max] and [auto] links if there is no tree displayed
+- ? Pan and zoom using keyboard
+- ? Zoom icons - Zoom in - Zoom out - Zoom to full
+- ? Hue direction
 - ? Sort drop down
 - ? Distance between hues
