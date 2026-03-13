@@ -1,0 +1,79 @@
+/* Style all range slider tracks */
+input[type="range"] {
+    height: 9px;
+    background: transparent;
+    --range-border-color: #202020;
+    --range-thumb-color: #000000;
+    --range-thumb-text-color: #f0f0f0;
+    display: inline-block;
+    vertical-align: middle;
+    width: 125px;
+    margin: 0px 8px 0px 0px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+}
+
+#text-brightness-slider::-webkit-slider-thumb { background: var(--range-thumb-text-color); }
+#text-brightness-slider::-moz-range-thumb { background: var(--range-thumb-text-color); }
+#text-brightness-slider::-ms-thumb { background: var(--range-thumb-text-color); }
+
+/* Custom thumb for hue-slider */
+input[type="range"]::-webkit-slider-thumb {
+    background: var(--range-thumb-color);
+    border: 2px solid var(--range-border-color);
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    margin-top: -4px; /* aligns thumb vertically in Chrome/Edge */
+}
+
+input[type="range"]::-moz-range-thumb {
+    background: var(--range-thumb-color);
+    border: 2px solid var(--range-border-color);
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+input[type="range"]::-ms-thumb {
+    background: var(--range-thumb-color);
+    border: 2px solid var(--range-border-color);
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 9px;
+    background: #555;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-track {
+    height: 9px;
+    background: #555;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type="range"]::-ms-fill-lower,
+input[type="range"]::-ms-fill-upper {
+    height: 9px;
+    background: #555;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.range-value {
+    display: inline-block;
+    width: 30px;
+    color: #666;
+}

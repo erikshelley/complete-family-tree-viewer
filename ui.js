@@ -1,42 +1,164 @@
 // User interface and input handling functionality
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Buttons
     const file_input = document.getElementById('file-input');
+    const reset_styling_btn = document.getElementById('reset-styling-btn');
+
     const file_name_span = document.getElementById('file-name');
     const family_tree_div = document.getElementById('family-tree-div');
     const individual_select = document.getElementById('individual-select');
     const individual_filter = document.getElementById('individual-filter');
+    window.individual_filter_value = '';
     const generations_up = document.getElementById('generations-up');
     const generations_down = document.getElementById('generations-down');
-    const hide_childless_inlaws = document.getElementById('hide-childless-inlaws');
-    const stack_leaf_nodes = document.getElementById('stack-leaf-nodes');
     const color_picker = document.getElementById('color-picker');
-    const saturation_slider = document.getElementById('saturation-slider');
-    const brightness_slider = document.getElementById('brightness-slider');
-    const hue_slider = document.getElementById('hue-slider');
-    const transparent_bg_rect_checkbox = document.getElementById('transparent-bg-rect');
-    const text_brightness_slider = document.getElementById('text-brightness-slider');
-    const highlight_ancestors = document.getElementById('highlight-ancestors');
-    window.default_text_brightness = 90;
-    text_brightness_slider.value = window.default_text_brightness;
-    window.default_node_brightness = 33;
-    brightness_slider.value = window.default_node_brightness;
-    window.default_node_saturation = 33;
-    saturation_slider.value = window.default_node_saturation;
-    window.default_node_hue = 120;
-    hue_slider.value = window.default_node_hue;
-
-    window.root_hue = parseInt(hue_slider.value) || window.default_node_hue;
-    window.individual_filter_value = '';
-    window.transparent_bg_rect = transparent_bg_rect_checkbox.checked;
-    window.text_brightness = parseInt(text_brightness_slider.value) || window.default_text_brightness;
-    window.node_brightness = parseInt(brightness_slider.value) || window.default_node_brightness;
-    window.node_saturation = parseInt(saturation_slider.value) || window.default_node_saturation;
     window.tree_color = color_picker.value;
     window.selected_individual = '';
+
+    // Checkboxes
+    const hide_childless_inlaws = document.getElementById('hide-childless-inlaws');
     window.hide_childless_inlaws = hide_childless_inlaws.checked || false;
+    hide_childless_inlaws.addEventListener('change', function(event) {
+        window.hide_childless_inlaws = event.target.checked;
+        updateFamilyTree();
+    });
+
+    const stack_leaf_nodes = document.getElementById('stack-leaf-nodes');
     window.stack_leaf_nodes = stack_leaf_nodes.checked || false;
+    stack_leaf_nodes.addEventListener('change', function(event) {
+        window.stack_leaf_nodes = event.target.checked;
+        updateFamilyTree();
+    });
+
+    const transparent_bg_rect_checkbox = document.getElementById('transparent-bg-rect');
+    window.transparent_bg_rect = transparent_bg_rect_checkbox.checked;
+    transparent_bg_rect_checkbox.addEventListener('change', function(event) {
+        window.transparent_bg_rect = event.target.checked;
+        updateFamilyTree();
+    });
+
+    const show_years_checkbox = document.getElementById('show-years');
+    window.show_years = show_years_checkbox ? show_years_checkbox.checked : true;
+    if (show_years_checkbox) {
+        show_years_checkbox.addEventListener('change', function(event) {
+            window.show_years = event.target.checked;
+            updateFamilyTree();
+        });
+    }
+
+    const show_names_checkbox = document.getElementById('show-names');
+    window.show_names = show_names_checkbox ? show_names_checkbox.checked : true;
+    if (show_names_checkbox) {
+        show_names_checkbox.addEventListener('change', function(event) {
+            window.show_names = event.target.checked;
+            updateFamilyTree();
+        });
+    }
+
+    const highlight_ancestors = document.getElementById('highlight-ancestors');
     window.highlight_ancestors = highlight_ancestors.checked || true;
+    highlight_ancestors.addEventListener('change', function(event) {
+        window.highlight_ancestors = event.target.checked;
+        updateFamilyTree();
+    });
+
+    // Ranges
+    const node_width_slider = document.getElementById('node-width');
+    window.default_box_width = 120;
+    node_width_slider.value = window.default_box_width;
+    window.box_width = parseInt(node_width_slider.value) || window.default_box_width;
+    const node_width_value = document.getElementById('node-width-value');
+    node_width_value.innerHTML = window.box_width;
+    if (node_width_slider) {
+        node_width_slider.addEventListener('input', function(event) {
+            window.box_width = parseInt(event.target.value) || 120;
+            node_width_value.innerHTML = window.box_width;
+            updateFamilyTree();
+        });
+    }
+
+    const node_height_slider = document.getElementById('node-height');
+    window.default_box_height = 80;
+    node_height_slider.value = window.default_box_height;
+    window.box_height = parseInt(node_height_slider.value) || window.default_box_height;
+    const node_height_value = document.getElementById('node-height-value');
+    node_height_value.innerHTML = window.box_height;
+    if (node_height_slider) {
+        node_height_slider.addEventListener('input', function(event) {
+            window.box_height = parseInt(event.target.value) || 80;
+            node_height_value.innerHTML = window.box_height;
+            updateFamilyTree();
+        });
+    }
+
+    const link_width_slider = document.getElementById('link-width-slider');
+    window.default_link_width = 6;
+    link_width_slider.value = window.default_link_width;
+    window.link_width = parseInt(link_width_slider.value) || window.default_link_width;
+    const link_width_value = document.getElementById('link-width-value');
+    link_width_value.innerHTML = window.link_width;
+    if (link_width_slider) {
+        link_width_slider.addEventListener('input', function(event) {
+            window.link_width = parseInt(event.target.value) || 3;
+            link_width_value.innerHTML = window.link_width;
+            updateFamilyTree();
+        });
+    }
+
+    const hue_slider = document.getElementById('hue-slider');
+    window.default_node_hue = 120;
+    hue_slider.value = window.default_node_hue;
+    window.root_hue = parseInt(hue_slider.value) || 0;
+    const hue_value = document.getElementById('hue-value');
+    hue_value.innerHTML = window.root_hue;
+    hue_slider.addEventListener('input', function(event) {
+        window.root_hue = parseInt(event.target.value) || 0;
+        hue_value.innerHTML = window.root_hue;
+        updateSliderThumbs();
+        updateFamilyTree();
+    });
+
+
+    const saturation_slider = document.getElementById('saturation-slider');
+    window.default_node_saturation = 33;
+    saturation_slider.value = window.default_node_saturation;
+    window.node_saturation = parseInt(saturation_slider.value) || 0;
+    const saturation_value = document.getElementById('saturation-value');
+    saturation_value.innerHTML = window.node_saturation;
+    saturation_slider.addEventListener('input', function(event) {
+        window.node_saturation = parseInt(event.target.value) || 0;
+        saturation_value.innerHTML = window.node_saturation;
+        updateSliderThumbs();
+        updateFamilyTree();
+    });
+
+    const brightness_slider = document.getElementById('brightness-slider');
+    window.default_node_brightness = 33;
+    brightness_slider.value = window.default_node_brightness;
+    window.node_brightness = parseInt(brightness_slider.value) || 0;
+    const brightness_value = document.getElementById('brightness-value');
+    brightness_value.innerHTML = window.node_brightness;
+    brightness_slider.addEventListener('input', function(event) {
+        window.node_brightness = parseInt(event.target.value) || 0;
+        brightness_value.innerHTML = window.node_brightness;
+        updateSliderThumbs();
+        updateFamilyTree();
+    });
+
+    const text_brightness_slider = document.getElementById('text-brightness-slider');
+    window.default_text_brightness = 90;
+    text_brightness_slider.value = window.default_text_brightness;
+    window.text_brightness = parseInt(text_brightness_slider.value) || 0;
+    const text_brightness_value = document.getElementById('text-brightness-value');
+    text_brightness_value.innerHTML = window.text_brightness;
+    text_brightness_slider.addEventListener('input', function(event) {
+        window.text_brightness = parseInt(event.target.value) || 0;
+        text_brightness_value.innerHTML = window.text_brightness;
+        updateSliderThumbs();
+        updateFamilyTree();
+    });
+
 
     // Update family tree on window resize
     window.addEventListener('resize', function() { updateFamilyTree(); });
@@ -60,54 +182,54 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-    hue_slider.addEventListener('input', function(event) {
-        window.root_hue = parseInt(event.target.value) || window.default_node_hue;
-        updateSliderThumbs();
-        updateFamilyTree();
-    });
-
-    brightness_slider.addEventListener('input', function(event) {
-        window.node_brightness = parseInt(event.target.value) || window.default_node_brightness;
-        updateSliderThumbs();
-        updateFamilyTree();
-    });
-
-    saturation_slider.addEventListener('input', function(event) {
-        window.node_saturation = parseInt(event.target.value) || window.default_node_saturation;
-        updateSliderThumbs();
-        updateFamilyTree();
-    });
-
-    text_brightness_slider.addEventListener('input', function(event) {
-        window.text_brightness = parseInt(event.target.value) || window.default_text_brightness;
-        updateSliderThumbs();
-        updateFamilyTree();
-    });
-
-    hide_childless_inlaws.addEventListener('change', function(event) {
-        window.hide_childless_inlaws = event.target.checked;
-        updateFamilyTree();
-    });
-
-    stack_leaf_nodes.addEventListener('change', function(event) {
-        window.stack_leaf_nodes = event.target.checked;
-        updateFamilyTree();
-    });
-
-    transparent_bg_rect_checkbox.addEventListener('change', function(event) {
-        window.transparent_bg_rect = event.target.checked;
-        updateFamilyTree();
-    });
-
     color_picker.addEventListener('input', function(event) {
         window.tree_color = event.target.value;
         updateFamilyTree();
     });
 
-    highlight_ancestors.addEventListener('change', function(event) {
-        window.highlight_ancestors = event.target.checked;
-        updateFamilyTree();
-    });
+    if (reset_styling_btn) {
+        reset_styling_btn.addEventListener('click', function() {
+            node_width_slider.value = window.default_box_width;
+            window.box_width = window.default_box_width;
+            node_width_value.innerHTML = window.box_width;
+
+            node_height_slider.value = window.default_box_height;
+            window.box_height = window.default_box_height;
+            node_height_value.innerHTML = window.box_height;
+
+            link_width_slider.value = window.default_link_width;
+            window.link_width = window.default_link_width;
+            link_width_value.innerHTML = window.link_width;
+
+            hue_slider.value = window.default_node_hue;
+            window.root_hue = window.default_node_hue;
+            hue_value.innerHTML = window.root_hue;
+
+            saturation_slider.value = window.default_node_saturation;
+            window.node_saturation = window.default_node_saturation;
+            saturation_value.innerHTML = window.node_saturation;
+
+            brightness_slider.value = window.default_node_brightness;
+            window.node_brightness = window.default_node_brightness;
+            brightness_value.innerHTML = window.node_brightness;
+
+            text_brightness_slider.value = window.default_text_brightness;
+            window.text_brightness = window.default_text_brightness;
+            text_brightness_value.innerHTML = window.text_brightness;
+
+            transparent_bg_rect_checkbox.checked = true;
+            window.transparent_bg_rect = true;
+
+            color_picker.value = "#000000";
+            window.tree_color = "#000000";
+
+            highlight_ancestors.checked = true;
+            window.highlight_ancestors = true;
+
+            updateSliderThumbs();
+            updateFamilyTree();
+        });
+    }
 
     file_input.addEventListener('change', function(event) {
         const file = event.target.files[0];
@@ -149,13 +271,16 @@ document.addEventListener('DOMContentLoaded', function() {
     generations_down.addEventListener('input', function(event) { updateFamilyTree(); });
 
     function updateSliderThumbs() {
-        let hue = parseInt(hue_slider.value) || window.default_node_hue;
-        let sat = parseInt(saturation_slider.value) || window.default_node_saturation;
-        let lum = parseInt(brightness_slider.value) || window.default_node_brightness;
+        let hue = parseInt(hue_slider.value) || 0;
+        let sat = parseInt(saturation_slider.value) || 0;
+        let lum = parseInt(brightness_slider.value) || 0;
         let color = d3.hcl(hue, sat, lum);
         hue_slider.style.setProperty('--range-thumb-color', color);
         saturation_slider.style.setProperty('--range-thumb-color', color);
         brightness_slider.style.setProperty('--range-thumb-color', color);
+        node_width_slider.style.setProperty('--range-thumb-color', color);
+        node_height_slider.style.setProperty('--range-thumb-color', color);
+        link_width_slider.style.setProperty('--range-thumb-color', color);
         const root_name = document.getElementById('root-name');
         if (root_name) {
             color = d3.hcl(hue, sat, 75);

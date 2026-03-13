@@ -1,0 +1,62 @@
+/* Modern file input styling */
+#file-input, #save-svg-btn, #save-png-btn, #reset-styling-btn {
+    visibility: visible;
+    margin: 8px 0px 8px 8px;
+    padding: 0px;
+    width: 120px;
+    height: 30px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(80,130,255,0.12);
+    background: linear-gradient(180deg, var(--button-color-1) 0%, var(--button-color-2) 100%);
+    transition: background 0.2s;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    float: right;
+    --button-color-1: hsl(200, 60%, 50%);
+    --button-color-2: hsl(210, 60%, 40%);
+}
+
+#file-input::-webkit-file-upload-button {
+    visibility: visible;
+    width: 120px;
+    height: 30px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(80,130,255,0.12);
+    background: linear-gradient(180deg, var(--button-color-1) 0%, var(--button-color-2) 100%);
+    transition: background 0.2s;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#file-input::file-selector-button {
+    visibility: visible;
+    width: 120px;
+    height: 30px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(80,130,255,0.12);
+    background: linear-gradient(180deg, var(--button-color-1) 0%, var(--button-color-2) 100%);
+    transition: background 0.2s;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#file-input:hover, #save-svg-btn:hover, #save-png-btn:hover, #reset-styling-btn:hover {
+    background: linear-gradient(180deg, var(--button-color-2) 0%, var(--button-color-1) 100%);
+}
+
+#file-input::-webkit-file-upload-button:hover {
+    background: linear-gradient(180deg, var(--button-color-2) 0%, var(--button-color-1) 100%);
+}
+
+#file-input::file-selector-button:hover {
+    background: linear-gradient(180deg, var(--button-color-2) 0%, var(--button-color-1) 100%);
+}

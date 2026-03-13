@@ -7,6 +7,8 @@
     <meta name="darkreader-lock">
     <title>Complete Family Tree Viewer</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style_ranges.css">
+    <link rel="stylesheet" href="style_buttons.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
@@ -14,13 +16,12 @@
     <div class="container">
         <div class="left-column">
             <div class="section-header">
+                <input type="file" id="file-input" accept=".ged,.gedcom">
                 <h2>Tree Content</h2>
             </div>
 
             <div class="input-section">
-                <h3>Gedcom File</h3>
                 <span id="file-name"></span>
-                <input type="file" id="file-input" accept=".ged,.gedcom">
 
                 <h3>Root Person</h3>
                 <div class="filter-container">
@@ -30,6 +31,15 @@
                 <select id="individual-select" size="5">
                     <option>Populated from Gedcom file...</option>
                 </select>
+
+                <p>
+                    <input type="checkbox" id="show-names" checked>
+                    <label for="show-names">Show Names</label>
+                </p>
+                <p>
+                    <input type="checkbox" id="show-years" checked>
+                    <label for="show-years">Show Years of Birth/Death</label>
+                </p>
 
                 <h3>Tree Size</h3>
                 <p>
@@ -51,24 +61,44 @@
             </div>
 
             <div class="section-header">
+                <button id="reset-styling-btn" type="button">Use Defaults</button>
                 <h2>Tree Styling</h2>
             </div>
 
             <div class="input-section">
                 <p>
-                    <input type="range" id="hue-slider" min="1" max="359" value="120">
+                    <span class="range-value" id="node-width-value"></span>
+                    <input type="range" id="node-width" min="20" max="480" value="120">
+                    <label for="node-width">Node Width</label>
+                </p>
+                <p>
+                    <span class="range-value" id="node-height-value"></span>
+                    <input type="range" id="node-height" min="20" max="320" value="80">
+                    <label for="node-height">Node Height</label>
+                </p>
+                <p>
+                    <span class="range-value" id="link-width-value"></span>
+                    <input type="range" id="link-width-slider" min="1" max="28" value="6">
+                    <label for="link-width-slider">Link Width</label>
+                </p>
+                <p>
+                    <span class="range-value" id="hue-value"></span>
+                    <input type="range" id="hue-slider" min="0" max="359" value="120">
                     <label for="hue-slider">Hue (Root)</label>
                 </p>
                 <p>
-                    <input type="range" id="saturation-slider" min="1" max="100" value="33">
+                    <span class="range-value" id="saturation-value"></span>
+                    <input type="range" id="saturation-slider" min="0" max="100" value="33">
                     <label for="saturation-slider">Saturation</label>
                 </p>
                 <p>
-                    <input type="range" id="brightness-slider" min="1" max="100" value="33">
+                    <span class="range-value" id="brightness-value"></span>
+                    <input type="range" id="brightness-slider" min="0" max="100" value="33">
                     <label for="brightness-slider">Brightness</label>
                 </p>
                 <p>
-                    <input type="range" id="text-brightness-slider" min="1" max="100" value="90">
+                    <span class="range-value" id="text-brightness-value"></span>
+                    <input type="range" id="text-brightness-slider" min="0" max="100" value="90">
                     <label for="text-brightness-slider">Text Brightness</label>
                 </p>
                 <p>
