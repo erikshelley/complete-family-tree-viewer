@@ -2,11 +2,12 @@ function createFamilyTree(selected_individual) {
     // Clear previous content
     const family_tree_div = document.getElementById('family-tree-div');
     family_tree_div.innerHTML = '';
-    window.level_heights = [];
     window.level_boundary_node_leaf = [];
     window.level_boundary_node_ancestor = [];
+    window.level_heights = [];
     window.max_gen_up = 0;
     window.max_gen_down = 0;
+    window.max_stack_actual = 0;
 
     // Measure buildTree
     //const t0 = performance.now();

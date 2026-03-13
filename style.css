@@ -145,6 +145,11 @@ label {
     color: #aaa;
 }
 
+input:disabled + label {
+    color: #555;
+    cursor: not-allowed;
+}
+
 input[type="number"] {
     display: inline-block;
     vertical-align: middle;
@@ -158,6 +163,8 @@ label[for="show-names"],
 label[for="show-years"],
 label[for="stack-leaf-nodes"],
 label[for="transparent-bg-rect"],
+label[for="highlight-ancestors"],
+label[for="show-tooltips"],
 label[for="color-picker"] {
     cursor: pointer;
 }
@@ -176,6 +183,10 @@ input[type="color"] {
     padding: 0; /* Remove default padding */
     margin: 0px 8px 0px 0px;
     cursor: pointer;
+}
+
+input[type="color"]:disabled {
+    cursor: not-allowed;
 }
 
 /* Target the internal swatch wrapper for WebKit */

@@ -33,19 +33,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const transparent_bg_rect_checkbox = document.getElementById('transparent-bg-rect');
     window.transparent_bg_rect = transparent_bg_rect_checkbox.checked;
+    // Set initial color-picker state
+    color_picker.disabled = transparent_bg_rect_checkbox.checked;
     transparent_bg_rect_checkbox.addEventListener('change', function(event) {
         window.transparent_bg_rect = event.target.checked;
+        color_picker.disabled = event.target.checked;
         updateFamilyTree();
     });
 
-    const show_years_checkbox = document.getElementById('show-years');
-    window.show_years = show_years_checkbox ? show_years_checkbox.checked : true;
-    if (show_years_checkbox) {
-        show_years_checkbox.addEventListener('change', function(event) {
-            window.show_years = event.target.checked;
-            updateFamilyTree();
-        });
-    }
+    const highlight_ancestors = document.getElementById('highlight-ancestors');
+    window.highlight_ancestors = highlight_ancestors.checked || true;
+    highlight_ancestors.addEventListener('change', function(event) {
+        window.highlight_ancestors = event.target.checked;
+        updateFamilyTree();
+    });
 
     const show_names_checkbox = document.getElementById('show-names');
     window.show_names = show_names_checkbox ? show_names_checkbox.checked : true;
@@ -56,12 +57,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    const highlight_ancestors = document.getElementById('highlight-ancestors');
-    window.highlight_ancestors = highlight_ancestors.checked || true;
-    highlight_ancestors.addEventListener('change', function(event) {
-        window.highlight_ancestors = event.target.checked;
-        updateFamilyTree();
-    });
+    const show_years_checkbox = document.getElementById('show-years');
+    window.show_years = show_years_checkbox ? show_years_checkbox.checked : true;
+    if (show_years_checkbox) {
+        show_years_checkbox.addEventListener('change', function(event) {
+            window.show_years = event.target.checked;
+            updateFamilyTree();
+        });
+    }
+
+    const show_tooltips_checkbox = document.getElementById('show-tooltips');
+    window.show_tooltips = show_tooltips_checkbox ? show_tooltips_checkbox.checked : true;
+    if (show_tooltips_checkbox) {
+        show_tooltips_checkbox.addEventListener('change', function(event) {
+            window.show_tooltips = event.target.checked;
+            updateFamilyTree();
+        });
+    }
 
     // Ranges
     const node_width_slider = document.getElementById('node-width');
@@ -226,6 +238,15 @@ document.addEventListener('DOMContentLoaded', function() {
             highlight_ancestors.checked = true;
             window.highlight_ancestors = true;
 
+            show_names_checkbox.checked = true;
+            window.show_names = true;
+
+            show_years_checkbox.checked = true;
+            window.show_years = true;
+
+            show_tooltips_checkbox.checked = true;
+            window.show_tooltips = true;
+
             updateSliderThumbs();
             updateFamilyTree();
         });
@@ -311,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     createFamilyTree(selected_individual);
                     if (generations_up.value > window.max_gen_up) generations_up.value = window.max_gen_up;
                     if (generations_down.value > window.max_gen_down) generations_down.value = window.max_gen_down;
-                    if (max_stack_size.value > window.max_stack) max_stack_size.value = window.max_stack;
+                    if (max_stack_size.value > window.max_stack_actual) max_stack_size.value = window.max_stack_actual;
                 }
             }
         }

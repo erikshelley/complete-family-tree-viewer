@@ -128,8 +128,66 @@ function drawTree(svg_node, tree_width, tree_height, rows) {
 }
 
 
+function drawToolTip(g, node) {
+    // Tooltip group (hidden by default), appended to node group
+    const tooltip = g.append('g')
+        .style('opacity', 0);
+
+    // Prepare tooltip lines
+    const birthLine = (node.individual.birth ? node.individual.birth : '') + (node.individual.birth_place ? ' ' + node.individual.birth_place : '');
+    const deathLine = (node.individual.death ? node.individual.death : '') + (node.individual.death_place ? ' ' + node.individual.death_place : '');
+    const tooltipLines = [
+        node.individual.name || '',
+        birthLine != '' ? 'B: ' + birthLine : '',
+        deathLine != '' ? 'D: ' + deathLine : ''
+    ];
+
+    const padding = 12;
+    const tool_tip_font_size = 14;
+
+    // Tooltip text (render first to measure size)
+    const tooltipText = tooltip.append('text')
+        .attr('x', window.box_width / 2)
+        .attr('y', -tooltipLines.length * tool_tip_font_size - padding) // Center text vertically based on number of lines
+        .attr('text-anchor', 'middle')
+        .attr('font-family', 'Arial, sans-serif')
+        .attr('font-size', tool_tip_font_size + 'px')
+        .attr('fill', '#fff');
+
+    tooltipLines.forEach((line, i) => {
+        tooltipText.append('tspan')
+            .attr('x', window.box_width / 2)
+            .attr('dy', i === 0 ? '0em' : '1.2em')
+            .text(line);
+    });
+
+    // Show/hide tooltip on hover, and size/position on demand
+    g.on('mouseover', function() {
+        // Measure text and resize/position rect
+        const bbox = tooltipText.node().getBBox();
+        let rect = tooltip.select('rect');
+        if (rect.empty()) {
+            rect = tooltip.insert('rect', ':first-child');
+        }
+        rect
+            .attr('width', bbox.width + 2 * padding)
+            .attr('height', bbox.height + 2 * padding)
+            .attr('x', window.box_width / 2 - (bbox.width / 2) - padding)
+            .attr('y', -(tooltipLines.length + 1) * tool_tip_font_size - 1.5 * padding) // Center text vertically based on number of lines
+            .attr('rx', 8)
+            .attr('fill', '#000')
+            .attr('opacity', 0.95);
+        tooltip.style('opacity', 1);
+    })
+    .on('mouseout', function() {
+        tooltip.style('opacity', 0);
+    });
+}
+
+
 function drawNode(svg, node) {
     const g = svg.append('g').attr('transform', `translate(${node.x}, ${node.y})`);
+
     let highlight = ((node.type === 'ancestor') || node.individual.is_root);
     if (!window.highlight_ancestors) highlight = false;
 
@@ -229,6 +287,11 @@ function drawNode(svg, node) {
     if (bbox.width > max_width) {
         font_size = Math.round(10 * Math.max(min_font_size, font_size * (max_width / bbox.width))) / 10;
         text_element.attr('font-size', font_size + 'px');
+    }
+
+    // Only render tooltip if enabled
+    if (window.show_tooltips) {
+        drawToolTip(g, node);
     }
 }
 

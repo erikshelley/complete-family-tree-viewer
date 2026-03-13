@@ -47,7 +47,7 @@ function parseGedcomData(content) {
         if (level === 0 && parts.length >= 3 && parts[2] === 'INDI') {
             // New individual: 0 @Ixxx@ INDI
             if (current_individual) individuals.push(current_individual);
-            current_individual = { id: parts[1], name: '', famc: null, fams: [], birth: '', death: '', gender: '' };
+            current_individual = { id: parts[1], name: '', famc: null, fams: [], birth: '', death: '', gender: '', birth_place: '', death_place: '' };
             current_family = null; // Reset family
             current_event = null;
         } else if (level === 0 && parts.length >= 3 && parts[2] === 'FAM') {
@@ -95,10 +95,17 @@ function parseGedcomData(content) {
             const date = date_parts.join(' ');
             if (current_event === 'BIRT' && current_individual) {
                 current_individual.birth = extractYear(date);
-                current_event = null; // Reset after processing
             } else if (current_event === 'DEAT' && current_individual) {
                 current_individual.death = extractYear(date);
-                current_event = null; // Reset after processing
+            }
+        } else if (level === 2 && parts[1] === 'PLAC' && current_event && current_individual) {
+            // Place for current event
+            const place_parts = parts.slice(2);
+            const place = place_parts.join(' ');
+            if (current_event === 'BIRT' && current_individual) {
+                current_individual.birth_place = place;
+            } else if (current_event === 'DEAT' && current_individual) {
+                current_individual.death_place = place;
             }
         } else if (level === 1 && parts[1] === 'HUSB' && current_family) {
             // Husband: 1 HUSB @Ixxx@

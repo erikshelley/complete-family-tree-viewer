@@ -32,15 +32,6 @@
                     <option>Populated from Gedcom file...</option>
                 </select>
 
-                <p>
-                    <input type="checkbox" id="show-names" checked>
-                    <label for="show-names">Show Names</label>
-                </p>
-                <p>
-                    <input type="checkbox" id="show-years" checked>
-                    <label for="show-years">Show Years of Birth/Death</label>
-                </p>
-
                 <h3>Tree Size</h3>
                 <p>
                     <input type="number" id="generations-up" min="0" max="99" value="1">
@@ -106,12 +97,24 @@
                     <label for="transparent-bg-rect">Transparent Background</label>
                 </p>
                 <p>
-                    <input type="color" id="color-picker" value="#000000">
+                    <input type="color" id="color-picker" value="#000000" disabled>
                     <label for="color-picker">Background Color</label>
                 </p>
                 <p>
                     <input type="checkbox" id="highlight-ancestors" checked>
                     <label for="highlight-ancestors">Highlight Root's Ancestors</label>
+                </p>
+                <p>
+                    <input type="checkbox" id="show-names" checked>
+                    <label for="show-names">Show Names</label>
+                </p>
+                <p>
+                    <input type="checkbox" id="show-years" checked>
+                    <label for="show-years">Show Years of Birth/Death</label>
+                </p>
+                <p>
+                    <input type="checkbox" id="show-tooltips" checked>
+                    <label for="show-tooltips">Show Tool Tips</label>
                 </p>
             </div>
         </div>

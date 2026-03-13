@@ -5,6 +5,8 @@
 ## Bugs
 
 ### Positioning
+- ~~Overlapping nodes in Aunt Mary's 3rd generation tree~~
+- ~~Small spacing issue in Charles Mundor's 4th generation tree~~
 - Sometimes siblings and spouses are spaced unevenly when some have children and some do not
   - Fixing this could sometimes force a choice between keeping parents centered above their children vs making the tree wider
   - To move a child, first confirm parents can move if the center point changes
@@ -15,18 +17,16 @@
 ## New Features
 
 ### Misc
-- Tool tips for additional info
-  - Place of birth
-  - Place of death
-- ? Button/link to show max generations
-- ? Sort drop down
+- ~~Tool tips for additional info~~
+- Show locations in nodes
+- Button/link to show max generations (or checkboxes to always use max)
+- Sort drop down
 
 ### Positioning
-- ~~Option for maximum stack size and thus multiple stacks~~
 - Raise horizontal lines to female ancestor so horizontal line from male ancestor siblings can slide underneath
   - Raise the line for duplicates twice as much
 - Pan and zoom using keys
-- ? Option to hide siblings (and ancestor inlaws)
+- Option to hide siblings (and ancestor inlaws)
 
 ### Style
 - Vertically center text in node

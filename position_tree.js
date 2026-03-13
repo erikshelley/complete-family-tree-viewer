@@ -8,7 +8,8 @@ window.level_boundary_node_ancestor = [];
 window.level_heights = [];
 window.max_gen_up = 0;
 window.max_gen_down = 0;
-window.max_stack = 0;
+window.max_stack_size = 0;
+window.max_stack_actual = 0;
 
 
 function positionTree(node, rows = []) {
@@ -95,10 +96,12 @@ function positionMaleAncestor(node, rows) {
         node.max_x = Math.max(node.x + window.box_width, child_max_x);
 
         // Male ancestors need to be to the right of the level boundary's max_x
+        if (node.individual.name === 'Thomas Ryan') console.log(window.level_boundary_node_leaf[node.level].individual.name);
+
         if ((node.type != 'root') && window.level_boundary_node_leaf[node.level] && (window.level_boundary_node_leaf[node.level] != node)) {
             const boundary_node = window.level_boundary_node_leaf[node.level];
             let max_x = boundary_node.x + window.box_width + window.h_spacing;
-            let shift_x = max_x - (node.x + window.box_width + window.h_spacing / 2);
+            let shift_x = max_x - (node.x + window.box_width - window.h_spacing / 2);
             if (shift_x > 0) {
                 node.x += shift_x;
                 node.min_x += shift_x;
@@ -261,7 +264,7 @@ function positionSpouse(node, spouse_node, rows, has_grandchildren, type_to_drop
             stacks.push([spouse_node]);
         }
         else stacks[stacks.length - 1].push(spouse_node);
-        window.max_stack = Math.max(window.max_stack, stacks[stacks.length - 1].length);
+        window.max_stack_actual = Math.max(window.max_stack_actual, stacks[stacks.length - 1].length);
         spouse_node.stacked = true;
         spouse_node.sub_level = stack_sub_level;
         stack_sub_level += 1;
@@ -286,7 +289,7 @@ function positionChild(node, child_node, rows, has_grandchildren, drop_sub_level
             stacks.push([child_node]);
         }
         else stacks[stacks.length - 1].push(child_node);
-        window.max_stack = Math.max(window.max_stack, stacks[stacks.length - 1].length);
+        window.max_stack_actual = Math.max(window.max_stack_actual, stacks[stacks.length - 1].length);
         child_node.stacked = true;
         child_node.sub_level = stack_sub_level;
         stack_sub_level += 1;
@@ -319,6 +322,11 @@ function positionSpouses(node, rows, type_to_drop) {
             let max_x = stack.filter(spouse_node => stack.includes(spouse_node)).map(spouse_node => spouse_node.x).reduce((a, b) => Math.max(a, b), -Infinity);
             stack.filter(spouse_node => spouse_node.stacked).forEach(spouse_node => {
                 spouse_node.x = max_x;
+                if (spouse_node.left_neighbor && (spouse_node.left_neighbor.x + window.box_width + window.h_spacing) > spouse_node.x) {
+                    let extra_x = spouse_node.left_neighbor.x + window.box_width + window.h_spacing - spouse_node.x;
+                    spouse_node.x += extra_x;
+                    max_x += extra_x;
+                }
                 spouse_node.min_x = spouse_node.x;
                 spouse_node.max_x = spouse_node.x + window.box_width;
             });
@@ -351,6 +359,11 @@ function positionChildren(node, rows, drop_sub_level) {
         let max_x = stack.filter(child_node => stack.includes(child_node)).map(child_node => child_node.x).reduce((a, b) => Math.max(a, b), -Infinity);
         stack.filter(child_node => child_node.stacked).forEach(child_node => {
             child_node.x = max_x;
+            if (child_node.left_neighbor && (child_node.left_neighbor.x + window.box_width + window.h_spacing) > child_node.x) {
+                let extra_x = child_node.left_neighbor.x + window.box_width + window.h_spacing - child_node.x;
+                child_node.x += extra_x;
+                max_x += extra_x;
+            }
             child_node.min_x = child_node.x;
             child_node.max_x = child_node.x + window.box_width;
         });
@@ -369,7 +382,10 @@ function positionNode(node, rows) {
     const length = rows[node.level][node.sub_level].length;
     // Start at the left most position of the level or to the right of the last node in this sub-level
     if (length === 0) node.x = window.padding;
-    else node.x = rows[node.level][node.sub_level][length - 1].x + window.box_width + window.h_spacing;
+    else {
+        node.x = rows[node.level][node.sub_level][length - 1].x + window.box_width + window.h_spacing;
+        node.left_neighbor = rows[node.level][node.sub_level][length - 1];
+    }
 
     if (window.level_boundary_node_ancestor[node.level]) {
         // Do not cross the vertical line below a female ancestor
@@ -393,7 +409,10 @@ function positionNode(node, rows) {
             }
         }
         // Use this node as a boundary for future male ancestors
-        if (!window.level_boundary_node_leaf[node.level] || (node.x >= window.level_boundary_node_leaf[node.level].x)) window.level_boundary_node_leaf[node.level] = node;
+        if (node.type != 'ancestor') {
+            if (!window.level_boundary_node_leaf[node.level] || (node.x >= window.level_boundary_node_leaf[node.level].x)) 
+                window.level_boundary_node_leaf[node.level] = node;
+        }
     }
     window.level_heights[node.level] = Math.max(window.level_heights[node.level], node.sub_level + 1);
     node.is_positioned = true;
