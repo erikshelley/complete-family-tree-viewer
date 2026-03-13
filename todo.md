@@ -22,19 +22,13 @@
 - ? Sort drop down
 
 ### Positioning
-- *Option for maximum stack size and thus multiple stacks*
+- ~~Option for maximum stack size and thus multiple stacks~~
 - Raise horizontal lines to female ancestor so horizontal line from male ancestor siblings can slide underneath
   - Raise the line for duplicates twice as much
 - Pan and zoom using keys
 - ? Option to hide siblings (and ancestor inlaws)
 
 ### Style
-- ~~Configure which text to show~~
-- ~~Configure box width and height~~
-- ~~Reset to defaults~~
-- ~~Configure line thickness~~
-- ~~Show values for sliders~~
-- ~~Decide if highlight is brighter of darker based on luminance~~
 - Vertically center text in node
 - Node borders
 - Hue direction

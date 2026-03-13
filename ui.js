@@ -10,24 +10,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const individual_select = document.getElementById('individual-select');
     const individual_filter = document.getElementById('individual-filter');
     window.individual_filter_value = '';
-    const generations_up = document.getElementById('generations-up');
-    const generations_down = document.getElementById('generations-down');
     const color_picker = document.getElementById('color-picker');
     window.tree_color = color_picker.value;
     window.selected_individual = '';
+
+    // Numbers
+    const generations_up = document.getElementById('generations-up');
+    generations_up.addEventListener('input', function(event) { updateFamilyTree(); });
+    const generations_down = document.getElementById('generations-down');
+    generations_down.addEventListener('input', function(event) { updateFamilyTree(); });
+    const max_stack_size = document.getElementById('max-stack-size');
+    max_stack_size.addEventListener('input', function(event) { updateFamilyTree(); });
+
 
     // Checkboxes
     const hide_childless_inlaws = document.getElementById('hide-childless-inlaws');
     window.hide_childless_inlaws = hide_childless_inlaws.checked || false;
     hide_childless_inlaws.addEventListener('change', function(event) {
         window.hide_childless_inlaws = event.target.checked;
-        updateFamilyTree();
-    });
-
-    const stack_leaf_nodes = document.getElementById('stack-leaf-nodes');
-    window.stack_leaf_nodes = stack_leaf_nodes.checked || false;
-    stack_leaf_nodes.addEventListener('change', function(event) {
-        window.stack_leaf_nodes = event.target.checked;
         updateFamilyTree();
     });
 
@@ -267,8 +267,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     individual_select.addEventListener('change', function(event) { updateFamilyTree(); });
-    generations_up.addEventListener('input', function(event) { updateFamilyTree(); });
-    generations_down.addEventListener('input', function(event) { updateFamilyTree(); });
 
     function updateSliderThumbs() {
         let hue = parseInt(hue_slider.value) || 0;
@@ -304,6 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const selected_id = individual_select.value || window.selected_individual.id;
             window.generations_up = parseInt(generations_up.value) || 0;
             window.generations_down = parseInt(generations_down.value) || 0;
+            window.max_stack_size = parseInt(max_stack_size.value) || 0;
 
             if (selected_id && (selected_id !== 'Select an individual...')) {
                 const selected_individual = window.individuals.find(ind => ind.id === selected_id);
@@ -312,6 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     createFamilyTree(selected_individual);
                     if (generations_up.value > window.max_gen_up) generations_up.value = window.max_gen_up;
                     if (generations_down.value > window.max_gen_down) generations_down.value = window.max_gen_down;
+                    if (max_stack_size.value > window.max_stack) max_stack_size.value = window.max_stack;
                 }
             }
         }

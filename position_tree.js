@@ -8,6 +8,7 @@ window.level_boundary_node_ancestor = [];
 window.level_heights = [];
 window.max_gen_up = 0;
 window.max_gen_down = 0;
+window.max_stack = 0;
 
 
 function positionTree(node, rows = []) {
@@ -247,18 +248,24 @@ function hasGrandChildren(node) {
             if (spouse_node.children_nodes && spouse_node.children_nodes.length > 0) result = true;
         });
     }
-    //console.log(`Node ${node.individual.name} has grandchildren: ${result}`);
     return result;
 }
 
 
-function positionSpouse(node, spouse_node, rows, stack_top, has_grandchildren, type_to_drop, stack_sub_level, stack_min_x, stack_max_x, spouse_min_x, spouse_max_x) {
-    if ((node.type != 'ancestor') && window.stack_leaf_nodes && (!has_grandchildren || (spouse_node.children_nodes.length === 0))) {
-        spouse_node.sub_level = stack_sub_level;
+function positionSpouse(node, spouse_node, rows, has_grandchildren, type_to_drop, stack_sub_level, stacks, spouse_min_x, spouse_max_x) {
+    if ((node.type != 'ancestor') && (!has_grandchildren || (spouse_node.children_nodes.length === 0))) {
+        let min_stack_level = node.sub_level + (node.type === type_to_drop ? 1 : 0);
+        let max_stack_level = min_stack_level + window.max_stack_size;
+        if (stack_sub_level === min_stack_level) {
+            spouse_node.stack_top = true;
+            stacks.push([spouse_node]);
+        }
+        else stacks[stacks.length - 1].push(spouse_node);
+        window.max_stack = Math.max(window.max_stack, stacks[stacks.length - 1].length);
         spouse_node.stacked = true;
-        if (!stack_top) stack_top = spouse_node;
-        spouse_node.stack_top = stack_top;
+        spouse_node.sub_level = stack_sub_level;
         stack_sub_level += 1;
+        if (stack_sub_level === max_stack_level) stack_sub_level = min_stack_level;
     }
     else {
         if (node.type === type_to_drop) spouse_node.sub_level = node.sub_level + 1;
@@ -266,21 +273,24 @@ function positionSpouse(node, spouse_node, rows, stack_top, has_grandchildren, t
     positionTree(spouse_node, rows); 
     spouse_min_x = Math.min(spouse_min_x, spouse_node.min_x);
     spouse_max_x = Math.max(spouse_max_x, spouse_node.max_x);
-    if (spouse_node.stacked) {
-        stack_min_x = Math.min(stack_min_x, spouse_node.x);
-        stack_max_x = Math.max(stack_max_x, spouse_node.x);
-    }
-    return [spouse_min_x, spouse_max_x, stack_min_x, stack_max_x, stack_sub_level, stack_top];
+    return [spouse_min_x, spouse_max_x, stacks, stack_sub_level];
 }
 
 
-function positionChild(node, child_node, rows, stack_top, has_grandchildren, drop_sub_level, stack_sub_level, stack_min_x, stack_max_x, child_min_x, child_max_x) {
-    if (window.stack_leaf_nodes && (!has_grandchildren || (child_node.spouse_nodes.length === 0))) {
-        child_node.sub_level = stack_sub_level;
+function positionChild(node, child_node, rows, has_grandchildren, drop_sub_level, stack_sub_level, stacks, child_min_x, child_max_x) {
+    if (!has_grandchildren || (child_node.spouse_nodes.length === 0)) {
+        let min_stack_level = node.sub_level + (drop_sub_level ? 1 : 0);
+        let max_stack_level = min_stack_level + window.max_stack_size;
+        if (stack_sub_level === min_stack_level) {
+            child_node.stack_top = true;
+            stacks.push([child_node]);
+        }
+        else stacks[stacks.length - 1].push(child_node);
+        window.max_stack = Math.max(window.max_stack, stacks[stacks.length - 1].length);
         child_node.stacked = true;
-        if (!stack_top) stack_top = child_node;
-        child_node.stack_top = stack_top;
+        child_node.sub_level = stack_sub_level;
         stack_sub_level += 1;
+        if (stack_sub_level === max_stack_level) stack_sub_level = min_stack_level;
     }
     else {
         if (drop_sub_level) child_node.sub_level = node.sub_level + 1;
@@ -288,39 +298,37 @@ function positionChild(node, child_node, rows, stack_top, has_grandchildren, dro
     positionTree(child_node, rows); 
     child_min_x = Math.min(child_min_x, child_node.min_x);
     child_max_x = Math.max(child_max_x, child_node.max_x);
-    if (child_node.stacked) {
-        stack_min_x = Math.min(stack_min_x, child_node.x);
-        stack_max_x = Math.max(stack_max_x, child_node.x);
-    }
-    return [child_min_x, child_max_x, stack_min_x, stack_max_x, stack_sub_level, stack_top];
+    return [child_min_x, child_max_x, stacks, stack_sub_level];
 }
 
 
 function positionSpouses(node, rows, type_to_drop) {
     let spouse_min_x = Infinity, spouse_max_x = -Infinity;
-    let stack_min_x = Infinity, stack_max_x = -Infinity;
+    let stacks = [];
     let stack_sub_level = node.sub_level + (node.type === type_to_drop ? 1 : 0);
     const has_grandchildren = hasGrandChildren(node);
-    let stack_top = null;
 
-    if (node.type != 'ancestor')
+    if (node.type != 'ancestor') {
         node.spouse_nodes.filter(spouse_node => !has_grandchildren || (spouse_node.children_nodes.length === 0)).forEach(spouse_node => { 
-            [spouse_min_x, spouse_max_x, stack_min_x, stack_max_x, stack_sub_level, stack_top] 
-                = positionSpouse(node, spouse_node, rows, stack_top, has_grandchildren, type_to_drop, stack_sub_level, stack_min_x, stack_max_x, spouse_min_x, spouse_max_x);
+            [spouse_min_x, spouse_max_x, stacks, stack_sub_level] 
+                = positionSpouse(node, spouse_node, rows, has_grandchildren, type_to_drop, stack_sub_level, stacks, spouse_min_x, spouse_max_x);
         });
-    node.spouse_nodes.filter(spouse_node => (node.type === 'ancestor') || has_grandchildren || (spouse_node.children_nodes.length > 0)).forEach(spouse_node => { 
-        [spouse_min_x, spouse_max_x, stack_min_x, stack_max_x, stack_sub_level, stack_top] 
-            = positionSpouse(node, spouse_node, rows, stack_top, has_grandchildren, type_to_drop, stack_sub_level, stack_min_x, stack_max_x, spouse_min_x, spouse_max_x);
-    });
 
-    // If stack isn't aligned, align it to the max spouse
-    if (window.stack_leaf_nodes && (stack_min_x != stack_max_x)) {
-        node.spouse_nodes.filter(spouse_node => spouse_node.stacked).forEach(spouse_node => { 
-            spouse_node.x = spouse_max_x;
-            spouse_node.min_x = spouse_node.x;
-            spouse_node.max_x = spouse_node.x + window.box_width;
+        // If stacks aren't aligned, align them
+        stacks.forEach(stack => {
+            let max_x = stack.filter(spouse_node => stack.includes(spouse_node)).map(spouse_node => spouse_node.x).reduce((a, b) => Math.max(a, b), -Infinity);
+            stack.filter(spouse_node => spouse_node.stacked).forEach(spouse_node => {
+                spouse_node.x = max_x;
+                spouse_node.min_x = spouse_node.x;
+                spouse_node.max_x = spouse_node.x + window.box_width;
+            });
         });
     }
+
+    node.spouse_nodes.filter(spouse_node => (node.type === 'ancestor') || (spouse_node.children_nodes.length > 0)).forEach(spouse_node => { 
+        [spouse_min_x, spouse_max_x, stacks, stack_sub_level] 
+            = positionSpouse(node, spouse_node, rows, has_grandchildren, type_to_drop, stack_sub_level, stacks, spouse_min_x, spouse_max_x);
+    });
 
     return [spouse_min_x, spouse_max_x];
 }
@@ -329,28 +337,29 @@ function positionSpouses(node, rows, type_to_drop) {
 // drop_sub_level will be true for inlaws so that their children are positioned one sub-level lower than the inlaw
 function positionChildren(node, rows, drop_sub_level) {
     let child_min_x = Infinity, child_max_x = -Infinity;
-    let stack_min_x = Infinity, stack_max_x = -Infinity;
+    let stacks = [];
     let stack_sub_level = node.sub_level + (drop_sub_level ? 1 : 0);
     const has_grandchildren = hasGrandChildren(node);
 
-    let stack_top = null;
     node.children_nodes.filter(child_node => !has_grandchildren || (child_node.spouse_nodes.length === 0)).forEach(child_node => { 
-        [child_min_x, child_max_x, stack_min_x, stack_max_x, stack_sub_level, stack_top] 
-            = positionChild(node, child_node, rows, stack_top, has_grandchildren, drop_sub_level, stack_sub_level, stack_min_x, stack_max_x, child_min_x, child_max_x);
-    });
-    node.children_nodes.filter(child_node => has_grandchildren || (child_node.spouse_nodes.length > 0)).forEach(child_node => { 
-        [child_min_x, child_max_x, stack_min_x, stack_max_x, stack_sub_level, stack_top] 
-            = positionChild(node, child_node, rows, stack_top, has_grandchildren, drop_sub_level, stack_sub_level, stack_min_x, stack_max_x, child_min_x, child_max_x);
+        [child_min_x, child_max_x, stacks, stack_sub_level] 
+            = positionChild(node, child_node, rows, has_grandchildren, drop_sub_level, stack_sub_level, stacks, child_min_x, child_max_x);
     });
 
-    // If stack isn't aligned, align it to the max child
-    if (window.stack_leaf_nodes && (stack_min_x != stack_max_x)) {
-        node.children_nodes.filter(child_node => child_node.stacked).forEach(child_node => { 
-            child_node.x = stack_max_x; 
+    // If stacks aren't aligned, align them
+    stacks.forEach(stack => {
+        let max_x = stack.filter(child_node => stack.includes(child_node)).map(child_node => child_node.x).reduce((a, b) => Math.max(a, b), -Infinity);
+        stack.filter(child_node => child_node.stacked).forEach(child_node => {
+            child_node.x = max_x;
             child_node.min_x = child_node.x;
             child_node.max_x = child_node.x + window.box_width;
         });
-    }
+    });
+
+    node.children_nodes.filter(child_node => child_node.spouse_nodes.length > 0).forEach(child_node => { 
+        [child_min_x, child_max_x, stacks, stack_sub_level] 
+            = positionChild(node, child_node, rows, has_grandchildren, drop_sub_level, stack_sub_level, stacks, child_min_x, child_max_x);
+    });
 
     return [child_min_x, child_max_x];
 }
@@ -359,16 +368,8 @@ function positionChildren(node, rows, drop_sub_level) {
 function positionNode(node, rows) {
     const length = rows[node.level][node.sub_level].length;
     // Start at the left most position of the level or to the right of the last node in this sub-level
-    if (node.stacked && node.stack_top.x && (node.stack_top != node)) {
-        if (rows[node.level][node.sub_level][length - 1]) {
-            node.x = Math.max(node.stack_top.x, rows[node.level][node.sub_level][length - 1].x + window.box_width + window.h_spacing);
-        }
-        else node.x = node.stack_top.x;
-    }
-    else {
-        if (length === 0) node.x = window.padding;
-        else node.x = rows[node.level][node.sub_level][length - 1].x + window.box_width + window.h_spacing;
-    }
+    if (length === 0) node.x = window.padding;
+    else node.x = rows[node.level][node.sub_level][length - 1].x + window.box_width + window.h_spacing;
 
     if (window.level_boundary_node_ancestor[node.level]) {
         // Do not cross the vertical line below a female ancestor
@@ -397,7 +398,6 @@ function positionNode(node, rows) {
     window.level_heights[node.level] = Math.max(window.level_heights[node.level], node.sub_level + 1);
     node.is_positioned = true;
     rows[node.level][node.sub_level].push(node);
-    //console.log(`Positioned ${node.individual.name} at x=${node.x}, level=${node.level}, sub_level=${node.sub_level}`);
 }
 
 

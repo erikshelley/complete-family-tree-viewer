@@ -113,7 +113,7 @@ svg {
     width: calc(100% - 12px);
 }
 
-#individual-select, #generations-up, #generations-down, #individual-filter {
+#individual-select, #generations-up, #generations-down, #max-stack-size, #individual-filter {
     background-color: #202020;
     color: #aaa;
     border: 1px solid #444;
