@@ -346,10 +346,15 @@ function drawText(g, node) {
         if (bbox.width > max_width) {
             // Scale both main and secondary font sizes proportionally
             let scale = max_width / bbox.width;
-            let new_main = Math.max(min_font_size, Math.floor(main_font_size * scale));
-            let new_secondary = Math.max(min_font_size, Math.floor(new_main * 0.75));
+            
+            let new_main = Math.max(main_font_size, Math.floor(main_font_size * scale));
+            let new_secondary = Math.floor(new_main * 0.75);
             renderTspans(new_main, new_secondary);
             bbox = text_element.node().getBBox();
+
+            new_main = Math.max(min_font_size, Math.floor(main_font_size * scale));
+            new_secondary = Math.floor(new_main * 0.75);
+            renderTspans(new_main, new_secondary);
         }
         window.auto_box_width = Math.max(window.auto_box_width, window.box_width * (bbox.width / max_width), 20);
         window.auto_box_height = Math.max(window.auto_box_height, bbox.height, 20);

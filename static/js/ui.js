@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Iinput for selecting the root individual
+    // Input for selecting the root individual
     const individual_select = document.getElementById('individual-select');
     individual_select.addEventListener('change', function(event) { requestFamilyTreeUpdate(); });
     window.selected_individual = '';
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (reset_styling_button) {
         reset_styling_button.addEventListener('click', function() {
             for (const element_info of elements) {
-                if (!['generations-up-number', 'generations-down-number', 'max-stack-size-number'].includes(element_info.id)) {
+                if (!['generations-up-number', 'generations-down-number', 'max-stack-size-number', 'hide-childless-inlaws-checkbox'].includes(element_info.id)) {
                     const element = document.getElementById(element_info.id);
                     if (element_info.type === 'checkbox') element.checked = element_info.default;
                     else element.value = element_info.default;
