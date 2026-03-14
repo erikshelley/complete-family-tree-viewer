@@ -401,9 +401,9 @@ function getNodeHCL(node, inlaw_desaturated = true) {
     // Use HCL for equal luminance regardless of hue
     var hue_spacing = 60;
     if (window.max_gen_up + window.max_gen_down >= 6) hue_spacing = 360 / (window.max_gen_up + window.max_gen_down + 1);
-    const base_hue = window.root_hue || window.default_node_hue;
+    const base_hue = window.root_hue;
     const hue = ((node.generation - window.generations_down) * hue_spacing + base_hue + 360) % 360;
-    const chroma = (inlaw_desaturated && (node.type === 'inlaw')) ? 0 : (window.node_saturation || window.default_node_saturation);
-    const luminance = window.node_brightness || window.default_node_brightness;
+    const chroma = (inlaw_desaturated && (node.type === 'inlaw')) ? 0 : window.node_saturation;
+    const luminance = window.node_brightness;
     return [hue, chroma, luminance];
 }

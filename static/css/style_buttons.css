@@ -1,5 +1,5 @@
 /* Modern file input styling */
-#file-input, #save-svg-btn, #save-png-btn, #reset-styling-btn {
+#file-input-button, #save-svg-button, #save-png-button, #reset-styling-button {
     visibility: visible;
     margin: 8px 0px 8px 8px;
     padding: 0px;
@@ -19,7 +19,7 @@
     --button-color-2: hsl(210, 60%, 40%);
 }
 
-#file-input::-webkit-file-upload-button {
+#file-input-button::-webkit-file-upload-button {
     visibility: visible;
     width: 120px;
     height: 30px;
@@ -34,7 +34,7 @@
     cursor: pointer;
 }
 
-#file-input::file-selector-button {
+#file-input-button::file-selector-button {
     visibility: visible;
     width: 120px;
     height: 30px;
@@ -49,14 +49,14 @@
     cursor: pointer;
 }
 
-#file-input:hover, #save-svg-btn:hover, #save-png-btn:hover, #reset-styling-btn:hover {
+#file-input-button:hover, #save-svg-button:hover, #save-png-button:hover, #reset-styling-button:hover {
     background: linear-gradient(180deg, var(--button-color-2) 0%, var(--button-color-1) 100%);
 }
 
-#file-input::-webkit-file-upload-button:hover {
+#file-input-button::-webkit-file-upload-button:hover {
     background: linear-gradient(180deg, var(--button-color-2) 0%, var(--button-color-1) 100%);
 }
 
-#file-input::file-selector-button:hover {
+#file-input-button::file-selector-button:hover {
     background: linear-gradient(180deg, var(--button-color-2) 0%, var(--button-color-1) 100%);
 }

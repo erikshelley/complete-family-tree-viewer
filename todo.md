@@ -1,19 +1,23 @@
 # Next Steps
 
+🔴🟠😑🟡🥎🟢⚫
+
 ## Bugs
-- Node width auto sizing no longer working
+- 🟠 If root is part of a stack but not the top of a stack, the link to their parent misbehaves (Sarah Britcher)
+  - Perhaps force them to the top of the stack? Otherwise you'll have to figure out how to highlight the entire link.
+- 🟠 Node width auto sizing no longer working properly (workaround exists)
 - Vertical centering is off for one-liners (too low)
 - Vertical centering is off for nodes with smaller fonts than the rest (too high)
 - Max stack size does not work if clicked while tree is updating
-- Warnings when showing dates for Unknown Person
+- The Max stack size input sometimes becomes zero (when gen up and gen down become zero), don't think the max size variable is being changed, just the inputs
+- Warning when showing dates for an Unknown Person
 
 ## New Features
-- **README.md | about page**
-- **Pedigree only - option to hide siblings (and ancestor inlaws)**
-- **Raise horizontal lines to female ancestor so horizontal line from male ancestor siblings can slide underneath (raise duplicates twice as much)**
+- *README.md | about page*
+- *Pedigree only - option to hide siblings (and ancestor inlaws)*
 - Highlight descendants (all pedigree)
 - Node borders
-- Responsive design
+- Responsive design (mobile)
 - Style presets (dark, light, square, round, default)
 - Tool tips should be the same size regardless of the zoom
 - Max zoom should depend on svg size rather than being fixed at 100x
@@ -22,6 +26,10 @@
 - Specify PNG size to avoid failing on large trees
 
 ## Under Considuration
+- *Raise horizontal lines to female ancestor so horizontal line from male ancestor siblings can slide underneath (raise duplicates twice as much)*
+- *After selecting root, create a second list of people and if one is selected, highlight the path between them*
+- Collapsible sections in the left nav
+- Gallery of cool examples
 - Pan and zoom using keyboard
 - Zoom icons - Zoom in - Zoom out - Zoom to full
 - Hue direction

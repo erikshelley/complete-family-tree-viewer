@@ -1,10 +1,3 @@
-window.box_width = 150;
-window.box_height = 75;
-window.h_spacing = 40;
-window.v_spacing = 80;
-window.node_rounding = 25;
-window.link_rounding = 50;
-window.padding = 80;
 window.level_boundary_node_leaf = [];
 window.level_boundary_node_ancestor = [];
 window.level_heights = [];
@@ -14,6 +7,8 @@ window.max_stack_size = 1;
 window.max_stack_actual = 0;
 window.auto_box_width = 0;
 window.auto_box_height = 0;
+
+window.padding = 20;
 
 
 function positionTree(node, rows = []) {

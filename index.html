@@ -17,7 +17,7 @@
     <div class="container">
         <div class="left-column">
             <div class="section-header">
-                <input type="file" id="file-input" accept=".ged,.gedcom">
+                <input type="file" id="file-input-button" accept=".ged,.gedcom">
                 <h2>Tree Content</h2>
             </div>
 
@@ -25,8 +25,8 @@
                 <h3>Root Person</h3>
                 <span id="file-name">Select Gedcom file...</span>
                 <div class="filter-container">
-                    <input type="text" id="individual-filter" class="filter-input" placeholder="Type to filter names...">
-                    <button id="clear-individual-filter" type="button" class="clear-filter-btn">&#10005;</button>
+                    <input type="text" id="individual-filter-text" class="filter-input" placeholder="Type to filter names...">
+                    <button id="clear-individual-filter" type="button" class="clear-filter-button">&#10005;</button>
                 </div>
                 <select id="individual-select" size="5">
                     <option>Populated from Gedcom file...</option>
@@ -34,20 +34,20 @@
 
                 <h3>Tree Size</h3>
                 <p>
-                    <input type="number" id="generations-up" min="0" max="99" value="1">
-                    <label for="generations-up">Generations Up</label>&nbsp;<a href="#" class="right-shortcut" id="generations-up-max-link">[MAX]</a>
+                    <input type="number" id="generations-up-number" min="0" max="99" value="1">
+                    <label for="generations-up-number">Generations Up</label>&nbsp;<a href="#" class="right-shortcut" id="generations-up-number-max-link">[MAX]</a>
                 </p>
                 <p>
-                    <input type="number" id="generations-down" min="0" max="99" value="1">
-                    <label for="generations-down">Generations Down</label>&nbsp;<a href="#" class="right-shortcut" id="generations-down-max-link">[MAX]</a>
+                    <input type="number" id="generations-down-number" min="0" max="99" value="1">
+                    <label for="generations-down-number">Generations Down</label>&nbsp;<a href="#" class="right-shortcut" id="generations-down-number-max-link">[MAX]</a>
                 </p>
                 <p>
-                    <input type="number" id="max-stack-size" min="1" max="99" value="1">
-                    <label for="max-stack-size">Maximum Stack Size</label>&nbsp;<a href="#" class="right-shortcut" id="max-stack-size-max-link">[MAX]</a>
+                    <input type="number" id="max-stack-size-number" min="1" max="99" value="1">
+                    <label for="max-stack-size-number">Maximum Stack Size</label>&nbsp;<a href="#" class="right-shortcut" id="max-stack-size-number-max-link">[MAX]</a>
                 </p>
                 <p>
-                    <input type="checkbox" id="hide-childless-inlaws">
-                    <label for="hide-childless-inlaws">Hide Childless Inlaws</label>
+                    <input type="checkbox" id="hide-childless-inlaws-checkbox">
+                    <label for="hide-childless-inlaws-checkbox">Hide Childless Inlaws</label>
                 </p>
                 <!--<p>
                     <input type="checkbox" id="pedigree-only">
@@ -56,117 +56,117 @@
             </div>
 
             <div class="section-header">
-                <button id="reset-styling-btn" type="button">Use Defaults</button>
+                <button id="reset-styling-button" type="button">Use Defaults</button>
                 <h2>Tree Styling</h2>
             </div>
 
             <div class="input-section">
                 <h3>Nodes</h3>
                 <p>
-                    <input type="number" class="range-value" id="node-width-value" min="20" max="480" value="150">
-                    <input type="range" id="node-width" min="20" max="480" value="150">
-                    <label for="node-width">Width</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-width-link">[AUTO]</a>
+                    <input type="number" class="range-value" id="node-width-number" min="20" max="480" value="150">
+                    <input type="range" id="node-width-range" min="20" max="480" value="150">
+                    <label for="node-width-range">Width</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-width-link">[AUTO]</a>
                 </p>
                 <p>
-                    <input type="number" class="range-value" id="node-height-value" min="20" max="480" value="75">
-                    <input type="range" id="node-height" min="20" max="480" value="75">
-                    <label for="node-height">Height</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-height-link">[AUTO]</a>
+                    <input type="number" class="range-value" id="node-height-number" min="20" max="480" value="75">
+                    <input type="range" id="node-height-range" min="20" max="480" value="75">
+                    <label for="node-height-range">Height</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-height-link">[AUTO]</a>
                 </p>
                 <p>
-                    <input type="number" class="range-value" id="h-spacing-value" min="1" max="400" value="40">
-                    <input type="range" id="h-spacing-slider" min="1" max="400" value="40">
-                    <label for="h-spacing-slider">X Spacing</label>
+                    <input type="number" class="range-value" id="h-spacing-number" min="1" max="400" value="40">
+                    <input type="range" id="h-spacing-range" min="1" max="400" value="40">
+                    <label for="h-spacing-range">X Spacing</label>
                 </p>
                 <p>
-                    <input type="number" class="range-value" id="v-spacing-value" min="1" max="400" value="80">
-                    <input type="range" id="v-spacing-slider" min="1" max="400" value="80">
-                    <label for="v-spacing-slider">Y Spacing</label>
+                    <input type="number" class="range-value" id="v-spacing-number" min="1" max="400" value="80">
+                    <input type="range" id="v-spacing-range" min="1" max="400" value="80">
+                    <label for="v-spacing-range">Y Spacing</label>
                 </p>
                 <p>
-                    <input type="number" class="range-value" id="node-rounding" min="0" max="100" value="10">
-                    <input type="range" id="node-rounding-slider" min="0" max="100" value="10">
-                    <label for="node-rounding-slider">Rounding %</label>
+                    <input type="number" class="range-value" id="node-rounding-number" min="0" max="100" value="10">
+                    <input type="range" id="node-rounding-range" min="0" max="100" value="10">
+                    <label for="node-rounding-range">Rounding %</label>
                 </p>
                 <p>
-                    <input type="checkbox" id="show-names" checked>
-                    <label for="show-names">Show Names</label>
+                    <input type="checkbox" id="show-names-checkbox" checked>
+                    <label for="show-names-checkbox">Show Names</label>
                 </p>
                 <p>
-                    <input type="checkbox" id="show-years" checked>
-                    <label for="show-years">Show Years of Birth/Death</label>
+                    <input type="checkbox" id="show-years-checkbox" checked>
+                    <label for="show-years-checkbox">Show Years of Birth/Death</label>
                 </p>
                 <p>
-                    <input type="checkbox" id="show-places">
-                    <label for="show-places">Show Places of Birth/Death</label>
+                    <input type="checkbox" id="show-places-checkbox">
+                    <label for="show-places-checkbox">Show Places of Birth/Death</label>
                 </p>
-                <p>
-                    <input type="checkbox" id="show-tooltips">
-                    <label for="show-tooltips">Show Tool Tips</label>
-                </p>
+                <!--<p>
+                    <input type="checkbox" id="show-tooltips-checkbox">
+                    <label for="show-tooltips-checkbox">Show Tool Tips</label>
+                </p>-->
 
                 <h3>Links</h3>
                 <p>
-                    <input type="number" class="range-value" id="link-width-value" min="1" max="28" value="6">
-                    <input type="range" id="link-width-slider" min="1" max="28" value="6">
-                    <label for="link-width-slider">Thickness</label>
+                    <input type="number" class="range-value" id="link-width-number" min="1" max="28" value="6">
+                    <input type="range" id="link-width-range" min="1" max="28" value="6">
+                    <label for="link-width-range">Thickness</label>
                 </p>
                 <p>
-                    <input type="number" class="range-value" id="link-rounding" min="0" max="100" value="10">
-                    <input type="range" id="link-rounding-slider" min="0" max="100" value="10">
-                    <label for="link-rounding-slider">Rounding %</label>
+                    <input type="number" class="range-value" id="link-rounding-number" min="0" max="100" value="10">
+                    <input type="range" id="link-rounding-range" min="0" max="100" value="10">
+                    <label for="link-rounding-range">Rounding %</label>
                 </p>
 
                 <h3>Text</h3>
                 <p>
-                    <input type="number" class="range-value" id="node-text-size-value" min="8" max="24" value="16">
-                    <input type="range" id="node-text-size-slider" min="8" max="24" value="16">
-                    <label for="node-text-size-slider">Size</label>
+                    <input type="number" class="range-value" id="node-text-size-number" min="8" max="24" value="16">
+                    <input type="range" id="node-text-size-range" min="8" max="24" value="16">
+                    <label for="node-text-size-range">Size</label>
                 </p>
                 <p>
-                    <input type="number" class="range-value" id="text-brightness-value" min="0" max="100" value="90">
-                    <input type="range" id="text-brightness-slider" min="0" max="100" value="90">
-                    <label for="text-brightness-slider">Brightness</label>
+                    <input type="number" class="range-value" id="text-brightness-number" min="0" max="100" value="90">
+                    <input type="range" id="text-brightness-range" min="0" max="100" value="90">
+                    <label for="text-brightness-range">Brightness</label>
                 </p>
                 <p>
-                    <input type="checkbox" id="text-shadow" checked>
-                    <label for="text-shadow">Text Shadow</label>
+                    <input type="checkbox" id="text-shadow-checkbox" checked>
+                    <label for="text-shadow-checkbox">Text Shadow</label>
                 </p>
 
                 <h3>Colors</h3>
                 <p>
-                    <input type="number" class="range-value" id="hue-value" min="0" max="359" value="120">
-                    <input type="range" id="hue-slider" min="0" max="359" value="120">
-                    <label for="hue-slider">Hue (Root)</label>
+                    <input type="number" class="range-value" id="hue-number" min="0" max="359" value="120">
+                    <input type="range" id="hue-range" min="0" max="359" value="120">
+                    <label for="hue-range">Hue (Root)</label>
                 </p>
                 <p>
-                    <input type="number" class="range-value" id="saturation-value" min="0" max="100" value="33">
-                    <input type="range" id="saturation-slider" min="0" max="100" value="33">
-                    <label for="saturation-slider">Saturation</label>
+                    <input type="number" class="range-value" id="saturation-number" min="0" max="100" value="33">
+                    <input type="range" id="saturation-range" min="0" max="100" value="33">
+                    <label for="saturation-range">Saturation</label>
                 </p>
                 <p>
-                    <input type="number" class="range-value" id="brightness-value" min="0" max="100" value="33">
-                    <input type="range" id="brightness-slider" min="0" max="100" value="33">
-                    <label for="brightness-slider">Luminance</label>
+                    <input type="number" class="range-value" id="brightness-number" min="0" max="100" value="33">
+                    <input type="range" id="brightness-range" min="0" max="100" value="33">
+                    <label for="brightness-range">Luminance</label>
                 </p>
                 <p>
-                    <input type="number" class="range-value" id="highlight-percent" min="0" max="200" value="125">
-                    <input type="range" id="highlight-percent-slider" min="0" max="200" value="125">
-                    <label for="highlight-percent-slider">Highlight</label>&nbsp;<a href="#" class="right-shortcut" id="no-highlight-percent-link">[NONE]</a>
+                    <input type="number" class="range-value" id="highlight-percent-number" min="0" max="200" value="125">
+                    <input type="range" id="highlight-percent-range" min="0" max="200" value="125">
+                    <label for="highlight-percent-range">Highlight</label>&nbsp;<a href="#" class="right-shortcut" id="no-highlight-percent-link">[NONE]</a>
                 </p>
                 <p>
-                    <input type="checkbox" id="transparent-bg-rect" checked>
-                    <label for="transparent-bg-rect">Transparent Background</label>
+                    <input type="checkbox" id="transparent-bg-rect-checkbox" checked>
+                    <label for="transparent-bg-rect-checkbox">Transparent Background</label>
                 </p>
                 <p>
-                    <input type="color" id="color-picker" value="#000000" disabled>
+                    <input type="color" id="color-picker" value="#000000">
                     <label for="color-picker">Background Color</label>
                 </p>
             </div>
         </div>
         <div class="right-column">
             <div class="section-header">
-                <button id="save-svg-btn">Save SVG</button>
-                <button id="save-png-btn">Save PNG</button>
+                <button id="save-svg-button">Save SVG</button>
+                <button id="save-png-button">Save PNG</button>
                 <h2 id="family-tree-header">Tree&nbsp;Viewer<span id="root-name"></span><span id="node-count"></span></h2>
             </div>
 

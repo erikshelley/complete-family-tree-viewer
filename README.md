@@ -2,16 +2,32 @@
 
 ## Demo
 
-If you want to try out this application without downloading the code for yourself, it is available on my personal website: [Complete Family Tree Viewer](https://www.erikshelley.com/complete-family-tree-viewer). 
-
-When you use this program, your genealogy information is not uploaded to my site. All processing is down in your browser. Feel free to review the code to confirm. In fact, after loading the page (and before selecting your Gedcom file), you can disconnect your computer from the internet and the application will continue to work.
+If you would like to try out this application without downloading the code for yourself, it is available on my personal website: [Complete Family Tree Viewer](https://www.erikshelley.com/complete-family-tree-viewer). 
 
 ## About
 
+### Purpose
 ![My one generation tree](static/svg/my-one-generation-tree.svg)
 ![My full family tree with over 4,000 people](static/svg/my-full-tree.svg)
 
-## Contents
+### Design
+#### Ancestors
+#### Spouses
+#### Children
+#### Siblings
+#### Inbreeding
+#### Stacking
+
+### Data Privacy
+When you use this program, your genealogy information is not uploaded to my site. All processing is down in your browser. Feel free to review the code to confirm. In fact, after loading the page (and before selecting your Gedcom file), you can disconnect your computer from the internet and the application will continue to work.
+
+If you don't have a Gedcom file of your own, download one of these [Gedcom sample files](https://github.com/D-Jeffrey/gedcom-samples) to use.
+
+### Reporting Issues
+
+### Requesting Features
+
+## Usage
 - [Tree Content](#tree-content)
   - [Load Gedcom File](#load-gedcom-file)
   - [Select Root of Tree](#select-root-of-tree)
@@ -22,7 +38,6 @@ When you use this program, your genealogy information is not uploaded to my site
     - [Generations Down](#generations-down)
     - [Maximum Stack Size](#maximum-stack-size)
     - [Hide Childless Inlaws](#hide-childless-inlaws)
-    - [Show Pedigree Only](#show-pedigree-only)
 - [Tree Styling](#tree-styling)
   - [Use Defaults](#use-defaults)
   - [Node](#node)
@@ -34,7 +49,6 @@ When you use this program, your genealogy information is not uploaded to my site
       - [Show Names](#show-names)
       - [Show Years of BirthDeath](#show-years-of-birthdeath)
       - [Show Places of BirthDeath](#show-places-of-birthdeath)
-      - [Show Tool Tips](#show-tool-tips)
   - [Links](#links)
     - [Thickness](#thickness)
     - [Rounding](#link-rounding)
@@ -50,10 +64,10 @@ When you use this program, your genealogy information is not uploaded to my site
     - [Transparent Background](#transparent-background)
     - [Background Color](#background-color)
 - [Tree Viewer](#tree-viewer)
-  - [Save PNG](#save-png)
-  - [Save SVG](#save-svg)
   - [Zoom](#zoom)
   - [Pan](#pan)
+  - [Save PNG](#save-png)
+  - [Save SVG](#save-svg)
 
 ## Tree Content
 ### Load Gedcom File
@@ -65,7 +79,6 @@ When you use this program, your genealogy information is not uploaded to my site
 #### Generations Down
 #### Maximum Stack Size
 #### Hide Childless Inlaws
-#### Show Pedigree Only
 
 ## Tree Styling
 ### Use Defaults
@@ -78,7 +91,6 @@ When you use this program, your genealogy information is not uploaded to my site
 #### Show Names
 #### Show Years of BirthDeath
 #### Show Places of BirthDeath
-#### Show Tool Tips
 ### Links
 #### Thickness
 #### Link Rounding
@@ -95,7 +107,7 @@ When you use this program, your genealogy information is not uploaded to my site
 #### Background Color
 
 ## Tree Viewer
-### Save PNG
-### Save SVG
 ### Zoom
 ### Pan
+### Save PNG
+### Save SVG
