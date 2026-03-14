@@ -1,6 +1,16 @@
 // User interface and input handling functionality
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Show birth/death places checkbox
+    const show_places_checkbox = document.getElementById('show-places');
+    window.show_places = show_places_checkbox ? show_places_checkbox.checked : false;
+    if (show_places_checkbox) {
+        show_places_checkbox.addEventListener('change', function(event) {
+            window.show_places = event.target.checked;
+            requestFamilyTreeUpdate();
+        });
+    }
+
     // Text shadow checkbox
     const text_shadow_checkbox = document.getElementById('text-shadow');
     window.text_shadow = text_shadow_checkbox ? text_shadow_checkbox.checked : true;
@@ -195,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const h_spacing_slider = document.getElementById('h-spacing-slider');
-    window.default_h_spacing = 40;
+    window.default_h_spacing = 37;
     h_spacing_slider.value = window.default_h_spacing;
     window.h_spacing = parseInt(h_spacing_slider.value) || window.default_h_spacing;
     const h_spacing_value = document.getElementById('h-spacing-value');
@@ -218,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const v_spacing_slider = document.getElementById('v-spacing-slider');
-    window.default_v_spacing = 80;
+    window.default_v_spacing = 66;
     v_spacing_slider.value = window.default_v_spacing;
     window.v_spacing = parseInt(v_spacing_slider.value) || window.default_v_spacing;
     const v_spacing_value = document.getElementById('v-spacing-value');
@@ -381,6 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (val > 200) val = 200;
             window.highlight_percent = val;
             highlight_percent.value = val;
+            highlight_percent_slider.value = val;
             updateSliderThumbs();
             requestFamilyTreeUpdate();
         });
@@ -395,6 +406,16 @@ document.addEventListener('DOMContentLoaded', function() {
             requestFamilyTreeUpdate();
         });
     }
+    const no_highlight_percent_link = document.getElementById('no-highlight-percent-link');
+    no_highlight_percent_link.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.highlight_percent = 100;
+        highlight_percent.value = 100;
+        highlight_percent_slider.value = 100;
+        updateSliderThumbs();
+        requestFamilyTreeUpdate();
+    });
+
 
     const text_brightness_slider = document.getElementById('text-brightness-slider');
     window.default_text_brightness = 90;
@@ -551,6 +572,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             text_shadow_checkbox.checked = true;
             window.text_shadow = true;
+
+            show_places_checkbox.checked = false;
+            window.show_places = false;
 
             updateSliderThumbs();
             requestFamilyTreeUpdate();

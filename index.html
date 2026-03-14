@@ -95,6 +95,10 @@
                     <label for="show-years">Show Years of Birth/Death</label>
                 </p>
                 <p>
+                    <input type="checkbox" id="show-places">
+                    <label for="show-places">Show Places of Birth/Death</label>
+                </p>
+                <p>
                     <input type="checkbox" id="show-tooltips">
                     <label for="show-tooltips">Show Tool Tips</label>
                 </p>
@@ -113,14 +117,14 @@
 
                 <h3>Text</h3>
                 <p>
-                    <input type="number" class="range-value" id="text-brightness-value" min="0" max="100" value="90">
-                    <input type="range" id="text-brightness-slider" min="0" max="100" value="90">
-                    <label for="text-brightness-slider">Brightness</label>
-                </p>
-                <p>
                     <input type="number" class="range-value" id="node-text-size-value" min="8" max="24" value="16">
                     <input type="range" id="node-text-size-slider" min="8" max="24" value="16">
                     <label for="node-text-size-slider">Size</label>
+                </p>
+                <p>
+                    <input type="number" class="range-value" id="text-brightness-value" min="0" max="100" value="90">
+                    <input type="range" id="text-brightness-slider" min="0" max="100" value="90">
+                    <label for="text-brightness-slider">Brightness</label>
                 </p>
                 <p>
                     <input type="checkbox" id="text-shadow" checked>
@@ -146,7 +150,7 @@
                 <p>
                     <input type="number" class="range-value" id="highlight-percent" min="0" max="200" value="125">
                     <input type="range" id="highlight-percent-slider" min="0" max="200" value="125">
-                    <label for="highlight-percent-slider">Highlight %</label>
+                    <label for="highlight-percent-slider">Highlight</label>&nbsp;<a href="#" class="right-shortcut" id="no-highlight-percent-link">[NONE]</a>
                 </p>
                 <p>
                     <input type="checkbox" id="transparent-bg-rect" checked>

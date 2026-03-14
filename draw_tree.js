@@ -218,98 +218,142 @@ function drawNode(svg, node) {
 
 
 function drawText(g, node) {
-    // Add text with 3 lines: name (2 lines), birth-death (1 line)
+    // Add text with 3+ lines: name (2 lines), birth-death (1 line), and optionally birth/death places (2 lines)
     const text_luminance = window.text_brightness || 0;
     const text_color = d3.hcl(0, 0, text_luminance);
+    const is_bold = ((node.type === 'ancestor' || node.individual.is_root) && ((window.highlight_percent < 90) || (window.highlight_percent > 110)));
     const text_element = g.append('text')
         .attr('x', window.box_width / 2)
         .attr('y', window.box_height / 2) // Initial vertical center
         .attr('text-anchor', 'middle')
         .attr('font-family', 'Arial, sans-serif')
-        .attr('font-weight', node.type === 'ancestor' || node.individual.is_root ? 'bold' : 'normal')
+        .attr('font-weight', is_bold ? 'bold' : 'normal')
         .attr('font-size', (window.node_text_size || window.default_text_size) + 'px')
         .attr('fill', text_color)
         .style('text-shadow', (window.text_shadow !== false) ? '1px 1px 2px rgba(0,0,0,0.75)' : 'none');
 
-    // Split name into two lines if too long
+    // Name line logic: if show_places is enabled, show name on a single line; otherwise, split into two lines if needed
     const name = node.individual.name || '';
-
     let line1, line2;
-    let splitIdx = -1;
-    let minDist = name.length;
-    const mid = Math.floor(name.length / 2);
-    for (let i = 0; i < name.length; i++) {
-        if (name[i] === ' ') {
-            const dist = Math.abs(i - mid);
-            if (dist < minDist) {
-                minDist = dist;
-                splitIdx = i;
-            }
-        }
-    }
-    if (splitIdx !== -1) {
-        line1 = name.slice(0, splitIdx);
-        line2 = name.slice(splitIdx + 1);
-    } else {
+    if (window.show_places) {
         line1 = name;
         line2 = '';
+    } else {
+        let splitIdx = -1;
+        let minDist = name.length;
+        const mid = Math.floor(name.length / 2);
+        for (let i = 0; i < name.length; i++) {
+            if (name[i] === ' ') {
+                const dist = Math.abs(i - mid);
+                if (dist < minDist) {
+                    minDist = dist;
+                    splitIdx = i;
+                }
+            }
+        }
+        if (splitIdx !== -1) {
+            line1 = name.slice(0, splitIdx);
+            line2 = name.slice(splitIdx + 1);
+        } else {
+            line1 = name;
+            line2 = '';
+        }
     }
 
-    // Add name lines if enabled
-    let text_lines = 0;
+    // Collect lines to render
+    let lines = [];
     if (window.show_names) {
-        if (line1) {
-            text_element.append('tspan')
-                .attr('x', window.box_width / 2)
-                .attr('dy', '0em')
-                .text(line1);
-            text_lines++;
-        }
-        if (line2) {
-            text_element.append('tspan')
-                .attr('x', window.box_width / 2)
-                .attr('dy', '1.2em')
-                .text(line2);
-            text_lines++;
-        }
+        if (line1) lines.push({text: line1, anchor: 'middle'});
+        if (line2) lines.push({text: line2, anchor: 'middle'});
     }
 
-    // Add birth-death line if enabled
-    if (window.show_years) {
+    // Add birth-death line if enabled (centered), but only if show_places is not also enabled
+    if (window.show_years && !window.show_places) {
         const birth_death = node.individual.birth && node.individual.death ? 
             `${node.individual.birth}-${node.individual.death}` : 
                 node.individual.birth ? `${node.individual.birth}-` : 
                     node.individual.death ? `-${node.individual.death}` : 
                         '';
-
         if (birth_death != '') {
-            text_element.append('tspan')
-                .attr('x', window.box_width / 2)
-                //.attr('dy', text_lines === 2 ? '1.4em' : '1.2em')
-                .attr('dy', text_lines > 0 ? '1.2em' : '0em')
-                .text(birth_death);
-            text_lines++;
+            lines.push({text: birth_death, anchor: 'middle'});
         }
     }
 
-    if (window.show_names || window.show_years) {
-        // Adjust font size if needed
-        let font_size = 12;
+    // Add birth/death places if enabled (centered, below name/years)
+    if (window.show_places) {
+        // Compose birth and death place lines
+        let birth_line = '';
+        let death_line = '';
+        if (node.individual.birth_place) {
+            birth_line = window.show_years && node.individual.birth ? `B: ${node.individual.birth} ` : 'B: ';
+            birth_line += node.individual.birth_place;
+        } else if (window.show_years && node.individual.birth && node.individual.birth_place !== undefined) {
+            // If birth_place is empty string but show_years is on, still show year
+            birth_line = `B: ${node.individual.birth}`;
+        }
+        if (node.individual.death_place) {
+            death_line = window.show_years && node.individual.death ? `D: ${node.individual.death} ` : 'D: ';
+            death_line += node.individual.death_place;
+        } else if (window.show_years && node.individual.death && node.individual.death_place !== undefined) {
+            death_line = `D: ${node.individual.death}`;
+        }
+        if (birth_line) lines.push({text: birth_line, anchor: 'middle'});
+        if (death_line) lines.push({text: death_line, anchor: 'middle'});
+    }
+
+    // Render all lines as tspans, with smaller font for dates/places
+    let text_lines = lines.length;
+    let dy = 0;
+    let main_font_size = window.node_text_size || window.default_text_size || 12;
+    let secondary_font_size = Math.max(6, Math.round(main_font_size * 0.75));
+    // Determine how many name lines there are (1 if show_places, else 1 or 2)
+    let name_line_count = 0;
+    if (window.show_names) {
+        if (lines.length > 0) name_line_count++;
+        if (lines.length > 1 && !window.show_places) name_line_count++;
+    }
+
+    // Helper to render tspans for a given font size
+    function renderTspans(fontSize, secondaryFontSize) {
+        text_element.selectAll('*').remove();
+        lines.forEach((line, i) => {
+            const is_name_line = (i === 0) || (i === 1 && lines[1] && (!window.show_places));
+            let dy = '1.2em';
+            if (i === 0) {
+                dy = '0em';
+            } else if (i === name_line_count) {
+                dy = '1.7em';
+            }
+            text_element.append('tspan')
+                .attr('x', window.box_width / 2)
+                .attr('text-anchor', 'middle')
+                .attr('dy', dy)
+                .attr('font-size', is_name_line ? fontSize : secondaryFontSize)
+                .attr('font-weight', is_name_line && is_bold ? 'bold' : 'normal')
+                .text(line.text);
+        });
+    }
+
+    // Initial render
+    renderTspans(main_font_size, secondary_font_size);
+
+    // Adjust font size if needed (scale all lines together, min 6px)
+    if (text_lines > 0) {
         const min_font_size = 6;
         const padding = 0;
         const max_width = window.box_width - padding;
-
-        // Check if text fits
-        const bbox = text_element.node().getBBox();
+        let bbox = text_element.node().getBBox();
         if (bbox.width > max_width) {
-            font_size = Math.round(10 * Math.max(min_font_size, font_size * (max_width / bbox.width))) / 10;
-            text_element.attr('font-size', font_size + 'px');
+            // Scale both main and secondary font sizes proportionally
+            let scale = max_width / bbox.width;
+            let new_main = Math.max(min_font_size, Math.floor(main_font_size * scale));
+            let new_secondary = Math.max(min_font_size, Math.floor(new_main * 0.75));
+            renderTspans(new_main, new_secondary);
+            bbox = text_element.node().getBBox();
         }
         window.auto_box_width = Math.max(window.auto_box_width, window.box_width * (bbox.width / max_width), 20);
         window.auto_box_height = Math.max(window.auto_box_height, bbox.height, 20);
-
         // Vertically center text in node
-        // The bottom of the first row of text will be placed at y (not exactly)
         const line_height = bbox.height / text_lines;
         const text_y = line_height / 1.25 + (window.box_height - bbox.height) / 2;
         text_element.attr('y', text_y);
