@@ -424,6 +424,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         window.generations_down = window.max_gen_down;
                     }
                     if (max_stack_size_number.value > window.max_stack_actual) {
+                        console.log('Adjusting max stack size to fit tree: ' + window.max_stack_actual);
                         max_stack_size_number.value = window.max_stack_actual;
                         window.max_stack_size = window.max_stack_actual;
                     }

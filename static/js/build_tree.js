@@ -7,7 +7,7 @@ async function createFamilyTree(selected_individual) {
     window.level_heights = [];
     window.max_gen_up = 0;
     window.max_gen_down = 0;
-    window.max_stack_actual = 0;
+    window.max_stack_actual = 1;
     window.auto_box_width = 0;
     window.auto_box_height = 0;
 
@@ -157,15 +157,8 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
         }
     }
 
-    const is_descendant = 
-            (node.individual.is_root || 
-            ((node.anchor_generation === window.generations_down) && 
-                (node.generation <= window.generations_down) || 
-                ((node.generation === window.generations_down) && (node.spouse_nodes.length === 1) && node.spouse_nodes[0].individual.is_root))
-        );
-
     // Add spouses and non-inlaw children
-    if (node.individual.fams && ['root', 'ancestor', 'relative'].includes(node.type) && (!window.pedigree_only || is_descendant)) {
+    if (node.individual.fams && ['root', 'ancestor', 'relative'].includes(node.type) && (!window.pedigree_only || node.individual.is_descendant)) {
         node.individual.fams.forEach(fam_id => {
             // Add pedigree children
             if (node.individual.pedigree_family && node.individual.pedigree_family.id === fam_id) {
@@ -189,6 +182,7 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
                     const spouse_id = spouse_family.husb === node.individual.id ? spouse_family.wife : spouse_family.husb;
                     const spouse = window.individuals.find(ind => ind.id === spouse_id);
                     if (spouse) {
+                        if (node.individual.is_root || node.individual.is_descendant) spouse.is_descendant = true;
                         spouse.spouse_family = spouse_family;
                         const spouse_node = buildTree(spouse, current_gen, anchor_gen, 'inlaw');
                         if (spouse_node) {
@@ -202,11 +196,12 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
     }
 
     // Add children
-    if (node.individual.fams && (node.generation > 0) && node.type === 'inlaw' && (!window.pedigree_only || is_descendant)) {
+    if (node.individual.fams && (node.generation > 0) && (node.type === 'inlaw') && (!window.pedigree_only || node.individual.is_descendant)) {
         if (node.individual.spouse_family && node.individual.spouse_family.chil.length > 0) {
             node.individual.spouse_family.chil.forEach(child_id => {
                 const child = window.individuals.find(ind => ind.id === child_id);
                 if (child) {
+                    if (node.individual.is_root || node.individual.is_descendant) child.is_descendant = true;
                     const child_node = buildTree(child, current_gen - 1, anchor_gen, 'relative');
                     if (child_node) {
                         child_node.parent_node = node;

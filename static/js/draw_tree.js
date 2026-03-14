@@ -194,7 +194,7 @@ function drawToolTip(g, node) {
 function drawNode(svg, node) {
     const g = svg.append('g').attr('transform', `translate(${node.x}, ${node.y})`);
 
-    let highlight = ((node.type === 'ancestor') || node.individual.is_root);
+    let highlight = ((node.type === 'ancestor') || node.individual.is_root || node.individual.is_descendant) && ((window.highlight_percent < 90) || (window.highlight_percent > 110));
 
     let [hue, chroma, luminance] = getNodeHCL(node);
     const fill_color = d3.hcl(hue, chroma, highlight ? luminance * window.highlight_percent / 100 : luminance);

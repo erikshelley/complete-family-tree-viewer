@@ -14,6 +14,7 @@ If you would like to try out this application without downloading the code for y
 #### Ancestors
 #### Spouses
 #### Children
+Age order unless there are stacks, then stack comes first
 #### Siblings
 #### Inbreeding
 #### Stacking
