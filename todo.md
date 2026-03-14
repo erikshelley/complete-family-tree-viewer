@@ -20,6 +20,7 @@
 - Responsive design
 - *Pedigree only - option to hide siblings (and ancestor inlaws)*
 - *Raise horizontal lines to female ancestor so horizontal line from male ancestor siblings can slide underneath (raise duplicates twice as much)*
+- *README.md | about page*
 - Style presets (dark, light, square, round, default)
 - Tool tips should be the same size regardless of the zoom
 - Max zoom should depend on svg size rather than being fixed at 100x

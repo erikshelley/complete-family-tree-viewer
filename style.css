@@ -57,7 +57,15 @@ svg {
     height: 100%;
 }
 
-#node-count { color: #aaa; }
+.about {
+    position: absolute;
+    top: 32px;
+    right: 40px;
+}
+
+.about a {
+    color: hsl(210, 50%, 70%);
+}
 
 .section-header {
     padding: 0px 12px 0px;
@@ -150,6 +158,12 @@ svg {
 #root-name {
     --root-name-text-color: hsl(120, 25%, 75%);
     color: var(--root-name-text-color);
+    margin-left: 16px;
+}
+
+#node-count { 
+    color: #aaa; 
+    margin-left: 16px;
 }
 
 label {

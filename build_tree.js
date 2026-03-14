@@ -50,11 +50,11 @@ async function createFamilyTree(selected_individual) {
     await drawTree(svg_node, max_x, max_y, tree_positions);
 
     const root_name_span = document.getElementById('root-name');
-    root_name_span.innerHTML = `${selected_individual.name.replace(/ /g, '&nbsp;')}'s`;
+    root_name_span.innerHTML = selected_individual.name.replace(/ /g, '&nbsp;');
 
     const node_count_span = document.getElementById('node-count');
-    if (node_count === "1") node_count_span.innerHTML = `:&nbsp;${node_count}&nbsp;Person&nbsp;Shown`;
-    else node_count_span.innerHTML = `:&nbsp;${node_count}&nbsp;People&nbsp;Shown`;
+    if (node_count === "1") node_count_span.innerHTML = `${node_count}&nbsp;Person&nbsp;Shown`;
+    else node_count_span.innerHTML = `${node_count}&nbsp;People&nbsp;Shown`;
 }
 
 
