@@ -85,6 +85,60 @@ const elements = [
 ];
 
 document.addEventListener('DOMContentLoaded', function() {
+    function scaleBodyForSmallScreens() {
+        const minWidth = 450;
+        if (window.innerWidth < minWidth) {
+            const scale = window.innerWidth / minWidth;
+            document.body.style.transform = `scale(${scale})`;
+            document.body.style.transformOrigin = 'top left';
+            document.body.style.width = minWidth + 'px';
+        } else {
+            document.body.style.transform = '';
+            document.body.style.transformOrigin = '';
+            document.body.style.width = '';
+        }
+    }
+    scaleBodyForSmallScreens();
+
+    const optionsMenu = document.getElementById('options-menu-button');
+    const leftColumnWrapper = document.querySelector('.left-column-wrapper');
+    function updateOptionsVisibility() {
+        const rightCol = document.querySelector('.right-column');
+        const leftCol = document.querySelector('.left-column');
+        if (!rightCol || !leftCol) return;
+        // If right column is narrower than left column, show options
+        const rightWidth = rightCol.offsetWidth;
+        const leftWidth = leftCol.offsetWidth;
+        if (window.innerWidth <= 900 || rightWidth < leftWidth) {
+            optionsMenu.style.display = 'block';
+        } else {
+            optionsMenu.style.display = 'none';
+            leftColumnWrapper.classList.remove('open');
+        }
+    }
+    updateOptionsVisibility();
+
+    optionsMenu.addEventListener('click', function() {
+        if (leftColumnWrapper.classList.contains('open')) leftColumnWrapper.classList.remove('open');
+        else leftColumnWrapper.classList.add('open');
+    });
+
+    window.addEventListener('resize', function() {
+        updateOptionsVisibility();
+        scaleBodyForSmallScreens();
+    });
+
+    // Optional: close menu when clicking outside on small screens
+    /*
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth > 900) return;
+        if (!leftColumnWrapper.classList.contains('open')) return;
+        if (!leftColumnWrapper.contains(e.target) && e.target !== optionsMenu) {
+            leftColumnWrapper.classList.remove('open');
+        }
+    });
+    */
+
     // Inputs for selecting the Gedcom file
     const file_input = document.getElementById('file-input-button');
     const file_name_span = document.getElementById('file-name');
@@ -424,7 +478,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         window.generations_down = window.max_gen_down;
                     }
                     if (max_stack_size_number.value > window.max_stack_actual) {
-                        console.log('Adjusting max stack size to fit tree: ' + window.max_stack_actual);
                         max_stack_size_number.value = window.max_stack_actual;
                         window.max_stack_size = window.max_stack_actual;
                     }

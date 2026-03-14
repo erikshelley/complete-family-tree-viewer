@@ -1,6 +1,4 @@
-/* Modern file input styling */
-#file-input-button, #save-svg-button, #save-png-button, #reset-styling-button {
-    visibility: visible;
+#file-input-button, #save-svg-button, #save-png-button, #reset-styling-button, #options-menu-button {
     margin: 8px 0px 8px 8px;
     padding: 0px;
     width: 120px;
@@ -10,13 +8,18 @@
     box-shadow: 0 2px 8px rgba(80,130,255,0.12);
     background: linear-gradient(180deg, var(--button-color-1) 0%, var(--button-color-2) 100%);
     transition: background 0.2s;
-    color: #fff;
+    color: #e0e0e0;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    float: right;
     --button-color-1: hsl(200, 60%, 50%);
     --button-color-2: hsl(210, 60%, 40%);
+}
+
+#file-input-button, #save-svg-button, #save-png-button, #reset-styling-button {
+    visibility: visible;
+    float: right;
+    right: 8px;
 }
 
 #file-input-button::-webkit-file-upload-button {
@@ -28,7 +31,7 @@
     box-shadow: 0 2px 8px rgba(80,130,255,0.12);
     background: linear-gradient(180deg, var(--button-color-1) 0%, var(--button-color-2) 100%);
     transition: background 0.2s;
-    color: #fff;
+    color: #e0e0e0;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
@@ -43,13 +46,13 @@
     box-shadow: 0 2px 8px rgba(80,130,255,0.12);
     background: linear-gradient(180deg, var(--button-color-1) 0%, var(--button-color-2) 100%);
     transition: background 0.2s;
-    color: #fff;
+    color: #e0e0e0;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
 }
 
-#file-input-button:hover, #save-svg-button:hover, #save-png-button:hover, #reset-styling-button:hover {
+#file-input-button:hover, #save-svg-button:hover, #save-png-button:hover, #reset-styling-button:hover, #options-menu-button:hover {
     background: linear-gradient(180deg, var(--button-color-2) 0%, var(--button-color-1) 100%);
 }
 

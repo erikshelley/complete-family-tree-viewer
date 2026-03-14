@@ -6,16 +6,20 @@
     <meta name="darkreader" content="no-darken">
     <meta name="darkreader-lock">
     <title>Complete Family Tree Viewer</title>
-    <link rel="stylesheet" href="static/css/style.css?v=2026-03-13">
-    <link rel="stylesheet" href="static/css/style_ranges.css?v=2026-03-13">
-    <link rel="stylesheet" href="static/css/style_buttons.css?v=2026-03-13">
+    <link rel="stylesheet" href="static/css/style_ranges.css?v=2026-03-14">
+    <link rel="stylesheet" href="static/css/style_buttons.css?v=2026-03-14">
+    <link rel="stylesheet" href="static/css/style.css?v=2026-03-14">
+    <link rel="stylesheet" href="static/css/style_media.css?v=2026-03-14">
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
+    <div id="mobile-menu-background" style="display: none;"></div>
+    <button id="options-menu-button" aria-label="Open menu" style="display: none;">Options</button>
     <h1>Complete Family Tree Viewer</h1>
     <div class="about"><a href="https://github.com/erikshelley/complete-family-tree-viewer/blob/main/README.md" target="_blank">About & Help</a></div>
     <div class="container">
-        <div class="left-column">
+        <div class="left-column-wrapper">
+            <div class="left-column">
             <div class="section-header">
                 <input type="file" id="file-input-button" accept=".ged,.gedcom">
                 <h2>Tree Content</h2>
@@ -162,17 +166,19 @@
                     <label for="color-picker">Background Color</label>
                 </p>
             </div>
+            </div>
         </div>
         <div class="right-column">
             <div class="section-header">
                 <button id="save-svg-button">Save SVG</button>
                 <button id="save-png-button">Save PNG</button>
-                <h2 id="family-tree-header">Tree&nbsp;Viewer<span id="root-name"></span><span id="node-count"></span></h2>
+                <h2 id="family-tree-header">Tree&nbsp;Viewer <span id="root-name"></span> <span id="node-count"></span></h2>
             </div>
 
             <div id="family-tree-div">
                 <p>Open a GEDCOM file to get started.</p>
                 <p>It will be processed in your browser and will not be uploaded to the server.</p>
+                <div id="mobile-instructions" style="display: none;"><p>Click on the Options button to see the menu where you can select your file.</p></div>
             </div>
         </div>
     </div>

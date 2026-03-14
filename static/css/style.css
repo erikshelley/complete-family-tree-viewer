@@ -4,6 +4,7 @@ html, body {
     padding: 0;
     background-color: #202020;
     min-height: 100vh;
+    min-width: 0;
     height: 100%;
     color: #eee;
 }
@@ -46,6 +47,13 @@ svg {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     height: 100%;
     overflow-y: scroll;
+}
+
+.left-column-wrapper {
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    will-change: transform;
+    display: flex;
+    height: 100%;
 }
 
 .right-column {
@@ -244,4 +252,22 @@ input[type="color"] {
 /* General styles */
 input[type="color"]:focus {
     outline: none; /* Optional: remove default focus outline */
+}
+
+#options-menu-button {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 1002;
+    display: none;
+}
+
+#mobile-menu-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 64px;
+    background: rgba(0,0,0);
+    z-index: 1001;
 }

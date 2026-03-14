@@ -1,6 +1,6 @@
 # Next Steps
 
-- Priorities: 🔴🟠🟡
+- Priorities: 🔴🟠🟡🟢
 
 ## Bugs
 - 🟠 MAX links do not work if clicked while the tree is updating
@@ -9,9 +9,8 @@
 - 🟡 Warning when showing dates for an Unknown Person
 
 ## New Features
-- 🔴 ~~Highlight root descendants~~
 - 🔴 README.md | about page
-- 🟠 Responsive design (mobile)
+- 🟠 ~~Responsive design (mobile)~~
 - 🟡 Node borders
 - 🟡 Style presets (dark, light, square, round, default)
 - 🟡 Max zoom should depend on svg size rather than being fixed at 100x
