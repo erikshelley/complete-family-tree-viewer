@@ -71,12 +71,14 @@ document.addEventListener('DOMContentLoaded', function() {
         requestFamilyTreeUpdate();
     });
 
+    /*
     const pedigree_only = document.getElementById('pedigree-only');
     window.pedigree_only = pedigree_only.checked;
     pedigree_only.addEventListener('change', function(event) {
         window.pedigree_only = event.target.checked;
         requestFamilyTreeUpdate();
     });
+    */
 
     const transparent_bg_rect_checkbox = document.getElementById('transparent-bg-rect');
     window.transparent_bg_rect = transparent_bg_rect_checkbox.checked;
