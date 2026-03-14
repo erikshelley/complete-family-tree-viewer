@@ -347,6 +347,19 @@ function positionChildren(node, rows, drop_sub_level) {
     let stack_sub_level = node.sub_level + (drop_sub_level ? 1 : 0);
     const has_grandchildren = hasGrandChildren(node);
 
+    // If node is a parent of root and root would be in a stack, make sure they are the top of the stack
+    if ((node.type === 'ancestor') && (node.children_nodes.length > 0) && !node.individual.pedigree_child_node) {
+        const root_node = node.children_nodes.find(child_node => child_node.individual.is_root);
+        if (!has_grandchildren || (root_node.spouse_nodes.length === 0)) {
+            // Make root the first child in children_nodes so that it is positioned first and becomes the top of the stack
+            const root_index = node.children_nodes.indexOf(root_node);
+            if (root_index > 0) {
+                node.children_nodes.splice(root_index, 1);
+                node.children_nodes.unshift(root_node);
+            }
+        }
+    }
+
     node.children_nodes.filter(child_node => !has_grandchildren || (child_node.spouse_nodes.length === 0)).forEach(child_node => { 
         [child_min_x, child_max_x, stacks, stack_sub_level] 
             = positionChild(node, child_node, rows, has_grandchildren, drop_sub_level, stack_sub_level, stacks, child_min_x, child_max_x);

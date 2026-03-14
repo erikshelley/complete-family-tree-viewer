@@ -3,11 +3,9 @@
 🔴🟠😑🟡🥎🟢⚫
 
 ## Bugs
-- ~~Node width auto sizing no longer working properly (workaround exists)~~
-- 🟠 If root is part of a stack but not the top of a stack, the link to their parent misbehaves (Sarah Britcher)
-  - Perhaps force them to the top of the stack? Otherwise you'll have to figure out how to highlight the entire link.
-- Vertical centering is off for one-liners (too low)
-- Vertical centering is off for nodes with smaller fonts than the rest (too high)
+- ~~If root is part of a stack but not the top of a stack, the link to their parent misbehaves (Sarah Britcher) - force them to the top of the stack~~
+- Vertical centering is slightly off for one-liners (too low)
+- Vertical centering is slightly off for nodes with smaller fonts than the rest (too high)
 - Max stack size does not work if clicked while tree is updating
 - The Max stack size input sometimes becomes zero (when gen up and gen down become zero), don't think the max size variable is being changed, just the inputs
 - Warning when showing dates for an Unknown Person
