@@ -15,7 +15,6 @@
 
 
 ## Features
-- ~~Show locations in nodes~~
 - Highlight descendants (all pedigree)
 - Node borders
 - Responsive design

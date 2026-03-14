@@ -12,18 +12,11 @@ async function createFamilyTree(selected_individual) {
     window.auto_box_height = 0;
 
     // Measure buildTree
-    //const t0 = performance.now();
     const tree_data = buildTree(selected_individual);
-    //const t1 = performance.now();
-    //console.log(selected_individual.name);
-    //console.log(`buildTree: ${(t1 - t0).toFixed(2)} ms`);
 
     // Measure positionTree
-    //const t2 = performance.now();
     const tree_positions = positionTree(tree_data);
     setHeights(tree_positions);
-    //const t3 = performance.now();
-    //console.log(`positionTree: ${(t3 - t2).toFixed(2)} ms`);
 
     // Set SVG dimensions
     const bounding_box = family_tree_div.getBoundingClientRect();
@@ -54,15 +47,7 @@ async function createFamilyTree(selected_individual) {
     function zoomed({transform}) { svg_node.attr("transform", transform); }
 
     // Measure drawTree
-    //const t4 = performance.now();
     await drawTree(svg_node, max_x, max_y, tree_positions);
-    //const t5 = performance.now();
-    //console.log(`drawTree: ${(t5 - t4).toFixed(2)} ms`);
-    //const total_time = (t1 - t0) + (t3 - t2) + (t5 - t4);
-    //console.log(`Total time: ${total_time.toFixed(2)} ms`);
-    //console.log(`Total nodes: ${node_count}`);
-    //const nodes_per_second = node_count / (total_time / 1000);
-    //console.log(`Nodes per second: ${nodes_per_second.toFixed(2)}`);
 
     const root_name_span = document.getElementById('root-name');
     root_name_span.innerHTML = `${selected_individual.name.replace(/ /g, '&nbsp;')}'s`;
@@ -70,9 +55,6 @@ async function createFamilyTree(selected_individual) {
     const node_count_span = document.getElementById('node-count');
     if (node_count === "1") node_count_span.innerHTML = `:&nbsp;${node_count}&nbsp;Person&nbsp;Shown`;
     else node_count_span.innerHTML = `:&nbsp;${node_count}&nbsp;People&nbsp;Shown`;
-
-    //console.log(window.auto_box_width);
-    //console.log(window.auto_box_height);
 }
 
 
