@@ -3,7 +3,6 @@
 - Priorities: 🔴🟠🟡🟢
 
 ## Bugs
-- 🟡 ~~Unattached Unknown Person when spouse of duplicate parent~~
 - 🟡 Vertical centering is slightly off for one-liners (too low)
 - 🟡 Vertical centering is slightly off for nodes with smaller fonts than the rest (too high)
 - 🟡 Warning when showing dates for an Unknown Person
