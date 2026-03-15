@@ -42,7 +42,7 @@ async function createFamilyTree(selected_individual) {
         svg.attr('height', svg_height);
     }
     svg.attr('viewBox', `0 0 ${max_scale * svg_width} ${max_scale * svg_height}`);
-    svg.call(d3.zoom().scaleExtent([1, 100]).on("zoom", zoomed));
+    svg.call(d3.zoom().scaleExtent([1, 2 * max_scale]).on("zoom", zoomed));
     const svg_node = svg.append("g");
     function zoomed({transform}) { svg_node.attr("transform", transform); }
 

@@ -24,6 +24,8 @@ When you use this program, your genealogy information is not uploaded to my site
 
 If you don't have a Gedcom file of your own, download one of these [Gedcom sample files](https://github.com/D-Jeffrey/gedcom-samples) to use.
 
+### Dependencies
+
 ### Reporting Issues
 
 ### Requesting Features

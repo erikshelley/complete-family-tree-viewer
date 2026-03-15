@@ -106,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.style.width = '';
         }
     }
-    scaleBodyForSmallScreens();
 
     const optionsMenu = document.getElementById('options-menu-button');
     const leftColumnWrapper = document.querySelector('.left-column-wrapper');
@@ -124,16 +123,10 @@ document.addEventListener('DOMContentLoaded', function() {
             leftColumnWrapper.classList.remove('open');
         }
     }
-    updateOptionsVisibility();
 
     optionsMenu.addEventListener('click', function() {
         if (leftColumnWrapper.classList.contains('open')) leftColumnWrapper.classList.remove('open');
         else leftColumnWrapper.classList.add('open');
-    });
-
-    window.addEventListener('resize', function() {
-        updateOptionsVisibility();
-        scaleBodyForSmallScreens();
     });
 
     // Inputs for selecting the Gedcom file
@@ -379,6 +372,25 @@ document.addEventListener('DOMContentLoaded', function() {
                         vbHeight = parseFloat(vbVals[3]);
                     }
                 }
+                const original_vbWidth = vbWidth;
+                const original_vbHeight = vbHeight;
+                const max_canvas_area = window.max_canvas_width * window.max_canvas_height;
+                const img_area = vbWidth * vbHeight;
+                if (img_area > max_canvas_area) {
+                    const scale_factor = Math.sqrt(max_canvas_area / img_area);
+                    vbWidth = Math.floor(vbWidth * scale_factor);
+                    vbHeight = Math.floor(vbHeight * scale_factor);
+                }
+                if (vbWidth > window.max_canvas_width) {
+                    const scale_factor = window.max_canvas_width / vbWidth;
+                    vbWidth = Math.floor(vbWidth * scale_factor);
+                    vbHeight = Math.floor(vbHeight * scale_factor);
+                }
+                if (vbHeight > window.max_canvas_height) {
+                    const scale_factor = window.max_canvas_height / vbHeight;
+                    vbWidth = Math.floor(vbWidth * scale_factor);
+                    vbHeight = Math.floor(vbHeight * scale_factor);
+                }
                 canvas.width = vbWidth;
                 canvas.height = vbHeight;
                 const ctx = canvas.getContext('2d');
@@ -387,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ctx.drawImage(img, 0, 0, vbWidth, vbHeight);
                 } catch (err) {
                     errorOccurred = true;
-                    alert('Error saving PNG: The canvas size may exceed the browser or system limit. Try reducing the tree size or saving it as an SVG.');
+                    alert(`Error saving PNG: The canvas size (${vbWidth}x${vbHeight}) may exceed the browser or system limit. Try reducing the tree size or saving it as an SVG.`);
                     save_png_button.disabled = false;
                     return;
                 }
@@ -402,6 +414,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         URL.revokeObjectURL(url);
                         save_png_button.disabled = false;
                     }, 'image/png');
+                    if (original_vbHeight > vbHeight || original_vbWidth > vbWidth) {
+                        alert('Note: The saved PNG has been scaled down to fit within browser limits. For the best quality, consider saving as SVG or reducing the tree size before saving as PNG.');
+                    }
                 }
             };
             img.src = url;
@@ -530,6 +545,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    scaleBodyForSmallScreens();
+    updateOptionsVisibility();
     updateRangeThumbs();
-    window.addEventListener('resize', function() { requestFamilyTreeUpdate(); });
+    window.addEventListener('resize', function() {
+        updateOptionsVisibility();
+        scaleBodyForSmallScreens();
+        requestFamilyTreeUpdate();
+    });
+
 });
+
+canvasSize.maxArea({
+  onSuccess({ width, height, testTime, totalTime }) {
+    window.max_canvas_width = width;
+    window.max_canvas_height = height;
+  }
+});
+
+canvasSize.maxWidth({
+    onSuccess({ width, testTime, totalTime }) {
+        window.max_canvas_width = width;
+    }
+})
+
+canvasSize.maxHeight({
+    onSuccess({ height, testTime, totalTime }) {
+        window.max_canvas_height = height;
+    }
+})
