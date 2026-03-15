@@ -67,8 +67,8 @@ const elements = [
     //{ id: 'show-tooltips-checkbox',         type: 'checkbox', default: false, variable: 'show_tooltips' },
     { id: 'node-border-width-number',       type: 'number',   default: 2,     min: 0, max: 20, variable: 'node_border_width' },
     { id: 'node-border-width-range',        type: 'range',    default: 2,     min: 0, max: 20, variable: 'node_border_width' },
-    { id: 'border-highlight-percent-number', type: 'number',  default: 150,   min: 0, max: 200, variable: 'border_highlight_percent' },
-    { id: 'border-highlight-percent-range',  type: 'range',   default: 150,   min: 0, max: 200, variable: 'border_highlight_percent' },
+    { id: 'border-highlight-percent-number', type: 'number',  default: 100,   min: 0, max: 200, variable: 'border_highlight_percent' },
+    { id: 'border-highlight-percent-range',  type: 'range',   default: 100,   min: 0, max: 200, variable: 'border_highlight_percent' },
 
     { id: 'link-width-number',              type: 'number',   default: 6,     min: 1, max: 20, variable: 'link_width' },
     { id: 'link-width-range',               type: 'range',    default: 6,     min: 1, max: 20, variable: 'link_width' },
@@ -354,6 +354,8 @@ document.addEventListener('DOMContentLoaded', function() {
         save_svg_button.addEventListener('click', function() {
             const save_format_input = document.getElementById('save-format-input');
             save_format_input.value = 'svg';
+            const save_filename_input = document.getElementById('save-filename-input');
+            save_filename_input.value = window.selected_individual ? window.selected_individual.name.replace(/ /g, '-') : 'family-tree';
             document.getElementById('save-modal').style.display = 'flex';
         });
     }
@@ -405,6 +407,8 @@ document.addEventListener('DOMContentLoaded', function() {
         save_png_button.addEventListener('click', function() {
             const save_format_input = document.getElementById('save-format-input');
             save_format_input.value = 'png';
+            const save_filename_input = document.getElementById('save-filename-input');
+            save_filename_input.value = window.selected_individual ? window.selected_individual.name.replace(/ /g, '-') : 'family-tree';
             document.getElementById('save-modal').style.display = 'flex';
         });
     }

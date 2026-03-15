@@ -14,7 +14,7 @@ async function drawTree(svg_node, tree_width, tree_height, rows) {
 
                 // Make inlaw lines slightly brighter since they are dotted lines
                 let [hue, chroma, luminance] = getNodeHCL(node, false);
-                let color = d3.hcl(hue, 0, 1.5 * luminance);
+                let color = d3.hcl(hue, 0, 1.0 * luminance);
 
                 // Draw link between relative and spouse
                 if (node.type === 'relative' || node.type === 'root') {
@@ -194,7 +194,7 @@ function drawToolTip(g, node) {
 function drawNode(svg, node) {
     const g = svg.append('g').attr('transform', `translate(${node.x}, ${node.y})`);
 
-    let highlight = ((node.type === 'ancestor') || node.individual.is_root || node.individual.is_descendant) && ((window.highlight_percent < 90) || (window.highlight_percent > 110));
+    let highlight = ((node.type === 'ancestor') || node.individual.is_root || node.individual.is_descendant);
 
     let [hue, chroma, luminance] = getNodeHCL(node);
     const fill_color = d3.hcl(hue, chroma, highlight ? luminance * window.highlight_percent / 100 : luminance);
@@ -221,7 +221,7 @@ function drawText(g, node) {
     // Add text with 3+ lines: name (2 lines), birth-death (1 line), and optionally birth/death places (2 lines)
     const text_luminance = window.text_brightness || 0;
     const text_color = d3.hcl(0, 0, text_luminance);
-    const is_bold = ((node.type === 'ancestor' || node.individual.is_root) && ((window.highlight_percent < 90) || (window.highlight_percent > 110)));
+    const is_bold = ((node.type === 'ancestor' || node.individual.is_root) && (window.highlight_percent != 100));
     const text_element = g.append('text')
         .attr('x', window.box_width / 2)
         .attr('y', window.box_height / 2) // Initial vertical center

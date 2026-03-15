@@ -3,16 +3,15 @@
 - Priorities: 🔴🟠🟡🟢
 
 ## Bugs
-- 🟠 ~~MAX links do not work if clicked while the tree is updating - disable MAX links while the tree is updating~~
+- 🟡 ~~Unattached Unknown Person when spouse of duplicate parent~~
 - 🟡 Vertical centering is slightly off for one-liners (too low)
 - 🟡 Vertical centering is slightly off for nodes with smaller fonts than the rest (too high)
 - 🟡 Warning when showing dates for an Unknown Person
 
 ## New Features
-- 🔴 README.md | about page
-- 🟡 ~~Prompt user for file name when saving PNG or SVG~~
-- 🟡 ~~Visibly disable MAX and AUTO links if there is no tree displayed~~
+- 🔴 ~~README.md | about page~~
 - 🟡 Style presets (dark, light, square, round, default)
+- 🟡 Option to hide dotted links for inbreeding
 
 ## Under Considuration
 - *Pedigree only - option to hide siblings (and ancestor inlaws)*

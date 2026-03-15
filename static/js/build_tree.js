@@ -59,7 +59,10 @@ async function createFamilyTree(selected_individual) {
 
 
 function createUnknownPerson(gender, node) {
-    const person = { id: null, name: 'Unknown', famc: null, fams: [node.parent_family], gender: gender };
+    const person = { id: node.id + gender, name: `Unknown Parent of ${node.individual.name}`, famc: null, fams: [node.parent_family], gender: gender };
+    window.individuals.push(person);
+    if (gender === 'M') node.parent_family.husb = person.id;
+    else node.parent_family.wife = person.id;
     return person;
 }
 
