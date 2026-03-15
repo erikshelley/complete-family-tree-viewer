@@ -92,6 +92,39 @@ const elements = [
     { id: 'transparent-bg-rect-checkbox',   type: 'checkbox', default: true,  variable: 'transparent_bg_rect' },
 ];
 
+function toggleEnabled(enabled, element_id) {
+    const element = document.getElementById(element_id);
+    if (element) {
+        element.style.pointerEvents = enabled ? '' : 'none';
+        element.style.opacity = enabled ? '1' : '0.5';
+        element.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+        if (!enabled) element.blur();
+    }
+}
+
+function setMaxLinksEnabled(enabled) {
+    const ids = [
+        'generations-up-number-max-link',
+        'generations-down-number-max-link',
+        'max-stack-size-number-max-link'
+    ];
+    ids.forEach(id => { toggleEnabled(enabled, id); });
+}
+
+// Call this after tree is updated
+function updateMaxLinksState() {
+    const family_tree_div = document.getElementById('family-tree-div');
+    const hasTree = family_tree_div && family_tree_div.querySelector('svg');
+    setMaxLinksEnabled(!!hasTree);
+}
+
+// Patch into tree update logic
+//const origRequestFamilyTreeUpdate = window.requestFamilyTreeUpdate;
+//window.requestFamilyTreeUpdate = function(...args) {
+    //if (typeof origRequestFamilyTreeUpdate === 'function') origRequestFamilyTreeUpdate.apply(this, args);
+    //setTimeout(updateMaxLinksState, 0);
+//};
+
 document.addEventListener('DOMContentLoaded', function() {
     function scaleBodyForSmallScreens() {
         const minWidth = 450;
@@ -319,26 +352,50 @@ document.addEventListener('DOMContentLoaded', function() {
     const save_svg_button = document.getElementById('save-svg-button');
     if (save_svg_button) {
         save_svg_button.addEventListener('click', function() {
-            const svg = family_tree_div.querySelector('svg');
-            if (!svg) {
-                alert('No SVG found to save.');
-                return;
-            }
-            let serializer = new XMLSerializer();
-            let source = serializer.serializeToString(svg);
-            // Add XML declaration
-            if (!source.match(/^<svg[^>]+xmlns="http:\/\/www.w3.org\/2000\/svg"/)) {
-                source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-            }
-            const blob = new Blob([source], {type: 'image/svg+xml'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'family-tree.svg';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const save_format_input = document.getElementById('save-format-input');
+            save_format_input.value = 'svg';
+            document.getElementById('save-modal').style.display = 'flex';
+        });
+    }
+
+    function saveSVG() {
+        const svg = family_tree_div.querySelector('svg');
+        if (!svg) {
+            alert('No SVG found to save.');
+            return;
+        }
+        let serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svg);
+        // Add XML declaration
+        if (!source.match(/^<svg[^>]+xmlns="http:\/\/www.w3.org\/2000\/svg"/)) {
+            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+        const blob = new Blob([source], {type: 'image/svg+xml'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = window.save_filename + '.svg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    const save_modal_ok_button = document.getElementById('save-modal-ok-button');
+    if (save_modal_ok_button) {
+        save_modal_ok_button.addEventListener('click', function() {
+            const save_filename_input = document.getElementById('save-filename-input');
+            const save_format_input = document.getElementById('save-format-input');
+            window.save_filename = save_filename_input.value || 'family-tree';
+            document.getElementById('save-modal').style.display = 'none';
+            if (save_format_input.value === 'png') savePNG();
+            if (save_format_input.value === 'svg') saveSVG();
+        });
+    }
+    const save_modal_cancel_button = document.getElementById('save-modal-cancel-button');
+    if (save_modal_cancel_button) {
+        save_modal_cancel_button.addEventListener('click', function() {
+            document.getElementById('save-modal').style.display = 'none';
         });
     }
 
@@ -346,81 +403,87 @@ document.addEventListener('DOMContentLoaded', function() {
     const save_png_button = document.getElementById('save-png-button');
     if (save_png_button) {
         save_png_button.addEventListener('click', function() {
-            save_png_button.disabled = true;
-            const svg = family_tree_div.querySelector('svg');
-            if (!svg) {
-                alert('No SVG found to save.');
+            const save_format_input = document.getElementById('save-format-input');
+            save_format_input.value = 'png';
+            document.getElementById('save-modal').style.display = 'flex';
+        });
+    }
+
+    function savePNG() {
+        save_png_button.disabled = true;
+        const svg = family_tree_div.querySelector('svg');
+        if (!svg) {
+            alert('No SVG found to save.');
+            save_png_button.disabled = false;
+            return;
+        }
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svg);
+        if (!source.match(/^<svg[^>]+xmlns="http:\/\/www.w3.org\/2000\/svg"/)) {
+            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+        const svgBlob = new Blob([source], {type: 'image/svg+xml'});
+        const url = URL.createObjectURL(svgBlob);
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            let vbWidth = 1200, vbHeight = 800;
+            const viewBox = svg.getAttribute('viewBox');
+            if (viewBox) {
+                const vbVals = viewBox.split(/\s+|,/);
+                if (vbVals.length === 4) {
+                    vbWidth = parseFloat(vbVals[2]);
+                    vbHeight = parseFloat(vbVals[3]);
+                }
+            }
+            const original_vbWidth = vbWidth;
+            const original_vbHeight = vbHeight;
+            const max_canvas_area = window.max_canvas_width * window.max_canvas_height;
+            const img_area = vbWidth * vbHeight;
+            if (img_area > max_canvas_area) {
+                const scale_factor = Math.sqrt(max_canvas_area / img_area);
+                vbWidth = Math.floor(vbWidth * scale_factor);
+                vbHeight = Math.floor(vbHeight * scale_factor);
+            }
+            if (vbWidth > window.max_canvas_width) {
+                const scale_factor = window.max_canvas_width / vbWidth;
+                vbWidth = Math.floor(vbWidth * scale_factor);
+                vbHeight = Math.floor(vbHeight * scale_factor);
+            }
+            if (vbHeight > window.max_canvas_height) {
+                const scale_factor = window.max_canvas_height / vbHeight;
+                vbWidth = Math.floor(vbWidth * scale_factor);
+                vbHeight = Math.floor(vbHeight * scale_factor);
+            }
+            canvas.width = vbWidth;
+            canvas.height = vbHeight;
+            const ctx = canvas.getContext('2d');
+            let errorOccurred = false;
+            try {
+                ctx.drawImage(img, 0, 0, vbWidth, vbHeight);
+            } catch (err) {
+                errorOccurred = true;
+                alert(`Error saving PNG: The canvas size (${vbWidth}x${vbHeight}) may exceed the browser or system limit. Try reducing the tree size or saving it as an SVG.`);
                 save_png_button.disabled = false;
                 return;
             }
-            const serializer = new XMLSerializer();
-            let source = serializer.serializeToString(svg);
-            if (!source.match(/^<svg[^>]+xmlns="http:\/\/www.w3.org\/2000\/svg"/)) {
-                source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-            }
-            const svgBlob = new Blob([source], {type: 'image/svg+xml'});
-            const url = URL.createObjectURL(svgBlob);
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                let vbWidth = 1200, vbHeight = 800;
-                const viewBox = svg.getAttribute('viewBox');
-                if (viewBox) {
-                    const vbVals = viewBox.split(/\s+|,/);
-                    if (vbVals.length === 4) {
-                        vbWidth = parseFloat(vbVals[2]);
-                        vbHeight = parseFloat(vbVals[3]);
-                    }
-                }
-                const original_vbWidth = vbWidth;
-                const original_vbHeight = vbHeight;
-                const max_canvas_area = window.max_canvas_width * window.max_canvas_height;
-                const img_area = vbWidth * vbHeight;
-                if (img_area > max_canvas_area) {
-                    const scale_factor = Math.sqrt(max_canvas_area / img_area);
-                    vbWidth = Math.floor(vbWidth * scale_factor);
-                    vbHeight = Math.floor(vbHeight * scale_factor);
-                }
-                if (vbWidth > window.max_canvas_width) {
-                    const scale_factor = window.max_canvas_width / vbWidth;
-                    vbWidth = Math.floor(vbWidth * scale_factor);
-                    vbHeight = Math.floor(vbHeight * scale_factor);
-                }
-                if (vbHeight > window.max_canvas_height) {
-                    const scale_factor = window.max_canvas_height / vbHeight;
-                    vbWidth = Math.floor(vbWidth * scale_factor);
-                    vbHeight = Math.floor(vbHeight * scale_factor);
-                }
-                canvas.width = vbWidth;
-                canvas.height = vbHeight;
-                const ctx = canvas.getContext('2d');
-                let errorOccurred = false;
-                try {
-                    ctx.drawImage(img, 0, 0, vbWidth, vbHeight);
-                } catch (err) {
-                    errorOccurred = true;
-                    alert(`Error saving PNG: The canvas size (${vbWidth}x${vbHeight}) may exceed the browser or system limit. Try reducing the tree size or saving it as an SVG.`);
+            if (!errorOccurred) {
+                canvas.toBlob(function(blob) {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = window.save_filename + '.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url); //a.href
                     save_png_button.disabled = false;
-                    return;
+                }, 'image/png');
+                if (original_vbHeight > vbHeight || original_vbWidth > vbWidth) {
+                    alert('Note: The saved PNG has been scaled down to fit within browser limits. For the best quality, consider saving as SVG or reducing the tree size before saving as PNG.');
                 }
-                if (!errorOccurred) {
-                    canvas.toBlob(function(blob) {
-                        const a = document.createElement('a');
-                        a.href = URL.createObjectURL(blob);
-                        a.download = 'family-tree.png';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                        save_png_button.disabled = false;
-                    }, 'image/png');
-                    if (original_vbHeight > vbHeight || original_vbWidth > vbWidth) {
-                        alert('Note: The saved PNG has been scaled down to fit within browser limits. For the best quality, consider saving as SVG or reducing the tree size before saving as PNG.');
-                    }
-                }
-            };
-            img.src = url;
-        });
+            }
+        };
+        img.src = url;
     }
 
     function updateRangeThumbs() {
@@ -469,6 +532,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function requestFamilyTreeUpdate() {
         if (!update_in_progress) {
             update_in_progress = true;
+            setMaxLinksEnabled(false);
+            toggleEnabled(false, 'auto-node-width-link');
+            toggleEnabled(false, 'auto-node-height-link');
             if (update_timeout) clearTimeout(update_timeout);
             update_timeout = setTimeout(() => { updateFamilyTree(); }, 100);
         }
@@ -507,11 +573,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
-        }
-        update_in_progress = false;
-        if (update_waiting) {
-            update_waiting = false;
-            requestFamilyTreeUpdate();
+            updateMaxLinksState();
+            setMaxLinksEnabled(true);
+            toggleEnabled(true, 'auto-node-width-link');
+            toggleEnabled(true, 'auto-node-height-link');
+            update_in_progress = false;
+            if (update_waiting) {
+                update_waiting = false;
+                requestFamilyTreeUpdate();
+            }
         }
     }
 
@@ -548,12 +618,12 @@ document.addEventListener('DOMContentLoaded', function() {
     scaleBodyForSmallScreens();
     updateOptionsVisibility();
     updateRangeThumbs();
+    updateMaxLinksState();
     window.addEventListener('resize', function() {
         updateOptionsVisibility();
         scaleBodyForSmallScreens();
         requestFamilyTreeUpdate();
     });
-
 });
 
 canvasSize.maxArea({

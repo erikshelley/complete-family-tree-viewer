@@ -14,8 +14,21 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-size@2"></script>
 </head>
 <body>
+    <div id="save-modal" class="modal-bg" style="display:none;">
+        <div class="modal-content">
+            <label for="save-filename-input" class="modal-label">File name:</label>
+            <input id="save-filename-input" type="text" class="modal-input" value="family-tree"/>
+            <input id="save-format-input" type="hidden" value=""/>
+            <div class="modal-buttons">
+                <button id="save-modal-ok-button" class="modal-ok">OK</button>
+                <button id="save-modal-cancel-button" class="modal-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <div id="mobile-menu-background" style="display: none;"></div>
     <button id="options-menu-button" aria-label="Open menu" style="display: none;">Options</button>
+
     <h1>Complete Family Tree Viewer</h1>
     <div class="about"><a href="https://github.com/erikshelley/complete-family-tree-viewer/blob/main/README.md" target="_blank">About & Help</a></div>
     <div class="container">

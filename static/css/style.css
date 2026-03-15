@@ -271,3 +271,68 @@ input[type="color"]:focus {
     background: rgba(0,0,0);
     z-index: 1001;
 }
+
+/* Modal background and content */
+.modal-bg {
+    position: fixed;
+    z-index: 3000;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: #222;
+    padding: 24px 32px;
+    border-radius: 10px;
+    box-shadow: 0 4px 24px #000;
+    min-width: 260px;
+    max-width: 90vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modal-label {
+    color: #eee;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+}
+
+.modal-input {
+    width: 200px;
+    padding: 6px 10px;
+    border-radius: 5px;
+    border: 1px solid #444;
+    background: #181818;
+    color: #eee;
+    margin-bottom: 16px;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 16px;
+}
+
+.modal-ok {
+    padding: 6px 18px;
+    border-radius: 5px;
+    background: #4caf50;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.modal-cancel {
+    padding: 6px 18px;
+    border-radius: 5px;
+    background: #888;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}

@@ -3,17 +3,15 @@
 - Priorities: 🔴🟠🟡🟢
 
 ## Bugs
-- 🟠 MAX links do not work if clicked while the tree is updating - disable MAX links while the tree is updating
+- 🟠 ~~MAX links do not work if clicked while the tree is updating - disable MAX links while the tree is updating~~
 - 🟡 Vertical centering is slightly off for one-liners (too low)
 - 🟡 Vertical centering is slightly off for nodes with smaller fonts than the rest (too high)
 - 🟡 Warning when showing dates for an Unknown Person
 
 ## New Features
 - 🔴 README.md | about page
-- 🟡 ~~Max zoom should depend on svg size rather than being fixed at 100x~~
-- 🟡 ~~Resize PNG to avoid failing on large trees, alert the user~~
-- 🟡 Prompt user for file name when saving PNG or SVG
-- 🟡 Visibly disable MAX and AUTO links if there is no tree displayed
+- 🟡 ~~Prompt user for file name when saving PNG or SVG~~
+- 🟡 ~~Visibly disable MAX and AUTO links if there is no tree displayed~~
 - 🟡 Style presets (dark, light, square, round, default)
 
 ## Under Considuration
