@@ -3,15 +3,14 @@
 - Priorities: 🔴🟠🟡🟢
 
 ## Bugs
-- 🟠 MAX links do not work if clicked while the tree is updating
+- 🟠 MAX links do not work if clicked while the tree is updating - tricky, setting a value for a queued update that gets overwritten when the current update finishes
 - 🟡 Vertical centering is slightly off for one-liners (too low)
 - 🟡 Vertical centering is slightly off for nodes with smaller fonts than the rest (too high)
 - 🟡 Warning when showing dates for an Unknown Person
 
 ## New Features
 - 🔴 README.md | about page
-- 🟠 ~~Responsive design (mobile)~~
-- 🟡 Node borders
+- 🟡 ~~Node borders~~
 - 🟡 Style presets (dark, light, square, round, default)
 - 🟡 Max zoom should depend on svg size rather than being fixed at 100x
 - 🟡 Specify PNG size to avoid failing on large trees

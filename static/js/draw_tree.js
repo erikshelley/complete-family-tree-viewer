@@ -200,7 +200,7 @@ function drawNode(svg, node) {
     const fill_color = d3.hcl(hue, chroma, highlight ? luminance * window.highlight_percent / 100 : luminance);
 
     [hue, chroma, luminance] = getNodeHCL(node, false);
-    const border_luminance = Math.max(1, luminance);
+    const border_luminance = Math.max(1, luminance * window.border_highlight_percent / 100);
     const stroke_color = d3.hcl(hue, node.type === 'inlaw' ? 0 : chroma, highlight ? border_luminance * window.highlight_percent / 100 : border_luminance);
 
     // Draw rectangle
@@ -209,7 +209,7 @@ function drawNode(svg, node) {
         .attr('height', window.box_height)
         .attr('fill', fill_color)
         .attr('stroke', stroke_color)
-        .attr('stroke-width', 3)
+        .attr('stroke-width', window.node_border_width)
         .attr('rx', Math.min(window.box_width, window.box_height) * window.node_rounding / 100);
 
     drawText(g, node);

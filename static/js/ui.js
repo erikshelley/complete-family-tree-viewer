@@ -18,6 +18,10 @@ window.v_spacing;
 window.default_v_spacing;
 window.node_rounding;
 window.default_node_rounding;
+window.node_border_width;
+window.default_node_border_width;
+window.border_highlight_percent;
+window.default_border_highlight_percent;
 window.link_rounding;
 window.default_link_rounding;
 window.show_names;
@@ -61,6 +65,10 @@ const elements = [
     { id: 'show-years-checkbox',            type: 'checkbox', default: true,  variable: 'show_years' },
     { id: 'show-places-checkbox',           type: 'checkbox', default: false, variable: 'show_places' },
     //{ id: 'show-tooltips-checkbox',         type: 'checkbox', default: false, variable: 'show_tooltips' },
+    { id: 'node-border-width-number',       type: 'number',   default: 2,     min: 0, max: 20, variable: 'node_border_width' },
+    { id: 'node-border-width-range',        type: 'range',    default: 2,     min: 0, max: 20, variable: 'node_border_width' },
+    { id: 'border-highlight-percent-number', type: 'number',  default: 150,   min: 0, max: 200, variable: 'border_highlight_percent' },
+    { id: 'border-highlight-percent-range',  type: 'range',   default: 150,   min: 0, max: 200, variable: 'border_highlight_percent' },
 
     { id: 'link-width-number',              type: 'number',   default: 6,     min: 1, max: 20, variable: 'link_width' },
     { id: 'link-width-range',               type: 'range',    default: 6,     min: 1, max: 20, variable: 'link_width' },
@@ -127,17 +135,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateOptionsVisibility();
         scaleBodyForSmallScreens();
     });
-
-    // Optional: close menu when clicking outside on small screens
-    /*
-    document.addEventListener('click', function(e) {
-        if (window.innerWidth > 900) return;
-        if (!leftColumnWrapper.classList.contains('open')) return;
-        if (!leftColumnWrapper.contains(e.target) && e.target !== optionsMenu) {
-            leftColumnWrapper.classList.remove('open');
-        }
-    });
-    */
 
     // Inputs for selecting the Gedcom file
     const file_input = document.getElementById('file-input-button');
@@ -297,6 +294,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Input for setting border highlight intensity to 100%
+    const no_border_highlight_percent_link = document.getElementById('no-border-highlight-percent-link');
+    no_border_highlight_percent_link.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.border_highlight_percent = 100;
+        const border_highlight_percent_range = document.getElementById('border-highlight-percent-range');
+        const border_highlight_percent_value = document.getElementById('border-highlight-percent-number');
+        border_highlight_percent_value.value = 100;
+        border_highlight_percent_range.value = 100;
+        updateRangeThumbs();
+        requestFamilyTreeUpdate();
+    });
+
     // Input for setting highlight intensity to 100%
     const no_highlight_percent_link = document.getElementById('no-highlight-percent-link');
     no_highlight_percent_link.addEventListener('click', function(e) {
@@ -309,7 +319,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateRangeThumbs();
         requestFamilyTreeUpdate();
     });
-
 
     const family_tree_div = document.getElementById('family-tree-div');
 
