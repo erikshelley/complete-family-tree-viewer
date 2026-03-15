@@ -12,9 +12,8 @@ async function drawTree(svg_node, tree_width, tree_height, rows) {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
 
-                // Make inlaw lines slightly brighter since they are dotted lines
                 let [hue, chroma, luminance] = getNodeHCL(node, false);
-                let color = d3.hcl(hue, 0, 1.0 * luminance);
+                let color = d3.hcl(hue, 0, luminance * (window.inlaw_link_highlight_percent / 100) * (node.individual.is_descendant || node.individual.is_root ? window.pedigree_highlight_percent / 100 : 1));
 
                 // Draw link between relative and spouse
                 if (node.type === 'relative' || node.type === 'root') {
@@ -34,10 +33,10 @@ async function drawTree(svg_node, tree_width, tree_height, rows) {
 
                 if (node.children_nodes.length > 0) {
                     [hue, chroma, luminance] = getNodeHCL(node.children_nodes[0], false);
-                    color = d3.hcl(hue, chroma, luminance);
+                    color = d3.hcl(hue, chroma, luminance * (window.link_highlight_percent / 100) * (node.individual.is_descendant || node.individual.is_root ? window.pedigree_highlight_percent / 100 : 1));
                 }
 
-                // Draw link between in-law and unstacked child
+                // Draw link between in-law and child at top of stack
                 if (node.type === 'inlaw') {
                     node.children_nodes.filter(child_node => !(child_node.stacked && !child_node.stack_top)).forEach(child_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
@@ -45,7 +44,7 @@ async function drawTree(svg_node, tree_width, tree_height, rows) {
                     });
                 }
 
-                // Draw link between ancestor and unstacked child
+                // Draw link between ancestor and child at top of stack
                 if (node.type === 'ancestor' && node.individual.gender == 'M') {
                     node.children_nodes.filter(child_node => !child_node.individual.is_root && !(child_node.stacked && !child_node.stack_top)).forEach(child_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
@@ -54,7 +53,7 @@ async function drawTree(svg_node, tree_width, tree_height, rows) {
                 }
 
                 [hue, chroma, luminance] = getNodeHCL(node, false);
-                color = d3.hcl(hue, chroma, luminance);
+                color = d3.hcl(hue, chroma, luminance * (window.link_highlight_percent / 100) * (node.individual.is_descendant || node.individual.is_root ? window.pedigree_highlight_percent / 100 : 1));
 
                 // Draw link stacked child and previous stacked child
                 if ((node.type === 'relative') && node.stacked && !node.stack_top) {
@@ -74,7 +73,7 @@ async function drawTree(svg_node, tree_width, tree_height, rows) {
                 if (node.type === 'ancestor' && node.individual.gender == 'M') {
 
                     let [hue, chroma, luminance] = getNodeHCL(node, false);
-                    let color = d3.hcl(hue, chroma, luminance * window.highlight_percent / 100);
+                    let color = d3.hcl(hue, chroma, luminance * (window.pedigree_highlight_percent / 100) * (window.link_highlight_percent / 100));
 
                     // Draw links from father and mother to center point
                     drawLink(svg_node, color, {x: node.x + window.box_width / 2,                    y: node.y}, 
@@ -84,7 +83,7 @@ async function drawTree(svg_node, tree_width, tree_height, rows) {
 
                     if (node.children_nodes.length > 0) {
                         [hue, chroma, luminance] = getNodeHCL(node.children_nodes[0], false);
-                        color = d3.hcl(hue, chroma, luminance * window.highlight_percent / 100);
+                        color = d3.hcl(hue, chroma, luminance * (window.pedigree_highlight_percent / 100) * (window.link_highlight_percent / 100));
                     }
 
                     // Draw link between ancestor and root child
@@ -95,7 +94,7 @@ async function drawTree(svg_node, tree_width, tree_height, rows) {
 
                     if (node.individual.pedigree_child_node) {
                         [hue, chroma, luminance] = getNodeHCL(node.individual.pedigree_child_node, false);
-                        color = d3.hcl(hue, chroma, luminance * window.highlight_percent / 100);
+                        color = d3.hcl(hue, chroma, luminance * (window.pedigree_highlight_percent / 100) * (window.link_highlight_percent / 100));
                     }
 
                     // Draw link between ancestor and pedigree child
@@ -106,7 +105,7 @@ async function drawTree(svg_node, tree_width, tree_height, rows) {
 
                     if (node.individual.duplicate_pedigree_child_node) {
                         [hue, chroma, luminance] = getNodeHCL(node.individual.duplicate_pedigree_child_node, false);
-                        color = d3.hcl(hue, chroma, luminance * window.highlight_percent / 100);
+                        color = d3.hcl(hue, chroma, luminance * (window.pedigree_highlight_percent / 100) * (window.link_highlight_percent / 100));
                     }
 
                     // Draw link between ancestor and duplicate pedigree child
@@ -197,11 +196,11 @@ function drawNode(svg, node) {
     let highlight = ((node.type === 'ancestor') || node.individual.is_root || node.individual.is_descendant);
 
     let [hue, chroma, luminance] = getNodeHCL(node);
-    const fill_color = d3.hcl(hue, chroma, highlight ? luminance * window.highlight_percent / 100 : luminance);
+    const fill_color = d3.hcl(hue, chroma, highlight ? luminance * window.pedigree_highlight_percent / 100 : luminance);
 
     [hue, chroma, luminance] = getNodeHCL(node, false);
     const border_luminance = Math.max(1, luminance * window.border_highlight_percent / 100);
-    const stroke_color = d3.hcl(hue, node.type === 'inlaw' ? 0 : chroma, highlight ? border_luminance * window.highlight_percent / 100 : border_luminance);
+    const stroke_color = d3.hcl(hue, node.type === 'inlaw' ? 0 : chroma, highlight ? border_luminance * window.pedigree_highlight_percent / 100 : border_luminance);
 
     // Draw rectangle
     g.append('rect')
@@ -221,14 +220,14 @@ function drawText(g, node) {
     // Add text with 3+ lines: name (2 lines), birth-death (1 line), and optionally birth/death places (2 lines)
     const text_luminance = window.text_brightness || 0;
     const text_color = d3.hcl(0, 0, text_luminance);
-    const is_bold = ((node.type === 'ancestor' || node.individual.is_root) && (window.highlight_percent != 100));
+    const is_bold = ((node.type === 'ancestor' || node.individual.is_root || node.individual.is_descendant) && (window.pedigree_highlight_percent != 100));
     const text_element = g.append('text')
         .attr('x', window.box_width / 2)
         .attr('y', window.box_height / 2) // Initial vertical center
         .attr('text-anchor', 'middle')
         .attr('font-family', 'Arial, sans-serif')
         .attr('font-weight', is_bold ? 'bold' : 'normal')
-        .attr('font-size', (window.node_text_size || window.default_text_size) + 'px')
+        .attr('font-size', (window.text_size || window.default_text_size) + 'px')
         .attr('fill', text_color)
         .style('text-shadow', (window.text_shadow !== false) ? '1px 1px 2px rgba(0,0,0,0.75)' : 'none');
 
@@ -304,7 +303,7 @@ function drawText(g, node) {
     // Render all lines as tspans, with smaller font for dates/places
     let text_lines = lines.length;
     let dy = 0;
-    let main_font_size = window.node_text_size || window.default_text_size || 12;
+    let main_font_size = window.text_size || window.default_text_size || 12;
     let secondary_font_size = Math.max(6, Math.round(main_font_size * 0.75));
     // Determine how many name lines there are (1 if show_places, else 1 or 2)
     let name_line_count = 0;
@@ -374,17 +373,24 @@ function drawLink(svg_node, color, point1, point2, special) {
         var y1 = point1.y;
         var y2 = point2.y;
         const ymid = (special && special.includes('center') ? y1 + window.box_height / 2 : y2 - window.v_spacing / 2) - (special === 'duplicate' ? window.v_spacing / 2 : 0);
+        const xmid = x1 + (x2 - x1) / 2;
         const corner_radius = Math.min(window.box_width, window.box_height) * window.link_rounding / 200;
         const context = d3.path();
         context.moveTo(x1, y1);
         context.lineTo(x1, ymid - corner_radius);
         if (x2 > x1) {
-            context.bezierCurveTo(x1, ymid, x1 + corner_radius, ymid, x1 + corner_radius, ymid);
-            context.lineTo(x2 - corner_radius, ymid);
+            if (x1 + corner_radius > x2 - corner_radius) context.bezierCurveTo(x1, ymid, xmid, ymid, xmid, ymid);
+            else {
+                context.bezierCurveTo(x1, ymid, x1 + corner_radius, ymid, x1 + corner_radius, ymid);
+                context.lineTo(x2 - corner_radius, ymid);
+            }
         }
         if (x2 < x1) {
-            context.bezierCurveTo(x1, ymid, x1 - corner_radius, ymid, x1 - corner_radius, ymid);
-            context.lineTo(x2 + corner_radius, ymid);
+            if (x1 - corner_radius < x2 + corner_radius) context.bezierCurveTo(x1, ymid, xmid, ymid, xmid, ymid);
+            else {
+                context.bezierCurveTo(x1, ymid, x1 - corner_radius, ymid, x1 - corner_radius, ymid);
+                context.lineTo(x2 + corner_radius, ymid);
+            }
         }
         context.bezierCurveTo(x2, ymid, x2, ymid + corner_radius, x2, ymid + corner_radius);
         context.lineTo(x2, y2);

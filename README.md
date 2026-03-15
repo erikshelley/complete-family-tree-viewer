@@ -70,30 +70,42 @@ The table below describes two key design concepts that make it possible to displ
 
 | Option | Description |
 | ------ | ----------- |
-| Use Defaults | Click this button to reset all options in the Tree Styling section to their default value. |
-| Node Width | Change this value to control the width of the nodes. |
-| Node Width [AUTO] | Click this link to automatically select and display the node width needed for the text to fit without needing a smaller font size. |
-| Node Height | Change this value to control thet height of the nodes. |
-| Node Height [AUTO] | Click this link to automatically select and display the node height needed for the text to fit. |
+| Reset | Click this button to reset all options in the Tree Styling section to their default value. |
+| **Node Options** | |
+| Width | Change this value to control the width of the nodes. |
+| Width [AUTO] | Click this link to automatically select and display the node width needed for the text to fit without needing a smaller font size. |
+| Height | Change this value to control thet height of the nodes. |
+| Height [AUTO] | Click this link to automatically select and display the node height needed for the text to fit. |
 | X Spacing | Change this value to control the horizontal space between nodes. |
 | Y Spacing | Change this value to control the vertical space between nodes. |
-| Node Rounding % | Change this value to control how rounded the corners of the nodes are. |
+| Rounding % | Change this value to control how rounded the corners of the nodes are. |
+| Brightness | Change this value to control the brightness of the fill color of the nodes. |
 | Show Names | Click this checkbox to show people's names in the tree. |
 | Show Years of BirthDeath | Click this checkbox to show people's years of birth and death in the tree. |
 | Show Places of BirthDeath | Click this checkbox to show people's places of birth and death in the tree. |
-| Node Border Width | Change this value to control the size of the node borders. |
-| Node Border Highlight | Change this value to control if the node borders are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. |
-| Node Border Highlight [NONE] | Click this link to make the node borders the same brightness as the nodes, effectively making them invisible. |
-| Link Thickness | Change this value to control how thick the links are between nodes. |
-| Link Rounding % | Change this value to control how rounded the link paths between nodes are. |
-| Text Size | Change this value to control the size of the text in the nodes. |
-| Text Brightness | Change this value to control how bright the tetxt is in the nodes. |
-| Text Shadows | Click this checkbox to enable text shadows. |
+| **Node&nbsp;Border&nbsp;Options** | |
+| Width | Change this value to control the size of the node borders. |
+| Highlight | Change this value to control if the node borders are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. |
+| Highlight [NONE] | Click this link to make the node borders the same brightness as the nodes, effectively making them invisible. |
+| **Link Options** | |
+| Thickness | Change this value to control how thick the links are between nodes. |
+| Rounding % | Change this value to control how rounded the link paths between nodes are. |
+| Highlight | Change this value to control if the links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. |
+| Highlight [NONE] | Click this link to make the links the same brightness as the nodes. |
+| **Inlaw Link Options** | |
+| Highlight | Change this value to control if the inlaw links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. |
+| Highlight [NONE] | Click this link to make the inlaw links the same brightness as the nodes. |
+| **Node & Link Colors** | |
 | Hue Root | Change this value to control the hue used for the color of the root generation. |
 | Saturation | Change this value to control how saturated the colors of the nodes are. |
-| Luminance | Change this value to control how bright the colors of the nodes are. |
-| Pedigree Highlight | Change this value to control if thte pedigree nodes (direct ancestors and descendants of the root person) are darker or brighter than everyone else. 0% is black, 100% is the same brightness as everyone else, and 200% is twice as bright as everyone else. |
-| Pedigree Highlight [NONE] | Click this link to make the pedigree nodes the same brightness as everyone else. |
+| **Text Options** | |
+| Size | Change this value to control the size of the text in the nodes. |
+| Brightness | Change this value to control how bright the text is in the nodes. |
+| Shadows | Click this checkbox to enable text shadows. |
+| **Pedigree Links & Nodes** | |
+| Highlight | Change this value to control if thte pedigree nodes (direct ancestors and descendants of the root person) are darker or brighter than everyone else. 0% is black, 100% is the same brightness as everyone else, and 200% is twice as bright as everyone else. |
+| Highlight [NONE] | Click this link to make the pedigree nodes the same brightness as everyone else. |
+| **Background** | |
 | Transparent Background | Click this checkbox to use a transparent background for the tree. |
 | Background Color | Click this control to choose a background color. The color will only be used if the Transparent Background checkbox is not checked. |
 
@@ -102,8 +114,8 @@ The table below describes two key design concepts that make it possible to displ
 
 | Option | Description |
 | ------ | ----------- |
-| Save PNG | Click this button to save the tree as a PNG. Only the visible part of the tree is saved. If you zoom in before clicking the list you will only save part of the tree. If the tree is too large to save as a PNG, it will be resized and saved at a smaller size. SVGs have no size limits. |
-| Save SVG | Click this button to save thte tree as an SVG. Only the visible part of the tree is saved. If you zoom in before clicking the list you will only save part of the tree. SVGs effectively have an infinite resolution. |
+| Save&nbsp;PNG | Click this button to save the tree as a PNG. Only the visible part of the tree is saved. If you zoom in before clicking the list you will only save part of the tree. If the tree is too large to save as a PNG, it will be resized and saved at a smaller size. SVGs have no size limits. |
+| Save&nbsp;SVG | Click this button to save thte tree as an SVG. Only the visible part of the tree is saved. If you zoom in before clicking the list you will only save part of the tree. SVGs effectively have an infinite resolution. |
 | Zoom | Zoom in on the tree as you would when using a mapping application like Google Maps (double-click, pinch, etc.). |
 | Pan | Pan around a zoomed-in tree as you would when using a mapping application like Google Maps (click and drag). |
 

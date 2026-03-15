@@ -6,10 +6,10 @@
     <meta name="darkreader" content="no-darken">
     <meta name="darkreader-lock">
     <title>Complete Family Tree Viewer</title>
-    <link rel="stylesheet" href="static/css/style_ranges.css?v=2026-03-14">
-    <link rel="stylesheet" href="static/css/style_buttons.css?v=2026-03-14">
-    <link rel="stylesheet" href="static/css/style.css?v=2026-03-14">
-    <link rel="stylesheet" href="static/css/style_media.css?v=2026-03-14">
+    <link rel="stylesheet" href="static/css/style_ranges.css?v=2026-03-15">
+    <link rel="stylesheet" href="static/css/style_buttons.css?v=2026-03-15">
+    <link rel="stylesheet" href="static/css/style.css?v=2026-03-15">
+    <link rel="stylesheet" href="static/css/style_media.css?v=2026-03-15">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-size@2"></script>
 </head>
@@ -30,7 +30,7 @@
     <button id="options-menu-button" aria-label="Open menu" style="display: none;">Options</button>
 
     <h1>Complete Family Tree Viewer</h1>
-    <div class="about"><a href="https://github.com/erikshelley/complete-family-tree-viewer/blob/main/README.md" target="_blank">About & Help</a></div>
+    <div class="about"><a href="https://github.com/erikshelley/complete-family-tree-viewer/" target="_blank">About & Help</a></div>
     <div class="container">
         <div class="left-column-wrapper">
             <div class="left-column">
@@ -74,21 +74,31 @@
             </div>
 
             <div class="section-header">
-                <button id="reset-styling-button" type="button">Use Defaults</button>
+                <button id="reset-styling-button" type="button">Reset</button>
                 <h2>Tree Styling</h2>
             </div>
 
             <div class="input-section">
+                <h3>Presets</h3>
+                <select id="preset-select" size="1">
+                    <option value="default" selected>Default</option>
+                    <option value="orbs">Orbs</option>
+                    <option value="sharp">Sharp</option>
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                    <option value="detailed">Detailed</option>
+                </select>
+
                 <h3>Nodes</h3>
                 <p>
                     <input type="number" class="range-value" id="node-width-number" min="20" max="480" value="150">
                     <input type="range" id="node-width-range" min="20" max="480" value="150">
-                    <label for="node-width-range">Width</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-width-link">[AUTO]</a>
+                    <label for="node-width-range">Width</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-width">[AUTO]</a>
                 </p>
                 <p>
                     <input type="number" class="range-value" id="node-height-number" min="20" max="480" value="75">
                     <input type="range" id="node-height-range" min="20" max="480" value="75">
-                    <label for="node-height-range">Height</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-height-link">[AUTO]</a>
+                    <label for="node-height-range">Height</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-height">[AUTO]</a>
                 </p>
                 <p>
                     <input type="number" class="range-value" id="h-spacing-number" min="1" max="400" value="40">
@@ -104,6 +114,11 @@
                     <input type="number" class="range-value" id="node-rounding-number" min="0" max="100" value="10">
                     <input type="range" id="node-rounding-range" min="0" max="100" value="10">
                     <label for="node-rounding-range">Rounding %</label>
+                </p>
+                <p>
+                    <input type="number" class="range-value" id="node-brightness-number" min="0" max="100" value="33">
+                    <input type="range" id="node-brightness-range" min="0" max="100" value="33">
+                    <label for="node-brightness-range">Brightness</label>
                 </p>
                 <p>
                     <input type="checkbox" id="show-names-checkbox" checked>
@@ -131,7 +146,7 @@
                 <p>
                     <input type="number" class="range-value" id="border-highlight-percent-number" min="0" max="200" value="125">
                     <input type="range" id="border-highlight-percent-range" min="0" max="200" value="125">
-                    <label for="border-highlight-percent-range">Highlight</label>&nbsp;<a href="#" class="right-shortcut" id="no-border-highlight-percent-link">[NONE]</a>
+                    <label for="border-highlight-percent-range">Highlight</label>&nbsp;<a href="#" class="right-shortcut" id="no-border-highlight-percent">[NONE]</a>
                 </p>
 
                 <h3>Links</h3>
@@ -145,12 +160,43 @@
                     <input type="range" id="link-rounding-range" min="0" max="100" value="10">
                     <label for="link-rounding-range">Rounding %</label>
                 </p>
+                <p>
+                    <input type="number" class="range-value" id="link-highlight-percent-number" min="0" max="200" value="100">
+                    <input type="range" id="link-highlight-percent-range" min="0" max="200" value="100">
+                    <label for="link-highlight-percent-range">Highlight</label>&nbsp;<a href="#" class="right-shortcut" id="no-link-highlight-percent">[NONE]</a>
+                </p>
+
+                <h3>Inlaw Links</h3>
+                <p>
+                    <input type="number" class="range-value" id="inlaw-link-highlight-percent-number" min="0" max="200" value="100">
+                    <input type="range" id="inlaw-link-highlight-percent-range" min="0" max="200" value="100">
+                    <label for="inlaw-link-highlight-percent-range">Highlight</label>&nbsp;<a href="#" class="right-shortcut" id="no-inlaw-link-highlight-percent">[NONE]</a>
+                </p>
+
+                <h3>Node & Link Colors</h3>
+                <p>
+                    <input type="number" class="range-value" id="hue-number" min="0" max="359" value="120">
+                    <input type="range" id="hue-range" min="0" max="359" value="120">
+                    <label for="hue-range">Hue (Root)</label>
+                </p>
+                <p>
+                    <input type="number" class="range-value" id="saturation-number" min="0" max="100" value="33">
+                    <input type="range" id="saturation-range" min="0" max="100" value="33">
+                    <label for="saturation-range">Saturation</label>
+                </p>
+
+                <h3>Pedigree Nodes & Links</h3>
+                <p>
+                    <input type="number" class="range-value" id="pedigree-highlight-percent-number" min="0" max="200" value="125">
+                    <input type="range" id="pedigree-highlight-percent-range" min="0" max="200" value="125">
+                    <label for="pedigree-highlight-percent-range">Highlight</label>&nbsp;<a href="#" class="right-shortcut" id="no-pedigree-highlight-percent">[NONE]</a>
+                </p>
 
                 <h3>Text</h3>
                 <p>
-                    <input type="number" class="range-value" id="node-text-size-number" min="8" max="24" value="16">
-                    <input type="range" id="node-text-size-range" min="8" max="24" value="16">
-                    <label for="node-text-size-range">Size</label>
+                    <input type="number" class="range-value" id="text-size-number" min="8" max="24" value="16">
+                    <input type="range" id="text-size-range" min="8" max="24" value="16">
+                    <label for="text-size-range">Size</label>
                 </p>
                 <p>
                     <input type="number" class="range-value" id="text-brightness-number" min="0" max="100" value="90">
@@ -162,27 +208,7 @@
                     <label for="text-shadow-checkbox">Text Shadow</label>
                 </p>
 
-                <h3>Colors</h3>
-                <p>
-                    <input type="number" class="range-value" id="hue-number" min="0" max="359" value="120">
-                    <input type="range" id="hue-range" min="0" max="359" value="120">
-                    <label for="hue-range">Hue (Root)</label>
-                </p>
-                <p>
-                    <input type="number" class="range-value" id="saturation-number" min="0" max="100" value="33">
-                    <input type="range" id="saturation-range" min="0" max="100" value="33">
-                    <label for="saturation-range">Saturation</label>
-                </p>
-                <p>
-                    <input type="number" class="range-value" id="brightness-number" min="0" max="100" value="33">
-                    <input type="range" id="brightness-range" min="0" max="100" value="33">
-                    <label for="brightness-range">Luminance</label>
-                </p>
-                <p>
-                    <input type="number" class="range-value" id="highlight-percent-number" min="0" max="200" value="125">
-                    <input type="range" id="highlight-percent-range" min="0" max="200" value="125">
-                    <label for="highlight-percent-range">Highlight</label>&nbsp;<a href="#" class="right-shortcut" id="no-highlight-percent-link">[NONE]</a>
-                </p>
+                <h3>Background</h3>
                 <p>
                     <input type="checkbox" id="transparent-bg-rect-checkbox" checked>
                     <label for="transparent-bg-rect-checkbox">Transparent Background</label>
@@ -212,6 +238,8 @@
     <script src="static/js/build_tree.js"></script>
     <script src="static/js/position_tree.js"></script>
     <script src="static/js/draw_tree.js"></script>
+    <script src="static/js/ui_declarations.js"></script>
     <script src="static/js/ui.js"></script>
+    <script src="static/js/ui_events.js"></script>
 </body>
 </html>

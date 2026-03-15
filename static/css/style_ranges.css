@@ -17,9 +17,9 @@ input[type="range"] {
 #text-brightness-range::-webkit-slider-thumb { background: var(--range-thumb-text-color); }
 #text-brightness-range::-moz-range-thumb { background: var(--range-thumb-text-color); }
 #text-brightness-range::-ms-thumb { background: var(--range-thumb-text-color); }
-#node-text-size-range::-webkit-slider-thumb { background: var(--range-thumb-text-color); }
-#node-text-size-range::-moz-range-thumb { background: var(--range-thumb-text-color); }
-#node-text-size-range::-ms-thumb { background: var(--range-thumb-text-color); }
+#text-size-range::-webkit-slider-thumb { background: var(--range-thumb-text-color); }
+#text-size-range::-moz-range-thumb { background: var(--range-thumb-text-color); }
+#text-size-range::-ms-thumb { background: var(--range-thumb-text-color); }
 
 /* Custom thumb for hue-slider */
 input[type="range"]::-webkit-slider-thumb {

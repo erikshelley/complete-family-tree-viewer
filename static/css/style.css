@@ -137,6 +137,10 @@ svg {
     margin-top: 8px;
 }
 
+#preset-select {
+    width: 100%;
+}
+
 #individual-filter-text {
     width: calc(100% - 12px);
 }
@@ -180,7 +184,7 @@ input.range-value[type="number"] {
     width: 60px;
 }
 
-input[type="number"], #individual-select, #individual-filter-text {
+input[type="number"], #individual-select, #individual-filter-text, #preset-select {
     display: inline-block;
     vertical-align: middle;
     background-color: #202020;
