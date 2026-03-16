@@ -486,10 +486,10 @@ function getMaximumDimensions(rows) {
 
 function setHeights(rows) {
     let total_height = window.padding * 2;
-    window.level_heights.forEach(height => { total_height += height * (window.box_height + window.v_spacing) + window.v_spacing; });
+    window.level_heights.forEach(height => { total_height += height * (window.box_height + window.v_spacing) + window.level_spacing; });
     let y = total_height - window.box_height - window.v_spacing - window.padding; // Start from the bottom of the tree
     rows.forEach((level, index) => {
-        y -= window.level_heights[index] * (window.box_height + window.v_spacing) + window.v_spacing;
+        y -= window.level_heights[index] * (window.box_height + window.v_spacing) + window.level_spacing;
         let sub_y = y;
         level.forEach(sub_level => {
             if (sub_level.length > 0) sub_y += window.box_height + window.v_spacing;
