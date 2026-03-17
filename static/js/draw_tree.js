@@ -341,11 +341,23 @@ function drawText(g, node) {
         const min_font_size = 6;
         const padding = 0;
         const max_width = window.box_width - padding;
+        const max_height = window.box_height - padding;
         let bbox = text_element.node().getBBox();
         if (bbox.width > max_width) {
             // Scale both main and secondary font sizes proportionally
             let scale = max_width / bbox.width;
             
+            let new_main = Math.max(main_font_size, Math.floor(main_font_size * scale));
+            let new_secondary = Math.floor(new_main * 0.75);
+            renderTspans(new_main, new_secondary);
+            bbox = text_element.node().getBBox();
+
+            new_main = Math.max(min_font_size, Math.floor(main_font_size * scale));
+            new_secondary = Math.floor(new_main * 0.75);
+            renderTspans(new_main, new_secondary);
+        }
+        if (bbox.height > max_height) {
+            let scale = max_height / bbox.height;
             let new_main = Math.max(main_font_size, Math.floor(main_font_size * scale));
             let new_secondary = Math.floor(new_main * 0.75);
             renderTspans(new_main, new_secondary);

@@ -64,12 +64,12 @@ The table below describes two key design concepts that make it possible to displ
 | Browse | Click the Browse button to select and load a Gedcom file from your computer. The people in thte Gedcom file will be populated in the list below. |
 | Filter | Type a name in this box to filter the list of people. |
 | Select Root Person | Click on a person to make the root of the tree. Their family tree will be drawn. |
-| Generations Up | Change this value to control how many generations above the root person will be displayed. |
-| Generations Up [MAX] | Click this link to automatically select and display the maximum number of generations available above the root person. |
-| Generations Down | Change this value to control how many generations below the root person will be displayed. |
-| Generations Down [MAX] | Click this link to automatically select and display the maximum number of generations available below the root person. |
-| Maximum Stack Size | Change this value to control how many leaf nodes can be stacked in a single stack.|
-| Maximum Stack Size [MAX] | Click this link to automatically select and display the maximum stack size. |
+| Generations Up | Change this value to control how many generations above the root person will be displayed. Click the up arrow <img src="static/png/icons8-top-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use the maximum possible value for the root person. |
+| Generations Down | Change this value to control how many generations below the root person will be displayed. Click the up arrow <img src="static/png/icons8-top-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use the maximum possible value for the root person. |
+| Maximum Stack Size | Change this value to control how many leaf nodes can be stacked in a single stack. Click the up arrow <img src="static/png/icons8-top-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use the maximum possible value for the root person. |
+| Show Names | Click this checkbox to show people's names in the tree. |
+| Show Years of BirthDeath | Click this checkbox to show people's years of birth and death in the tree. |
+| Show Places of BirthDeath | Click this checkbox to show people's places of birth and death in the tree. |
 | Hide Childless In-Laws | Click this checkbox to hide in-laws who are leaf nodes. |
 
 ## Tree Styling
@@ -81,71 +81,46 @@ The table below describes two key design concepts that make it possible to displ
 | Reset | Click this button to reset all options in the Tree Styling section to their default value. |
 | Presets | Select a preset to quickly change a number of style settings. [Default, Orbs, Sharp, Dark, Light, Detailed] |
 
-### Nodes
+### Size
 | Option | Description |
 | ------ | ----------- |
-| Width | Change this value to control the width of the nodes. |
-| Width [AUTO] | Click this link to automatically select and display the node width needed for the text to fit without needing a smaller font size. |
-| Height | Change this value to control thet height of the nodes. |
-| Height [AUTO] | Click this link to automatically select and display the node height needed for the text to fit. |
-| X Spacing | Change this value to control the horizontal space between nodes. |
-| Y Spacing | Change this value to control the vertical space between nodes. |
-| Rounding % | Change this value to control how rounded the corners of the nodes are. |
-| Brightness | Change this value to control the brightness of the fill color of the nodes. |
-| Show Names | Click this checkbox to show people's names in the tree. |
-| Show Years of BirthDeath | Click this checkbox to show people's years of birth and death in the tree. |
-| Show Places of BirthDeath | Click this checkbox to show people's places of birth and death in the tree. |
+| Boxes X | Change this value to control the width of the nodes. Click the resize icon <img src="static/png/icons8-resize-48-v2.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use the width needed to fit the text. |
+| Boxes Y | Change this value to control thet height of the nodes. Click the resize icon <img src="static/png/icons8-resize-48-v2.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use thhe height needed to fit the text. |
+| Borders | Change this value to control the size of the node borders. |
+| Links | Change this value to control how thick the links are between nodes. |
+| Font | Change this value to control the size of the text in the nodes. |
 
-### Node Borders
+### Spacing
 | Option | Description |
 | ------ | ----------- |
-| Width | Change this value to control the size of the node borders. |
-| Highlight | Change this value to control if the node borders are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. |
-| Highlight [NONE] | Click this link to make the node borders the same brightness as the nodes, effectively making them invisible. |
+| Boxes X | Change this value to control the horizontal space between nodes. |
+| Boxes Y | Change this value to control the vertical space between nodes. |
+| Levels Y | Change this value to control the vertical space between levels. |
 
-### Levels
-| Option | Description |
-| ------ | ----------- |
-| Y Spacing | Change this value to control the vertical space between levels. |
-
-### Links
-| Option | Description |
-| ------ | ----------- |
-| Thickness | Change this value to control how thick the links are between nodes. |
-| Rounding % | Change this value to control how rounded the link paths between nodes are. |
-| Highlight | Change this value to control if the links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. |
-| Highlight [NONE] | Click this link to make the links the same brightness as the nodes. |
-
-### In-Law Links
-| Option | Description |
-| ------ | ----------- |
-| Highlight | Change this value to control if the in-law links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. |
-| Highlight [NONE] | Click this link to make the in-law links the same brightness as the nodes. |
-
-### Node & Link Colors
+### Color
 | Option | Description |
 | ------ | ----------- |
 | Hue Root | Change this value to control the hue used for the color of the root generation. |
 | Saturation | Change this value to control how saturated the colors of the nodes are. |
-
-### Text
-| Option | Description |
-| ------ | ----------- |
-| Size | Change this value to control the size of the text in the nodes. |
-| Brightness | Change this value to control how bright the text is in the nodes. |
-| Shadows | Click this checkbox to enable text shadows. |
-
-### Pedigree Links & Nodes
-| Option | Description |
-| ------ | ----------- |
-| Highlight | Change this value to control if thte pedigree nodes (direct ancestors and descendants of the root person) are darker or brighter than everyone else. 0% is black, 100% is the same brightness as everyone else, and 200% is twice as bright as everyone else. |
-| Highlight [NONE] | Click this link to make the pedigree nodes the same brightness as everyone else. |
-
-### Background
-| Option | Description |
-| ------ | ----------- |
+| Brightness | Change this value to control the brightness of the tree nodes and links. |
+| Text | Change this value to control how bright the text is in the nodes. |
+| Text Shadow | Click this checkbox to enable text shadows. |
 | Transparent Background | Click this checkbox to use a transparent background for the tree. |
 | Background Color | Click this control to choose a background color. The color will only be used if the Transparent Background checkbox is not checked. |
+
+### Highlights (%)
+| Option | Description |
+| ------ | ----------- |
+| Pedigree | Change this value to control if thte pedigree nodes (direct ancestors and descendants of the root person) are darker or brighter than everyone else. 0% is black, 100% is the same brightness as everyone else, and 200% is twice as bright as everyone else. Click the X icon <img src="static/png/icons8-cancel-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use 100% for no highlighting. |
+| Borders | Change this value to control if the node borders are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="static/png/icons8-cancel-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use 100% for no highlighting. |
+| Links | Change this value to control if the links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="static/png/icons8-cancel-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use 100% for no highlighting. |
+| In-Law Links | Change this value to control if the in-law links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="static/png/icons8-cancel-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use 100% for no highlighting. |
+
+### Rounded Corners
+| Option | Description |
+| ------ | ----------- |
+| Rounding % | Change this value to control how rounded the corners of the nodes are. |
+| Rounding % | Change this value to control how rounded the link paths between nodes are. |
 
 ## Tree Viewer
 ![](static/png/Usage-Tree-Viewer.png)
@@ -154,7 +129,7 @@ The table below describes two key design concepts that make it possible to displ
 | ------ | ----------- |
 | Save&nbsp;PNG | Click this button to save the tree as a PNG. Only the visible part of the tree is saved. If you zoom in before clicking the list you will only save part of the tree. If the tree is too large to save as a PNG, it will be resized and saved at a smaller size. SVGs have no size limits. |
 | Save&nbsp;SVG | Click this button to save thte tree as an SVG. Only the visible part of the tree is saved. If you zoom in before clicking the list you will only save part of the tree. SVGs effectively have an infinite resolution. |
+| <img src="static/png/icons8-resize-48-v2.png" width="36" height="36" style="filter:invert() brightness(50%);"> | Click the resize icon to fit the tree to the viewer. |
 | Zoom | Zoom in on the tree as you would when using a mapping application like Google Maps (double-click, pinch, etc.). |
 | Pan | Pan around a zoomed-in tree as you would when using a mapping application like Google Maps (click and drag). |
-
 

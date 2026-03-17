@@ -38,6 +38,7 @@ const color_picker = document.getElementById('color-picker');
 
 const rightCol = document.querySelector('.right-column');
 const family_tree_div = document.getElementById('family-tree-div');
+const resize_tree_button = document.getElementById('resize-tree-button');
 const save_svg_button = document.getElementById('save-svg-button');
 const save_png_button = document.getElementById('save-png-button');
 
@@ -114,9 +115,9 @@ const style_presets = {
     'sharp': {
         'node-width': 150, 'node-height': 75, 'h-spacing': 37, 'v-spacing': 66, 'node-rounding': 0, 'node-brightness': 33,
         'show-names': true, 'show-years': true, 'show-places': false,
-        'node-border-width': 3, 'border-highlight-percent': 150,
+        'node-border-width': 3, 'border-highlight-percent': 125,
         'level-spacing': 132,
-        'link-width': 6, 'link-rounding': 50, 'link-highlight-percent': 100, 'inlaw-link-highlight-percent': 125,
+        'link-width': 6, 'link-rounding': 0, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
         'hue': 180, 'saturation': 33, 
         'pedigree-highlight-percent': 150,
         'text-size': 16, 'text-brightness': 90, 'text-shadow': true,
@@ -162,6 +163,9 @@ const elements = [
     { id: 'generations-up-number',               type: 'number',   default: 1,     min: 0, max: 99, variable: 'generations_up', max: 99 },
     { id: 'generations-down-number',             type: 'number',   default: 1,     min: 0, max: 99, variable: 'generations_down', max: 99 },
     { id: 'max-stack-size-number',               type: 'number',   default: 1,     min: 1, max: 99, variable: 'max_stack_size', max: 99 },
+    { id: 'show-names-checkbox',                 type: 'checkbox', default: true,  variable: 'show_names' },
+    { id: 'show-years-checkbox',                 type: 'checkbox', default: true,  variable: 'show_years' },
+    { id: 'show-places-checkbox',                type: 'checkbox', default: false, variable: 'show_places' },
     { id: 'hide-childless-inlaws-checkbox',      type: 'checkbox', default: false, variable: 'hide_childless_inlaws' },
     //{ id: 'pedigree-only', type: 'checkbox', default: false, variable: 'pedigree_only' },
 
@@ -179,9 +183,6 @@ const elements = [
     { id: 'node-brightness-number',              type: 'number',   default: 25,    min: 0, max: 100, variable: 'node_brightness' },
     { id: 'node-brightness-range',               type: 'range',    default: 25,    min: 0, max: 100, variable: 'node_brightness' },
 
-    { id: 'show-names-checkbox',                 type: 'checkbox', default: true,  variable: 'show_names' },
-    { id: 'show-years-checkbox',                 type: 'checkbox', default: true,  variable: 'show_years' },
-    { id: 'show-places-checkbox',                type: 'checkbox', default: false, variable: 'show_places' },
     //{ id: 'show-tooltips-checkbox',         type: 'checkbox', default: false, variable: 'show_tooltips' },
 
     { id: 'node-border-width-number',            type: 'number',   default: 3,     min: 0, max: 20, variable: 'node_border_width' },

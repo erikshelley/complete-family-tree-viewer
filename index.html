@@ -40,7 +40,6 @@
             </div>
 
             <div class="input-section">
-                <h3>Root Person</h3>
                 <span id="file-name">Select Gedcom file...</span>
                 <div class="filter-container">
                     <input type="text" id="individual-filter-text" class="filter-input" placeholder="Type to filter names...">
@@ -49,19 +48,29 @@
                 <select id="individual-select" size="5">
                     <option>Populated from Gedcom file...</option>
                 </select>
-
-                <h3>Tree Size</h3>
                 <p>
                     <input type="number" id="generations-up-number" min="0" max="99" value="1">
-                    <label for="generations-up-number">Generations Up</label>&nbsp;<a href="#" class="right-shortcut" id="generations-up-number-max-link">[MAX]</a>
+                    <label for="generations-up-number">Generations Up</label>&nbsp;<a href="#" class="right-shortcut" id="generations-up-number-max-link"><img src="static/png/icons8-top-50.png" alt="Maximum" title="Maximum" style="filter:invert() brightness(50%);" width="24" height="24"></a>
                 </p>
                 <p>
                     <input type="number" id="generations-down-number" min="0" max="99" value="1">
-                    <label for="generations-down-number">Generations Down</label>&nbsp;<a href="#" class="right-shortcut" id="generations-down-number-max-link">[MAX]</a>
+                    <label for="generations-down-number">Generations Down</label>&nbsp;<a href="#" class="right-shortcut" id="generations-down-number-max-link"><img src="static/png/icons8-top-50.png" alt="Maximum" title="Maximum" style="filter:invert() brightness(50%);" width="24" height="24"></a>
                 </p>
                 <p>
                     <input type="number" id="max-stack-size-number" min="1" max="99" value="1">
-                    <label for="max-stack-size-number">Maximum Stack Size</label>&nbsp;<a href="#" class="right-shortcut" id="max-stack-size-number-max-link">[MAX]</a>
+                    <label for="max-stack-size-number">Stack Size</label>&nbsp;<a href="#" class="right-shortcut" id="max-stack-size-number-max-link"><img src="static/png/icons8-top-50.png" alt="Maximum" title="Maximum" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                </p>
+                <p>
+                    <input type="checkbox" id="show-names-checkbox" checked>
+                    <label for="show-names-checkbox">Show Names</label>
+                </p>
+                <p>
+                    <input type="checkbox" id="show-years-checkbox" checked>
+                    <label for="show-years-checkbox">Show Years of Birth/Death</label>
+                </p>
+                <p>
+                    <input type="checkbox" id="show-places-checkbox">
+                    <label for="show-places-checkbox">Show Places of Birth/Death</label>
                 </p>
                 <p>
                     <input type="checkbox" id="hide-childless-inlaws-checkbox">
@@ -79,7 +88,7 @@
             </div>
 
             <div class="input-section">
-                <h3>Presets</h3>
+                <h3>Preset</h3>
                 <select id="preset-select" size="1">
                     <option value="default" selected>Default</option>
                     <option value="orbs">Orbs</option>
@@ -89,98 +98,56 @@
                     <option value="detailed">Detailed</option>
                 </select>
 
-                <h3>Nodes</h3>
+                <h3>Size</h3>
                 <p>
                     <input type="number" class="range-value" id="node-width-number" min="20" max="480" value="150">
                     <input type="range" id="node-width-range" min="20" max="480" value="150">
-                    <label for="node-width-range">Width</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-width">[AUTO]</a>
+                    <label for="node-width-range">Boxes X</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-width"><img src="static/png/icons8-resize-48-v2.png" alt="Auto Size" title="Auto Size" style="filter:invert() brightness(50%);" width="24" height="24"></a>
                 </p>
                 <p>
                     <input type="number" class="range-value" id="node-height-number" min="20" max="480" value="75">
                     <input type="range" id="node-height-range" min="20" max="480" value="75">
-                    <label for="node-height-range">Height</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-height">[AUTO]</a>
+                    <label for="node-height-range">Boxes Y</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-height"><img src="static/png/icons8-resize-48-v2.png" alt="Auto Size" title="Auto Size" style="filter:invert() brightness(50%);" width="24" height="24"></a>
                 </p>
+                <p>
+                    <input type="number" class="range-value" id="node-border-width-number" min="0" max="20" value="2">
+                    <input type="range" id="node-border-width-range" min="0" max="20" value="2">
+                    <label for="node-border-width-range">Borders</label>
+                </p>
+                <p>
+                    <input type="number" class="range-value" id="link-width-number" min="1" max="28" value="6">
+                    <input type="range" id="link-width-range" min="1" max="28" value="6">
+                    <label for="link-width-range">Links</label>
+                </p>
+                <p>
+                    <input type="number" class="range-value" id="text-size-number" min="8" max="24" value="16">
+                    <input type="range" id="text-size-range" min="8" max="24" value="16">
+                    <label for="text-size-range">Font</label>
+                </p>
+
+                <h3>Spacing</h3>
                 <p>
                     <input type="number" class="range-value" id="h-spacing-number" min="1" max="400" value="40">
                     <input type="range" id="h-spacing-range" min="1" max="400" value="40">
-                    <label for="h-spacing-range">X Spacing</label>
+                    <label for="h-spacing-range">Boxes X</label>
                 </p>
                 <p>
                     <input type="number" class="range-value" id="v-spacing-number" min="1" max="400" value="80">
                     <input type="range" id="v-spacing-range" min="1" max="400" value="80">
-                    <label for="v-spacing-range">Y Spacing</label>
+                    <label for="v-spacing-range">Boxes Y</label>
                 </p>
                 <p>
-                    <input type="number" class="range-value" id="node-rounding-number" min="0" max="100" value="10">
-                    <input type="range" id="node-rounding-range" min="0" max="100" value="10">
-                    <label for="node-rounding-range">Rounding %</label>
+                    <input type="number" class="range-value" id="level-spacing-number" min="0" max="400" value="160">
+                    <input type="range" id="level-spacing-range" min="0" max="400" value="160">
+                    <label for="level-spacing-range">Levels Y</label>
                 </p>
-                <p>
-                    <input type="number" class="range-value" id="node-brightness-number" min="0" max="100" value="33">
-                    <input type="range" id="node-brightness-range" min="0" max="100" value="33">
-                    <label for="node-brightness-range">Brightness</label>
-                </p>
-                <p>
-                    <input type="checkbox" id="show-names-checkbox" checked>
-                    <label for="show-names-checkbox">Show Names</label>
-                </p>
-                <p>
-                    <input type="checkbox" id="show-years-checkbox" checked>
-                    <label for="show-years-checkbox">Show Years of Birth/Death</label>
-                </p>
-                <p>
-                    <input type="checkbox" id="show-places-checkbox">
-                    <label for="show-places-checkbox">Show Places of Birth/Death</label>
-                </p>
+
                 <!--<p>
                     <input type="checkbox" id="show-tooltips-checkbox">
                     <label for="show-tooltips-checkbox">Show Tool Tips</label>
                 </p>-->
 
-                <h3>Node Borders</h3>
-                <p>
-                    <input type="number" class="range-value" id="node-border-width-number" min="0" max="20" value="2">
-                    <input type="range" id="node-border-width-range" min="0" max="20" value="2">
-                    <label for="node-border-width-range">Width</label>
-                </p>
-                <p>
-                    <input type="number" class="range-value" id="border-highlight-percent-number" min="0" max="200" value="125">
-                    <input type="range" id="border-highlight-percent-range" min="0" max="200" value="125">
-                    <label for="border-highlight-percent-range">Highlight</label>&nbsp;<a href="#" class="right-shortcut" id="no-border-highlight-percent">[NONE]</a>
-                </p>
-
-                <h3>Levels</h3>
-                <p>
-                    <input type="number" class="range-value" id="level-spacing-number" min="0" max="400" value="160">
-                    <input type="range" id="level-spacing-range" min="0" max="400" value="160">
-                    <label for="level-spacing-range">Y Spacing</label>
-                </p>
-
-                <h3>Links</h3>
-                <p>
-                    <input type="number" class="range-value" id="link-width-number" min="1" max="28" value="6">
-                    <input type="range" id="link-width-range" min="1" max="28" value="6">
-                    <label for="link-width-range">Thickness</label>
-                </p>
-                <p>
-                    <input type="number" class="range-value" id="link-rounding-number" min="0" max="100" value="10">
-                    <input type="range" id="link-rounding-range" min="0" max="100" value="10">
-                    <label for="link-rounding-range">Rounding %</label>
-                </p>
-                <p>
-                    <input type="number" class="range-value" id="link-highlight-percent-number" min="0" max="200" value="100">
-                    <input type="range" id="link-highlight-percent-range" min="0" max="200" value="100">
-                    <label for="link-highlight-percent-range">Highlight</label>&nbsp;<a href="#" class="right-shortcut" id="no-link-highlight-percent">[NONE]</a>
-                </p>
-
-                <h3>In-Law Links</h3>
-                <p>
-                    <input type="number" class="range-value" id="inlaw-link-highlight-percent-number" min="0" max="200" value="100">
-                    <input type="range" id="inlaw-link-highlight-percent-range" min="0" max="200" value="100">
-                    <label for="inlaw-link-highlight-percent-range">Highlight</label>&nbsp;<a href="#" class="right-shortcut" id="no-inlaw-link-highlight-percent">[NONE]</a>
-                </p>
-
-                <h3>Node & Link Colors</h3>
+                <h3>Color</h3>
                 <p>
                     <input type="number" class="range-value" id="hue-number" min="0" max="359" value="120">
                     <input type="range" id="hue-range" min="0" max="359" value="120">
@@ -191,31 +158,20 @@
                     <input type="range" id="saturation-range" min="0" max="100" value="33">
                     <label for="saturation-range">Saturation</label>
                 </p>
-
-                <h3>Pedigree Nodes & Links</h3>
                 <p>
-                    <input type="number" class="range-value" id="pedigree-highlight-percent-number" min="0" max="200" value="125">
-                    <input type="range" id="pedigree-highlight-percent-range" min="0" max="200" value="125">
-                    <label for="pedigree-highlight-percent-range">Highlight</label>&nbsp;<a href="#" class="right-shortcut" id="no-pedigree-highlight-percent">[NONE]</a>
-                </p>
-
-                <h3>Text</h3>
-                <p>
-                    <input type="number" class="range-value" id="text-size-number" min="8" max="24" value="16">
-                    <input type="range" id="text-size-range" min="8" max="24" value="16">
-                    <label for="text-size-range">Size</label>
+                    <input type="number" class="range-value" id="node-brightness-number" min="0" max="100" value="33">
+                    <input type="range" id="node-brightness-range" min="0" max="100" value="33">
+                    <label for="node-brightness-range">Brightness</label>
                 </p>
                 <p>
                     <input type="number" class="range-value" id="text-brightness-number" min="0" max="100" value="90">
                     <input type="range" id="text-brightness-range" min="0" max="100" value="90">
-                    <label for="text-brightness-range">Brightness</label>
+                    <label for="text-brightness-range">Text</label>
                 </p>
                 <p>
                     <input type="checkbox" id="text-shadow-checkbox" checked>
                     <label for="text-shadow-checkbox">Text Shadow</label>
                 </p>
-
-                <h3>Background</h3>
                 <p>
                     <input type="checkbox" id="transparent-bg-rect-checkbox" checked>
                     <label for="transparent-bg-rect-checkbox">Transparent Background</label>
@@ -224,11 +180,46 @@
                     <input type="color" id="color-picker" value="#000000">
                     <label for="color-picker">Background Color</label>
                 </p>
+
+                <h3>Highlights (%)</h3>
+                <p>
+                    <input type="number" class="range-value" id="pedigree-highlight-percent-number" min="0" max="200" value="125">
+                    <input type="range" id="pedigree-highlight-percent-range" min="0" max="200" value="125">
+                    <label for="pedigree-highlight-percent-range">Pedigree</label>&nbsp;<a href="#" class="right-shortcut" id="no-pedigree-highlight-percent"><img src="static/png/icons8-cancel-50.png" alt="No Highlights" title="No Highlights" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                </p>
+                <p>
+                    <input type="number" class="range-value" id="border-highlight-percent-number" min="0" max="200" value="125">
+                    <input type="range" id="border-highlight-percent-range" min="0" max="200" value="125">
+                    <label for="border-highlight-percent-range">Borders</label>&nbsp;<a href="#" class="right-shortcut" id="no-border-highlight-percent"><img src="static/png/icons8-cancel-50.png" alt="No Highlights" title="No Highlights" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                </p>
+                <p>
+                    <input type="number" class="range-value" id="link-highlight-percent-number" min="0" max="200" value="100">
+                    <input type="range" id="link-highlight-percent-range" min="0" max="200" value="100">
+                    <label for="link-highlight-percent-range">Links</label>&nbsp;<a href="#" class="right-shortcut" id="no-link-highlight-percent"><img src="static/png/icons8-cancel-50.png" alt="No Highlights" title="No Highlights" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                </p>
+                <p>
+                    <input type="number" class="range-value" id="inlaw-link-highlight-percent-number" min="0" max="200" value="100">
+                    <input type="range" id="inlaw-link-highlight-percent-range" min="0" max="200" value="100">
+                    <label for="inlaw-link-highlight-percent-range">In-Law Links</label>&nbsp;<a href="#" class="right-shortcut" id="no-inlaw-link-highlight-percent"><img src="static/png/icons8-cancel-50.png" alt="No Highlights" title="No Highlights" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                </p>
+
+                <h3>Rounded Corners (%)</h3>
+                <p>
+                    <input type="number" class="range-value" id="node-rounding-number" min="0" max="100" value="10">
+                    <input type="range" id="node-rounding-range" min="0" max="100" value="10">
+                    <label for="node-rounding-range">Boxes</label>
+                </p>
+                <p>
+                    <input type="number" class="range-value" id="link-rounding-number" min="0" max="100" value="10">
+                    <input type="range" id="link-rounding-range" min="0" max="100" value="10">
+                    <label for="link-rounding-range">Links</label>
+                </p>
             </div>
             </div>
         </div>
         <div class="right-column">
             <div class="section-header">
+                <a href="#"><img id="resize-tree-button" src="static/png/icons8-resize-48-v2.png" alt="Fit to Viewer" title="Fit to Viewer"></a>
                 <button id="save-svg-button">Save SVG</button>
                 <button id="save-png-button">Save PNG</button>
                 <h2 id="family-tree-header">Tree&nbsp;Viewer <span id="root-name"></span> <span id="node-count"></span></h2>

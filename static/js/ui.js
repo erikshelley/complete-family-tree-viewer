@@ -16,6 +16,17 @@ function updateOptionsVisibility() {
     }
 }
 
+function zoomToFit() {
+    const svg = family_tree_div.querySelector('svg');
+    if (!svg) return;
+    // select the g element inside the svg, then change the transform to {k: 1, x: 0, y: 0}
+    const g = svg.querySelector('g');
+    if (!g) return;
+    const transform = d3.zoomIdentity.translate(0, 0).scale(1);
+    g.setAttribute('transform', `translate(${transform.x},${transform.y}) scale(${transform.k})`);
+}
+
+
 function scaleBodyForSmallScreens() {
     const minWidth = 450;
     if (window.innerWidth < minWidth) {
@@ -128,12 +139,13 @@ function usePresetStyle(preset_name) {
             }
         }
     }
+    updateRangeThumbs();
     updateFamilyTree();
 }
 
 function resetStyling() {
     for (const element_info of elements) {
-        if (!['generations-up-number', 'generations-down-number', 'max-stack-size-number', 'hide-childless-inlaws-checkbox'].includes(element_info.id)) {
+        if (!['generations-up-number', 'generations-down-number', 'max-stack-size-number', 'show-names-checkbox', 'show-years-checkbox', 'show-places-checkbox', 'hide-childless-inlaws-checkbox'].includes(element_info.id)) {
             const element = document.getElementById(element_info.id);
             if (element_info.type === 'checkbox') element.checked = element_info.default;
             else element.value = element_info.default;

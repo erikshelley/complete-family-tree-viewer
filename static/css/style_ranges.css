@@ -7,7 +7,7 @@ input[type="range"] {
     --range-thumb-text-color: #f0f0f0;
     display: inline-block;
     vertical-align: middle;
-    width: 125px;
+    width: 100px;
     margin: 0px 8px 0px 0px;
     -webkit-appearance: none;
     appearance: none;

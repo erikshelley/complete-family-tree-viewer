@@ -102,6 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
     save_svg_button.addEventListener('click', function() { openSaveModal('svg'); });
     save_png_button.addEventListener('click', function() { openSaveModal('png'); });
     save_modal_cancel_button.addEventListener('click', function() { document.getElementById('save-modal').style.display = 'none'; });
+    resize_tree_button.addEventListener('click', function() { zoomToFit(); requestFamilyTreeUpdate(); });
 
     preset_select.value = 'default';
     scaleBodyForSmallScreens();

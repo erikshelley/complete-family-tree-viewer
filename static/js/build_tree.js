@@ -58,11 +58,16 @@ async function createFamilyTree(selected_individual) {
 }
 
 
-function createUnknownPerson(gender, node) {
-    const person = { id: node.id + gender, name: `Unknown Parent of ${node.individual.name}`, famc: null, fams: [node.parent_family], gender: gender };
+function createUnknownIndividual(gender, family) {
+    //console.log(`Creating unknown ${gender} individual`);
+    //console.log(family);
+    const known_spouse_id = gender === 'M' ? family.wife : family.husb;
+    const known_spouse = window.individuals.find(ind => ind.id === known_spouse_id);
+    //console.log(known_spouse);
+    const person = { id: known_spouse.id + gender, name: `Spouse of ${known_spouse.name}`, famc: null, fams: [family], gender: gender };
     window.individuals.push(person);
-    if (gender === 'M') node.parent_family.husb = person.id;
-    else node.parent_family.wife = person.id;
+    if (gender === 'M') family.husb = person.id;
+    else family.wife = person.id;
     return person;
 }
 
@@ -133,8 +138,8 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
         if (node.parent_family) {
 
             // Add father
-            let father = node.parent_family.husb ? window.individuals.find(ind => ind.id === node.parent_family.husb) : createUnknownPerson('M', node);
-            if (!father) father = createUnknownPerson('M', node);
+            let father = node.parent_family.husb ? window.individuals.find(ind => ind.id === node.parent_family.husb) : createUnknownIndividual('M', node.parent_family);
+            if (!father) father = createUnknownIndividual('M', node.parent_family);
             father.pedigree_family = node.parent_family;
             if (node.type != 'root') {
                 if (!father.pedigree_child_node) father.pedigree_child_node = node;
@@ -144,8 +149,8 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
             node.father_node = buildTree(father, current_gen + 1, anchor_gen + 1, 'ancestor');
 
             // Add mother
-            let mother = node.parent_family.wife ? window.individuals.find(ind => ind.id === node.parent_family.wife) : createUnknownPerson('F', node);
-            if (!mother) mother = createUnknownPerson('F', node);
+            let mother = node.parent_family.wife ? window.individuals.find(ind => ind.id === node.parent_family.wife) : createUnknownIndividual('F', node.parent_family );
+            if (!mother) mother = createUnknownIndividual('F', node.parent_family);
             mother.pedigree_family = node.parent_family;
             if (node.type != 'root') {
                 if (!mother.pedigree_child_node) mother.pedigree_child_node = node;
@@ -183,15 +188,15 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
                 const spouse_family = window.families.find(fam => fam.id === fam_id);
                 if (spouse_family) {
                     const spouse_id = spouse_family.husb === node.individual.id ? spouse_family.wife : spouse_family.husb;
-                    const spouse = window.individuals.find(ind => ind.id === spouse_id);
-                    if (spouse) {
-                        if (node.individual.is_root || node.individual.is_descendant) spouse.is_descendant = true;
-                        spouse.spouse_family = spouse_family;
-                        const spouse_node = buildTree(spouse, current_gen, anchor_gen, 'inlaw');
-                        if (spouse_node) {
-                            spouse_node.spouse_nodes.push(node);
-                            node.spouse_nodes.push(spouse_node);
-                        }
+                    const spouse_gender = spouse_family.husb === node.individual.id ? 'F' : 'M';
+                    let spouse = window.individuals.find(ind => ind.id === spouse_id);
+                    if (!spouse) spouse = createUnknownIndividual(spouse_gender, spouse_family);
+                    if (node.individual.is_root || node.individual.is_descendant) spouse.is_descendant = true;
+                    spouse.spouse_family = spouse_family;
+                    const spouse_node = buildTree(spouse, current_gen, anchor_gen, 'inlaw');
+                    if (spouse_node) {
+                        spouse_node.spouse_nodes.push(node);
+                        node.spouse_nodes.push(spouse_node);
                     }
                 }
             }
