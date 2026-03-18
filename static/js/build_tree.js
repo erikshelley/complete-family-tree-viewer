@@ -12,49 +12,17 @@ async function createFamilyTree(selected_individual) {
     window.auto_box_height = 0;
 
     // Measure buildTree
+    console.log('Building family tree...');
     const tree_data = buildTree(selected_individual);
 
     // Measure positionTree
+    console.log('Positioning family tree...');
     const tree_positions = positionTree(tree_data);
     setHeights(tree_positions);
 
-    // Set SVG dimensions
-    const bounding_box = family_tree_div.getBoundingClientRect();
-    let svg_width = bounding_box.width - 24; // horizontal padding in div
-    let svg_height = bounding_box.height - 40; // bottom padding in div
-
-    // Initial SVG
-    const svg = d3.select('#family-tree-div')
-        .append('svg')
-        .attr('width', svg_width)
-        .attr('height', svg_height);
-
-    const [max_x, max_y, node_count] = getMaximumDimensions(tree_positions);
-    const scale_x = max_x / svg_width;
-    const scale_y = max_y / svg_height;
-    const max_scale = Math.max(scale_x, scale_y);
-    if (scale_x < scale_y) {
-        svg_width *= scale_x / scale_y;
-        svg.attr('width', svg_width);
-    }
-    if (scale_x > scale_y) {
-        svg_height *= scale_y / scale_x;
-        svg.attr('height', svg_height);
-    }
-    svg.attr('viewBox', `0 0 ${max_scale * svg_width} ${max_scale * svg_height}`);
-    svg.call(d3.zoom().scaleExtent([1, 2 * max_scale]).on("zoom", zoomed));
-    const svg_node = svg.append("g");
-    function zoomed({transform}) { svg_node.attr("transform", transform); }
-
     // Measure drawTree
-    await drawTree(svg_node, max_x, max_y, tree_positions);
-
-    const root_name_span = document.getElementById('root-name');
-    root_name_span.innerHTML = selected_individual.name.replace(/ /g, '&nbsp;');
-
-    const node_count_span = document.getElementById('node-count');
-    if (node_count === "1") node_count_span.innerHTML = `${node_count}&nbsp;Person&nbsp;Shown`;
-    else node_count_span.innerHTML = `${node_count}&nbsp;People&nbsp;Shown`;
+    console.log('Drawing family tree...');
+    await drawTree(tree_positions);
 }
 
 

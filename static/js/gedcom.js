@@ -1,4 +1,15 @@
 // GEDCOM parsing and validation functionality
+// Ensure country and state code mapping is available
+if (typeof replaceCountryNamesWithAlpha3 === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'static/js/country_codes.js';
+    document.head.appendChild(script);
+}
+if (typeof replaceUSStateNamesWithAbbr === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'static/js/us_states.js';
+    document.head.appendChild(script);
+}
 window.gedcom_content = ''; // Store raw GEDCOM content globally
 window.individuals = []; // Store parsed individuals globally
 window.families = []; // Store parsed families globally
@@ -102,43 +113,15 @@ function parseGedcomData(content) {
             // Place for current event
             const place_parts = parts.slice(2);
             let place = place_parts.join(' ');
-            // Replace 'United States of America' with 'USA' and remove 'County'
-            place = place.replace(/United States of America/g, 'USA');
+            // Remove 'County' and extra spaces
             place = place.replace(/\bCounty\b/g, '').replace(/\s{2,}/g, ' ').trim();
-
-            // US state name to abbreviation map
-            const stateMap = {
-                'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA', 'Colorado': 'CO',
-                'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA', 'Hawaii': 'HI', 'Idaho': 'ID',
-                'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA', 'Kansas': 'KS', 'Kentucky': 'KY', 'Louisiana': 'LA',
-                'Maine': 'ME', 'Maryland': 'MD', 'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN',
-                'Mississippi': 'MS', 'Missouri': 'MO', 'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV',
-                'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY', 'North Carolina': 'NC',
-                'North Dakota': 'ND', 'Ohio': 'OH', 'Oklahoma': 'OK', 'Oregon': 'OR', 'Pennsylvania': 'PA',
-                'Rhode Island': 'RI', 'South Carolina': 'SC', 'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX',
-                'Utah': 'UT', 'Vermont': 'VT', 'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV',
-                'Wisconsin': 'WI', 'Wyoming': 'WY'
-            };
-            // Replace all state names with abbreviations, anywhere in the string
-            let germanyToDE = false;
-            // Mark if 'Germany' is present before replacement
-            if (/\bGermany\b/i.test(place)) germanyToDE = true;
-            for (const [state, abbr] of Object.entries(stateMap)) {
-                // Replace as a whole word, case-insensitive
-                const regex = new RegExp(`\\b${state}\\b`, 'gi');
-                place = place.replace(regex, abbr);
+            // Replace US state names with abbreviations
+            if (typeof replaceUSStateNamesWithAbbr === 'function') {
+                place = replaceUSStateNamesWithAbbr(place);
             }
-            // Replace 'Germany' with 'DE' as a whole word
-            place = place.replace(/\bGermany\b/gi, 'DE');
-            // If place ends with a US state abbreviation, append ', USA' if not already present
-            const stateAbbrs = Object.values(stateMap);
-            const placeParts = place.split(',').map(s => s.trim());
-            const last = placeParts[placeParts.length - 1];
-            // Do not append ', USA' if last is 'DE' and it was formerly Germany
-            if (stateAbbrs.includes(last) && !/USA$/.test(place)) {
-                if (!(last === 'DE' && germanyToDE)) {
-                    place = place + ', USA';
-                }
+            // Replace country names with alpha-3 codes
+            if (typeof replaceCountryNamesWithAlpha3 === 'function') {
+                place = replaceCountryNamesWithAlpha3(place);
             }
             if (current_event === 'BIRT' && current_individual) {
                 current_individual.birth_place = place;

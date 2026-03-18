@@ -301,6 +301,7 @@ function updateRangeThumbs() {
 }
 
 function requestFamilyTreeUpdate() {
+    console.log('Family tree update requested...');
     if (!update_in_progress) {
         update_in_progress = true;
         setMaxLinksEnabled(false);
@@ -323,6 +324,7 @@ async function updateFamilyTree() {
 
         if (selected_id && (selected_id !== 'Select an individual...')) {
             const selected_individual = window.individuals.find(ind => ind.id === selected_id);
+            console.log('Updating family tree for', selected_individual.name);
             if (selected_individual) {
                 window.selected_individual = selected_individual;
                 await createFamilyTree(selected_individual);

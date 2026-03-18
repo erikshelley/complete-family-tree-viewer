@@ -22,7 +22,7 @@ Here are a few examples trees as seen in the **Complete Family Tree Viewer**.
 | John&nbsp;Fitzgerald&nbsp;Kennedy | 145 People | ![John Fitzgerald Kennedy](static/png/John-Fitzgerald-Kennedy.png) |
 | Bart&nbsp;Simpson                 | 10 People  | ![Bart Simpson](static/png/Bart-Simpson.png) |
 | Johann&nbsp;Sebastian&nbsp;Bach   | 32 People  | ![Johann Sebastian Bach](static/png/Johann-Sebastian-Bach.png) |
-| Me                              | 4,123 People | ![My Family Tree](static/svg/Erik-Michael-Shelley.svg) |
+| Me                              | 4,798 People | ![My Family Tree](static/svg/Erik-Michael-Shelley.svg) |
 
 ### Data Privacy
 When you use this program, your genealogy information is not uploaded anywhere. All processing is down in your browser. Feel free to review the code to confirm. In fact, after loading the page (and before selecting your Gedcom file), you can disconnect your computer from the internet and the application will continue to work.
@@ -35,6 +35,8 @@ Two 3rd party Javascript libraries are used by this application.
 ### Questions, Issues, Feature Requests
 Feel free to ask questions, report issues, or request new features right [here on Github](https://github.com/erikshelley/complete-family-tree-viewer/issues)! Review the existing issues first to avoid creating a duplicate.
 
+## Installation Instructions
+Either download and extract the zip file or clone the respository, then open index.html in a browser.
 
 ## Design
 The table below describes how various relationships are depicted in the family trees.
@@ -79,7 +81,7 @@ The table below describes two key design concepts that make it possible to displ
 | Option | Description |
 | ------ | ----------- |
 | Reset | Click this button to reset all options in the Tree Styling section to their default value. |
-| Presets | Select a preset to quickly change a number of style settings. [Default, Orbs, Sharp, Dark, Light, Detailed] |
+| Presets | Select a preset to quickly change a number of the style settings |
 
 ### Size
 | Option | Description |
@@ -96,6 +98,7 @@ The table below describes two key design concepts that make it possible to displ
 | Boxes X | Change this value to control the horizontal space between nodes. |
 | Boxes Y | Change this value to control the vertical space between nodes. |
 | Levels Y | Change this value to control the vertical space between levels. |
+| Tree Padding | Change this value to control the padding around the tree. |
 
 ### Color
 | Option | Description |

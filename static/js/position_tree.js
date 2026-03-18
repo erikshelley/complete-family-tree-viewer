@@ -7,9 +7,7 @@ window.max_stack_size = 1;
 window.max_stack_actual = 1;
 window.auto_box_width = 0;
 window.auto_box_height = 0;
-
-window.padding = 20;
-
+window.tree_padding = 160;
 
 function positionTree(node, rows = []) {
     if (!node || node.is_positioned) return rows;
@@ -394,7 +392,7 @@ function positionChildren(node, rows, drop_sub_level) {
 function positionNode(node, rows) {
     const length = rows[node.level][node.sub_level].length;
     // Start at the left most position of the level or to the right of the last node in this sub-level
-    if (length === 0) node.x = window.padding;
+    if (length === 0) node.x = window.tree_padding;
     else {
         node.x = rows[node.level][node.sub_level][length - 1].x + window.box_width + window.h_spacing;
         node.left_neighbor = rows[node.level][node.sub_level][length - 1];
@@ -474,8 +472,8 @@ function getMaximumDimensions(rows) {
     rows.forEach(level => {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
-                max_x = Math.max(max_x, node.x + window.box_width + window.padding);
-                max_y = Math.max(max_y, node.y + window.box_height + window.padding);
+                max_x = Math.max(max_x, node.x + window.box_width + window.tree_padding);
+                max_y = Math.max(max_y, node.y + window.box_height + window.tree_padding);
                 node_count += 1;
             });
         });
@@ -485,9 +483,9 @@ function getMaximumDimensions(rows) {
 
 
 function setHeights(rows) {
-    let total_height = window.padding * 2;
+    let total_height = window.tree_padding * 2;
     window.level_heights.forEach(height => { total_height += height * (window.box_height + window.v_spacing) + window.level_spacing; });
-    let y = total_height - window.box_height - window.v_spacing - window.padding; // Start from the bottom of the tree
+    let y = total_height - window.box_height - window.v_spacing - window.tree_padding; // Start from the bottom of the tree
     rows.forEach((level, index) => {
         y -= window.level_heights[index] * (window.box_height + window.v_spacing) + window.level_spacing;
         let sub_y = y;

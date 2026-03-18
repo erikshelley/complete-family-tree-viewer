@@ -1,13 +1,55 @@
 // Tree drawing and visualization functionality using D3.js
-async function drawTree(svg_node, tree_width, tree_height, rows) {
+async function drawTree(rows) {
+    // Set SVG dimensions
+    const bounding_box = family_tree_div.getBoundingClientRect();
+    let svg_width = bounding_box.width - 24; // horizontal padding in div
+    let svg_height = bounding_box.height - 40; // bottom padding in div
+
+    // Initial SVG
+    const svg = d3.select('#family-tree-div')
+        .append('svg')
+        .attr('width', svg_width)
+        .attr('height', svg_height);
+
+    const [max_x, max_y, node_count] = getMaximumDimensions(rows);
+    const scale_x = max_x / svg_width;
+    const scale_y = max_y / svg_height;
+    const max_scale = Math.max(scale_x, scale_y);
+    if (scale_x < scale_y) {
+        svg_width *= scale_x / scale_y;
+        svg.attr('width', svg_width);
+    }
+    if (scale_x > scale_y) {
+        svg_height *= scale_y / scale_x;
+        svg.attr('height', svg_height);
+    }
+    svg.attr('viewBox', `0 0 ${max_scale * svg_width} ${max_scale * svg_height}`);
+    svg.call(d3.zoom().scaleExtent([1, 2 * max_scale]).on("zoom", zoomed));
+    const svg_node = svg.append("g");
+    function zoomed({transform}) { svg_node.attr("transform", transform); }
+
+    // Draw background rectangle
     svg_node.append('rect')
-        .attr('width', tree_width)
-        .attr('height', tree_height)
+        .attr('width', max_x)
+        .attr('height', max_y)
         .attr('fill', window.transparent_bg_rect ? "rgba(0,0,0,0)" : window.tree_color || "#000")
         .attr('stroke', "000")
         .attr('stroke-width', 0);
 
-    // Handle non-bold links
+    drawNonBoldLinks(svg_node, rows);
+    drawBoldLinks(svg_node, rows);
+    drawNodes(svg_node, rows);
+
+    const root_name_span = document.getElementById('root-name');
+    root_name_span.innerHTML = selected_individual.name.replace(/ /g, '&nbsp;');
+
+    const node_count_span = document.getElementById('node-count');
+    if (node_count === "1") node_count_span.innerHTML = `${node_count}&nbsp;Person&nbsp;Shown`;
+    else node_count_span.innerHTML = `${node_count}&nbsp;People&nbsp;Shown`;
+}
+
+
+function drawNonBoldLinks(svg_node, rows) {
     rows.forEach(level => {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
@@ -65,7 +107,10 @@ async function drawTree(svg_node, tree_width, tree_height, rows) {
         });
     });
 
-    // Handle bold links
+}
+
+
+function drawBoldLinks(svg_node, rows) {
     rows.forEach(level => {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
@@ -119,14 +164,17 @@ async function drawTree(svg_node, tree_width, tree_height, rows) {
         });
     });
 
+}
+    
+async function drawNodes(svg_node, rows) {
     // Draw nodes on top of links
-    let node_count = 0;
+    let count = 0;
     for (const level of rows) {
         for (const sub_level of level ? level : []) {
             for (const node of sub_level) {
                 drawNode(svg_node, node);
-                node_count++;
-                if (node_count % 100 == 0) await scheduler.yield();
+                count++;
+                if (count % 100 == 0) await scheduler.yield();
             };
         };
     };

@@ -72,6 +72,7 @@ window.node_border_width; window.default_node_border_width;
 window.border_highlight_percent; window.default_border_highlight_percent;
 
 window.level_spacing; window.default_level_spacing;
+window.tree_padding; window.default_tree_padding;
 
 window.link_width; window.default_link_width;
 window.link_rounding; window.default_link_rounding;
@@ -91,70 +92,116 @@ window.tree_color = color_picker.value;
 
 const style_presets = {
     'default': {
-        'node-width': 150, 'node-height': 75, 'h-spacing': 37, 'v-spacing': 66, 'node-rounding': 25, 'node-brightness': 25,
+        // Content
         'show-names': true, 'show-years': true, 'show-places': false,
-        'node-border-width': 3, 'border-highlight-percent': 125,
-        'level-spacing': 132,
-        'link-width': 6, 'link-rounding': 50, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
-        'hue': 180, 'saturation': 33, 
-        'pedigree-highlight-percent': 175,
-        'text-size': 16, 'text-brightness': 90, 'text-shadow': true,
-        'transparent-bg-rect': true, 'background-color': '#000000'
+        // Size
+        'node-width': 150, 'node-height': 75, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
+        // Spacing
+        'h-spacing': 37, 'v-spacing': 66, 'level-spacing': 132, 'tree-padding': 150,
+        // Color
+        'hue': 180, 'saturation': 33, 'node-brightness': 25, 'text-brightness': 90, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#171717',
+        // Highlights
+        'pedigree-highlight-percent': 175, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
+        // Rounding
+        'node-rounding': 25, 'link-rounding': 50,
+    },
+    'print': {
+        // Content
+        'show-names': true, 'show-years': true, 'show-places': false,
+        // Size
+        'node-width': 200, 'node-height': 100, 'node-border-width': 5, 'link-width': 5, 'text-size': 24,
+        // Spacing
+        'h-spacing': 25, 'v-spacing': 100, 'level-spacing': 100, 'tree-padding': 150,
+        // Color
+        'hue': 300, 'saturation': 25, 'node-brightness': 75, 'text-brightness': 100, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#ffffff',
+        // Highlights
+        'pedigree-highlight-percent': 75, 'border-highlight-percent': 90, 'link-highlight-percent': 90, 'inlaw-link-highlight-percent': 75,
+        // Rounding
+        'node-rounding': 25, 'link-rounding': 50,
+    },
+    'share': {
+        // Content
+        'show-names': true, 'show-years': false, 'show-places': false,
+        // Size
+        'node-width': 200, 'node-height': 100, 'node-border-width': 5, 'link-width': 5, 'text-size': 24,
+        // Spacing
+        'h-spacing': 25, 'v-spacing': 100, 'level-spacing': 100, 'tree-padding': 150,
+        // Color
+        'hue': 300, 'saturation': 33, 'node-brightness': 33, 'text-brightness': 90, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#171717',
+        // Highlights
+        'pedigree-highlight-percent': 100, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
+        // Rounding
+        'node-rounding': 25, 'link-rounding': 50,
     },
     'orbs': {
-        'node-width': 150, 'node-height': 150, 'h-spacing': 50, 'v-spacing': 50, 'node-rounding': 100, 'node-brightness': 25,
+        // Content
         'show-names': true, 'show-years': false, 'show-places': false,
-        'node-border-width': 9, 'border-highlight-percent': 125,
-        'level-spacing': 50,
-        'link-width': 9, 'link-rounding': 50, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
-        'hue': 180, 'saturation': 33, 
-        'pedigree-highlight-percent': 175,
-        'text-size': 16, 'text-brightness': 85, 'text-shadow': true,
-        'transparent-bg-rect': true, 'background-color': '#000000'
+        // Size
+        'node-width': 150, 'node-height': 150, 'node-border-width': 9, 'link-width': 9, 'text-size': 16,
+        // Spacing
+        'h-spacing': 25, 'v-spacing': 100, 'level-spacing': 100, 'tree-padding': 150,
+        // Color
+        'hue': 180, 'saturation': 33, 'node-brightness': 25, 'text-brightness': 85, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#171717',
+        // Highlights
+        'pedigree-highlight-percent': 175, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
+        // Rounding
+        'node-rounding': 100, 'link-rounding': 50,
     },
     'sharp': {
-        'node-width': 150, 'node-height': 75, 'h-spacing': 37, 'v-spacing': 66, 'node-rounding': 0, 'node-brightness': 33,
+        // Content
         'show-names': true, 'show-years': true, 'show-places': false,
-        'node-border-width': 3, 'border-highlight-percent': 125,
-        'level-spacing': 132,
-        'link-width': 6, 'link-rounding': 0, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
-        'hue': 180, 'saturation': 33, 
-        'pedigree-highlight-percent': 150,
-        'text-size': 16, 'text-brightness': 90, 'text-shadow': true,
-        'transparent-bg-rect': true, 'background-color': '#000000'
+        // Size
+        'node-width': 150, 'node-height': 75, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
+        // Spacing
+        'h-spacing': 37, 'v-spacing': 66, 'level-spacing': 132, 'tree-padding': 150,
+        // Color
+        'hue': 180, 'saturation': 33, 'node-brightness': 33, 'text-brightness': 90, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#171717',
+        // Highlights
+        'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
+        // Rounding
+        'node-rounding': 0, 'link-rounding': 0,
     },
     'dark': {
-        'node-width': 150, 'node-height': 75, 'h-spacing': 37, 'v-spacing': 66, 'node-rounding': 25, 'node-brightness': 20,
+        // Content
         'show-names': true, 'show-years': true, 'show-places': false,
-        'node-border-width': 3, 'border-highlight-percent': 125,
-        'level-spacing': 132,
-        'link-width': 6, 'link-rounding': 50, 'link-highlight-percent': 100, 'inlaw-link-highlight-percent': 150,
-        'hue': 180, 'saturation': 33, 
-        'pedigree-highlight-percent': 175,
-        'text-size': 16, 'text-brightness': 75, 'text-shadow': true,
-        'transparent-bg-rect': false, 'background-color': '#000000'
+        // Size
+        'node-width': 150, 'node-height': 75, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
+        // Spacing
+        'h-spacing': 37, 'v-spacing': 66, 'level-spacing': 132, 'tree-padding': 150,
+        // Color
+        'hue': 180, 'saturation': 33, 'node-brightness': 20, 'text-brightness': 75, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
+        // Highlights
+        'pedigree-highlight-percent': 175, 'border-highlight-percent': 125, 'link-highlight-percent': 100, 'inlaw-link-highlight-percent': 150,
+        // Rounding
+        'node-rounding': 25, 'link-rounding': 50,
     },
     'light': {
-        'node-width': 150, 'node-height': 75, 'h-spacing': 37, 'v-spacing': 66, 'node-rounding': 25, 'node-brightness': 85,
+        // Content
         'show-names': true, 'show-years': true, 'show-places': false,
-        'node-border-width': 3, 'border-highlight-percent': 90,
-        'level-spacing': 132,
-        'link-width': 6, 'link-rounding': 50, 'link-highlight-percent': 100, 'inlaw-link-highlight-percent': 90,
-        'hue': 180, 'saturation': 33, 
-        'pedigree-highlight-percent': 85,
-        'text-size': 16, 'text-brightness': 40, 'text-shadow': false,
-        'transparent-bg-rect': false, 'background-color': '#ffffff'
+        // Size
+        'node-width': 150, 'node-height': 75, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
+        // Spacing
+        'h-spacing': 37, 'v-spacing': 66, 'level-spacing': 132, 'tree-padding': 150,
+        // Color
+        'hue': 180, 'saturation': 33, 'node-brightness': 85, 'text-brightness': 40, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#ffffff',
+        // Highlights
+        'pedigree-highlight-percent': 85, 'border-highlight-percent': 90, 'link-highlight-percent': 100, 'inlaw-link-highlight-percent': 90,
+        // Rounding
+        'node-rounding': 25, 'link-rounding': 50,
     },
     'detailed': {
-        'node-width': 300, 'node-height': 100, 'h-spacing': 37, 'v-spacing': 100, 'node-rounding': 50, 'node-brightness': 33,
+        // Content
         'show-names': true, 'show-years': true, 'show-places': true,
-        'node-border-width': 5, 'border-highlight-percent': 125,
-        'level-spacing': 300,
-        'link-width': 10, 'link-rounding': 50, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
-        'hue': 180, 'saturation': 33, 
-        'pedigree-highlight-percent': 150,
-        'text-size': 16, 'text-brightness': 90, 'text-shadow': true,
-        'transparent-bg-rect': false, 'background-color': '#202020'
+        // Size
+        'node-width': 300, 'node-height': 100, 'node-border-width': 5, 'link-width': 10, 'text-size': 16,
+        // Spacing
+        'h-spacing': 37, 'v-spacing': 100, 'level-spacing': 300, 'tree-padding': 150,
+        // Color
+        'hue': 180, 'saturation': 33, 'node-brightness': 33, 'text-brightness': 90, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#171717',
+        // Highlights
+        'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
+        // Rounding
+        'node-rounding': 50, 'link-rounding': 50,
     },
 }
 
@@ -192,6 +239,8 @@ const elements = [
 
     { id: 'level-spacing-number',                type: 'number',   default: 132,   min: 0, max: 400, variable: 'level_spacing' },
     { id: 'level-spacing-range',                 type: 'range',    default: 132,   min: 0, max: 400, variable: 'level_spacing' },
+    { id: 'tree-padding-number',                 type: 'number',   default: 150,   min: 0, max: 600, variable: 'tree_padding' },
+    { id: 'tree-padding-range',                  type: 'range',    default: 150,   min: 0, max: 600, variable: 'tree_padding' },
 
     { id: 'link-width-number',                   type: 'number',   default: 6,     min: 1, max: 20, variable: 'link_width' },
     { id: 'link-width-range',                    type: 'range',    default: 6,     min: 1, max: 20, variable: 'link_width' },
@@ -217,7 +266,7 @@ const elements = [
     { id: 'text-brightness-range',               type: 'range',    default: 90,    min: 0, max: 100, variable: 'text_brightness' },
     { id: 'text-shadow-checkbox',                type: 'checkbox', default: true,  variable: 'text_shadow' },
 
-    { id: 'transparent-bg-rect-checkbox',        type: 'checkbox', default: true,  variable: 'transparent_bg_rect' },
+    { id: 'transparent-bg-rect-checkbox',        type: 'checkbox', default: false, variable: 'transparent_bg_rect' },
 ];
 
 const none_links = [
