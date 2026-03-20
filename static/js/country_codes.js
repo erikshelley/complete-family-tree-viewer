@@ -198,6 +198,10 @@ const countryNameToAlpha3 = {
 };
 
 function replaceCountryNamesWithAlpha3(place) {
+    // Replace "United States of Amerarca" first to avoid partial replacement
+    const usaRegex = /\bUnited States of America\b/gi;
+    place = place.replace(usaRegex, 'USA');
+
     // Replace country names with alpha-3 codes if found as a whole word (case-insensitive)
     for (const [country, code] of Object.entries(countryNameToAlpha3)) {
         const regex = new RegExp(`\\b${country}\\b`, 'gi');

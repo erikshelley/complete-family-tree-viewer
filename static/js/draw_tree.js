@@ -1,5 +1,21 @@
 // Tree drawing and visualization functionality using D3.js
 async function drawTree(rows) {
+    // Track earliest birth year of displayed nodes
+    let earliest_birth = null;
+    for (const level of rows) {
+        for (const sub_level of level ? level : []) {
+            for (const node of sub_level) {
+                const year = parseInt(node.individual && node.individual.birth, 10);
+                if (year && (!earliest_birth || year < earliest_birth)) {
+                    earliest_birth = year;
+                }
+            }
+        }
+    }
+    window.earliest_birth_year = earliest_birth;
+    window.min_text_size = window.text_size;
+    window.max_text_size = 6;
+
     // Set SVG dimensions
     const bounding_box = family_tree_div.getBoundingClientRect();
     let svg_width = bounding_box.width - 24; // horizontal padding in div
@@ -38,14 +54,25 @@ async function drawTree(rows) {
 
     drawNonBoldLinks(svg_node, rows);
     drawBoldLinks(svg_node, rows);
+    drawCircles(svg_node, rows);
     drawNodes(svg_node, rows);
 
     const root_name_span = document.getElementById('root-name');
     root_name_span.innerHTML = selected_individual.name.replace(/ /g, '&nbsp;');
 
-    const node_count_span = document.getElementById('node-count');
-    if (node_count === "1") node_count_span.innerHTML = `${node_count}&nbsp;Person&nbsp;Shown`;
-    else node_count_span.innerHTML = `${node_count}&nbsp;People&nbsp;Shown`;
+    const status_bar_div = document.getElementById('status-bar-div');
+    let people_shown;
+    if (node_count === "1") people_shown = `${node_count}&nbsp;Person&nbsp;Shown`;
+    else people_shown = `${node_count} People`;
+    let spacer = '&nbsp;&nbsp;&bull;&nbsp;&nbsp;';
+    let tree_dimensions = `${spacer}${Math.ceil(max_x).toLocaleString()} x ${Math.ceil(max_y).toLocaleString()}`;
+    //let megapixels = ((Math.ceil(max_x) * Math.ceil(max_y)) / 1_000_000).toFixed(2);
+    //megapixels = `${Number(megapixels).toLocaleString()} MP`
+    let print_dimensions = `${(Math.ceil(max_x) / 300).toFixed(1)}" x ${(Math.ceil(max_y) / 300).toFixed(1)}" @ 300 DPI`;
+    let min_text_size = `${spacer}Min Font: ${window.min_text_size}px`;
+    let max_text_size = `${spacer}Max Font: ${window.max_text_size}px`;
+    let earliest_birth_year = window.earliest_birth_year ? `${spacer}Earliest Birth: ${window.earliest_birth_year}` : '';
+    status_bar_div.innerHTML = `${people_shown}${tree_dimensions}${spacer}${print_dimensions}${min_text_size}${max_text_size}${earliest_birth_year}`;
 }
 
 
@@ -59,10 +86,18 @@ function drawNonBoldLinks(svg_node, rows) {
 
                 // Draw link between relative and spouse
                 if (node.type === 'relative' || node.type === 'root') {
-                    node.spouse_nodes.forEach(spouse_node => {
-                        drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
-                                                  {x: spouse_node.x + window.box_width / 2, y: spouse_node.y}, 'inlaw');
-                    });
+                    if (window.vertical_inlaws) {
+                        node.spouse_nodes.forEach(spouse_node => {
+                            drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
+                                                      {x: spouse_node.x + window.box_width / 2, y: spouse_node.y}, 'inlaw');
+                        });
+                    }
+                    else {
+                        node.spouse_nodes.forEach(spouse_node => {
+                            drawLink(svg_node, color, {x: node.x + window.box_width / 2,         y: node.y}, 
+                                                      {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height}, 'inlaw-center');
+                        });
+                    }
                 }
 
                 // Draw link between ancestor and spouse
@@ -80,10 +115,23 @@ function drawNonBoldLinks(svg_node, rows) {
 
                 // Draw link between in-law and child at top of stack
                 if (node.type === 'inlaw') {
-                    node.children_nodes.filter(child_node => !(child_node.stacked && !child_node.stack_top)).forEach(child_node => {
-                        drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
-                                                  {x: child_node.x + window.box_width / 2, y: child_node.y});
-                    });
+                    if (window.vertical_inlaws) {
+                        node.children_nodes.filter(child_node => !(child_node.stacked && !child_node.stack_top)).forEach(child_node => {
+                            drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
+                                                      {x: child_node.x + window.box_width / 2, y: child_node.y});
+                        });
+                    }
+                    else {
+                        let left = -window.h_spacing / 2;
+                        let right = window.box_width + window.h_spacing / 2;
+                        let x_offset = (node.individual.gender === 'M') ? right : left;
+                        if (node.spouse_nodes[0].type === 'ancestor') x_offset = (x_offset === right) ? left : right;
+                        let radius = window.link_width * 1.5;
+                        node.children_nodes.filter(child_node => !(child_node.stacked && !child_node.stack_top)).forEach(child_node => {
+                            drawLink(svg_node, color, {x: node.x + x_offset, y: node.y + window.box_height / 2 + radius}, 
+                                                      {x: child_node.x + window.box_width / 2, y: child_node.y});
+                        });
+                    }
                 }
 
                 // Draw link between ancestor and child at top of stack
@@ -106,7 +154,6 @@ function drawNonBoldLinks(svg_node, rows) {
             });
         });
     });
-
 }
 
 
@@ -121,10 +168,16 @@ function drawBoldLinks(svg_node, rows) {
                     let color = d3.hcl(hue, chroma, luminance * (window.pedigree_highlight_percent / 100) * (window.link_highlight_percent / 100));
 
                     // Draw links from father and mother to center point
-                    drawLink(svg_node, color, {x: node.x + window.box_width / 2,                    y: node.y}, 
-                                              {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 'center');
-                    drawLink(svg_node, color, {x: node.x + 3 * window.box_width / 2 + window.h_spacing, y: node.y}, 
-                                              {x: node.x + window.box_width + window.h_spacing / 2,     y: node.y + window.box_height}, 'center');
+                    if (window.vertical_inlaws) {
+                        drawLink(svg_node, color, {x: node.x + window.box_width / 2,                    y: node.y}, 
+                                                  {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 'center');
+                        drawLink(svg_node, color, {x: node.x + 3 * window.box_width / 2 + window.h_spacing, y: node.y}, 
+                                                  {x: node.x + window.box_width + window.h_spacing / 2,     y: node.y + window.box_height}, 'center');
+                    }
+                    else {
+                        drawLink(svg_node, color, {x: node.x + window.box_width / 2,                       y: node.y}, 
+                                                  {x: node.x + 1.5 * window.box_width + window.h_spacing,  y: node.y + window.box_height}, 'center');
+                    }
 
                     if (node.children_nodes.length > 0) {
                         [hue, chroma, luminance] = getNodeHCL(node.children_nodes[0], false);
@@ -132,10 +185,18 @@ function drawBoldLinks(svg_node, rows) {
                     }
 
                     // Draw link between ancestor and root child
-                    node.children_nodes.filter(child_node => child_node.individual.is_root).forEach(child_node => {
-                        drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
-                                                  {x: child_node.x + window.box_width / 2,              y: child_node.y});
-                    });
+                    if (window.vertical_inlaws) {
+                        node.children_nodes.filter(child_node => child_node.individual.is_root).forEach(child_node => {
+                            drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
+                                                      {x: child_node.x + window.box_width / 2,              y: child_node.y});
+                        });
+                    }
+                    else {
+                        node.children_nodes.filter(child_node => child_node.individual.is_root).forEach(child_node => {
+                            drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height / 2}, 
+                                                      {x: child_node.x + window.box_width / 2,              y: child_node.y});
+                        });
+                    }
 
                     if (node.individual.pedigree_child_node) {
                         [hue, chroma, luminance] = getNodeHCL(node.individual.pedigree_child_node, false);
@@ -144,8 +205,14 @@ function drawBoldLinks(svg_node, rows) {
 
                     // Draw link between ancestor and pedigree child
                     if (node.individual.pedigree_child_node) {
-                        drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2,             y: node.y + window.box_height}, 
-                                                  {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y});
+                        if (window.vertical_inlaws) {
+                            drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2,             y: node.y + window.box_height}, 
+                                                      {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y});
+                        }
+                        else {
+                            drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2,             y: node.y + window.box_height / 2}, 
+                                                      {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y});
+                        }
                     }
 
                     if (node.individual.duplicate_pedigree_child_node) {
@@ -163,7 +230,33 @@ function drawBoldLinks(svg_node, rows) {
             });
         });
     });
+}
 
+
+function drawCircles(svg_node, rows) {
+    rows.forEach(level => {
+        level.forEach(sub_level => {
+            sub_level.forEach(node => {
+                if (!window.vertical_inlaws) {
+                    if ((node.type === 'inlaw') && (node.children_nodes.length > 0)) {
+                        [hue, chroma, luminance] = getNodeHCL(node.children_nodes[0], false);
+                        color = d3.hcl(hue, chroma, luminance * (window.link_highlight_percent / 100) * (node.individual.is_descendant || node.individual.is_root ? window.pedigree_highlight_percent / 100 : 1));
+                        let left = -window.h_spacing / 2;
+                        let right = window.box_width + window.h_spacing / 2;
+                        let x_offset = (node.individual.gender === 'M') ? right : left;
+                        if (node.spouse_nodes[0].type === 'ancestor') x_offset = (x_offset === right) ? left : right;
+                        let radius = window.link_width * 1.5;
+                        drawCircle(svg_node, color, {x: node.x + x_offset, y: node.y + window.box_height / 2}, radius);
+                    }
+                    if ((node.type === 'ancestor') && (node.individual.gender == 'M')) {
+                        [hue, chroma, luminance] = getNodeHCL(node.pedigree_child_node ? node.pedigree_child_node : window.root_node, false);
+                        color = d3.hcl(hue, chroma, luminance * (window.pedigree_highlight_percent / 100) * (window.link_highlight_percent / 100));
+                        drawCircle(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height / 2}, window.link_width * 1.5);
+                    }
+                }
+            });
+        });
+    });
 }
     
 async function drawNodes(svg_node, rows) {
@@ -403,6 +496,9 @@ function drawText(g, node) {
             new_main = Math.max(min_font_size, Math.floor(main_font_size * scale));
             new_secondary = Math.floor(new_main * 0.75);
             renderTspans(new_main, new_secondary);
+
+            window.min_text_size = Math.min(window.min_text_size, new_main);
+            window.max_text_size = Math.max(window.max_text_size, new_main);
         }
         if (bbox.height > max_height) {
             let scale = max_height / bbox.height;
@@ -414,9 +510,14 @@ function drawText(g, node) {
             new_main = Math.max(min_font_size, Math.floor(main_font_size * scale));
             new_secondary = Math.floor(new_main * 0.75);
             renderTspans(new_main, new_secondary);
+
+            window.min_text_size = Math.min(window.min_text_size, new_main);
+            window.max_text_size = Math.max(window.max_text_size, new_main);
         }
+        if (bbox.width <= max_width && bbox.height <= max_height) window.max_text_size = Math.max(window.max_text_size, main_font_size);
         window.auto_box_width = Math.max(window.auto_box_width, window.box_width * (bbox.width / max_width), 20);
         window.auto_box_height = Math.max(window.auto_box_height, bbox.height, 20);
+
         // Vertically center text in node
         const line_height = bbox.height / text_lines;
         const text_y = line_height / 1.25 + (window.box_height - bbox.height) / 2;
@@ -465,6 +566,15 @@ function drawLink(svg_node, color, point1, point2, special) {
         .attr("stroke-width", stroke_width)
         .attr("stroke-dasharray", special === 'duplicate' ? `${stroke_width},${stroke_width}` : special && special.includes('inlaw') ? `${stroke_width},${stroke_width}` : "none");
 }
+
+
+function drawCircle(svg_node, color, center, radius) {
+    svg_node.append("circle")
+        .attr("cx", center.x)
+        .attr("cy", center.y)
+        .attr("r", radius)
+        .attr("fill", color);
+} 
 
 
 function getNodeHCL(node, inlaw_desaturated = true) {

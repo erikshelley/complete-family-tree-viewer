@@ -1,4 +1,5 @@
 async function createFamilyTree(selected_individual) {
+    console.log('Creating family tree for individual:', selected_individual.name);
     // Clear previous content
     const family_tree_div = document.getElementById('family-tree-div');
     family_tree_div.innerHTML = '';
@@ -23,6 +24,48 @@ async function createFamilyTree(selected_individual) {
     // Measure drawTree
     console.log('Drawing family tree...');
     await drawTree(tree_positions);
+}
+
+
+function calculateMaxGenUp(individual, current_gen = 0, max_gen = 0) {
+    if (!individual) return max_gen;
+    if (individual.famc) {
+        const parent_family = window.families.find(fam => fam.id === individual.famc);
+        const father = parent_family.husb ? window.individuals.find(ind => ind.id === parent_family.husb) : createUnknownIndividual('M', parent_family);
+        max_gen = calculateMaxGenUp(father, current_gen + 1, max_gen);
+        const mother = parent_family.wife ? window.individuals.find(ind => ind.id === parent_family.wife) : createUnknownIndividual('F', parent_family);
+        max_gen = calculateMaxGenUp(mother, current_gen + 1, max_gen);
+    }
+    return Math.max(max_gen, current_gen);
+}
+
+
+// Calculate maximum generations down from individual in a tree that goes up windows.generations_up from that individual
+function calculateMaxGenDown(individual, current_gen = 0, max_gen = 0) {
+    if (!individual) return max_gen;
+    window.visited_individuals = window.visited_individuals || new Set();
+    if (window.visited_individuals.has(individual.id)) return max_gen;
+    window.visited_individuals.add(individual.id);
+
+    if (individual.famc && (current_gen < window.generations_up)) {
+        const parent_family = window.families.find(fam => fam.id === individual.famc);
+        const father = parent_family.husb ? window.individuals.find(ind => ind.id === parent_family.husb) : null;
+        max_gen = Math.max(max_gen, calculateMaxGenDown(father, current_gen + 1, max_gen));
+        const mother = parent_family.wife ? window.individuals.find(ind => ind.id === parent_family.wife) : null;
+        max_gen = Math.max(max_gen, calculateMaxGenDown(mother, current_gen + 1, max_gen));
+    }
+    if (individual.fams) {
+        individual.fams.forEach(fam_id => {
+            const family = window.families.find(fam => fam.id === fam_id);
+            if (family) {
+                family.chil.forEach(child_id => {
+                    const child = window.individuals.find(ind => ind.id === child_id);
+                    max_gen = Math.max(max_gen, calculateMaxGenDown(child, current_gen - 1, max_gen));
+                });
+            }
+        });
+    }
+    return Math.max(max_gen, -current_gen);
 }
 
 
@@ -97,7 +140,10 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
     window.max_gen_up = Math.max(window.max_gen_up, anchor_gen - window.generations_down);
     window.max_gen_down = Math.max(window.max_gen_down, window.generations_down - current_gen);
 
-    if (type === 'root') node.individual.is_root = true;
+    if (type === 'root') {
+        node.individual.is_root = true;
+        window.root_node = node;
+    }
     else individual.node = node;
 
     // Add parents

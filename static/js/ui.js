@@ -1,7 +1,31 @@
+/*
+UI functions for Complete Family Tree application
+Function List:
+- toggleOptions
+- updateOptionsVisibility
+- zoomToFit
+- scaleBodyForSmallScreens
+- toggleEnabled
+- setMaxLinksEnabled
+- updateMaxLinksState
+- selectGedcomFile
+- filterIndividuals
+- usePresetStyle
+- resetStyling
+- openSaveModal
+- saveSVG
+- savePNG
+- updateRangeThumbs
+- requestFamilyTreeUpdate
+- updateFamilyTree
+- populateIndividualSelect
+*/
+
 function toggleOptions() {
     if (leftColumnWrapper.classList.contains('open')) leftColumnWrapper.classList.remove('open');
     else leftColumnWrapper.classList.add('open');
 }
+
 
 function updateOptionsVisibility() {
     if (!rightCol || !leftCol) return;
@@ -15,6 +39,7 @@ function updateOptionsVisibility() {
         leftColumnWrapper.classList.remove('open');
     }
 }
+
 
 function zoomToFit() {
     const svg = family_tree_div.querySelector('svg');
@@ -41,6 +66,7 @@ function scaleBodyForSmallScreens() {
     }
 }
 
+
 function toggleEnabled(enabled, element_id) {
     const element = document.getElementById(element_id);
     if (element) {
@@ -51,6 +77,7 @@ function toggleEnabled(enabled, element_id) {
     }
 }
 
+
 function setMaxLinksEnabled(enabled) {
     const ids = [
         'generations-up-number-max-link',
@@ -60,10 +87,12 @@ function setMaxLinksEnabled(enabled) {
     ids.forEach(id => { toggleEnabled(enabled, id); });
 }
 
+
 function updateMaxLinksState() {
     const hasTree = family_tree_div && family_tree_div.querySelector('svg');
     setMaxLinksEnabled(!!hasTree);
 }
+
 
 function selectGedcomFile(file) {
     if (file) {
@@ -85,6 +114,8 @@ function selectGedcomFile(file) {
                 window.individual_filter_value = '';
 
                 populateIndividualSelect(window.individuals);
+                const status_bar_div = document.getElementById('status-bar-div');
+                status_bar_div.innerHTML = 'No tree displayed';
             } else {
                 family_tree_div.innerHTML = '<p style="color: red;">Invalid GEDCOM file. Please select a valid GEDCOM file.</p>';
                 // Clear the dropdown
@@ -99,6 +130,7 @@ function selectGedcomFile(file) {
     }
 }
 
+
 function filterIndividuals(filter) {
     window.individual_filter_value = filter.toLowerCase();
     if (filter_timeout) clearTimeout(filter_timeout);
@@ -106,6 +138,7 @@ function filterIndividuals(filter) {
         populateIndividualSelect(window.individuals);
     }, 100);
 }
+
 
 function usePresetStyle(preset_name) {
     const preset = style_presets[preset_name];
@@ -143,6 +176,7 @@ function usePresetStyle(preset_name) {
     updateFamilyTree();
 }
 
+
 function resetStyling() {
     for (const element_info of elements) {
         if (!['generations-up-number', 'generations-down-number', 'max-stack-size-number', 'show-names-checkbox', 'show-years-checkbox', 'show-places-checkbox', 'hide-childless-inlaws-checkbox'].includes(element_info.id)) {
@@ -160,11 +194,13 @@ function resetStyling() {
     requestFamilyTreeUpdate();
 }
 
+
 function openSaveModal(format) {
     save_format_input.value = format;
     save_filename_input.value = window.selected_individual ? window.selected_individual.name.replace(/ /g, '-') : 'family-tree';
     save_modal.style.display = 'flex';
 }
+
 
 function saveSVG() {
     const svg = family_tree_div.querySelector('svg');
@@ -188,6 +224,7 @@ function saveSVG() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
+
 
 function savePNG() {
     save_png_button.disabled = true;
@@ -266,6 +303,7 @@ function savePNG() {
     img.src = url;
 }
 
+
 function updateRangeThumbs() {
     let hue = parseInt(hue_element.value);
     let sat = parseInt(sat_element.value);
@@ -300,21 +338,30 @@ function updateRangeThumbs() {
     }
 }
 
+
 function requestFamilyTreeUpdate() {
     console.log('Family tree update requested...');
     if (!update_in_progress) {
+        console.log(`No update in progress, starting update...`);
         update_in_progress = true;
         setMaxLinksEnabled(false);
+        console.log('Max links disabled...');
         toggleEnabled(false, 'auto-node-width-link');
         toggleEnabled(false, 'auto-node-height-link');
+        console.log('Auto box size links disabled...');
         if (update_timeout) clearTimeout(update_timeout);
         update_timeout = setTimeout(() => { updateFamilyTree(); }, 100);
     }
-    else update_waiting = true;
+    else {
+        console.log('Update already in progress, marking update as waiting...');
+        update_waiting = true;
+    }
 }
+
 
 async function updateFamilyTree() {
     if (window.gedcom_content) {
+        console.log('Gedcom countent found, updating family tree...');
         // The tree building process can change the data, so we reload to get a fresh copy each time
         const parsed_data = parseGedcomData(window.gedcom_content);
         window.individuals = parsed_data.individuals;
@@ -353,6 +400,7 @@ async function updateFamilyTree() {
         }
     }
 }
+
 
 function populateIndividualSelect(individuals) {
     individual_select.innerHTML = '';

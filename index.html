@@ -6,10 +6,10 @@
     <meta name="darkreader" content="no-darken">
     <meta name="darkreader-lock">
     <title>Complete Family Tree Viewer</title>
-    <link rel="stylesheet" href="static/css/style_ranges.css?v=2026-03-15">
-    <link rel="stylesheet" href="static/css/style_buttons.css?v=2026-03-15">
-    <link rel="stylesheet" href="static/css/style.css?v=2026-03-15">
-    <link rel="stylesheet" href="static/css/style_media.css?v=2026-03-15">
+    <link rel="stylesheet" href="static/css/style_ranges.css?v=2026-03-18">
+    <link rel="stylesheet" href="static/css/style_buttons.css?v=2026-03-18">
+    <link rel="stylesheet" href="static/css/style.css?v=2026-03-18">
+    <link rel="stylesheet" href="static/css/style_media.css?v=2026-03-18">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-size@2"></script>
 </head>
@@ -59,6 +59,10 @@
                 <p>
                     <input type="number" id="max-stack-size-number" min="1" max="99" value="1">
                     <label for="max-stack-size-number">Stack Size</label>&nbsp;<a href="#" class="right-shortcut" id="max-stack-size-number-max-link"><img src="static/png/icons8-top-50.png" alt="Maximum" title="Maximum" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                </p>
+                <p>
+                    <input type="checkbox" id="vertical-inlaws-checkbox" checked>
+                    <label for="vertical-inlaws-checkbox">Show In-Laws Below Spouses</label>
                 </p>
                 <p>
                     <input type="checkbox" id="show-names-checkbox" checked>
@@ -229,7 +233,7 @@
                 <a href="#"><img id="resize-tree-button" src="static/png/icons8-resize-48-v2.png" alt="Fit to Viewer" title="Fit to Viewer"></a>
                 <button id="save-svg-button">Save SVG</button>
                 <button id="save-png-button">Save PNG</button>
-                <h2 id="family-tree-header">Tree&nbsp;Viewer <span id="root-name"></span> <span id="node-count"></span></h2>
+                <h2 id="family-tree-header">Tree&nbsp;Viewer <span id="root-name"></span></h2>
             </div>
 
             <div id="family-tree-div">
@@ -237,6 +241,8 @@
                 <p>It will be processed in your browser and will not be uploaded to the server.</p>
                 <div id="mobile-instructions" style="display: none;"><p>Click on the Options button to see the menu where you can select your file.</p></div>
             </div>
+
+            <div id="status-bar-div">No tree displayed</div>
         </div>
     </div>
     <script src="static/js/gedcom.js"></script>

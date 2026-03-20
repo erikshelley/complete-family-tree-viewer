@@ -150,6 +150,18 @@ function parseGedcomData(content) {
     if (current_individual) individuals.push(current_individual);
     if (current_family) families.push(current_family);
 
+    // Track earliest birth year
+    /*
+    let earliest = null;
+    for (const ind of individuals) {
+        const year = parseInt(ind.birth, 10);
+        if (year && (!earliest || year < earliest)) {
+            earliest = year;
+        }
+    }
+    window.earliest_birth_year = earliest;
+    */
+
     //console.log('Parsed individuals:', individuals.forEach(i => ({id: i.id, name: i.name, famc: i.famc, fams: i.fams, birth: i.birth, death: i.death, gender: i.gender})));
     //console.log('Parsed individuals:', individuals);
     //console.log('Parsed families:', families);

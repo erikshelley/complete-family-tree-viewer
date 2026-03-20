@@ -63,6 +63,7 @@ window.h_spacing; window.default_h_spacing;
 window.v_spacing; window.default_v_spacing;
 window.node_rounding; window.default_node_rounding;
 window.node_brightness; window.default_node_brightness;
+window.vertical_inlaws; window.default_vertical_inlaws;
 window.show_names; window.default_show_names;
 window.show_years; window.default_show_years;
 window.show_places; window.default_show_places;
@@ -93,7 +94,7 @@ window.tree_color = color_picker.value;
 const style_presets = {
     'default': {
         // Content
-        'show-names': true, 'show-years': true, 'show-places': false,
+        'vertical-inlaws': true, 'show-names': true, 'show-years': true, 'show-places': false,
         // Size
         'node-width': 150, 'node-height': 75, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
         // Spacing
@@ -107,7 +108,7 @@ const style_presets = {
     },
     'print': {
         // Content
-        'show-names': true, 'show-years': true, 'show-places': false,
+        'vertical-inlaws': true, 'show-names': true, 'show-years': true, 'show-places': false,
         // Size
         'node-width': 200, 'node-height': 100, 'node-border-width': 5, 'link-width': 5, 'text-size': 24,
         // Spacing
@@ -121,11 +122,11 @@ const style_presets = {
     },
     'share': {
         // Content
-        'show-names': true, 'show-years': false, 'show-places': false,
+        'vertical-inlaws': true, 'show-names': true, 'show-years': false, 'show-places': false,
         // Size
         'node-width': 200, 'node-height': 100, 'node-border-width': 5, 'link-width': 5, 'text-size': 24,
         // Spacing
-        'h-spacing': 25, 'v-spacing': 100, 'level-spacing': 100, 'tree-padding': 150,
+        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 100, 'tree-padding': 150,
         // Color
         'hue': 300, 'saturation': 33, 'node-brightness': 33, 'text-brightness': 90, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#171717',
         // Highlights
@@ -135,7 +136,7 @@ const style_presets = {
     },
     'orbs': {
         // Content
-        'show-names': true, 'show-years': false, 'show-places': false,
+        'vertical-inlaws': true, 'show-names': true, 'show-years': false, 'show-places': false,
         // Size
         'node-width': 150, 'node-height': 150, 'node-border-width': 9, 'link-width': 9, 'text-size': 16,
         // Spacing
@@ -149,7 +150,7 @@ const style_presets = {
     },
     'sharp': {
         // Content
-        'show-names': true, 'show-years': true, 'show-places': false,
+        'vertical-inlaws': true, 'show-names': true, 'show-years': true, 'show-places': false,
         // Size
         'node-width': 150, 'node-height': 75, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
         // Spacing
@@ -163,7 +164,7 @@ const style_presets = {
     },
     'dark': {
         // Content
-        'show-names': true, 'show-years': true, 'show-places': false,
+        'vertical-inlaws': true, 'show-names': true, 'show-years': true, 'show-places': false,
         // Size
         'node-width': 150, 'node-height': 75, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
         // Spacing
@@ -177,7 +178,7 @@ const style_presets = {
     },
     'light': {
         // Content
-        'show-names': true, 'show-years': true, 'show-places': false,
+        'vertical-inlaws': true, 'show-names': true, 'show-years': true, 'show-places': false,
         // Size
         'node-width': 150, 'node-height': 75, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
         // Spacing
@@ -191,7 +192,7 @@ const style_presets = {
     },
     'detailed': {
         // Content
-        'show-names': true, 'show-years': true, 'show-places': true,
+        'vertical-inlaws': true, 'show-names': true, 'show-years': true, 'show-places': true,
         // Size
         'node-width': 300, 'node-height': 100, 'node-border-width': 5, 'link-width': 10, 'text-size': 16,
         // Spacing
@@ -213,6 +214,7 @@ const elements = [
     { id: 'show-names-checkbox',                 type: 'checkbox', default: true,  variable: 'show_names' },
     { id: 'show-years-checkbox',                 type: 'checkbox', default: true,  variable: 'show_years' },
     { id: 'show-places-checkbox',                type: 'checkbox', default: false, variable: 'show_places' },
+    { id: 'vertical-inlaws-checkbox',            type: 'checkbox', default: true,  variable: 'vertical_inlaws' },
     { id: 'hide-childless-inlaws-checkbox',      type: 'checkbox', default: false, variable: 'hide_childless_inlaws' },
     //{ id: 'pedigree-only', type: 'checkbox', default: false, variable: 'pedigree_only' },
 

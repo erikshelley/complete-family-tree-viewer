@@ -32,8 +32,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (link_element && element_info.max !== undefined) {
             link_element.addEventListener('click', function(e) {
                 e.preventDefault();
-                element.value = element_info.max;
-                window[element_info.variable] = element_info.max;
+                let max = element_info.max;
+                if (element_info.variable === 'generations_up' && window.selected_individual) max = calculateMaxGenUp(window.selected_individual);
+                if (element_info.variable === 'generations_down' && window.selected_individual) {
+                    window.visited_individuals = null;
+                    max = calculateMaxGenDown(window.selected_individual);
+                }
+                element.value = max;
+                window[element_info.variable] = max;
                 requestFamilyTreeUpdate();
             });
         }
