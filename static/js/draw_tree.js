@@ -58,7 +58,7 @@ async function drawTree(rows) {
     drawNodes(svg_node, rows);
 
     const root_name_span = document.getElementById('root-name');
-    root_name_span.innerHTML = selected_individual.name.replace(/ /g, '&nbsp;');
+    root_name_span.innerHTML = '&nbsp;&nbsp;&bull;&nbsp;&nbsp;' + selected_individual.name.replace(/ /g, '&nbsp;');
 
     const status_bar_div = document.getElementById('status-bar-div');
     let people_shown;
@@ -249,7 +249,7 @@ function drawCircles(svg_node, rows) {
                         drawCircle(svg_node, color, {x: node.x + x_offset, y: node.y + window.box_height / 2}, radius);
                     }
                     if ((node.type === 'ancestor') && (node.individual.gender == 'M')) {
-                        [hue, chroma, luminance] = getNodeHCL(node.pedigree_child_node ? node.pedigree_child_node : window.root_node, false);
+                        [hue, chroma, luminance] = getNodeHCL(node.individual.pedigree_child_node ? node.individual.pedigree_child_node : window.root_node, false);
                         color = d3.hcl(hue, chroma, luminance * (window.pedigree_highlight_percent / 100) * (window.link_highlight_percent / 100));
                         drawCircle(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height / 2}, window.link_width * 1.5);
                     }
@@ -559,12 +559,21 @@ function drawLink(svg_node, color, point1, point2, special) {
     };
 
     const stroke_width = window.link_width || 3;
-    svg_node.append("path")
-        .attr("d", customLink(point1, point2))
-        .attr("fill", "none")
-        .attr("stroke", color)
-        .attr("stroke-width", stroke_width)
-        .attr("stroke-dasharray", special === 'duplicate' ? `${stroke_width},${stroke_width}` : special && special.includes('inlaw') ? `${stroke_width},${stroke_width}` : "none");
+    if (window.vertical_inlaws || special == 'duplicate') {
+        svg_node.append("path")
+            .attr("d", customLink(point1, point2))
+            .attr("fill", "none")
+            .attr("stroke", color)
+            .attr("stroke-width", stroke_width)
+            .attr("stroke-dasharray", special === 'duplicate' ? `${stroke_width},${stroke_width}` : special && special.includes('inlaw') ? `${stroke_width},${stroke_width}` : "none");
+    }
+    else {
+        svg_node.append("path")
+            .attr("d", customLink(point1, point2))
+            .attr("fill", "none")
+            .attr("stroke", color)
+            .attr("stroke-width", stroke_width);
+    }
 }
 
 

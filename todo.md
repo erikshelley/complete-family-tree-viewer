@@ -4,13 +4,17 @@
 
 | Priority |   Type  | &nbsp;Target&nbsp;  | Functions | Description |
 |:--------:|:-------:| ------------------- |:---------:| ----------- |
-|    🔴    |   Bug   |        | TBD | Sometimes selecting a root person does not display a tree |
-|    🟡    |   Bug   |        | UI | Mouse cursor not changing over label of Show Places of Birth/Death |
-|    🔴    | Feature |        | UI + Position | *Option to have inlaws next to their spouses - will require updates to the README* |
+|    🟡    |   Bug   |        | UI | Narrow windows push Tree Viewer header below buttons |
+|    🟡    |   Bug   |        | UI | Sometimes extra gap between inlaws in descendaant trees : Sharlot 0up x 2dn has no gap, 1up x 2dn has a gap |
+|    🟡    |   Bug   |        | TBD | Issues when root has no gender? no spouse? Issue for non-root individuals? |
 |    ⚫    | ------- | ------ | --------------------- | ------------ |
-|    🔴    | Feature | 19-Mar | UI | ~~SVG background~~ |
-|    🔴    |   Bug   | 19-Mar | TBD | ~~Maxing out generations down breaks the color hues, but not always~~ |
-|    🟡    | Feature |        | UI | ~~Add a status bar at the bottom: number of people, tree dimensions, max/min font used, earliest birth year~~ |
+|    🟡    | Feature | 19-Mar | UI | ~~Collapsible options sections~~ |
+|    🟡    |   Bug   | 19-Mar | UI | ~~Mouse cursor not changing over label of Show Places of Birth/Death~~ |
+|    🟡    |   Bug   | 19-Mar | UI | ~~Size to fit does not need to redraw the tree~~ |
+|    🔴    |   Bug   | 20-Mar | Build | ~~Alexander Fred as root, 2 generations up, >0 gen down, Maria Fitzpatrick as his spouse gets replaced by Maria as the daughter of his Aunt~~ |
+|    🔴    |   Bug   | 20-Mar | Build + UI | ~~Maxing out generations down (or exceeding by one) breaks the color hues, but not always~~ |
+|    🔴    |   Bug   | 20-Mar | UI | ~~Sometimes selecting a root person does not display a tree~~ |
+|    🔴    | Feature | 20-Mar | UI + Position | ~~Option to have inlaws next to their spouses - will require updates to the README~~ |
 |    ⚫    | ------- | ------ | --------------------- | ------------ |
 |    🟠    | Feature | 20-Mar | UI + Draw | Specify number of lines allowed for name |
 |    🟡    | Feature | 20-Mar | UI + Draw | Vertical text alignment, top/middle/bottom |

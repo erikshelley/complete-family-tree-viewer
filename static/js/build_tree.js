@@ -1,5 +1,5 @@
 async function createFamilyTree(selected_individual) {
-    console.log('Creating family tree for individual:', selected_individual.name);
+    //console.log('Creating family tree for individual:', selected_individual.name);
     // Clear previous content
     const family_tree_div = document.getElementById('family-tree-div');
     family_tree_div.innerHTML = '';
@@ -13,16 +13,17 @@ async function createFamilyTree(selected_individual) {
     window.auto_box_height = 0;
 
     // Measure buildTree
-    console.log('Building family tree...');
+    //console.log('Building family tree...');
     const tree_data = buildTree(selected_individual);
 
     // Measure positionTree
-    console.log('Positioning family tree...');
+    //console.log('Positioning family tree...');
     const tree_positions = positionTree(tree_data);
     setHeights(tree_positions);
+    //verifyMaxXForAllNodes(tree_positions);
 
     // Measure drawTree
-    console.log('Drawing family tree...');
+    //console.log('Drawing family tree...');
     await drawTree(tree_positions);
 }
 
@@ -41,13 +42,13 @@ function calculateMaxGenUp(individual, current_gen = 0, max_gen = 0) {
 
 
 // Calculate maximum generations down from individual in a tree that goes up windows.generations_up from that individual
-function calculateMaxGenDown(individual, current_gen = 0, max_gen = 0) {
+function calculateMaxGenDown(individual, current_gen = 0, max_gen = 0, ancestor = true) {
     if (!individual) return max_gen;
     window.visited_individuals = window.visited_individuals || new Set();
     if (window.visited_individuals.has(individual.id)) return max_gen;
     window.visited_individuals.add(individual.id);
 
-    if (individual.famc && (current_gen < window.generations_up)) {
+    if (individual.famc && ancestor && (current_gen < window.generations_up)) {
         const parent_family = window.families.find(fam => fam.id === individual.famc);
         const father = parent_family.husb ? window.individuals.find(ind => ind.id === parent_family.husb) : null;
         max_gen = Math.max(max_gen, calculateMaxGenDown(father, current_gen + 1, max_gen));
@@ -60,7 +61,7 @@ function calculateMaxGenDown(individual, current_gen = 0, max_gen = 0) {
             if (family) {
                 family.chil.forEach(child_id => {
                     const child = window.individuals.find(ind => ind.id === child_id);
-                    max_gen = Math.max(max_gen, calculateMaxGenDown(child, current_gen - 1, max_gen));
+                    max_gen = Math.max(max_gen, calculateMaxGenDown(child, current_gen - 1, max_gen, false));
                 });
             }
         });
@@ -98,12 +99,35 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
 
     // Handle duplicates from relatives having children together
     if (individual.node) {
-        // If existing individual is ancestor or root and the new individual is inlaw or relative, return
+
+        // If existing individual is ancestor or root and the new individual is inlaw or relative, keep existing individual
         if (['ancestor', 'root'].includes(individual.node.type) && ['inlaw', 'relative'].includes(type)) return null;
-        // If both individuals are inlaws or relatives, return
-        if (['inlaw', 'relative'].includes(individual.node.type) && ['inlaw', 'relative'].includes(type)) return null;
+        // If both individuals are inlaws or relatives, keep the one with the lower anchor generation
+        if (['inlaw', 'relative'].includes(individual.node.type) && ['inlaw', 'relative'].includes(type)) {
+            // If existing individual has lower anchor generation, keep existing individual
+            if (individual.node.anchor_generation <= anchor_gen) return null;
+            // If new individual has lower anchor generation, remove existing individual and continue
+            else if (individual.node.anchor_generation > anchor_gen) {
+                if (individual.node.type === 'relative') {
+                    // If the existing node has a parent node, remove the existing node from its children
+                    if (individual.node.parent_node) individual.node.parent_node.children_nodes = individual.node.parent_node.children_nodes.filter(child => child !== individual.node);
+                    // Visit existing node's subtree and remove the node from their individual elements
+                    removeSubTree(individual.node);
+                }
+            }
+            //console.log('Duplicate inlaw/relative individual detected:', individual.name);
+            //if (individual.node.spouse_nodes.some(spouse_node => spouse_node.individual.is_root)) {
+                //console.log('Removing previous individual as the new individual is spouse of root:', individual.name);
+                // If the existing node has a parent node, remove the existing node from its children
+                //if (individual.node.parent_node) individual.node.parent_node.children_nodes = individual.node.parent_node.children_nodes.filter(child => child !== individual.node);
+
+                // Visit existing node's subtree and remove the node from their individual elements
+                //removeSubTree(individual.node);
+            //}
+            //else return null;
+        }
         // If new individual is ancestor or root and the existing individual is inlaw or relative, remove the previous individual and continue
-        if (['inlaw', 'relative'].includes(individual.node.type) && ['ancestor', 'root'].includes(type)) {
+        else if (['inlaw', 'relative'].includes(individual.node.type) && ['ancestor', 'root'].includes(type)) {
             if (individual.node.type === 'relative') {
                 // If the existing node has a parent node, remove the existing node from its children
                 if (individual.node.parent_node) individual.node.parent_node.children_nodes = individual.node.parent_node.children_nodes.filter(child => child !== individual.node);

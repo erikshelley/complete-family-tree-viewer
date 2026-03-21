@@ -18,9 +18,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 element.value = element_info.default;
                 window[element_info.variable] = element_info.default;
                 element.addEventListener('input', function(event) {
+                    let max = element_info.max;
+                    if (element_info.variable === 'generations_up' && window.selected_individual) max = calculateMaxGenUp(window.selected_individual);
+                    if (element_info.variable === 'generations_down' && window.selected_individual) {
+                        window.visited_individuals = null;
+                        max = calculateMaxGenDown(window.selected_individual);
+                    }
                     let val = parseInt(event.target.value);
                     if ((element_info.min !== undefined) && (val < element_info.min)) val = element_info.min;
-                    if ((element_info.max !== undefined) && (val > element_info.max)) val = element_info.max;
+                    if ((element_info.max !== undefined) && (val > max)) val = max;
                     window[element_info.variable] = val;
                     if (event.target.linked_element) event.target.linked_element.value = val;
                     updateRangeThumbs();
@@ -104,11 +110,13 @@ document.addEventListener('DOMContentLoaded', function() {
     individual_filter.addEventListener('input', function(event) { filterIndividuals(event.target.value); });
     individual_select.addEventListener('change', function(event) { requestFamilyTreeUpdate(); });
     preset_select.addEventListener('change', function(event) { usePresetStyle(event.target.value); });
-    reset_styling_button.addEventListener('click', function() { resetStyling(); });
+    /*reset_styling_button.addEventListener('click', function() { resetStyling(); });*/
     save_svg_button.addEventListener('click', function() { openSaveModal('svg'); });
     save_png_button.addEventListener('click', function() { openSaveModal('png'); });
     save_modal_cancel_button.addEventListener('click', function() { document.getElementById('save-modal').style.display = 'none'; });
-    resize_tree_button.addEventListener('click', function() { zoomToFit(); requestFamilyTreeUpdate(); });
+    resize_tree_button.addEventListener('click', function() { zoomToFit(); });
+    expand_styling_button.addEventListener('click', function() { expandAllStylingSections(); });
+    collapse_styling_button.addEventListener('click', function() { collapseAllStylingSections(); });
 
     preset_select.value = 'default';
     scaleBodyForSmallScreens();

@@ -1,21 +1,22 @@
 # Complete Family Tree Viewer
 
-## About
+The **Complete Family Tree Viewer** is a one-page application that allows you to load a family tree from a Gedcom file, then view the complete family tree for any person in that tree. A "complete family tree" for a given person is one that includes every one of their biological relatives and all of those relatives' spouses (in-laws).
 
-The **Complete Family Tree Viewer** is a one-page application that allows users to load a family tree from a Gedcom file, then view the complete family tree for any person in that tree. A "complete family tree" for a given person is one that includes every one of their biological relatives and all of those relatives' spouses (in-laws).
+This application comes with numerous configuration options to control which people and what information is displayed in the tree, as well as how the tree is styled. If you don't have a Gedcom file available, you can download one of these [Gedcom sample files](https://github.com/D-Jeffrey/gedcom-samples) to use.
 
-This application comes with numerous configuration options to control which people and what information is displayed in the tree, as well as how the tree is styled. 
-
-### Try it out here: [Complete Family Tree Viewer](https://www.erikshelley.com/complete-family-tree-viewer) 
-
-If you don't have a Gedcom file available, you can download one of these [Gedcom sample files](https://github.com/D-Jeffrey/gedcom-samples) to use.
-
-This application **does not** allow users to create or edit family trees. For that, you need to use some other genealogy applications or website that allows you to export your tree as a Gedcom file. Here are the most popular options:
+This application **does not** allow you to create or edit family trees. For that, you need to use some other genealogy applications or website that allows you to export your tree as a Gedcom file. Here are the most popular options:
 - Websites: [Ancestry](https://www.ancestry.com/), [MyHeritage](https://www.myheritage.com/), [Family Search](https://www.familysearch.org/) 
 - Desktop Software: [RootsMagic](https://www.rootsmagic.com/), [Gramps](https://www.gramps-project.org/wiki/index.php/Main_page), [Legacy Family Tree](https://legacyfamilytree.com/), [GenoPro](https://genopro.com/), [Family Tree Maker](https://www.mackiev.com/ftm/)
 
+## Installation Instructions
+Either clone the respository or download and extract the zip file, then open index.html in a browser. A working copy is available to use on-line on my personal website.
+
+### Try it out here: [Complete Family Tree Viewer](https://www.erikshelley.com/complete-family-tree-viewer) 
+
+![Complete Family Tree Viewer](static/png/Complete-Family-Tree-Viewer.png)
+
 ## Examples
-Here are a few examples trees as seen in the **Complete Family Tree Viewer**.
+Here are a few examples trees to demonstrate some of the program's capabilities:
 
 | Root&nbsp;Person | People&nbsp;Shown | Family&nbsp;Tree |
 |:----------------:|:-----------------:|:----------------:|
@@ -32,11 +33,11 @@ Two 3rd party Javascript libraries are used by this application.
 - [D3.js](https://d3js.org/)
 - [canvas-size](https://github.com/jhildenbiddle/canvas-size)
 
+The page background came from this excellent source:
+- [Free SVG Backgrounds and Patterns by SVGBackgrounds.com](https://www.svgbackgrounds.com/set/free-svg-backgrounds-and-patterns/)
+
 ### Questions, Issues, Feature Requests
 Feel free to ask questions, report issues, or request new features right [here on Github](https://github.com/erikshelley/complete-family-tree-viewer/issues)! Review the existing issues first to avoid creating a duplicate.
-
-## Installation Instructions
-Either download and extract the zip file or clone the respository, then open index.html in a browser.
 
 ## Design
 The table below describes how various relationships are depicted in the family trees.
@@ -44,16 +45,31 @@ The table below describes how various relationships are depicted in the family t
 | Relationship | Description | Example |
 | ------------ | ----------- |:-------:|
 | Ancestors | Ancestors are shown above their children with the father on the left and the mother on the right. This is similar to how other family tree programs work. Each generation is a different color. | ![](static/png/Design-Ancestors.png) |
-| Spouses | Spouses who are ancestors are covered above. Spouses who are in-laws (not biologically related to the root of the tree) are shown in grey and connected to their spouse using a grey dotted line. If they are the spouse of an ancestor, they are displayed to the side of the ancestor. This is similar to how other family tree programs work. If they are not the spouse of an ancestor, they are displayed below their spouse. This is different from how other programs work and is done to save horizontal space and make large trees easier to view since they tend to become very wide. | ![](static/png/Design-Spouses.png) |
-| Descendants | Descendants (children & siblings) whose parents are ancestors must by definition have a sibling who is also an ancestor or a sibling who is the root person. They are placed next to that sibling. Descendants who have a parent who is an in-law are shown below that parent. Each generation is a different color. | ![](static/png/Design-Descendants.png) |
+| In-Laws | In-laws are shown in grey and connected to their spouse using a grey line. If they are the spouse of an ancestor, they are displayed to the side of the ancestor. If they are not the spouse of an ancestor, they can be placed either next to or below their spouse. Placing them below can save horizontal space and make large trees easier to view. | In-Laws beside their spouses: ![](static/png/Design-In-Laws.png) In-laws below their spouses: ![](static/png/Design-In-Laws-Below.png) |
+| Descendants | Descendants (children & siblings) are placed below their parents. The placement depends on whether the in-laws are beside or below their spouses. | In-laws beside their spouses: ![](static/png/Design-Descendants.png) In-laws below their spouses: ![](static/png/Design-Descendants-Below.png) |
 | Inbreeding | Sometimes people who are related have children together. In this case they have common ancestors. Rather than show the common ancestors twice, a dashed line is used to connect one of the people to their common ancestors. In the example to the right, the root person's parents are first cousins. Their father's father and their mother's father are brothers. | ![](static/png/Design-Inbreeding.png) |
 
-The table below describes two key design concepts that make it possible to display very large and complete family trees.
+### Levels
 
-| Layout | Description | Example |
-| ------ | ----------- |:-------:|
-| Levels | To avoid having lines that cross, the concept of levels is introduced. Each ancestor is at the top of a level with the root person being on the bottom level (level 1). All of the descendants of the ancestor's siblings and all of thte descendants of the ancestor's in-law spouses must fit in that level and not cross into the level below.<br /><br />While this prevents crossing lines, it means not all people in the same generation are on the same level. To help with this problem each generation is given a color.<br /><br />In the example to the right, the root person and all people shaded green are in the same generation. Their relationships to root are as follows:<br />- Level 1: siblings<br />- Level 2: 1st cousins / half siblings<br />- Level 3: 2nd cousins / half 1st cousins<br />- Level 4: 3rd cousins / half 2nd cousins| ![](static/png/Design-Levels.png) |
-| Stacking | To avoid trees that are extremely wide, the concept of stacking is introduced. A person is defined as a leaf node if they have no in-law spouses and no children. Leaf nodes can be arranged in a column rather than being side-by-side. In the example to the right, notice how both siblings and spouses can be stacked. This program allows the user to control the maximum stack size. A size of one means no stacking. | ![](static/png/Design-Stacking.png) |
+To avoid having lines that cross, the concept of levels is introduced. Each generation of ancestors is at the top of a level with the root person being on the bottom level (level 1). All of the descendants of the ancestor's siblings and all of thte descendants of the ancestor's in-law spouses must fit in that level and not cross into the level below.
+
+While this prevents crossing lines, it means not all people in the same generation are on the same level. To help with this problem each generation is given a color.
+
+In the example below, the root person and all people shaded green are in the same generation. Their relationships to root are as follows:
+- Level 1: siblings
+- Level 2: 1st cousins / half siblings
+- Level 3: 2nd cousins / half 1st cousins
+- Level 4: 3rd cousins / half 2nd cousins
+
+![](static/png/Design-Levels.png) |
+
+### Stacking
+
+To avoid trees that are extremely wide, the concept of stacking is introduced. A person is defined as a leaf node if they have no in-law spouses and no children. Leaf nodes can be arranged in a column rather than being side-by-side. In the example to the right, notice how both siblings and spouses can be stacked. This program allows you to control the maximum stack size. A size of one means no stacking.
+
+The example below contains the same people as the previous example in the **levels** section above. It takes up significantly less space.
+
+![](static/png/Design-Stacking.png) |
 
 
 ## Usage
@@ -68,11 +84,16 @@ The table below describes two key design concepts that make it possible to displ
 | Select Root Person | Click on a person to make the root of the tree. Their family tree will be drawn. |
 | Generations Up | Change this value to control how many generations above the root person will be displayed. Click the up arrow <img src="static/png/icons8-top-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use the maximum possible value for the root person. |
 | Generations Down | Change this value to control how many generations below the root person will be displayed. Click the up arrow <img src="static/png/icons8-top-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use the maximum possible value for the root person. |
-| Maximum Stack Size | Change this value to control how many leaf nodes can be stacked in a single stack. Click the up arrow <img src="static/png/icons8-top-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use the maximum possible value for the root person. |
-| Show Names | Click this checkbox to show people's names in the tree. |
-| Show Years of BirthDeath | Click this checkbox to show people's years of birth and death in the tree. |
-| Show Places of BirthDeath | Click this checkbox to show people's places of birth and death in the tree. |
+| Stack Size | Change this value to control how many leaf nodes can be stacked in a single stack. Click the up arrow <img src="static/png/icons8-top-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use the maximum possible value for the root person. |
+| Position In-Laws Below Spouses | Click this checkbox to position in-laws below their spouses. If it is unchecked, they will be beside their spouses. |
 | Hide Childless In-Laws | Click this checkbox to hide in-laws who are leaf nodes. |
+
+### Person Details
+| Option | Description |
+| ------ | ----------- |
+| Show Names | Click this checkbox to show people's names in the tree. |
+| Show Years of Birth / Death | Click this checkbox to show people's years of birth and death in the tree. |
+| Show Places of Birth / Death | Click this checkbox to show people's places of birth and death in the tree. |
 
 ## Tree Styling
 <img src="static/png/Usage-Tree-Styling.png" width="400">
@@ -80,7 +101,6 @@ The table below describes two key design concepts that make it possible to displ
 ### Overall
 | Option | Description |
 | ------ | ----------- |
-| Reset | Click this button to reset all options in the Tree Styling section to their default value. |
 | Presets | Select a preset to quickly change a number of the style settings |
 
 ### Size

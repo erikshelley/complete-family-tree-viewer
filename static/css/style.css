@@ -8,6 +8,7 @@ html, body {
     min-width: 0;
     height: 100%;
     color: #eee;
+    overflow: hidden;
 }
 
 body {
@@ -196,6 +197,14 @@ h2 {
     text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
+summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #d0d0d0;
+    margin: 8px 0px;
+    font-size: 1.2em;
+}
+
 p { 
     color: #aaa; 
     margin: 12px 0px;
@@ -313,12 +322,13 @@ svg {
 
 #status-bar-div {
     height: 24px;
+    max-height: 24px !important;
     padding: 12px;
     color: #aaa;
     background-color: #202020;
     border-radius: 0 0 6px 6px;
     box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
-    overflow-x: hidden;
+    overflow-x: scroll;
 }
 
 #individual-select {
@@ -350,7 +360,6 @@ svg {
 #root-name {
     --root-name-text-color: hsl(120, 25%, 75%);
     color: var(--root-name-text-color);
-    margin-left: 16px;
 }
 
 #node-count { 
@@ -390,6 +399,7 @@ input[type="checkbox"],
 label[for="vertical-inlaws-checkbox"],
 label[for="show-names-checkbox"],
 label[for="show-years-checkbox"],
+label[for="show-places-checkbox"],
 label[for="hide-childless-inlaws-checkbox"],
 label[for="text-shadow-checkbox"],
 label[for="transparent-bg-rect-checkbox"],

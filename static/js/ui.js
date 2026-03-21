@@ -21,6 +21,27 @@ Function List:
 - populateIndividualSelect
 */
 
+
+function expandAllStylingSections() {
+    const details_elements = document.querySelectorAll('details');
+    details_elements.forEach(detail => {
+        detail.open = true;
+    });
+    expand_styling_button.style.display = 'none';
+    collapse_styling_button.style.display = 'block';
+}
+
+
+function collapseAllStylingSections() {
+    const details_elements = document.querySelectorAll('details');
+    details_elements.forEach(detail => {
+        detail.open = false;
+    });
+    expand_styling_button.style.display = 'block';
+    collapse_styling_button.style.display = 'none';
+}
+
+
 function toggleOptions() {
     if (leftColumnWrapper.classList.contains('open')) leftColumnWrapper.classList.remove('open');
     else leftColumnWrapper.classList.add('open');
@@ -115,7 +136,8 @@ function selectGedcomFile(file) {
 
                 populateIndividualSelect(window.individuals);
                 const status_bar_div = document.getElementById('status-bar-div');
-                status_bar_div.innerHTML = 'No tree displayed';
+                // Update status bar with file info, and individual and family counts formatted with commas
+                status_bar_div.innerHTML = `<b>${file.name}</b>&nbsp;&nbsp;&bull;&nbsp;&nbsp;${window.individuals.length.toLocaleString()} individuals&nbsp;&nbsp;&bull;&nbsp;&nbsp;${window.families.length.toLocaleString()} families`;
             } else {
                 family_tree_div.innerHTML = '<p style="color: red;">Invalid GEDCOM file. Please select a valid GEDCOM file.</p>';
                 // Clear the dropdown
@@ -145,12 +167,12 @@ function usePresetStyle(preset_name) {
     if (preset) {
         for (const [key, value] of Object.entries(preset)) {
             // Update the number and range values for this setting
-            let element_info = elements.find(el => el.id === key + '-range');
+            let element_info = elements.find(el => el.id === key + '-number');
             if (element_info) {
                 const element = document.getElementById(element_info.id);
                 element.value = value;
                 // Not sure why element_info.linked_element is not populated here
-                const linked_element = document.getElementById(element_info.id.replace('range', 'number'));
+                const linked_element = document.getElementById(element_info.id.replace('number', 'range'));
                 if (linked_element) linked_element.value = value;
                 window[element_info.variable] = value;
             }
@@ -340,20 +362,24 @@ function updateRangeThumbs() {
 
 
 function requestFamilyTreeUpdate() {
-    console.log('Family tree update requested...');
+    if (!window.gedcom_content) {
+        //console.log('No GEDCOM content loaded, cannot update family tree.');
+        return;
+    }
+    //console.log('Family tree update requested...');
     if (!update_in_progress) {
-        console.log(`No update in progress, starting update...`);
+        //console.log(`No update in progress, starting update...`);
         update_in_progress = true;
         setMaxLinksEnabled(false);
-        console.log('Max links disabled...');
+        //console.log('Max links disabled...');
         toggleEnabled(false, 'auto-node-width-link');
         toggleEnabled(false, 'auto-node-height-link');
-        console.log('Auto box size links disabled...');
+        //console.log('Auto box size links disabled...');
         if (update_timeout) clearTimeout(update_timeout);
         update_timeout = setTimeout(() => { updateFamilyTree(); }, 100);
     }
     else {
-        console.log('Update already in progress, marking update as waiting...');
+        //console.log('Update already in progress, marking update as waiting...');
         update_waiting = true;
     }
 }
@@ -361,17 +387,18 @@ function requestFamilyTreeUpdate() {
 
 async function updateFamilyTree() {
     if (window.gedcom_content) {
-        console.log('Gedcom countent found, updating family tree...');
+        //console.log('Gedcom content found, updating family tree...');
         // The tree building process can change the data, so we reload to get a fresh copy each time
         const parsed_data = parseGedcomData(window.gedcom_content);
         window.individuals = parsed_data.individuals;
         window.families = parsed_data.families;
+        update_in_progress = false;
 
         const selected_id = individual_select.value || window.selected_individual.id;
 
         if (selected_id && (selected_id !== 'Select an individual...')) {
             const selected_individual = window.individuals.find(ind => ind.id === selected_id);
-            console.log('Updating family tree for', selected_individual.name);
+            //console.log('Updating family tree for', selected_individual.name);
             if (selected_individual) {
                 window.selected_individual = selected_individual;
                 await createFamilyTree(selected_individual);
