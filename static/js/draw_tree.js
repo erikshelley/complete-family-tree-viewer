@@ -43,6 +43,9 @@ async function drawTree(rows) {
     const zoom = d3.zoom().scaleExtent([1, 2 * max_scale]).on("zoom", zoomed);
     svg.call(zoom);
     svg.node().__zoom_behavior = zoom;
+    svg.node().__orig_svg_width = svg_width;
+    svg.node().__orig_svg_height = svg_height;
+    svg.node().__max_scale = max_scale;
     const svg_node = svg.append("g");
     function zoomed({transform}) { svg_node.attr("transform", transform); }
 
@@ -78,8 +81,8 @@ async function drawTree(rows) {
 
     d3.select('body').on('keydown', function (event) {
         var k = d3.zoomTransform(svg.node()).k;
-        var step_x = (bounding_box.width - 24) * max_scale * 0.25 / k;
-        var step_y = (bounding_box.height - 40) * max_scale * 0.25 / k;
+        var step_x = (bounding_box.width - 24) * max_scale * 0.1 / k;
+        var step_y = (bounding_box.height - 40) * max_scale * 0.1 / k;
         var key = event.key;
         switch (key) {
         case 'Escape':

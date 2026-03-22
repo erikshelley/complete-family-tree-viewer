@@ -6,10 +6,9 @@
     <meta name="darkreader" content="no-darken">
     <meta name="darkreader-lock">
     <title>Complete Family Tree Viewer</title>
-    <link rel="stylesheet" href="static/css/style_ranges.css?v=2026-03-18">
-    <link rel="stylesheet" href="static/css/style_buttons.css?v=2026-03-18">
-    <link rel="stylesheet" href="static/css/style.css?v=2026-03-18">
-    <link rel="stylesheet" href="static/css/style_media.css?v=2026-03-18">
+    <link rel="stylesheet" href="static/css/style_ranges.css?v=2026-03-21">
+    <link rel="stylesheet" href="static/css/style.css?v=2026-03-21">
+    <link rel="stylesheet" href="static/css/style_media.css?v=2026-03-21">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-size@2"></script>
 </head>
@@ -18,7 +17,12 @@
         <div class="modal-content">
             <label for="save-filename-input" class="modal-label">File name:</label>
             <input id="save-filename-input" type="text" class="modal-input" value="family-tree"/>
-            <input id="save-format-input" type="hidden" value=""/>
+            <div class="modal-radio-group">
+                <input type="radio" id="save-format-svg" name="save-format" value="svg" checked>
+                <label for="save-format-svg">SVG</label>
+                <input type="radio" id="save-format-png" name="save-format" value="png">
+                <label for="save-format-png">PNG</label>
+            </div>
             <div class="modal-buttons">
                 <button id="save-modal-ok-button" class="modal-ok">OK</button>
                 <button id="save-modal-cancel-button" class="modal-cancel">Cancel</button>
@@ -27,20 +31,29 @@
     </div>
 
     <div id="mobile-menu-background" style="display: none;"></div>
-    <button id="options-menu-button" aria-label="Open menu" style="display: none;">Options</button>
+    <button id="options-menu-button" aria-label="Open menu" style="display: none;">
+        <img src="static/png/icons8-menu-48.png" alt="Options" title="Options" width="48" height="48">
+    </button>
 
     <h1>Complete Family Tree Viewer</h1>
-    <div class="about"><a href="https://github.com/erikshelley/complete-family-tree-viewer/" target="_blank">About & Help</a></div>
+    <div class="about"><a href="https://github.com/erikshelley/complete-family-tree-viewer/" target="_blank">
+        <img src="static/png/icons8-help-48.png" alt="About Complete Family Tree Viewer" title="About Complete Family Tree Viewer" width="32" height="32">
+    </a></div>
     <div class="container">
         <div class="left-column-wrapper">
             <div class="left-column">
             <div class="section-header">
-                <input type="file" id="file-input-button" accept=".ged,.gedcom">
                 <h2>Tree Content</h2>
             </div>
 
             <div class="input-section">
-                <span id="file-name">Select Gedcom file...</span>
+                <div class="file-input">
+                    <label for="file-input-button">
+                        <img class="icon-button-left" src="static/png/icons8-browse-folder-48.png" alt="Open Gedcom File" title="Open Gedcom File">
+                        <span id="file-name">Select Gedcom file...</span>
+                    </label>
+                    <input type="file" id="file-input-button" accept=".ged,.gedcom">
+                </div>
                 <div class="filter-container">
                     <input type="text" id="individual-filter-text" class="filter-input" placeholder="Type to filter names...">
                     <button id="clear-individual-filter" type="button" class="clear-filter-button">&#10005;</button>
@@ -50,15 +63,15 @@
                 </select>
                 <p>
                     <input type="number" id="generations-up-number" min="0" max="99" value="1">
-                    <label for="generations-up-number">Generations Up</label>&nbsp;<a href="#" class="right-shortcut" id="generations-up-number-max-link"><img src="static/png/icons8-top-50.png" alt="Maximum" title="Maximum" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                    <label for="generations-up-number">Generations Up</label>&nbsp;<a href="#" class="right-shortcut" id="generations-up-number-max-link"><img src="static/png/icons8-top-48.png" alt="Maximum" title="Maximum" width="24" height="24"></a>
                 </p>
                 <p>
                     <input type="number" id="generations-down-number" min="0" max="99" value="1">
-                    <label for="generations-down-number">Generations Down</label>&nbsp;<a href="#" class="right-shortcut" id="generations-down-number-max-link"><img src="static/png/icons8-top-50.png" alt="Maximum" title="Maximum" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                    <label for="generations-down-number">Generations Down</label>&nbsp;<a href="#" class="right-shortcut" id="generations-down-number-max-link"><img src="static/png/icons8-top-48.png" alt="Maximum" title="Maximum" width="24" height="24"></a>
                 </p>
                 <p>
                     <input type="number" id="max-stack-size-number" min="1" max="99" value="1">
-                    <label for="max-stack-size-number">Stack Size</label>&nbsp;<a href="#" class="right-shortcut" id="max-stack-size-number-max-link"><img src="static/png/icons8-top-50.png" alt="Maximum" title="Maximum" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                    <label for="max-stack-size-number">Stack Size</label>&nbsp;<a href="#" class="right-shortcut" id="max-stack-size-number-max-link"><img src="static/png/icons8-top-48.png" alt="Maximum" title="Maximum" width="24" height="24"></a>
                 </p>
                 <p>
                     <input type="checkbox" id="vertical-inlaws-checkbox" checked>
@@ -89,13 +102,13 @@
 
             <div class="section-header">
                 <!--<button id="reset-styling-button" type="button">Reset</button>-->
-                <a href="#"><img id="expand-styling-button" src="static/png/icons8-expand-48.png" alt="Expand All Sections" title="Expand All Sections"></a>
-                <a href="#"><img id="collapse-styling-button" src="static/png/icons8-collapse-48.png" alt="Collapse All Sections" title="Collapse All Sections" style="display:none;"></a>
+                <a href="#"><img id="expand-styling-button" class="icon-button" src="static/png/icons8-expand-48.png" alt="Expand All Sections" title="Expand All Sections"></a>
+                <a href="#"><img id="collapse-styling-button" class="icon-button" src="static/png/icons8-collapse-48.png" alt="Collapse All Sections" title="Collapse All Sections" style="display:none;"></a>
                 <h2>Tree Styling</h2>
             </div>
 
             <div class="input-section">
-                <details open><summary>Preset</summary>
+                <details closed><summary>Preset</summary>
                     <select id="preset-select" size="1">
                         <option value="default" selected>Default</option>
                         <option value="traditional">Traditional</option>
@@ -111,12 +124,12 @@
                 <p>
                     <input type="number" class="range-value" id="node-width-number" min="20" max="480" value="150">
                     <input type="range" id="node-width-range" min="20" max="480" value="150">
-                    <label for="node-width-range">Boxes X</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-width"><img src="static/png/icons8-resize-48-v2.png" alt="Auto Size" title="Auto Size" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                    <label for="node-width-range">Boxes X</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-width"><img src="static/png/icons8-resize-48.png" alt="Auto Size" title="Auto Size" width="24" height="24"></a>
                 </p>
                 <p>
                     <input type="number" class="range-value" id="node-height-number" min="20" max="480" value="75">
                     <input type="range" id="node-height-range" min="20" max="480" value="75">
-                    <label for="node-height-range">Boxes Y</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-height"><img src="static/png/icons8-resize-48-v2.png" alt="Auto Size" title="Auto Size" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                    <label for="node-height-range">Boxes Y</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-height"><img src="static/png/icons8-resize-48.png" alt="Auto Size" title="Auto Size" width="24" height="24"></a>
                 </p>
                 <p>
                     <input type="number" class="range-value" id="node-border-width-number" min="0" max="20" value="2">
@@ -215,22 +228,22 @@
                     <p>
                         <input type="number" class="range-value" id="pedigree-highlight-percent-number" min="0" max="200" value="125">
                         <input type="range" id="pedigree-highlight-percent-range" min="0" max="200" value="125">
-                        <label for="pedigree-highlight-percent-range">Pedigree</label>&nbsp;<a href="#" class="right-shortcut" id="no-pedigree-highlight-percent"><img src="static/png/icons8-cancel-50.png" alt="No Highlights" title="No Highlights" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                        <label for="pedigree-highlight-percent-range">Pedigree</label>&nbsp;<a href="#" class="right-shortcut" id="no-pedigree-highlight-percent"><img src="static/png/icons8-cancel-48.png" alt="No Highlights" title="No Highlights" width="24" height="24"></a>
                     </p>
                     <p>
                         <input type="number" class="range-value" id="border-highlight-percent-number" min="0" max="200" value="125">
                         <input type="range" id="border-highlight-percent-range" min="0" max="200" value="125">
-                        <label for="border-highlight-percent-range">Borders</label>&nbsp;<a href="#" class="right-shortcut" id="no-border-highlight-percent"><img src="static/png/icons8-cancel-50.png" alt="No Highlights" title="No Highlights" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                        <label for="border-highlight-percent-range">Borders</label>&nbsp;<a href="#" class="right-shortcut" id="no-border-highlight-percent"><img src="static/png/icons8-cancel-48.png" alt="No Highlights" title="No Highlights" width="24" height="24"></a>
                     </p>
                     <p>
                         <input type="number" class="range-value" id="link-highlight-percent-number" min="0" max="200" value="100">
                         <input type="range" id="link-highlight-percent-range" min="0" max="200" value="100">
-                        <label for="link-highlight-percent-range">Links</label>&nbsp;<a href="#" class="right-shortcut" id="no-link-highlight-percent"><img src="static/png/icons8-cancel-50.png" alt="No Highlights" title="No Highlights" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                        <label for="link-highlight-percent-range">Links</label>&nbsp;<a href="#" class="right-shortcut" id="no-link-highlight-percent"><img src="static/png/icons8-cancel-48.png" alt="No Highlights" title="No Highlights" width="24" height="24"></a>
                     </p>
                     <p>
                         <input type="number" class="range-value" id="inlaw-link-highlight-percent-number" min="0" max="200" value="100">
                         <input type="range" id="inlaw-link-highlight-percent-range" min="0" max="200" value="100">
-                        <label for="inlaw-link-highlight-percent-range">In-Law Links</label>&nbsp;<a href="#" class="right-shortcut" id="no-inlaw-link-highlight-percent"><img src="static/png/icons8-cancel-50.png" alt="No Highlights" title="No Highlights" style="filter:invert() brightness(50%);" width="24" height="24"></a>
+                        <label for="inlaw-link-highlight-percent-range">In-Law Links</label>&nbsp;<a href="#" class="right-shortcut" id="no-inlaw-link-highlight-percent"><img src="static/png/icons8-cancel-48.png" alt="No Highlights" title="No Highlights" width="24" height="24"></a>
                     </p>
                 </details>
 
@@ -251,9 +264,10 @@
         </div>
         <div class="right-column">
             <div class="section-header">
-                <a href="#"><img id="resize-tree-button" src="static/png/icons8-resize-48-v2.png" alt="Fit to Viewer" title="Fit to Viewer"></a>
-                <button id="save-svg-button">Save SVG</button>
-                <button id="save-png-button">Save PNG</button>
+                <a href="#"><img id="resize-tree-button" class="icon-button" src="static/png/icons8-enlarge-48.png" alt="Fit to Viewer" title="Fit to Viewer"></a>
+                <a href="#"><img id="resize-tree-horizontal-button" class="icon-button" src="static/png/icons8-resize-horizontal-48.png" alt="Fit Horizontal" title="Fit Horizontal"></a>
+                <a href="#"><img id="resize-tree-vertical-button" class="icon-button" src="static/png/icons8-resize-vertical-48.png" alt="Fit Vertical" title="Fit Vertical"></a>
+                <a href="#"><img id="save-tree-button" class="icon-button" src="static/png/icons8-save-48.png" alt="Save Tree" title="Save Tree"></a>
                 <h2 id="family-tree-header">Tree&nbsp;Viewer<span id="root-name"></span></h2>
             </div>
 

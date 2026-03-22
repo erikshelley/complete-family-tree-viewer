@@ -254,8 +254,8 @@ svg {
 
 .about {
     position: absolute;
-    top: 36px;
-    right: 60px;
+    top: 30px;
+    right: 40px;
 }
 
 .about a {
@@ -351,10 +351,10 @@ svg {
 
 /* Styling for file name display */
 #file-name {
-    display: block;
-    margin: 8px 0px 8px;
+    display: inline;
     color: #aaa;
     /*color: hsl(120, 25%, 50%);*/
+    vertical-align: middle;
 }
 
 #root-name {
@@ -457,12 +457,31 @@ input[type="color"]:focus {
     outline: none; /* Optional: remove default focus outline */
 }
 
+.icon-button, .icon-button-left {
+    margin: 8px 8px 8px 0px;
+    height: 30px;
+    width: 30px;
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.icon-button {
+    margin: 8px 0px 8px 8px;
+    float: right;
+}
+
+#file-input-button {
+  display: none;
+}
+
 #options-menu-button {
     position: absolute;
     top: 8px;
     left: 8px;
     z-index: 1002;
     display: none;
+    background-color: black;
 }
 
 #mobile-menu-background {
@@ -505,6 +524,10 @@ input[type="color"]:focus {
     color: #eee;
     font-size: 1.1em;
     margin-bottom: 8px;
+}
+
+.modal-radio-group {
+    margin-bottom: 16px;
 }
 
 .modal-input {

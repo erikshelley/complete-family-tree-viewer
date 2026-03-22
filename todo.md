@@ -33,6 +33,11 @@
 
 FYI - text shadow effects the size of the text bounding box
 
+<a target="_blank" href="https://icons8.com/icon/O8HXRH0j3VSX/compress">Compress</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+<a target="_blank" href="https://icons8.com/icon/pfF6HpODcjW0/close">Close</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+<a target="_blank" href="https://icons8.com/icon/40JxrZB76JLv/info">Info</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+<a target="_blank" href="https://icons8.com/icon/A5bT1cyFfulU/flow-chart">Flow Chart</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+
 ## Under Considuration
 - Raise horizontal lines to some ancestors so horizontal line from other ancestor siblings can slide underneath (raise duplicates twice as much)
 - Demo branch that can load example Gedcoms available
@@ -57,8 +62,10 @@ FYI - text shadow effects the size of the text bounding box
 
 ### Trees Used for Examples
 - Design-Ancestors.png: Ann B
-- Design-Spouses.png: Grace
+- Design-In-Laws.png: Grace
+- Design-In-Laws-Below.png: Grace
 - Design-Descendants.png: Me
+- Design-Descendants-Below.png: Me
 - Design-Inbreeding.png: Mathias B
 - Design-Levels.png: Jas J M
-- Design-Stacking.png: Mom
+- Design-Stacking.png: Jas J M

@@ -66,14 +66,65 @@ function zoomToFit() {
     const svgEl = family_tree_div.querySelector('svg');
     if (!svgEl) return;
     const svg = d3.select(svgEl);
-    // Reset zoom via D3's zoom API so internal state stays in sync
     const zoom = svgEl.__zoom_behavior;
-    if (zoom) {
-        svg.transition().call(zoom.transform, d3.zoomIdentity);
-    } else {
-        // Fallback: dispatch a synthetic identity transform
-        svg.call(d3.zoom().transform, d3.zoomIdentity);
-    }
+    if (!zoom) return;
+    const origW = svgEl.__orig_svg_width;
+    const origH = svgEl.__orig_svg_height;
+    const ms = svgEl.__max_scale;
+    // Restore original SVG size and viewBox, reset zoom
+    svg.attr('width', origW).attr('height', origH);
+    svg.attr('viewBox', `0 0 ${ms * origW} ${ms * origH}`);
+    svg.transition().call(zoom.transform, d3.zoomIdentity);
+}
+
+
+function zoomToFitHorizontal() {
+    const svgEl = family_tree_div.querySelector('svg');
+    if (!svgEl) return;
+    const svg = d3.select(svgEl);
+    const zoom = svgEl.__zoom_behavior;
+    if (!zoom) return;
+    const origW = svgEl.__orig_svg_width;
+    const origH = svgEl.__orig_svg_height;
+    const ms = svgEl.__max_scale;
+    const divRect = family_tree_div.getBoundingClientRect();
+    const availWidth = divRect.width - 24;
+    const availHeight = divRect.height - 40;
+    // Resize SVG and viewBox proportionally to fill available width
+    svg.attr('width', availWidth).attr('height', availHeight);
+    svg.attr('viewBox', `0 0 ${ms * availWidth} ${ms * availHeight}`);
+    // Scale content so its width fills the available width
+    const k = availWidth / origW;
+    const origVW = ms * origW;
+    const origVH = ms * origH;
+    const ty = (ms * availHeight - k * origVH) / 2;
+    const transform = d3.zoomIdentity.translate(0, Math.max(0, ty)).scale(k);
+    svg.transition().call(zoom.transform, transform);
+}
+
+
+function zoomToFitVertical() {
+    const svgEl = family_tree_div.querySelector('svg');
+    if (!svgEl) return;
+    const svg = d3.select(svgEl);
+    const zoom = svgEl.__zoom_behavior;
+    if (!zoom) return;
+    const origW = svgEl.__orig_svg_width;
+    const origH = svgEl.__orig_svg_height;
+    const ms = svgEl.__max_scale;
+    const divRect = family_tree_div.getBoundingClientRect();
+    const availWidth = divRect.width - 24;
+    const availHeight = divRect.height - 40;
+    // Resize SVG and viewBox proportionally to fill available space
+    svg.attr('width', availWidth).attr('height', availHeight);
+    svg.attr('viewBox', `0 0 ${ms * availWidth} ${ms * availHeight}`);
+    // Scale content so its height fills the available height
+    const k = availHeight / origH;
+    const origVW = ms * origW;
+    const origVH = ms * origH;
+    const tx = (ms * availWidth - k * origVW) / 2;
+    const transform = d3.zoomIdentity.translate(Math.max(0, tx), 0).scale(k);
+    svg.transition().call(zoom.transform, transform);
 }
 
 
@@ -228,8 +279,7 @@ function resetStyling() {
 }
 
 
-function openSaveModal(format) {
-    save_format_input.value = format;
+function openSaveModal() {
     save_filename_input.value = window.selected_individual ? window.selected_individual.name.replace(/ /g, '-') : 'family-tree';
     save_modal.style.display = 'flex';
 }
@@ -260,11 +310,9 @@ function saveSVG() {
 
 
 function savePNG() {
-    save_png_button.disabled = true;
     const svg = family_tree_div.querySelector('svg');
     if (!svg) {
-        alert('No SVG found to save.');
-        save_png_button.disabled = false;
+        alert('No SVG found to save as PNG.');
         return;
     }
     const serializer = new XMLSerializer();
@@ -314,7 +362,6 @@ function savePNG() {
         } catch (err) {
             errorOccurred = true;
             alert(`Error saving PNG: The canvas size (${vbWidth}x${vbHeight}) may exceed the browser or system limit. Try reducing the tree size or saving it as an SVG.`);
-            save_png_button.disabled = false;
             return;
         }
         if (!errorOccurred) {
@@ -326,7 +373,6 @@ function savePNG() {
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url); //a.href
-                save_png_button.disabled = false;
             }, 'image/png');
             if (original_vbHeight > vbHeight || original_vbWidth > vbWidth) {
                 alert('Note: The saved PNG has been scaled down to fit within browser limits. For the best quality, consider saving as SVG or reducing the tree size before saving as PNG.');

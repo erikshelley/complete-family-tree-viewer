@@ -98,6 +98,8 @@ document.addEventListener('DOMContentLoaded', function() {
     save_modal_ok_button.addEventListener('click', function() {
         window.save_filename = save_filename_input.value || 'family-tree';
         document.getElementById('save-modal').style.display = 'none';
+        // Determine selected format
+        const save_format_input = document.querySelector('input[name="save-format"]:checked');
         if (save_format_input.value === 'png') savePNG();
         if (save_format_input.value === 'svg') saveSVG();
     });
@@ -118,11 +120,21 @@ document.addEventListener('DOMContentLoaded', function() {
     individual_filter.addEventListener('input', function(event) { filterIndividuals(event.target.value); });
     individual_select.addEventListener('change', function(event) { requestFamilyTreeUpdate(); });
     preset_select.addEventListener('change', function(event) { usePresetStyle(event.target.value); });
-    /*reset_styling_button.addEventListener('click', function() { resetStyling(); });*/
-    save_svg_button.addEventListener('click', function() { openSaveModal('svg'); });
-    save_png_button.addEventListener('click', function() { openSaveModal('png'); });
+    save_tree_button.addEventListener('click', function() { openSaveModal(); });
     save_modal_cancel_button.addEventListener('click', function() { document.getElementById('save-modal').style.display = 'none'; });
+
+    save_modal.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            save_modal_ok_button.click();
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            save_modal_cancel_button.click();
+        }
+    });
     resize_tree_button.addEventListener('click', function() { zoomToFit(); });
+    resize_tree_horizontal_button.addEventListener('click', function() { zoomToFitHorizontal(); });
+    resize_tree_vertical_button.addEventListener('click', function() { zoomToFitVertical(); });
     expand_styling_button.addEventListener('click', function() { expandAllStylingSections(); });
     collapse_styling_button.addEventListener('click', function() { collapseAllStylingSections(); });
 

@@ -39,10 +39,11 @@ const color_picker = document.getElementById('color-picker');
 const rightCol = document.querySelector('.right-column');
 const family_tree_div = document.getElementById('family-tree-div');
 const resize_tree_button = document.getElementById('resize-tree-button');
+const resize_tree_horizontal_button = document.getElementById('resize-tree-horizontal-button');
+const resize_tree_vertical_button = document.getElementById('resize-tree-vertical-button');
 const expand_styling_button = document.getElementById('expand-styling-button');
 const collapse_styling_button = document.getElementById('collapse-styling-button');
-const save_svg_button = document.getElementById('save-svg-button');
-const save_png_button = document.getElementById('save-png-button');
+const save_tree_button = document.getElementById('save-tree-button');
 
 let filter_timeout = null;
 let update_in_progress = false;
@@ -104,7 +105,7 @@ const style_presets = {
         // Color
         'hue': 180, 'saturation': 20, 'node-brightness': 25, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
-        'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
+        'pedigree-highlight-percent': 175, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
         // Rounding
         'node-rounding': 25, 'link-rounding': 25,
     },
@@ -184,7 +185,7 @@ const style_presets = {
         // Size
         'node-width': 100, 'node-height': 100, 'node-border-width': 5, 'link-width': 5, 'text-size': 16,
         // Spacing
-        'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 100, 'box-padding': 2, 'tree-padding': 150, 'text-align': 'middle',
+        'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 100, 'box-padding': 10, 'tree-padding': 150, 'text-align': 'middle',
         // Color
         'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
@@ -245,8 +246,8 @@ const elements = [
     { id: 'transparent-bg-rect-checkbox',        type: 'checkbox', default: false, variable: 'transparent_bg_rect' },
 
     // Highlights
-    { id: 'pedigree-highlight-percent-number',   type: 'number',   default: 150,   min: 0, max: 200, variable: 'pedigree_highlight_percent' },
-    { id: 'pedigree-highlight-percent-range',    type: 'range',    default: 150,   min: 0, max: 200, variable: 'pedigree_highlight_percent' },
+    { id: 'pedigree-highlight-percent-number',   type: 'number',   default: 175,   min: 0, max: 200, variable: 'pedigree_highlight_percent' },
+    { id: 'pedigree-highlight-percent-range',    type: 'range',    default: 175,   min: 0, max: 200, variable: 'pedigree_highlight_percent' },
     { id: 'border-highlight-percent-number',     type: 'number',   default: 125,   min: 0, max: 200, variable: 'border_highlight_percent' },
     { id: 'border-highlight-percent-range',      type: 'range',    default: 125,   min: 0, max: 200, variable: 'border_highlight_percent' },
     { id: 'link-highlight-percent-number',       type: 'number',   default: 125,   min: 0, max: 200, variable: 'link_highlight_percent' },

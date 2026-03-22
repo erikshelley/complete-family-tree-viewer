@@ -4,7 +4,7 @@ The **Complete Family Tree Viewer** is a one-page application that allows you to
 
 This application comes with numerous configuration options to control which people and what information is displayed in the tree, as well as how the tree is styled. If you don't have a Gedcom file available, you can download one of these [Gedcom sample files](https://github.com/D-Jeffrey/gedcom-samples) to use.
 
-This application **does not** allow you to create or edit family trees. For that, you need to use some other genealogy applications or website that allows you to export your tree as a Gedcom file. Here are the most popular options:
+This application **does not** allow you to create or edit family trees. For that, you need to use some other genealogy applications or website that allows you to export your tree as a Gedcom file. Here are some of the most popular options:
 - Websites: [Ancestry](https://www.ancestry.com/), [MyHeritage](https://www.myheritage.com/), [Family Search](https://www.familysearch.org/) 
 - Desktop Software: [RootsMagic](https://www.rootsmagic.com/), [Gramps](https://www.gramps-project.org/wiki/index.php/Main_page), [Legacy Family Tree](https://legacyfamilytree.com/), [GenoPro](https://genopro.com/), [Family Tree Maker](https://www.mackiev.com/ftm/)
 
@@ -36,6 +36,20 @@ Two 3rd party Javascript libraries are used by this application.
 The page background came from this excellent source:
 - [Free SVG Backgrounds and Patterns by SVGBackgrounds.com](https://www.svgbackgrounds.com/set/free-svg-backgrounds-and-patterns/)
 
+The icons are from icons8 > [liquid glass](https://icons8.com/icons/all--style-liquid-glass).
+- <img src="static/png/icons8-menu-48.png" width="16"> <a target="_blank" href="https://icons8.com/icon/0mAtpPoNoAEd/menu">Menu</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- <img src="static/png/icons8-help-48.png" width="16"> <a target="_blank" href="https://icons8.com/icon/osnYseY0Xola/help">Help</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- <img src="static/png/icons8-browse-folder-48.png" width="16"> <a target="_blank" href="https://icons8.com/icon/lSqvuA59KBiX/browse-folder">Browse Folder</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- <img src="static/png/icons8-top-48.png" width="16"> <a target="_blank" href="https://icons8.com/icon/Kxg3ddPq2XL6/upward-arrow">Top</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- <img src="static/png/icons8-expand-48.png" width="16"> <a target="_blank" href="https://icons8.com/icon/1jinb9WZokXK/expand">Expand</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- <img src="static/png/icons8-collapse-48.png" width="16"> <a target="_blank" href="https://icons8.com/icon/oXQVibFkysZg/collapse">Collapse</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- <img src="static/png/icons8-resize-48.png" width="16"> <a target="_blank" href="https://icons8.com/icon/PjMvq8ClC94p/resize">Resize</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- <img src="static/png/icons8-cancel-48.png" width="16"> <a target="_blank" href="https://icons8.com/icon/DXECg4JU1n2x/cancel">Cancel</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- <img src="static/png/icons8-save-48.png" width="16"> <a target="_blank" href="https://icons8.com/icon/3VO7xUNfMILv/save">Save</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- <img src="static/png/icons8-resize-vertical-48.png" width="16"> <a target="_blank" href="https://icons8.com/icon/GiGSyDPA8118/resize-vertical">Resize Vertical</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- <img src="static/png/icons8-resize-horizontal-48.png" width="16"> <a target="_blank" href="https://icons8.com/icon/GXzkVzhz4pZm/resize-horizontal">Resize Horizontal</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- <img src="static/png/icons8-enlarge-48.png" width="16"> <a target="_blank" href="https://icons8.com/icon/bcZmJfs5prDE/enlarge">Enlarge</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+
 ### Questions, Issues, Feature Requests
 Feel free to ask questions, report issues, or request new features right [here on Github](https://github.com/erikshelley/complete-family-tree-viewer/issues)! Review the existing issues first to avoid creating a duplicate.
 
@@ -59,7 +73,6 @@ In the example below, the root person and all people shaded green are in the sam
 - Level 1: siblings
 - Level 2: 1st cousins / half siblings
 - Level 3: 2nd cousins / half 1st cousins
-- Level 4: 3rd cousins / half 2nd cousins
 
 ![](static/png/Design-Levels.png)
 
@@ -79,12 +92,12 @@ The example below contains the same people as the previous example in the **leve
 
 | Option | Description |
 | ------ | ----------- |
-| Browse | Click the Browse button to select and load a Gedcom file from your computer. The people in thte Gedcom file will be populated in the list below. |
+| ![](static/png/icons8-browse-folder-48.png) | Click the Browse button to select and load a Gedcom file from your computer. The people in thte Gedcom file will be populated in the list below. |
 | Filter | Type a name in this box to filter the list of people. |
 | Select Root Person | Click on a person to make the root of the tree. Their family tree will be drawn. |
-| Generations Up | Change this value to control how many generations above the root person will be displayed. Click the up arrow <img src="static/png/icons8-top-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use the maximum possible value for the root person. |
-| Generations Down | Change this value to control how many generations below the root person will be displayed. Click the up arrow <img src="static/png/icons8-top-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use the maximum possible value for the root person. |
-| Stack Size | Change this value to control how many leaf nodes can be stacked in a single stack. Click the up arrow <img src="static/png/icons8-top-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use the maximum possible value for the root person. |
+| Generations Up | Change this value to control how many generations above the root person will be displayed. Click the up arrow <img src="static/png/icons8-top-48.png" width="18" height="18"> to use the maximum possible value for the root person. |
+| Generations Down | Change this value to control how many generations below the root person will be displayed. Click the up arrow <img src="static/png/icons8-top-48.png" width="18" height="18"> to use the maximum possible value for the root person. |
+| Stack Size | Change this value to control how many leaf nodes can be stacked in a single stack. Click the up arrow <img src="static/png/icons8-top-48.png" width="18" height="18"> to use the maximum possible value for the root person. |
 | Position In-Laws Below Spouses | Click this checkbox to position in-laws below their spouses. If it is unchecked, they will be beside their spouses. |
 | Hide Childless In-Laws | Click this checkbox to hide in-laws who are leaf nodes. |
 
@@ -101,13 +114,15 @@ The example below contains the same people as the previous example in the **leve
 ### Overall
 | Option | Description |
 | ------ | ----------- |
-| Presets | Select a preset to quickly change a number of the style settings |
+| ![](static/png/icons8-expand-48.png) | Expand all tree styling sections. |
+| ![](static/png/icons8-collapse-48.png) | Collapse all tree styling sections. |
+| Presets | Select a preset to quickly change a number of the style settings. Some tree content settings may be changed as well. |
 
 ### Size
 | Option | Description |
 | ------ | ----------- |
-| Boxes X | Change this value to control the width of the nodes. Click the resize icon <img src="static/png/icons8-resize-48-v2.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use the width needed to fit the text. |
-| Boxes Y | Change this value to control thet height of the nodes. Click the resize icon <img src="static/png/icons8-resize-48-v2.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use thhe height needed to fit the text. |
+| Boxes X | Change this value to control the width of the nodes. Click the resize icon <img src="static/png/icons8-resize-48.png" width="18" height="18"> to use the width needed to fit the text. |
+| Boxes Y | Change this value to control thet height of the nodes. Click the resize icon <img src="static/png/icons8-resize-48.png" width="18" height="18"> to use thhe height needed to fit the text. |
 | Borders | Change this value to control the size of the node borders. |
 | Links | Change this value to control how thick the links are between nodes. |
 | Font | Change this value to control the size of the text in the nodes. |
@@ -134,10 +149,10 @@ The example below contains the same people as the previous example in the **leve
 ### Highlights (%)
 | Option | Description |
 | ------ | ----------- |
-| Pedigree | Change this value to control if thte pedigree nodes (direct ancestors and descendants of the root person) are darker or brighter than everyone else. 0% is black, 100% is the same brightness as everyone else, and 200% is twice as bright as everyone else. Click the X icon <img src="static/png/icons8-cancel-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use 100% for no highlighting. |
-| Borders | Change this value to control if the node borders are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="static/png/icons8-cancel-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use 100% for no highlighting. |
-| Links | Change this value to control if the links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="static/png/icons8-cancel-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use 100% for no highlighting. |
-| In-Law Links | Change this value to control if the in-law links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="static/png/icons8-cancel-50.png" width="18" height="18" style="filter:invert() brightness(50%);"> to use 100% for no highlighting. |
+| Pedigree | Change this value to control if thte pedigree nodes (direct ancestors and descendants of the root person) are darker or brighter than everyone else. 0% is black, 100% is the same brightness as everyone else, and 200% is twice as bright as everyone else. Click the X icon <img src="static/png/icons8-cancel-48.png" width="18" height="18"> to use 100% for no highlighting. |
+| Borders | Change this value to control if the node borders are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="static/png/icons8-cancel-48.png" width="18" height="18"> to use 100% for no highlighting. |
+| Links | Change this value to control if the links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="static/png/icons8-cancel-48.png" width="18" height="18"> to use 100% for no highlighting. |
+| In-Law Links | Change this value to control if the in-law links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="static/png/icons8-cancel-48.png" width="18" height="18""> to use 100% for no highlighting. |
 
 ### Rounded Corners
 | Option | Description |
@@ -150,9 +165,10 @@ The example below contains the same people as the previous example in the **leve
 
 | Option | Description |
 | ------ | ----------- |
-| Save&nbsp;PNG | Click this button to save the tree as a PNG. Only the visible part of the tree is saved. If you zoom in before clicking the list you will only save part of the tree. If the tree is too large to save as a PNG, it will be resized and saved at a smaller size. SVGs have no size limits. |
-| Save&nbsp;SVG | Click this button to save thte tree as an SVG. Only the visible part of the tree is saved. If you zoom in before clicking the list you will only save part of the tree. SVGs effectively have an infinite resolution. |
-| <img src="static/png/icons8-resize-48-v2.png" width="36" height="36" style="filter:invert() brightness(50%);"> | Click the resize icon to fit the tree to the viewer. |
-| Zoom | Zoom in on the tree as you would when using a mapping application like Google Maps (double-click, pinch, etc.). |
-| Pan | Pan around a zoomed-in tree as you would when using a mapping application like Google Maps (click and drag). |
+| ![](static/png/icons8-save-48.png) | Click this button to save the tree as a PNG or SVG. Only the visible part of the tree is saved. If you zoom in before clicking the list you will only save part of the tree. If the tree is too large to save as a PNG, it will be resized and saved at a smaller size. SVGs have no size limits. |
+| <img src="static/png/icons8-resize-vertical-48.png"> | Click the vertical resize icon to fit the tree to the height of the viewer. |
+| <img src="static/png/icons8-resize-horizontal-48.png"> | Click the horizontal resize icon to fit the tree to the width of the viewer. |
+| <img src="static/png/icons8-enlarge-48.png"> | Click the resize icon to fit the tree to the viewer. |
+| Zoom | Zoom in on the tree as you would when using a mapping application like Google Maps (double-click, pinch, + key, - key, Esc key). |
+| Pan | Pan around a zoomed-in tree as you would when using a mapping application like Google Maps (click and drag, arrow keys). |
 
