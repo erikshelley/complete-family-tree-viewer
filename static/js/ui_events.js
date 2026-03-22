@@ -33,6 +33,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     requestFamilyTreeUpdate();
                 });
             }
+            else if (element_info.type === 'select') {
+                element.value = element_info.default;
+                window[element_info.variable] = element_info.default;
+                element.addEventListener('change', function(event) {
+                    window[element_info.variable] = event.target.value;
+                    requestFamilyTreeUpdate();
+                });
+            }
         }
         let link_element = document.getElementById(element_info.id + '-max-link');
         if (link_element && element_info.max !== undefined) {

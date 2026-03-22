@@ -100,9 +100,9 @@ const style_presets = {
         // Size
         'node-width': 150, 'node-height': 75, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
         // Spacing
-        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 100, 'tree-padding': 150,
+        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 100, 'box-padding': 2, 'tree-padding': 150, 'text-align': 'middle',
         // Color
-        'hue': 180, 'saturation': 33, 'node-brightness': 25, 'text-brightness': 85, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#171717',
+        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
         'pedigree-highlight-percent': 175, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
         // Rounding
@@ -114,9 +114,9 @@ const style_presets = {
         // Size
         'node-width': 150, 'node-height': 75, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
         // Spacing
-        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 132, 'tree-padding': 150,
+        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 132, 'box-padding': 2, 'tree-padding': 150, 'text-align': 'middle',
         // Color
-        'hue': 180, 'saturation': 33, 'node-brightness': 33, 'text-brightness': 85, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#171717',
+        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
         'pedigree-highlight-percent': 100, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
         // Rounding
@@ -128,9 +128,9 @@ const style_presets = {
         // Size
         'node-width': 100, 'node-height': 50, 'node-border-width': 2, 'link-width': 4, 'text-size': 12,
         // Spacing
-        'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 50, 'tree-padding': 100,
+        'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 50, 'box-padding': 2, 'tree-padding': 100, 'text-align': 'middle',
         // Color
-        'hue': 180, 'saturation': 33, 'node-brightness': 33, 'text-brightness': 85, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#171717',
+        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
         'pedigree-highlight-percent': 100, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
         // Rounding
@@ -142,9 +142,9 @@ const style_presets = {
         // Size
         'node-width': 150, 'node-height': 75, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
         // Spacing
-        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 100, 'tree-padding': 150,
+        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 100, 'box-padding': 2, 'tree-padding': 150, 'text-align': 'middle',
         // Color
-        'hue': 180, 'saturation': 33, 'node-brightness': 33, 'text-brightness': 85, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#171717',
+        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
         'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
         // Rounding
@@ -156,27 +156,27 @@ const style_presets = {
         // Size
         'node-width': 200, 'node-height': 100, 'node-border-width': 5, 'link-width': 10, 'text-size': 24,
         // Spacing
-        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 100, 'tree-padding': 150,
+        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 100, 'box-padding': 2, 'tree-padding': 150, 'text-align': 'middle',
         // Color
         'hue': 300, 'saturation': 25, 'node-brightness': 75, 'text-brightness': 100, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#ffffff',
         // Highlights
-        'pedigree-highlight-percent': 75, 'border-highlight-percent': 90, 'link-highlight-percent': 90, 'inlaw-link-highlight-percent': 90,
+        'pedigree-highlight-percent': 100, 'border-highlight-percent': 90, 'link-highlight-percent': 90, 'inlaw-link-highlight-percent': 90,
         // Rounding
         'node-rounding': 25, 'link-rounding': 50,
     },
     'detailed': {
         // Content
-        'max-stack-size': 2, 'vertical-inlaws': true, 'show-names': true, 'show-years': true, 'show-places': true,
+        'max-stack-size': 1, 'vertical-inlaws': false, 'show-names': true, 'show-years': true, 'show-places': true,
         // Size
-        'node-width': 200, 'node-height': 100, 'node-border-width': 4, 'link-width': 4, 'text-size': 12,
+        'node-width': 150, 'node-height': 150, 'node-border-width': 5, 'link-width': 5, 'text-size': 16,
         // Spacing
-        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 100, 'tree-padding': 150,
+        'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 50, 'box-padding': 10, 'tree-padding': 100, 'text-align': 'top',
         // Color
-        'hue': 180, 'saturation': 33, 'node-brightness': 33, 'text-brightness': 85, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#171717',
+        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
         'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
         // Rounding
-        'node-rounding': 50, 'link-rounding': 50,
+        'node-rounding': 10, 'link-rounding': 25,
     },
     'orbs': {
         // Content
@@ -184,9 +184,9 @@ const style_presets = {
         // Size
         'node-width': 150, 'node-height': 150, 'node-border-width': 9, 'link-width': 9, 'text-size': 16,
         // Spacing
-        'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 100, 'tree-padding': 150,
+        'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 100, 'box-padding': 2, 'tree-padding': 150, 'text-align': 'middle',
         // Color
-        'hue': 180, 'saturation': 33, 'node-brightness': 25, 'text-brightness': 85, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#171717',
+        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
         'pedigree-highlight-percent': 175, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
         // Rounding
@@ -231,6 +231,11 @@ const elements = [
 
     { id: 'tree-padding-number',                 type: 'number',   default: 150,   min: 0, max: 600, variable: 'tree_padding' },
     { id: 'tree-padding-range',                  type: 'range',    default: 150,   min: 0, max: 600, variable: 'tree_padding' },
+
+    { id: 'box-padding-number',                  type: 'number',   default: 2,     min: 0, max: 50, variable: 'box_padding' },
+    { id: 'box-padding-range',                   type: 'range',    default: 2,     min: 0, max: 50, variable: 'box_padding' },
+
+    { id: 'text-align-select',                   type: 'select',   default: 'middle', variable: 'text_align' },
 
     { id: 'link-width-number',                   type: 'number',   default: 6,     min: 1, max: 20, variable: 'link_width' },
     { id: 'link-width-range',                    type: 'range',    default: 6,     min: 1, max: 20, variable: 'link_width' },

@@ -382,7 +382,7 @@ input.range-value[type="number"] {
     width: 60px;
 }
 
-input[type="number"], #individual-select, #individual-filter-text, #preset-select {
+input[type="number"], #individual-select, #individual-filter-text, #preset-select, #text-align-select {
     display: inline-block;
     vertical-align: middle;
     background-color: #202020;

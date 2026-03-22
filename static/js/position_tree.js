@@ -69,8 +69,8 @@ function positionMaleAncestor(node, rows) {
             let shift_x = sib_max_x - (node.x + window.box_width - window.h_spacing);
             if (shift_x > 0) {
                 node.x += shift_x;
-                //node.min_x += shift_x;
-                //node.max_x += shift_x;
+                //node.min_x += shift_x;  // DEBUG
+                //node.max_x += shift_x;  // DEBUG
                 node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
             }
         }
@@ -80,8 +80,8 @@ function positionMaleAncestor(node, rows) {
             let shift_x = spouse_max_x - (node.x + window.box_width - window.h_spacing);
             if (shift_x > 0) {
                 node.x += shift_x;
-                //node.min_x += shift_x;
-                //node.max_x += shift_x;
+                //node.min_x += shift_x; // DEBUG
+                //node.max_x += shift_x; // DEBUG
             }
         }
 
@@ -223,6 +223,7 @@ function positionInlaw(node, rows) {
     if (node.children_nodes.length > 0) {
         let shift_x = node.x + window.box_width / 2 - getChildCenter(node) + (window.vertical_inlaws ? 0 : x_offset);
         if (shift_x > 0) {
+            // DEBUG
             let child_max_x = -Infinity;
             node.children_nodes.forEach(child_node => { 
                 shiftSubtree(child_node, shift_x); 
@@ -230,6 +231,8 @@ function positionInlaw(node, rows) {
             });
             if (node.min_x < node.x) node.min_x = Math.min(node.min_x + shift_x, node.x);
             node.max_x = Math.max(node.max_x, child_max_x);
+            // node.min_x += shift_x; // DEBUG
+            // node.max_x += shift_x; // DEBUG
         }
         if (shift_x < 0) {
             node.x -= shift_x;
@@ -255,6 +258,7 @@ function shiftPersonNextToSpouse(node) {
             previous_x = spouse_node.x;
         });
         node.x = previous_x + window.box_width + window.h_spacing;
+        // DEBUG
         previous_x = Infinity;
         node.spouse_nodes.reverse().forEach(spouse_node => {
             if ((previous_x != Infinity) && (spouse_node.children_nodes.length === 0)) spouse_node.x = previous_x - window.box_width - window.h_spacing;
@@ -475,15 +479,15 @@ function positionNode(node, rows) {
                 if (pedigree_spouse_node) {
                     let spouse_children_max_x = -Infinity;
                     pedigree_spouse_node.children_nodes.forEach(child_node => { spouse_children_max_x = Math.max(spouse_children_max_x, child_node.x); });
-                    //node.x = Math.max(node.x, spouse_children_max_x);
-                    let shift_x = Math.max(node.x, spouse_children_max_x) - node.x;
-                    if (shift_x > 0) {
-                        node.x += shift_x;
-                        node.min_x += shift_x;
-                        node.max_x += shift_x;
-                        node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
-                        shiftSiblings(node, shift_x);
-                    }
+                    node.x = Math.max(node.x, spouse_children_max_x); // DEBUG
+                    // let shift_x = Math.max(node.x, spouse_children_max_x) - node.x;
+                    // if (shift_x > 0) {
+                        // node.x += shift_x;
+                        // node.min_x += shift_x;
+                        // node.max_x += shift_x;
+                        // node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw').forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
+                        // shiftSiblings(node, shift_x);
+                    // }
                 }
             }
         }

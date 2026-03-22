@@ -40,7 +40,9 @@ async function drawTree(rows) {
         svg.attr('height', svg_height);
     }
     svg.attr('viewBox', `0 0 ${max_scale * svg_width} ${max_scale * svg_height}`);
-    svg.call(d3.zoom().scaleExtent([1, 2 * max_scale]).on("zoom", zoomed));
+    const zoom = d3.zoom().scaleExtent([1, 2 * max_scale]).on("zoom", zoomed);
+    svg.call(zoom);
+    svg.node().__zoom_behavior = zoom;
     const svg_node = svg.append("g");
     function zoomed({transform}) { svg_node.attr("transform", transform); }
 
@@ -73,6 +75,37 @@ async function drawTree(rows) {
     let max_text_size = `${spacer}Max Font: ${window.max_text_size}px`;
     let earliest_birth_year = window.earliest_birth_year ? `${spacer}Earliest Birth: ${window.earliest_birth_year}` : '';
     status_bar_div.innerHTML = `${people_shown}${tree_dimensions}${spacer}${print_dimensions}${min_text_size}${max_text_size}${earliest_birth_year}`;
+
+    d3.select('body').on('keydown', function (event) {
+        var k = d3.zoomTransform(svg.node()).k;
+        var step_x = (bounding_box.width - 24) * max_scale * 0.25 / k;
+        var step_y = (bounding_box.height - 40) * max_scale * 0.25 / k;
+        var key = event.key;
+        switch (key) {
+        case 'Escape':
+            svg.transition().call(zoom.transform, d3.zoomIdentity);
+            break;
+        case '+':
+        case '=':
+            svg.transition().call(zoom.scaleBy, 2);
+            break;
+        case '-':
+            svg.transition().call(zoom.scaleBy, 0.5);
+            break;
+        case 'ArrowLeft':
+            svg.call(zoom.translateBy, step_x, 0);
+            break;
+        case 'ArrowRight':
+            svg.call(zoom.translateBy, -step_x, 0);
+            break;
+        case 'ArrowUp':
+            svg.call(zoom.translateBy, 0, step_y);
+            break;
+        case 'ArrowDown':
+            svg.call(zoom.translateBy, 0, -step_y);
+            break;
+        }
+    });
 }
 
 
@@ -372,63 +405,34 @@ function drawText(g, node) {
         .attr('fill', text_color)
         .style('text-shadow', (window.text_shadow !== false) ? '1px 1px 2px rgba(0,0,0,0.75)' : 'none');
 
-    // Name line logic: if show_places is enabled, show name on a single line; otherwise, split into two lines if needed
+    // Name
     const name = node.individual.name || '';
-    let line1, line2;
-    if (window.show_places) {
-        line1 = name;
-        line2 = '';
-    } else {
-        let splitIdx = -1;
-        let minDist = name.length;
-        const mid = Math.floor(name.length / 2);
-        for (let i = 0; i < name.length; i++) {
-            if (name[i] === ' ') {
-                const dist = Math.abs(i - mid);
-                if (dist < minDist) {
-                    minDist = dist;
-                    splitIdx = i;
-                }
-            }
-        }
-        if (splitIdx !== -1) {
-            line1 = name.slice(0, splitIdx);
-            line2 = name.slice(splitIdx + 1);
-        } else {
-            line1 = name;
-            line2 = '';
-        }
-    }
+    const weight = is_bold ? 'bold' : 'normal';
+    let main_font_size = window.text_size || window.default_text_size || 12;
+    let secondary_font_size = Math.max(6, Math.round(main_font_size * 0.75));
 
-    // Collect lines to render
-    let lines = [];
-    if (window.show_names) {
-        if (line1) lines.push({text: line1, anchor: 'middle'});
-        if (line2) lines.push({text: line2, anchor: 'middle'});
-    }
+    // Build secondary content before fitting the name
+    let secondary_strings = [];   // raw unwrapped strings (for dates, only one line each)
+    let place_strings = [];       // raw unwrapped place strings (may need re-wrapping)
 
-    // Add birth-death line if enabled (centered), but only if show_places is not also enabled
     if (window.show_years && !window.show_places) {
-        const birth_death = node.individual.birth && node.individual.death ? 
-            `${node.individual.birth}-${node.individual.death}` : 
-                node.individual.birth ? `${node.individual.birth}-` : 
-                    node.individual.death ? `-${node.individual.death}` : 
+        const birth_death = node.individual.birth && node.individual.death ?
+            `${node.individual.birth}-${node.individual.death}` :
+                node.individual.birth ? `${node.individual.birth}-` :
+                    node.individual.death ? `-${node.individual.death}` :
                         '';
-        if (birth_death != '') {
-            lines.push({text: birth_death, anchor: 'middle'});
+        if (birth_death !== '') {
+            secondary_strings.push(birth_death);
         }
     }
 
-    // Add birth/death places if enabled (centered, below name/years)
     if (window.show_places) {
-        // Compose birth and death place lines
         let birth_line = '';
         let death_line = '';
         if (node.individual.birth_place) {
             birth_line = window.show_years && node.individual.birth ? `B: ${node.individual.birth} ` : 'B: ';
             birth_line += node.individual.birth_place;
         } else if (window.show_years && node.individual.birth && node.individual.birth_place !== undefined) {
-            // If birth_place is empty string but show_years is on, still show year
             birth_line = `B: ${node.individual.birth}`;
         }
         if (node.individual.death_place) {
@@ -437,92 +441,138 @@ function drawText(g, node) {
         } else if (window.show_years && node.individual.death && node.individual.death_place !== undefined) {
             death_line = `D: ${node.individual.death}`;
         }
-        if (birth_line) lines.push({text: birth_line, anchor: 'middle'});
-        if (death_line) lines.push({text: death_line, anchor: 'middle'});
+        if (birth_line) place_strings.push(birth_line);
+        if (death_line) place_strings.push(death_line);
     }
 
-    // Render all lines as tspans, with smaller font for dates/places
+    // Wrap place strings and build secondary_lines at a given font size
+    function buildSecondaryLines(secFontSize) {
+        let result = secondary_strings.slice();
+        place_strings.forEach(s => {
+            const fit = fitTextInBox(s, window.box_width, secFontSize * 10, 'Arial, sans-serif', 'normal', secFontSize);
+            fit.lines.forEach(l => result.push(l));
+        });
+        return result;
+    }
+
+    let secondary_lines = buildSecondaryLines(secondary_font_size);
+
+    // Calculate available height for the name, reserving space for secondary lines
+    let name_available_height = window.box_height;
+    if (secondary_lines.length > 0) {
+        const gap = secondary_font_size * 0.5;
+        name_available_height -= secondary_lines.length * secondary_font_size * 1.2 + gap;
+        name_available_height = Math.max(name_available_height, main_font_size * 1.2);
+    }
+
+    // Fit the name into the available space
+    let name_lines = [];
+    let name_font_size = main_font_size;
+    if (window.show_names && name) {
+        const fit = fitTextInBox(name, window.box_width, name_available_height, 'Arial, sans-serif', weight, main_font_size);
+        name_lines = fit.lines;
+        name_font_size = fit.fontSize;
+    }
+
+    // Ensure secondary font never exceeds name font
+    secondary_font_size = Math.min(secondary_font_size, name_font_size);
+    if (secondary_font_size < Math.max(6, Math.round(main_font_size * 0.75))) {
+        // Re-wrap secondary lines at the reduced font size
+        secondary_lines = buildSecondaryLines(secondary_font_size);
+    }
+
+    // Check whether the name fits at the desired size (no shrink needed)
+    const name_fits_at_desired = (name_font_size === main_font_size);
+
+    // Assemble combined lines
+    function buildAllLines(secLines) {
+        let result = [];
+        name_lines.forEach(l => result.push({text: l, type: 'name'}));
+        secLines.forEach(l => result.push({text: l, type: 'secondary'}));
+        return result;
+    }
+
+    let lines = buildAllLines(secondary_lines);
     let text_lines = lines.length;
-    let dy = 0;
-    let main_font_size = window.text_size || window.default_text_size || 12;
-    let secondary_font_size = Math.max(6, Math.round(main_font_size * 0.75));
-    // Determine how many name lines there are (1 if show_places, else 1 or 2)
-    let name_line_count = 0;
-    if (window.show_names) {
-        if (lines.length > 0) name_line_count++;
-        if (lines.length > 1 && !window.show_places) name_line_count++;
-    }
+    if (text_lines === 0) return;
 
-    // Helper to render tspans for a given font size
-    function renderTspans(fontSize, secondaryFontSize) {
+    // Render tspans
+    function renderAllTspans(nameFontSize, secFontSize) {
         text_element.selectAll('*').remove();
         lines.forEach((line, i) => {
-            const is_name_line = (i === 0) || (i === 1 && lines[1] && (!window.show_places));
             let dy = '1.2em';
-            if (i === 0) {
-                dy = '0em';
-            } else if (i === name_line_count) {
-                dy = '1.7em';
-            }
+            if (i === 0) dy = '0em';
+            else if (i === name_lines.length) dy = '1.7em';
+            const is_name = line.type === 'name';
             text_element.append('tspan')
                 .attr('x', window.box_width / 2)
                 .attr('text-anchor', 'middle')
                 .attr('dy', dy)
-                .attr('font-size', is_name_line ? fontSize : secondaryFontSize)
-                .attr('font-weight', is_name_line && is_bold ? 'bold' : 'normal')
+                .attr('font-size', is_name ? nameFontSize : secFontSize)
+                .attr('font-weight', is_name && is_bold ? 'bold' : 'normal')
                 .text(line.text);
         });
     }
 
-    // Initial render
-    renderTspans(main_font_size, secondary_font_size);
+    renderAllTspans(name_font_size, secondary_font_size);
 
-    // Adjust font size if needed (scale all lines together, min 6px)
-    if (text_lines > 0) {
-        const min_font_size = 6;
-        const padding = 0;
-        const max_width = window.box_width - padding;
-        const max_height = window.box_height - padding;
-        let bbox = text_element.node().getBBox();
-        if (bbox.width > max_width) {
-            // Scale both main and secondary font sizes proportionally
-            let scale = max_width / bbox.width;
-            
-            let new_main = Math.max(main_font_size, Math.floor(main_font_size * scale));
-            let new_secondary = Math.floor(new_main * 0.75);
-            renderTspans(new_main, new_secondary);
-            bbox = text_element.node().getBBox();
+    window.min_text_size = Math.min(window.min_text_size, name_font_size);
+    window.max_text_size = Math.max(window.max_text_size, name_font_size);
 
-            new_main = Math.max(min_font_size, Math.floor(main_font_size * scale));
-            new_secondary = Math.floor(new_main * 0.75);
-            renderTspans(new_main, new_secondary);
+    // Handle overflow: if name fits at desired size, only shrink secondary font
+    const min_font_size = 6;
+    const max_width = window.box_width;
+    const max_height = window.box_height;
+    let bbox = text_element.node().getBBox();
 
-            window.min_text_size = Math.min(window.min_text_size, new_main);
-            window.max_text_size = Math.max(window.max_text_size, new_main);
+    if (bbox.width > max_width || bbox.height > max_height) {
+        if (name_fits_at_desired && secondary_lines.length > 0) {
+            // Only shrink secondary font, re-wrap places, keep name font unchanged
+            let sec_size = secondary_font_size;
+            while (sec_size > min_font_size && (bbox.width > max_width || bbox.height > max_height)) {
+                sec_size--;
+                secondary_lines = buildSecondaryLines(sec_size);
+                lines = buildAllLines(secondary_lines);
+                text_lines = lines.length;
+                renderAllTspans(name_font_size, sec_size);
+                bbox = text_element.node().getBBox();
+            }
+            secondary_font_size = sec_size;
+            // Ensure name is never smaller than secondary after shrinking
+            if (name_font_size < secondary_font_size) secondary_font_size = name_font_size;
         }
-        if (bbox.height > max_height) {
-            let scale = max_height / bbox.height;
-            let new_main = Math.max(main_font_size, Math.floor(main_font_size * scale));
-            let new_secondary = Math.floor(new_main * 0.75);
-            renderTspans(new_main, new_secondary);
+
+        // If still overflowing, scale both proportionally
+        if (bbox.width > max_width || bbox.height > max_height) {
+            let scale = Math.min(
+                bbox.width > max_width ? max_width / bbox.width : 1,
+                bbox.height > max_height ? max_height / bbox.height : 1
+            );
+            let new_name = Math.max(min_font_size, Math.floor(name_font_size * scale));
+            let new_sec = Math.min(new_name, Math.max(min_font_size, Math.floor(secondary_font_size * scale)));
+            renderAllTspans(new_name, new_sec);
+            window.min_text_size = Math.min(window.min_text_size, new_name);
+            window.max_text_size = Math.max(window.max_text_size, new_name);
             bbox = text_element.node().getBBox();
-
-            new_main = Math.max(min_font_size, Math.floor(main_font_size * scale));
-            new_secondary = Math.floor(new_main * 0.75);
-            renderTspans(new_main, new_secondary);
-
-            window.min_text_size = Math.min(window.min_text_size, new_main);
-            window.max_text_size = Math.max(window.max_text_size, new_main);
         }
-        if (bbox.width <= max_width && bbox.height <= max_height) window.max_text_size = Math.max(window.max_text_size, main_font_size);
-        window.auto_box_width = Math.max(window.auto_box_width, window.box_width * (bbox.width / max_width), 20);
-        window.auto_box_height = Math.max(window.auto_box_height, bbox.height, 20);
-
-        // Vertically center text in node
-        const line_height = bbox.height / text_lines;
-        const text_y = line_height / 1.25 + (window.box_height - bbox.height) / 2;
-        text_element.attr('y', text_y);
     }
+
+    if (bbox.width <= max_width && bbox.height <= max_height) window.max_text_size = Math.max(window.max_text_size, name_font_size);
+    window.auto_box_width = Math.max(window.auto_box_width, window.box_width * (bbox.width / max_width), 20);
+    window.auto_box_height = Math.max(window.auto_box_height, bbox.height, 20);
+
+    // Vertically position text in node based on text_align setting
+    const line_height = bbox.height / text_lines;
+    const pad = window.box_padding || 0;
+    let text_y;
+    if (window.text_align === 'top') {
+        text_y = line_height / 1.25 + pad;
+    } else if (window.text_align === 'bottom') {
+        text_y = line_height / 1.25 + (window.box_height - bbox.height) - pad;
+    } else {
+        text_y = line_height / 1.25 + (window.box_height - bbox.height) / 2;
+    }
+    text_element.attr('y', text_y);
 
 }
 
@@ -596,4 +646,79 @@ function getNodeHCL(node, inlaw_desaturated = true) {
     const chroma = (inlaw_desaturated && (node.type === 'inlaw')) ? 0 : window.node_saturation;
     const luminance = window.node_brightness;
     return [hue, chroma, luminance];
+}
+
+
+function fitTextInBox(str, width, height, fontFamily = 'Arial, sans-serif', fontWeight = 'normal', maxFontSize = null) {
+    // Returns { lines: string[], fontSize: number } with the largest font size
+    // such that the wrapped lines fit within the given width and height.
+
+    // Reduce effective box size by border width and box padding on all sides
+    //const border = window.node_border_width || 0;
+    const padding = window.box_padding || 0;
+    //const inset = border + padding;
+    //width = Math.max(0, width - 2 * inset);
+    //height = Math.max(0, height - 2 * inset);
+    width = Math.max(0, width - 2 * padding);
+    height = Math.max(0, height - 2 * padding);
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function measureTextWidth(text, fontSize) {
+        ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+        return ctx.measureText(text).width;
+    }
+
+    // Word-wrap the string into lines that fit within maxWidth at the given fontSize.
+    // Splits on spaces; words wider than maxWidth are placed on their own line.
+    function wrapText(text, fontSize, maxWidth) {
+        const words = text.split(/\s+/).filter(w => w.length > 0);
+        if (words.length === 0) return [''];
+        const lines = [];
+        let currentLine = words[0];
+        for (let i = 1; i < words.length; i++) {
+            const candidate = currentLine + ' ' + words[i];
+            if (measureTextWidth(candidate, fontSize) <= maxWidth) {
+                currentLine = candidate;
+            } else {
+                lines.push(currentLine);
+                currentLine = words[i];
+            }
+        }
+        lines.push(currentLine);
+        return lines;
+    }
+
+    // Check whether the string fits in the box at a given font size.
+    // Line height is estimated as 1.2 × fontSize.
+    function fitsAtSize(fontSize) {
+        const lines = wrapText(str, fontSize, width);
+        const totalHeight = lines.length * fontSize * 1.2;
+        if (totalHeight > height) return null;
+        for (const line of lines) {
+            if (measureTextWidth(line, fontSize) > width) return null;
+        }
+        return lines;
+    }
+
+    // Binary search for the largest integer font size that fits.
+    let lo = 1;
+    let hi = maxFontSize ? Math.min(Math.ceil(height), maxFontSize) : Math.ceil(height);
+    let bestLines = [str];
+    let bestSize = 1;
+
+    while (lo <= hi) {
+        const mid = Math.floor((lo + hi) / 2);
+        const result = fitsAtSize(mid);
+        if (result) {
+            bestLines = result;
+            bestSize = mid;
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+
+    return { lines: bestLines, fontSize: bestSize };
 }

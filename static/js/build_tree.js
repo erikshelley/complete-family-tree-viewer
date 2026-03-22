@@ -76,7 +76,9 @@ function createUnknownIndividual(gender, family) {
     const known_spouse_id = gender === 'M' ? family.wife : family.husb;
     const known_spouse = window.individuals.find(ind => ind.id === known_spouse_id);
     //console.log(known_spouse);
-    const person = { id: known_spouse.id + gender, name: `Spouse of ${known_spouse.name}`, famc: null, fams: [family], gender: gender };
+    // Only use first name of known spouse to create unknown individual ID
+    const first_name = known_spouse.name.split(' ')[0];
+    const person = { id: known_spouse.id + gender, name: `Spouse of ${first_name}`, famc: null, fams: [family], gender: gender };
     window.individuals.push(person);
     if (gender === 'M') family.husb = person.id;
     else family.wife = person.id;

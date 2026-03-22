@@ -4,43 +4,30 @@
 
 | Priority |   Type  | &nbsp;Target&nbsp;  | Functions | Description |
 |:--------:|:-------:| ------------------- |:---------:| ----------- |
-|    🟡    |   Bug   |        | UI | Narrow windows push Tree Viewer header below buttons |
-|    🟡    |   Bug   |        | UI | Sometimes extra gap between inlaws in descendaant trees : Sharlot 0up x 2dn has no gap, 1up x 2dn has a gap |
-|    🟡    |   Bug   |        | TBD | Issues when root has no gender? no spouse? Issue for non-root individuals? |
-|    ⚫    | ------- | ------ | --------------------- | ------------ |
-|    🟡    | Feature | 19-Mar | UI | ~~Collapsible options sections~~ |
-|    🟡    |   Bug   | 19-Mar | UI | ~~Mouse cursor not changing over label of Show Places of Birth/Death~~ |
-|    🟡    |   Bug   | 19-Mar | UI | ~~Size to fit does not need to redraw the tree~~ |
-|    🔴    |   Bug   | 20-Mar | Build | ~~Alexander Fred as root, 2 generations up, >0 gen down, Maria Fitzpatrick as his spouse gets replaced by Maria as the daughter of his Aunt~~ |
-|    🔴    |   Bug   | 20-Mar | Build + UI | ~~Maxing out generations down (or exceeding by one) breaks the color hues, but not always~~ |
-|    🔴    |   Bug   | 20-Mar | UI | ~~Sometimes selecting a root person does not display a tree~~ |
-|    🔴    | Feature | 20-Mar | UI + Position | ~~Option to have inlaws next to their spouses - will require updates to the README~~ |
-|    ⚫    | ------- | ------ | --------------------- | ------------ |
-|    🟠    | Feature | 20-Mar | UI + Draw | Specify number of lines allowed for name |
-|    🟡    | Feature | 20-Mar | UI + Draw | Vertical text alignment, top/middle/bottom |
-|    🟡    |   Bug   | 20-Mar | Draw | Vertical text centering is slightly too low for one-liners |
-|    🟡    |   Bug   | 20-Mar | Draw | Vertical text centering is slightly too high for nodes with smaller fonts than the rest |
-|    🟠    |   Bug   | 20-Mar | Draw | Text giving up on sizing at some point? Noah's 5-down tree, box width 100, go from font size 16 to 17 and some sizes jump |
-|    🟡    | Feature | 20-Mar | UI + Draw | Auto text size |
-|    ⚫    | ------- | ------ | --------------------- | ------------ |
-|    🔴    |   Bug   | 21-Mar | Position | *Sometimes siblings and spouses are spaced unevenly when some have children and others do not* |
-|    🟠    |   Bug   | 21-Mar | Position | With stacking > 1 and only stackable child/sibling/spouse, they are no longer in the proper order |
-|    ⚫    | ------- | ------ | --------------------- | ------------ |
-|    🟡    | Feature | 22-Mar | UI + Build | *Option to hide siblings (and ancestor inlaws) - pedigree only tree* |
-|    🟡    | Feature | 22-Mar | Build + Position | Option to not add Unknown Spouse nodes |
-|    ⚫    | ------- | ------ | --------------------- | ------------ |
-|    🟡    | Feature | 23-Mar | Draw | *Click on node to make them the new root person - is this possible?* |
-|    🟡    | Feature | 23-Mar | UI + Build+Draw | *After selecting root, create 2nd list of people to select from (or click on another person), highlight the path between them* |
-|    🟡    | Feature | 24-Mar | UI + Build + Position + Draw | Option to hide dotted links for inbreeding - add nodes with "Duplicate of {person name}" |
-|    ⚫    | ------- | ------ | --------------------- | ------------ |
+|    🟡    | Feature |        | UI + Build | *Option to hide siblings (and ancestor inlaws) - pedigree only tree* |
+|    🟡    | Feature |        | Build + Position | Option to not add Unknown Spouse nodes |
+|    🟡    | Feature |        | Draw | *Click on node to make them the new root person - is this possible?* |
+|    🟡    | Feature |        | UI + Build + Draw | *After selecting root, create 2nd list of people to select from (or click on another person), highlight the path between them* |
+|    🟡    | Feature |        | UI + Build + Position | Ignore order of birth to save space |
+|    🟢    | Feature |        | UI + Draw | Auto text size |
+|    🟢    | Feature |        | UI | Save and load settings |
 |    🟢    | Feature |        | Build + Position | Sometimes siblings/children can fit in the gaps with no need to stack them |
 |    🟢    | Feature |        | UI + Build + Position | Allow end siblings/children to be moved into gaps to compress the tree - violate age order |
 |    🟢    | Feature |        | UI | Typing Enter should activate OK in save file modal, Escape shoudl activate cancel |
 |    🟢    | Feature |        | README | Explain hcl vs hsl - colors seem to shift depending on brightness (hue 0 doesn't look red at high brightness) |
 |    🟢    | Feature |        | Draw | Is there a way to make the root person easier to find |
 |    🟢    | Feature |        | Parse | Is it possible to show profile images from sites like Ancestry.com from what's in the Gedcom? |
+|    ⚫    | ------- | ------ | ------ | ------ |
+|    🔴    |   Bug   |        | Position | *Sometimes siblings and spouses are spaced unevenly when some have children and others do not* |
+|    🔴    |   Bug   |        | Position | *Sometimes stacked siblings and spouses could be spread in the gaps to save horizontal space* |
+|    🟠    |   Bug   |        | Position | With stacking > 1 and only stackable child/sibling/spouse, they are no longer in the proper order |
+|    🟠    |   Bug   |        | TBD | Issues when root has no gender? no spouse? Issue for non-root individuals? |
+|    🟡    |   Bug   |        | Draw | Vertical text centering is slightly too low for one-liners |
+|    🟡    |   Bug   |        | Draw | Vertical text centering is slightly too high for nodes with smaller fonts than the rest |
+|    🟡    |   Bug   |        | UI | Sometimes extra gap between inlaws in descendaant trees : Sharlot 0up x 2dn has no gap, 1up x 2dn has a gap |
+|    🟡    |   Bug   |        | UI | Narrow windows push Tree Viewer header below buttons |
+|    🟡    |   Bug   |        | Draw | Text shadow can have issues when saving a large tree as a PNG |
 |    🟢    |   Bug   |        | Parse | Are special characters displayed properly (accents, umlauts, etc.)? : UTF-8 |
-|    🟢    |   Bug   |        | Draw | Text shadow can have issues when saving a large tree as a PNG |
 |    🟢    |   Bug   |        | Build | Warning in dev tools when showing dates for an Unknown Person |
 |    🟢    |   Bug   |        | Draw | Slower rendering for very large trees seems to be due to the text - without text it is quick |
 

@@ -63,13 +63,17 @@ function updateOptionsVisibility() {
 
 
 function zoomToFit() {
-    const svg = family_tree_div.querySelector('svg');
-    if (!svg) return;
-    // select the g element inside the svg, then change the transform to {k: 1, x: 0, y: 0}
-    const g = svg.querySelector('g');
-    if (!g) return;
-    const transform = d3.zoomIdentity.translate(0, 0).scale(1);
-    g.setAttribute('transform', `translate(${transform.x},${transform.y}) scale(${transform.k})`);
+    const svgEl = family_tree_div.querySelector('svg');
+    if (!svgEl) return;
+    const svg = d3.select(svgEl);
+    // Reset zoom via D3's zoom API so internal state stays in sync
+    const zoom = svgEl.__zoom_behavior;
+    if (zoom) {
+        svg.transition().call(zoom.transform, d3.zoomIdentity);
+    } else {
+        // Fallback: dispatch a synthetic identity transform
+        svg.call(d3.zoom().transform, d3.zoomIdentity);
+    }
 }
 
 
@@ -189,6 +193,13 @@ function usePresetStyle(preset_name) {
                     if (key === 'background-color') {
                         color_picker.value = value;
                         window.tree_color = value;
+                    }
+                    if (key === 'text-align') {
+                        const text_align_element = document.getElementById('text-align-select');
+                        if (text_align_element) {
+                            text_align_element.value = value;
+                            window.text_align = value;
+                        }
                     }
                 }
             }

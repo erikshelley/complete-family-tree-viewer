@@ -61,7 +61,7 @@ In the example below, the root person and all people shaded green are in the sam
 - Level 3: 2nd cousins / half 1st cousins
 - Level 4: 3rd cousins / half 2nd cousins
 
-![](static/png/Design-Levels.png) |
+![](static/png/Design-Levels.png)
 
 ### Stacking
 
@@ -69,7 +69,7 @@ To avoid trees that are extremely wide, the concept of stacking is introduced. A
 
 The example below contains the same people as the previous example in the **levels** section above. It takes up significantly less space.
 
-![](static/png/Design-Stacking.png) |
+![](static/png/Design-Stacking.png)
 
 
 ## Usage
