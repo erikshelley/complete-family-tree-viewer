@@ -653,12 +653,8 @@ function fitTextInBox(str, width, height, fontFamily = 'Arial, sans-serif', font
     // Returns { lines: string[], fontSize: number } with the largest font size
     // such that the wrapped lines fit within the given width and height.
 
-    // Reduce effective box size by border width and box padding on all sides
-    //const border = window.node_border_width || 0;
+    // Reduce effective box size by box padding on all sides
     const padding = window.box_padding || 0;
-    //const inset = border + padding;
-    //width = Math.max(0, width - 2 * inset);
-    //height = Math.max(0, height - 2 * inset);
     width = Math.max(0, width - 2 * padding);
     height = Math.max(0, height - 2 * padding);
 
@@ -671,19 +667,27 @@ function fitTextInBox(str, width, height, fontFamily = 'Arial, sans-serif', font
     }
 
     // Word-wrap the string into lines that fit within maxWidth at the given fontSize.
-    // Splits on spaces; words wider than maxWidth are placed on their own line.
+    // Splits on spaces and after hyphens; tokens wider than maxWidth are placed on their own line.
     function wrapText(text, fontSize, maxWidth) {
-        const words = text.split(/\s+/).filter(w => w.length > 0);
-        if (words.length === 0) return [''];
+        // Split into tokens that break on spaces and after hyphens (keeping the hyphen with the preceding token)
+        const tokens = text.match(/[^\s-]+-|[^\s-]+|\s+/g) || [''];
+        // Filter out whitespace-only tokens but track where spaces were
+        const parts = [];
+        for (const token of tokens) {
+            if (/^\s+$/.test(token)) continue;
+            parts.push(token);
+        }
+        if (parts.length === 0) return [''];
         const lines = [];
-        let currentLine = words[0];
-        for (let i = 1; i < words.length; i++) {
-            const candidate = currentLine + ' ' + words[i];
+        let currentLine = parts[0];
+        for (let i = 1; i < parts.length; i++) {
+            const separator = currentLine.endsWith('-') ? '' : ' ';
+            const candidate = currentLine + separator + parts[i];
             if (measureTextWidth(candidate, fontSize) <= maxWidth) {
                 currentLine = candidate;
             } else {
                 lines.push(currentLine);
-                currentLine = words[i];
+                currentLine = parts[i];
             }
         }
         lines.push(currentLine);

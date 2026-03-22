@@ -98,71 +98,43 @@ const style_presets = {
         // Content
         'max-stack-size': 2, 'vertical-inlaws': true, 'show-names': true, 'show-years': true, 'show-places': false,
         // Size
-        'node-width': 150, 'node-height': 75, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
+        'node-width': 100, 'node-height': 100, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
         // Spacing
-        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 100, 'box-padding': 2, 'tree-padding': 150, 'text-align': 'middle',
+        'h-spacing': 50, 'v-spacing': 50, 'level-spacing': 100, 'box-padding': 10, 'tree-padding': 150, 'text-align': 'top',
         // Color
-        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
+        'hue': 180, 'saturation': 20, 'node-brightness': 25, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
-        'pedigree-highlight-percent': 175, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
+        'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
         // Rounding
-        'node-rounding': 25, 'link-rounding': 50,
+        'node-rounding': 25, 'link-rounding': 25,
     },
     'traditional': {
         // Content
         'max-stack-size': 1, 'vertical-inlaws': false, 'show-names': true, 'show-years': true, 'show-places': false,
         // Size
-        'node-width': 150, 'node-height': 75, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
+        'node-width': 100, 'node-height': 100, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
         // Spacing
-        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 132, 'box-padding': 2, 'tree-padding': 150, 'text-align': 'middle',
+        'h-spacing': 50, 'v-spacing': 50, 'level-spacing': 100, 'box-padding': 10, 'tree-padding': 150, 'text-align': 'top',
         // Color
         'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
         'pedigree-highlight-percent': 100, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
         // Rounding
-        'node-rounding': 25, 'link-rounding': 50,
+        'node-rounding': 25, 'link-rounding': 25,
     },
     'compact': {
         // Content
         'max-stack-size': 99, 'vertical-inlaws': true, 'show-names': true, 'show-years': false, 'show-places': false,
         // Size
-        'node-width': 100, 'node-height': 50, 'node-border-width': 2, 'link-width': 4, 'text-size': 12,
+        'node-width': 75, 'node-height': 50, 'node-border-width': 2, 'link-width': 4, 'text-size': 12,
         // Spacing
-        'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 50, 'box-padding': 2, 'tree-padding': 100, 'text-align': 'middle',
+        'h-spacing': 25, 'v-spacing': 25, 'level-spacing': 50, 'box-padding': 2, 'tree-padding': 100, 'text-align': 'middle',
         // Color
         'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
         'pedigree-highlight-percent': 100, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
         // Rounding
-        'node-rounding': 25, 'link-rounding': 50,
-    },
-    'sharp': {
-        // Content
-        'max-stack-size': 1, 'vertical-inlaws': true, 'show-names': true, 'show-years': true, 'show-places': false,
-        // Size
-        'node-width': 150, 'node-height': 75, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
-        // Spacing
-        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 100, 'box-padding': 2, 'tree-padding': 150, 'text-align': 'middle',
-        // Color
-        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
-        // Highlights
-        'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
-        // Rounding
-        'node-rounding': 0, 'link-rounding': 0,
-    },
-    'print': {
-        // Content
-        'max-stack-size': 1, 'vertical-inlaws': false, 'show-names': true, 'show-years': true, 'show-places': false,
-        // Size
-        'node-width': 200, 'node-height': 100, 'node-border-width': 5, 'link-width': 10, 'text-size': 24,
-        // Spacing
-        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 100, 'box-padding': 2, 'tree-padding': 150, 'text-align': 'middle',
-        // Color
-        'hue': 300, 'saturation': 25, 'node-brightness': 75, 'text-brightness': 100, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#ffffff',
-        // Highlights
-        'pedigree-highlight-percent': 100, 'border-highlight-percent': 90, 'link-highlight-percent': 90, 'inlaw-link-highlight-percent': 90,
-        // Rounding
-        'node-rounding': 25, 'link-rounding': 50,
+        'node-rounding': 25, 'link-rounding': 25,
     },
     'detailed': {
         // Content
@@ -178,19 +150,47 @@ const style_presets = {
         // Rounding
         'node-rounding': 10, 'link-rounding': 25,
     },
+    'print': {
+        // Content
+        'max-stack-size': 1, 'vertical-inlaws': false, 'show-names': true, 'show-years': true, 'show-places': false,
+        // Size
+        'node-width': 150, 'node-height': 150, 'node-border-width': 5, 'link-width': 10, 'text-size': 24,
+        // Spacing
+        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 100, 'box-padding': 2, 'tree-padding': 150, 'text-align': 'middle',
+        // Color
+        'hue': 300, 'saturation': 20, 'node-brightness': 80, 'text-brightness': 40, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#ffffff',
+        // Highlights
+        'pedigree-highlight-percent': 100, 'border-highlight-percent': 90, 'link-highlight-percent': 90, 'inlaw-link-highlight-percent': 90,
+        // Rounding
+        'node-rounding': 25, 'link-rounding': 50,
+    },
+    'sharp': {
+        // Content
+        'max-stack-size': 1, 'vertical-inlaws': true, 'show-names': true, 'show-years': true, 'show-places': false,
+        // Size
+        'node-width': 100, 'node-height': 100, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
+        // Spacing
+        'h-spacing': 50, 'v-spacing': 50, 'level-spacing': 100, 'box-padding': 10, 'tree-padding': 150, 'text-align': 'top',
+        // Color
+        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
+        // Highlights
+        'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
+        // Rounding
+        'node-rounding': 0, 'link-rounding': 0,
+    },
     'orbs': {
         // Content
         'max-stack-size': 99, 'vertical-inlaws': true, 'show-names': true, 'show-years': false, 'show-places': false,
         // Size
-        'node-width': 150, 'node-height': 150, 'node-border-width': 9, 'link-width': 9, 'text-size': 16,
+        'node-width': 100, 'node-height': 100, 'node-border-width': 5, 'link-width': 5, 'text-size': 16,
         // Spacing
         'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 100, 'box-padding': 2, 'tree-padding': 150, 'text-align': 'middle',
         // Color
         'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
-        'pedigree-highlight-percent': 175, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
+        'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
         // Rounding
-        'node-rounding': 100, 'link-rounding': 50,
+        'node-rounding': 50, 'link-rounding': 50,
     },
 }
 
@@ -207,61 +207,60 @@ const elements = [
     //{ id: 'pedigree-only', type: 'checkbox', default: false, variable: 'pedigree_only' },
 
     // Tree Styling
-    { id: 'node-width-number',                   type: 'number',   default: 150,   min: 20, max: 480, variable: 'box_width' },
-    { id: 'node-width-range',                    type: 'range',    default: 150,   min: 20, max: 480, variable: 'box_width' },
-    { id: 'node-height-number',                  type: 'number',   default: 75,    min: 20, max: 480, variable: 'box_height' },
-    { id: 'node-height-range',                   type: 'range',    default: 75,    min: 20, max: 480, variable: 'box_height' },
-    { id: 'h-spacing-number',                    type: 'number',   default: 50,    min: 0, max: 480, variable: 'h_spacing' },
-    { id: 'h-spacing-range',                     type: 'range',    default: 50,    min: 0, max: 480, variable: 'h_spacing' },
-    { id: 'v-spacing-number',                    type: 'number',   default: 75,    min: 0, max: 480, variable: 'v_spacing' },
-    { id: 'v-spacing-range',                     type: 'range',    default: 75,    min: 0, max: 480, variable: 'v_spacing' },
-    { id: 'level-spacing-number',                type: 'number',   default: 100,   min: 0, max: 400, variable: 'level_spacing' },
-    { id: 'level-spacing-range',                 type: 'range',    default: 100,   min: 0, max: 400, variable: 'level_spacing' },
-    { id: 'node-rounding-number',                type: 'number',   default: 25,    min: 0, max: 100, variable: 'node_rounding' },
-    { id: 'node-rounding-range',                 type: 'range',    default: 25,    min: 0, max: 100, variable: 'node_rounding' },
-    { id: 'node-brightness-number',              type: 'number',   default: 25,    min: 0, max: 100, variable: 'node_brightness' },
-    { id: 'node-brightness-range',               type: 'range',    default: 25,    min: 0, max: 100, variable: 'node_brightness' },
-
-    //{ id: 'show-tooltips-checkbox',         type: 'checkbox', default: false, variable: 'show_tooltips' },
-
+    // Size
+    { id: 'node-width-number',                   type: 'number',   default: 100,   min: 20, max: 480, variable: 'box_width' },
+    { id: 'node-width-range',                    type: 'range',    default: 100,   min: 20, max: 480, variable: 'box_width' },
+    { id: 'node-height-number',                  type: 'number',   default: 100,    min: 20, max: 480, variable: 'box_height' },
+    { id: 'node-height-range',                   type: 'range',    default: 100,    min: 20, max: 480, variable: 'box_height' },
     { id: 'node-border-width-number',            type: 'number',   default: 3,     min: 0, max: 20, variable: 'node_border_width' },
     { id: 'node-border-width-range',             type: 'range',    default: 3,     min: 0, max: 20, variable: 'node_border_width' },
-    { id: 'border-highlight-percent-number',     type: 'number',   default: 125,   min: 0, max: 200, variable: 'border_highlight_percent' },
-    { id: 'border-highlight-percent-range',      type: 'range',    default: 125,   min: 0, max: 200, variable: 'border_highlight_percent' },
-
-    { id: 'tree-padding-number',                 type: 'number',   default: 150,   min: 0, max: 600, variable: 'tree_padding' },
-    { id: 'tree-padding-range',                  type: 'range',    default: 150,   min: 0, max: 600, variable: 'tree_padding' },
-
-    { id: 'box-padding-number',                  type: 'number',   default: 2,     min: 0, max: 50, variable: 'box_padding' },
-    { id: 'box-padding-range',                   type: 'range',    default: 2,     min: 0, max: 50, variable: 'box_padding' },
-
-    { id: 'text-align-select',                   type: 'select',   default: 'middle', variable: 'text_align' },
-
     { id: 'link-width-number',                   type: 'number',   default: 6,     min: 1, max: 20, variable: 'link_width' },
     { id: 'link-width-range',                    type: 'range',    default: 6,     min: 1, max: 20, variable: 'link_width' },
-    { id: 'link-rounding-number',                type: 'number',   default: 50,    min: 0, max: 100, variable: 'link_rounding' },
-    { id: 'link-rounding-range',                 type: 'range',    default: 50,    min: 0, max: 100, variable: 'link_rounding' },
+    { id: 'text-size-number',                    type: 'number',   default: 16,    min: 1, max: 100, variable: 'text_size' },
+    { id: 'text-size-range',                     type: 'range',    default: 16,    min: 1, max: 100, variable: 'text_size' },
+
+    // Spacing
+    { id: 'h-spacing-number',                    type: 'number',   default: 50,    min: 0, max: 480, variable: 'h_spacing' },
+    { id: 'h-spacing-range',                     type: 'range',    default: 50,    min: 0, max: 480, variable: 'h_spacing' },
+    { id: 'v-spacing-number',                    type: 'number',   default: 50,    min: 0, max: 480, variable: 'v_spacing' },
+    { id: 'v-spacing-range',                     type: 'range',    default: 50,    min: 0, max: 480, variable: 'v_spacing' },
+    { id: 'level-spacing-number',                type: 'number',   default: 100,   min: 0, max: 400, variable: 'level_spacing' },
+    { id: 'level-spacing-range',                 type: 'range',    default: 100,   min: 0, max: 400, variable: 'level_spacing' },
+    { id: 'box-padding-number',                  type: 'number',   default: 2,     min: 0, max: 50, variable: 'box_padding' },
+    { id: 'box-padding-range',                   type: 'range',    default: 2,     min: 0, max: 50, variable: 'box_padding' },
+    { id: 'tree-padding-number',                 type: 'number',   default: 150,   min: 0, max: 600, variable: 'tree_padding' },
+    { id: 'tree-padding-range',                  type: 'range',    default: 150,   min: 0, max: 600, variable: 'tree_padding' },
+    { id: 'text-align-select',                   type: 'select',   default: 'middle', variable: 'text_align' },
+
+    // Color
+    { id: 'hue-number',                          type: 'number',   default: 180,   min: 0, max: 360, variable: 'root_hue' },
+    { id: 'hue-range',                           type: 'range',    default: 180,   min: 0, max: 360, variable: 'root_hue' },
+    { id: 'saturation-number',                   type: 'number',   default: 20,    min: 0, max: 100, variable: 'node_saturation' },
+    { id: 'saturation-range',                    type: 'range',    default: 20,    min: 0, max: 100, variable: 'node_saturation' },
+    { id: 'node-brightness-number',              type: 'number',   default: 30,    min: 0, max: 100, variable: 'node_brightness' },
+    { id: 'node-brightness-range',               type: 'range',    default: 30,    min: 0, max: 100, variable: 'node_brightness' },
+    { id: 'text-brightness-number',              type: 'number',   default: 80,    min: 0, max: 100, variable: 'text_brightness' },
+    { id: 'text-brightness-range',               type: 'range',    default: 80,    min: 0, max: 100, variable: 'text_brightness' },
+    { id: 'text-shadow-checkbox',                type: 'checkbox', default: true,  variable: 'text_shadow' },
+    { id: 'transparent-bg-rect-checkbox',        type: 'checkbox', default: false, variable: 'transparent_bg_rect' },
+
+    // Highlights
+    { id: 'pedigree-highlight-percent-number',   type: 'number',   default: 150,   min: 0, max: 200, variable: 'pedigree_highlight_percent' },
+    { id: 'pedigree-highlight-percent-range',    type: 'range',    default: 150,   min: 0, max: 200, variable: 'pedigree_highlight_percent' },
+    { id: 'border-highlight-percent-number',     type: 'number',   default: 125,   min: 0, max: 200, variable: 'border_highlight_percent' },
+    { id: 'border-highlight-percent-range',      type: 'range',    default: 125,   min: 0, max: 200, variable: 'border_highlight_percent' },
     { id: 'link-highlight-percent-number',       type: 'number',   default: 125,   min: 0, max: 200, variable: 'link_highlight_percent' },
     { id: 'link-highlight-percent-range',        type: 'range',    default: 125,   min: 0, max: 200, variable: 'link_highlight_percent' },
-
     { id: 'inlaw-link-highlight-percent-number', type: 'number',   default: 150,   min: 0, max: 200, variable: 'inlaw_link_highlight_percent' },
     { id: 'inlaw-link-highlight-percent-range',  type: 'range',    default: 150,   min: 0, max: 200, variable: 'inlaw_link_highlight_percent' },
 
-    { id: 'hue-number',                          type: 'number',   default: 180,   min: 0, max: 360, variable: 'root_hue' },
-    { id: 'hue-range',                           type: 'range',    default: 180,   min: 0, max: 360, variable: 'root_hue' },
-    { id: 'saturation-number',                   type: 'number',   default: 33,    min: 0, max: 100, variable: 'node_saturation' },
-    { id: 'saturation-range',                    type: 'range',    default: 33,    min: 0, max: 100, variable: 'node_saturation' },
+    // Rounding
+    { id: 'node-rounding-number',                type: 'number',   default: 25,    min: 0, max: 100, variable: 'node_rounding' },
+    { id: 'node-rounding-range',                 type: 'range',    default: 25,    min: 0, max: 100, variable: 'node_rounding' },
+    { id: 'link-rounding-number',                type: 'number',   default: 25,    min: 0, max: 100, variable: 'link_rounding' },
+    { id: 'link-rounding-range',                 type: 'range',    default: 25,    min: 0, max: 100, variable: 'link_rounding' },
 
-    { id: 'pedigree-highlight-percent-number',   type: 'number',   default: 175,   min: 0, max: 200, variable: 'pedigree_highlight_percent' },
-    { id: 'pedigree-highlight-percent-range',    type: 'range',    default: 175,   min: 0, max: 200, variable: 'pedigree_highlight_percent' },
-
-    { id: 'text-size-number',                    type: 'number',   default: 16,    min: 1, max: 100, variable: 'text_size' },
-    { id: 'text-size-range',                     type: 'range',    default: 16,    min: 1, max: 100, variable: 'text_size' },
-    { id: 'text-brightness-number',              type: 'number',   default: 85,    min: 0, max: 100, variable: 'text_brightness' },
-    { id: 'text-brightness-range',               type: 'range',    default: 90,    min: 0, max: 100, variable: 'text_brightness' },
-    { id: 'text-shadow-checkbox',                type: 'checkbox', default: true,  variable: 'text_shadow' },
-
-    { id: 'transparent-bg-rect-checkbox',        type: 'checkbox', default: false, variable: 'transparent_bg_rect' },
+    //{ id: 'show-tooltips-checkbox',         type: 'checkbox', default: false, variable: 'show_tooltips' },
 ];
 
 const none_links = [
