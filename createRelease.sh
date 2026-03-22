@@ -34,10 +34,10 @@ main() {
     fi
 
     # Prompt user with reminders
-    read -p "Have you updated the version in the README and committed your changes with a proper commit message? (y/n) " -n 1 -r
+    read -p "Have you committed your changes with a proper commit message? (y/n) " -n 1 -r
     echo    # move to a new line
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Please complete your outstanding tasks before creating a release."
+        echo "Please commit your changes before creating a release."
         exit 1
     fi
 
@@ -48,8 +48,15 @@ main() {
         VERSION="$1"
     fi
 
+    # Make sure version is present in README.md
+    if ! grep -q "complete-family-tree-viewer.$1.zip" README.md; then
+        echo "Error: Version $VERSION not found in README.md. Please update the version in README.md before creating a release." >&2
+        exit 1
+    fi
+
     rm complete-family-tree-viewer-*.zip 2>/dev/null || true # Remove old zip files if they exist
     zip -r "complete-family-tree-viewer-$1.zip" index.html src/ # Create zip file of the project
+    git add .
     git commit -a -m "Version $VERSION release" # Add zip file to repository
     git push origin main # Push changes to main branch
     git tag -a $1 -m "Version $VERSION release" # Create annotated tag
