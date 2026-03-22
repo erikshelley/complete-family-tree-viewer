@@ -1,15 +1,3 @@
-// GEDCOM parsing and validation functionality
-// Ensure country and state code mapping is available
-if (typeof replaceCountryNamesWithAlpha3 === 'undefined') {
-    const script = document.createElement('script');
-    script.src = 'static/js/country_codes.js';
-    document.head.appendChild(script);
-}
-if (typeof replaceUSStateNamesWithAbbr === 'undefined') {
-    const script = document.createElement('script');
-    script.src = 'static/js/us_states.js';
-    document.head.appendChild(script);
-}
 window.gedcom_content = ''; // Store raw GEDCOM content globally
 window.individuals = []; // Store parsed individuals globally
 window.families = []; // Store parsed families globally
@@ -115,14 +103,8 @@ function parseGedcomData(content) {
             let place = place_parts.join(' ');
             // Remove 'County' and extra spaces
             place = place.replace(/\bCounty\b/g, '').replace(/\s{2,}/g, ' ').trim();
-            // Replace US state names with abbreviations
-            if (typeof replaceUSStateNamesWithAbbr === 'function') {
-                place = replaceUSStateNamesWithAbbr(place);
-            }
-            // Replace country names with alpha-3 codes
-            if (typeof replaceCountryNamesWithAlpha3 === 'function') {
-                place = replaceCountryNamesWithAlpha3(place);
-            }
+            place = replaceUSStateNamesWithAbbr(place);
+            place = replaceCountryNamesWithAlpha3(place);
             if (current_event === 'BIRT' && current_individual) {
                 current_individual.birth_place = place;
             } else if (current_event === 'DEAT' && current_individual) {
@@ -150,21 +132,6 @@ function parseGedcomData(content) {
     if (current_individual) individuals.push(current_individual);
     if (current_family) families.push(current_family);
 
-    // Track earliest birth year
-    /*
-    let earliest = null;
-    for (const ind of individuals) {
-        const year = parseInt(ind.birth, 10);
-        if (year && (!earliest || year < earliest)) {
-            earliest = year;
-        }
-    }
-    window.earliest_birth_year = earliest;
-    */
-
-    //console.log('Parsed individuals:', individuals.forEach(i => ({id: i.id, name: i.name, famc: i.famc, fams: i.fams, birth: i.birth, death: i.death, gender: i.gender})));
-    //console.log('Parsed individuals:', individuals);
-    //console.log('Parsed families:', families);
     return { individuals, families };
 }
 
@@ -173,4 +140,241 @@ function extractYear(date_string) {
     // Extract year from GEDCOM date format
     const yearMatch = date_string.match(/\b(\d{4})\b/);
     return yearMatch ? yearMatch[1] : '';
+}
+
+// Map of US state names to postal abbreviations
+const usStateNameToAbbr = {
+    'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA', 'Colorado': 'CO',
+    'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA', 'Hawaii': 'HI', 'Idaho': 'ID',
+    'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA', 'Kansas': 'KS', 'Kentucky': 'KY', 'Louisiana': 'LA',
+    'Maine': 'ME', 'Maryland': 'MD', 'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN',
+    'Mississippi': 'MS', 'Missouri': 'MO', 'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV',
+    'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY', 'North Carolina': 'NC',
+    'North Dakota': 'ND', 'Ohio': 'OH', 'Oklahoma': 'OK', 'Oregon': 'OR', 'Pennsylvania': 'PA',
+    'Rhode Island': 'RI', 'South Carolina': 'SC', 'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX',
+    'Utah': 'UT', 'Vermont': 'VT', 'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV',
+    'Wisconsin': 'WI', 'Wyoming': 'WY'
+};
+
+// Pre-compile state regexes once at load time, longest names first
+const usStateRegexes = Object.entries(usStateNameToAbbr)
+    .sort((a, b) => b[0].length - a[0].length)
+    .map(([state, abbr]) => ({ regex: new RegExp(`\\b${state}\\b`, 'gi'), abbr }));
+
+function replaceUSStateNamesWithAbbr(place) {
+    for (const { regex, abbr } of usStateRegexes) {
+        place = place.replace(regex, abbr);
+    }
+    return place;
+}
+
+// Map of country names to ISO 3166-1 alpha-3 codes
+// Source: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
+const countryNameToAlpha3 = {
+    'Afghanistan': 'AFG',
+    'Albania': 'ALB',
+    'Algeria': 'DZA',
+    'Andorra': 'AND',
+    'Angola': 'AGO',
+    'Argentina': 'ARG',
+    'Armenia': 'ARM',
+    'Australia': 'AUS',
+    'Austria': 'AUT',
+    'Azerbaijan': 'AZE',
+    'Bahamas': 'BHS',
+    'Bahrain': 'BHR',
+    'Bangladesh': 'BGD',
+    'Barbados': 'BRB',
+    'Belarus': 'BLR',
+    'Belgium': 'BEL',
+    'Belize': 'BLZ',
+    'Benin': 'BEN',
+    'Bhutan': 'BTN',
+    'Bolivia': 'BOL',
+    'Bosnia and Herzegovina': 'BIH',
+    'Botswana': 'BWA',
+    'Brazil': 'BRA',
+    'Brunei': 'BRN',
+    'Bulgaria': 'BGR',
+    'Burkina Faso': 'BFA',
+    'Burundi': 'BDI',
+    'Cabo Verde': 'CPV',
+    'Cambodia': 'KHM',
+    'Cameroon': 'CMR',
+    'Canada': 'CAN',
+    'Central African Republic': 'CAF',
+    'Chad': 'TCD',
+    'Chile': 'CHL',
+    'China': 'CHN',
+    'Colombia': 'COL',
+    'Comoros': 'COM',
+    'Congo': 'COG',
+    'Costa Rica': 'CRI',
+    'Croatia': 'HRV',
+    'Cuba': 'CUB',
+    'Cyprus': 'CYP',
+    'Czechia': 'CZE',
+    'Denmark': 'DNK',
+    'Djibouti': 'DJI',
+    'Dominica': 'DMA',
+    'Dominican Republic': 'DOM',
+    'Ecuador': 'ECU',
+    'Egypt': 'EGY',
+    'El Salvador': 'SLV',
+    'Equatorial Guinea': 'GNQ',
+    'Eritrea': 'ERI',
+    'Estonia': 'EST',
+    'Eswatini': 'SWZ',
+    'Ethiopia': 'ETH',
+    'Fiji': 'FJI',
+    'Finland': 'FIN',
+    'France': 'FRA',
+    'Gabon': 'GAB',
+    'Gambia': 'GMB',
+    'Georgia': 'GEO',
+    'Germany': 'DEU',
+    'Ghana': 'GHA',
+    'Greece': 'GRC',
+    'Grenada': 'GRD',
+    'Guatemala': 'GTM',
+    'Guinea': 'GIN',
+    'Guinea-Bissau': 'GNB',
+    'Guyana': 'GUY',
+    'Haiti': 'HTI',
+    'Honduras': 'HND',
+    'Hungary': 'HUN',
+    'Iceland': 'ISL',
+    'India': 'IND',
+    'Indonesia': 'IDN',
+    'Iran': 'IRN',
+    'Iraq': 'IRQ',
+    'Ireland': 'IRL',
+    'Israel': 'ISR',
+    'Italy': 'ITA',
+    'Jamaica': 'JAM',
+    'Japan': 'JPN',
+    'Jordan': 'JOR',
+    'Kazakhstan': 'KAZ',
+    'Kenya': 'KEN',
+    'Kiribati': 'KIR',
+    'Kuwait': 'KWT',
+    'Kyrgyzstan': 'KGZ',
+    'Laos': 'LAO',
+    'Latvia': 'LVA',
+    'Lebanon': 'LBN',
+    'Lesotho': 'LSO',
+    'Liberia': 'LBR',
+    'Libya': 'LBY',
+    'Liechtenstein': 'LIE',
+    'Lithuania': 'LTU',
+    'Luxembourg': 'LUX',
+    'Madagascar': 'MDG',
+    'Malawi': 'MWI',
+    'Malaysia': 'MYS',
+    'Maldives': 'MDV',
+    'Mali': 'MLI',
+    'Malta': 'MLT',
+    'Marshall Islands': 'MHL',
+    'Mauritania': 'MRT',
+    'Mauritius': 'MUS',
+    'Mexico': 'MEX',
+    'Micronesia': 'FSM',
+    'Moldova': 'MDA',
+    'Monaco': 'MCO',
+    'Mongolia': 'MNG',
+    'Montenegro': 'MNE',
+    'Morocco': 'MAR',
+    'Mozambique': 'MOZ',
+    'Myanmar': 'MMR',
+    'Namibia': 'NAM',
+    'Nauru': 'NRU',
+    'Nepal': 'NPL',
+    'Netherlands': 'NLD',
+    'New Zealand': 'NZL',
+    'Nicaragua': 'NIC',
+    'Niger': 'NER',
+    'Nigeria': 'NGA',
+    'North Korea': 'PRK',
+    'North Macedonia': 'MKD',
+    'Norway': 'NOR',
+    'Oman': 'OMN',
+    'Pakistan': 'PAK',
+    'Palau': 'PLW',
+    'Palestine': 'PSE',
+    'Panama': 'PAN',
+    'Papua New Guinea': 'PNG',
+    'Paraguay': 'PRY',
+    'Peru': 'PER',
+    'Philippines': 'PHL',
+    'Poland': 'POL',
+    'Portugal': 'PRT',
+    'Qatar': 'QAT',
+    'Romania': 'ROU',
+    'Russia': 'RUS',
+    'Rwanda': 'RWA',
+    'Saint Kitts and Nevis': 'KNA',
+    'Saint Lucia': 'LCA',
+    'Saint Vincent and the Grenadines': 'VCT',
+    'Samoa': 'WSM',
+    'San Marino': 'SMR',
+    'Sao Tome and Principe': 'STP',
+    'Saudi Arabia': 'SAU',
+    'Senegal': 'SEN',
+    'Serbia': 'SRB',
+    'Seychelles': 'SYC',
+    'Sierra Leone': 'SLE',
+    'Singapore': 'SGP',
+    'Slovakia': 'SVK',
+    'Slovenia': 'SVN',
+    'Solomon Islands': 'SLB',
+    'Somalia': 'SOM',
+    'South Africa': 'ZAF',
+    'South Korea': 'KOR',
+    'South Sudan': 'SSD',
+    'Spain': 'ESP',
+    'Sri Lanka': 'LKA',
+    'Sudan': 'SDN',
+    'Suriname': 'SUR',
+    'Sweden': 'SWE',
+    'Switzerland': 'CHE',
+    'Syria': 'SYR',
+    'Taiwan': 'TWN',
+    'Tajikistan': 'TJK',
+    'Tanzania': 'TZA',
+    'Thailand': 'THA',
+    'Timor-Leste': 'TLS',
+    'Togo': 'TGO',
+    'Tonga': 'TON',
+    'Trinidad and Tobago': 'TTO',
+    'Tunisia': 'TUN',
+    'Turkey': 'TUR',
+    'Turkmenistan': 'TKM',
+    'Tuvalu': 'TUV',
+    'Uganda': 'UGA',
+    'Ukraine': 'UKR',
+    'United Arab Emirates': 'ARE',
+    'United Kingdom': 'GBR',
+    'United States': 'USA',
+    'United States of America': 'USA',
+    'Uruguay': 'URY',
+    'Uzbekistan': 'UZB',
+    'Vanuatu': 'VUT',
+    'Vatican City': 'VAT',
+    'Venezuela': 'VEN',
+    'Vietnam': 'VNM',
+    'Yemen': 'YEM',
+    'Zambia': 'ZMB',
+    'Zimbabwe': 'ZWE'
+};
+
+// Pre-compile country regexes once at load time, longest names first
+const countryRegexes = Object.entries(countryNameToAlpha3)
+    .sort((a, b) => b[0].length - a[0].length)
+    .map(([country, code]) => ({ regex: new RegExp(`\\b${country}\\b`, 'gi'), code }));
+
+function replaceCountryNamesWithAlpha3(place) {
+    for (const { regex, code } of countryRegexes) {
+        place = place.replace(regex, code);
+    }
+    return place;
 }

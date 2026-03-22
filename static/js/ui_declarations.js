@@ -3,7 +3,6 @@ const optionsMenu = document.getElementById('options-menu-button');
 
 const file_name_span = document.getElementById('file-name');
 const save_filename_input = document.getElementById('save-filename-input');
-const save_format_input = document.getElementById('save-format-input');
 const save_modal = document.getElementById('save-modal');
 const save_modal_ok_button = document.getElementById('save-modal-ok-button');
 const save_modal_cancel_button = document.getElementById('save-modal-cancel-button');
@@ -15,15 +14,7 @@ const individual_filter = document.getElementById('individual-filter-text');
 const clearIndividualFilterbutton = document.getElementById('clear-individual-filter');
 const individual_select = document.getElementById('individual-select');
 
-/*const reset_styling_button = document.getElementById('reset-styling-button');*/
 const preset_select = document.getElementById('preset-select');
-
-const node_width_number = document.getElementById('node-width-number');
-const node_width_range = document.getElementById('node-width-range');
-const auto_node_width = document.getElementById('auto-node-width');
-const node_height_number = document.getElementById('node-height-number');
-const node_height_range = document.getElementById('node-height-range');
-const auto_node_height = document.getElementById('auto-node-height');
 
 const hue_element = document.getElementById('hue-range');
 const sat_element = document.getElementById('saturation-range');
@@ -57,7 +48,6 @@ window.generations_up;
 window.generations_down;
 window.max_stack_size;
 window.hide_childless_inlaws;
-//window.pedigree_only;
 
 // Tree Styling Variables
 window.box_width; window.default_box_width;
@@ -197,15 +187,14 @@ const style_presets = {
 
 const elements = [
     // Tree Content
-    { id: 'generations-up-number',               type: 'number',   default: 1,     min: 0, max: 99, variable: 'generations_up', max: 99 },
-    { id: 'generations-down-number',             type: 'number',   default: 1,     min: 0, max: 99, variable: 'generations_down', max: 99 },
-    { id: 'max-stack-size-number',               type: 'number',   default: 2,     min: 1, max: 99, variable: 'max_stack_size', max: 99 },
+    { id: 'generations-up-number',               type: 'number',   default: 1,     min: 0, max: 99, variable: 'generations_up' },
+    { id: 'generations-down-number',             type: 'number',   default: 1,     min: 0, max: 99, variable: 'generations_down' },
+    { id: 'max-stack-size-number',               type: 'number',   default: 2,     min: 1, max: 99, variable: 'max_stack_size' },
     { id: 'show-names-checkbox',                 type: 'checkbox', default: true,  variable: 'show_names' },
     { id: 'show-years-checkbox',                 type: 'checkbox', default: true,  variable: 'show_years' },
     { id: 'show-places-checkbox',                type: 'checkbox', default: false, variable: 'show_places' },
     { id: 'vertical-inlaws-checkbox',            type: 'checkbox', default: true,  variable: 'vertical_inlaws' },
     { id: 'hide-childless-inlaws-checkbox',      type: 'checkbox', default: false, variable: 'hide_childless_inlaws' },
-    //{ id: 'pedigree-only', type: 'checkbox', default: false, variable: 'pedigree_only' },
 
     // Tree Styling
     // Size

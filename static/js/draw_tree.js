@@ -71,19 +71,17 @@ async function drawTree(rows) {
     else people_shown = `${node_count} People`;
     let spacer = '&nbsp;&nbsp;&bull;&nbsp;&nbsp;';
     let tree_dimensions = `${spacer}${Math.ceil(max_x).toLocaleString()} x ${Math.ceil(max_y).toLocaleString()}`;
-    //let megapixels = ((Math.ceil(max_x) * Math.ceil(max_y)) / 1_000_000).toFixed(2);
-    //megapixels = `${Number(megapixels).toLocaleString()} MP`
     let print_dimensions = `${(Math.ceil(max_x) / 300).toFixed(1)}" x ${(Math.ceil(max_y) / 300).toFixed(1)}" @ 300 DPI`;
     let min_text_size = `${spacer}Min Font: ${window.min_text_size}px`;
     let max_text_size = `${spacer}Max Font: ${window.max_text_size}px`;
     let earliest_birth_year = window.earliest_birth_year ? `${spacer}Earliest Birth: ${window.earliest_birth_year}` : '';
     status_bar_div.innerHTML = `${people_shown}${tree_dimensions}${spacer}${print_dimensions}${min_text_size}${max_text_size}${earliest_birth_year}`;
 
-    d3.select('body').on('keydown', function (event) {
-        var k = d3.zoomTransform(svg.node()).k;
-        var step_x = (bounding_box.width - 24) * max_scale * 0.1 / k;
-        var step_y = (bounding_box.height - 40) * max_scale * 0.1 / k;
-        var key = event.key;
+    d3.select('body').on('keydown.tree', function (event) {
+        const k = d3.zoomTransform(svg.node()).k;
+        const step_x = (bounding_box.width - 24) * max_scale * 0.1 / k;
+        const step_y = (bounding_box.height - 40) * max_scale * 0.1 / k;
+        const key = event.key;
         switch (key) {
         case 'Escape':
             svg.transition().call(zoom.transform, d3.zoomIdentity);
@@ -171,7 +169,7 @@ function drawNonBoldLinks(svg_node, rows) {
                 }
 
                 // Draw link between ancestor and child at top of stack
-                if (node.type === 'ancestor' && node.individual.gender == 'M') {
+                if (node.type === 'ancestor' && node.individual.gender === 'M') {
                     node.children_nodes.filter(child_node => !child_node.individual.is_root && !(child_node.stacked && !child_node.stack_top)).forEach(child_node => {
                         drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
                                                   {x: child_node.x + window.box_width / 2,              y: child_node.y});
@@ -198,7 +196,7 @@ function drawBoldLinks(svg_node, rows) {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
 
-                if (node.type === 'ancestor' && node.individual.gender == 'M') {
+                if (node.type === 'ancestor' && node.individual.gender === 'M') {
 
                     let [hue, chroma, luminance] = getNodeHCL(node, false);
                     let color = d3.hcl(hue, chroma, luminance * (window.pedigree_highlight_percent / 100) * (window.link_highlight_percent / 100));
@@ -275,8 +273,8 @@ function drawCircles(svg_node, rows) {
             sub_level.forEach(node => {
                 if (!window.vertical_inlaws) {
                     if ((node.type === 'inlaw') && (node.children_nodes.length > 0)) {
-                        [hue, chroma, luminance] = getNodeHCL(node.children_nodes[0], false);
-                        color = d3.hcl(hue, chroma, luminance * (window.link_highlight_percent / 100) * (node.individual.is_descendant || node.individual.is_root ? window.pedigree_highlight_percent / 100 : 1));
+                        const [hue, chroma, luminance] = getNodeHCL(node.children_nodes[0], false);
+                        const color = d3.hcl(hue, chroma, luminance * (window.link_highlight_percent / 100) * (node.individual.is_descendant || node.individual.is_root ? window.pedigree_highlight_percent / 100 : 1));
                         let left = -window.h_spacing / 2;
                         let right = window.box_width + window.h_spacing / 2;
                         let x_offset = (node.individual.gender === 'M') ? right : left;
@@ -284,9 +282,9 @@ function drawCircles(svg_node, rows) {
                         let radius = window.link_width * 1.5;
                         drawCircle(svg_node, color, {x: node.x + x_offset, y: node.y + window.box_height / 2}, radius);
                     }
-                    if ((node.type === 'ancestor') && (node.individual.gender == 'M')) {
-                        [hue, chroma, luminance] = getNodeHCL(node.individual.pedigree_child_node ? node.individual.pedigree_child_node : window.root_node, false);
-                        color = d3.hcl(hue, chroma, luminance * (window.pedigree_highlight_percent / 100) * (window.link_highlight_percent / 100));
+                    if ((node.type === 'ancestor') && (node.individual.gender === 'M')) {
+                        const [hue, chroma, luminance] = getNodeHCL(node.individual.pedigree_child_node ? node.individual.pedigree_child_node : window.root_node, false);
+                        const color = d3.hcl(hue, chroma, luminance * (window.pedigree_highlight_percent / 100) * (window.link_highlight_percent / 100));
                         drawCircle(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height / 2}, window.link_width * 1.5);
                     }
                 }
@@ -303,7 +301,7 @@ async function drawNodes(svg_node, rows) {
             for (const node of sub_level) {
                 drawNode(svg_node, node);
                 count++;
-                if (count % 100 == 0) await scheduler.yield();
+                if (count % 100 === 0) await scheduler.yield();
             };
         };
     };
@@ -320,8 +318,8 @@ function drawToolTip(g, node) {
     const deathLine = (node.individual.death ? node.individual.death : '') + (node.individual.death_place ? ' ' + node.individual.death_place : '');
     const tooltipLines = [
         node.individual.name || '',
-        birthLine != '' ? 'B: ' + birthLine : '',
-        deathLine != '' ? 'D: ' + deathLine : ''
+        birthLine !== '' ? 'B: ' + birthLine : '',
+        deathLine !== '' ? 'D: ' + deathLine : ''
     ];
 
     const padding = 12;
@@ -393,36 +391,16 @@ function drawNode(svg, node) {
 }
 
 
-function drawText(g, node) {
-    // Add text with 3+ lines: name (2 lines), birth-death (1 line), and optionally birth/death places (2 lines)
-    const text_luminance = window.text_brightness || 0;
-    const text_color = d3.hcl(0, 0, text_luminance);
-    const is_bold = ((node.type === 'ancestor' || node.individual.is_root || node.individual.is_descendant) && (window.pedigree_highlight_percent != 100));
-    const text_element = g.append('text')
-        .attr('x', window.box_width / 2)
-        .attr('y', window.box_height / 2) // Initial vertical center
-        .attr('text-anchor', 'middle')
-        .attr('font-family', 'Arial, sans-serif')
-        .attr('font-weight', is_bold ? 'bold' : 'normal')
-        .attr('font-size', (window.text_size || window.default_text_size) + 'px')
-        .attr('fill', text_color)
-        .style('text-shadow', (window.text_shadow !== false) ? '1px 1px 2px rgba(0,0,0,0.75)' : 'none');
-
-    // Name
-    const name = node.individual.name || '';
-    const weight = is_bold ? 'bold' : 'normal';
-    let main_font_size = window.text_size || window.default_text_size || 12;
-    let secondary_font_size = Math.max(6, Math.round(main_font_size * 0.75));
-
-    // Build secondary content before fitting the name
-    let secondary_strings = [];   // raw unwrapped strings (for dates, only one line each)
-    let place_strings = [];       // raw unwrapped place strings (may need re-wrapping)
+// Build secondary content strings (dates and places) from a node's individual data
+function buildSecondaryStrings(individual) {
+    const secondary_strings = [];
+    const place_strings = [];
 
     if (window.show_years && !window.show_places) {
-        const birth_death = node.individual.birth && node.individual.death ?
-            `${node.individual.birth}-${node.individual.death}` :
-                node.individual.birth ? `${node.individual.birth}-` :
-                    node.individual.death ? `-${node.individual.death}` :
+        const birth_death = individual.birth && individual.death ?
+            `${individual.birth}-${individual.death}` :
+                individual.birth ? `${individual.birth}-` :
+                    individual.death ? `-${individual.death}` :
                         '';
         if (birth_death !== '') {
             secondary_strings.push(birth_death);
@@ -432,139 +410,114 @@ function drawText(g, node) {
     if (window.show_places) {
         let birth_line = '';
         let death_line = '';
-        if (node.individual.birth_place) {
-            birth_line = window.show_years && node.individual.birth ? `B: ${node.individual.birth} ` : 'B: ';
-            birth_line += node.individual.birth_place;
-        } else if (window.show_years && node.individual.birth && node.individual.birth_place !== undefined) {
-            birth_line = `B: ${node.individual.birth}`;
+        if (individual.birth_place) {
+            birth_line = window.show_years && individual.birth ? `B: ${individual.birth} ` : 'B: ';
+            birth_line += individual.birth_place;
+        } else if (window.show_years && individual.birth && individual.birth_place !== undefined) {
+            birth_line = `B: ${individual.birth}`;
         }
-        if (node.individual.death_place) {
-            death_line = window.show_years && node.individual.death ? `D: ${node.individual.death} ` : 'D: ';
-            death_line += node.individual.death_place;
-        } else if (window.show_years && node.individual.death && node.individual.death_place !== undefined) {
-            death_line = `D: ${node.individual.death}`;
+        if (individual.death_place) {
+            death_line = window.show_years && individual.death ? `D: ${individual.death} ` : 'D: ';
+            death_line += individual.death_place;
+        } else if (window.show_years && individual.death && individual.death_place !== undefined) {
+            death_line = `D: ${individual.death}`;
         }
         if (birth_line) place_strings.push(birth_line);
         if (death_line) place_strings.push(death_line);
     }
 
-    // Wrap place strings and build secondary_lines at a given font size
-    function buildSecondaryLines(secFontSize) {
-        let result = secondary_strings.slice();
-        place_strings.forEach(s => {
-            const fit = fitTextInBox(s, window.box_width, secFontSize * 10, 'Arial, sans-serif', 'normal', secFontSize);
-            fit.lines.forEach(l => result.push(l));
-        });
-        return result;
-    }
+    return { secondary_strings, place_strings };
+}
 
-    let secondary_lines = buildSecondaryLines(secondary_font_size);
+// Wrap place strings and combine with date strings into final secondary lines
+function buildSecondaryLines(secondary_strings, place_strings, secFontSize) {
+    const result = secondary_strings.slice();
+    place_strings.forEach(s => {
+        const fit = fitTextInBox(s, window.box_width, secFontSize * 10, 'Arial, sans-serif', 'normal', secFontSize);
+        fit.lines.forEach(l => result.push(l));
+    });
+    return result;
+}
 
-    // Calculate available height for the name, reserving space for secondary lines
-    let name_available_height = window.box_height;
-    if (secondary_lines.length > 0) {
-        const gap = secondary_font_size * 0.5;
-        name_available_height -= secondary_lines.length * secondary_font_size * 1.2 + gap;
-        name_available_height = Math.max(name_available_height, main_font_size * 1.2);
-    }
+// Combine name lines and secondary lines into a single array of {text, type} objects
+function buildAllLines(name_lines, secondary_lines) {
+    const result = [];
+    name_lines.forEach(l => result.push({text: l, type: 'name'}));
+    secondary_lines.forEach(l => result.push({text: l, type: 'secondary'}));
+    return result;
+}
 
-    // Fit the name into the available space
-    let name_lines = [];
-    let name_font_size = main_font_size;
-    if (window.show_names && name) {
-        const fit = fitTextInBox(name, window.box_width, name_available_height, 'Arial, sans-serif', weight, main_font_size);
-        name_lines = fit.lines;
-        name_font_size = fit.fontSize;
-    }
+// Estimate text dimensions via the shared off-screen canvas
+function estimateTextDimensions(lines, nameCount, nameFontSize, secFontSize, is_bold) {
+    let maxW = 0;
+    let totalH = 0;
+    lines.forEach((line, i) => {
+        const isName = i < nameCount;
+        const fs = isName ? nameFontSize : secFontSize;
+        const fw = isName && is_bold ? 'bold' : 'normal';
+        _measureCtx.font = `${fw} ${fs}px Arial, sans-serif`;
+        maxW = Math.max(maxW, _measureCtx.measureText(line.text).width);
+        if (i === 0) totalH += fs;
+        else if (i === nameCount) totalH += fs * 1.7;
+        else totalH += fs * 1.2;
+    });
+    return { width: maxW, height: totalH };
+}
 
-    // Ensure secondary font never exceeds name font
-    secondary_font_size = Math.min(secondary_font_size, name_font_size);
-    if (secondary_font_size < Math.max(6, Math.round(main_font_size * 0.75))) {
-        // Re-wrap secondary lines at the reduced font size
-        secondary_lines = buildSecondaryLines(secondary_font_size);
-    }
+// Render text lines as tspan elements inside a text element
+function renderTspans(text_element, lines, nameCount, nameFontSize, secFontSize, is_bold) {
+    text_element.selectAll('*').remove();
+    lines.forEach((line, i) => {
+        let dy = '1.2em';
+        if (i === 0) dy = '0em';
+        else if (i === nameCount) dy = '1.7em';
+        const is_name = line.type === 'name';
+        text_element.append('tspan')
+            .attr('x', window.box_width / 2)
+            .attr('text-anchor', 'middle')
+            .attr('dy', dy)
+            .attr('font-size', is_name ? nameFontSize : secFontSize)
+            .attr('font-weight', is_name && is_bold ? 'bold' : 'normal')
+            .text(line.text);
+    });
+}
 
-    // Check whether the name fits at the desired size (no shrink needed)
-    const name_fits_at_desired = (name_font_size === main_font_size);
-
-    // Assemble combined lines
-    function buildAllLines(secLines) {
-        let result = [];
-        name_lines.forEach(l => result.push({text: l, type: 'name'}));
-        secLines.forEach(l => result.push({text: l, type: 'secondary'}));
-        return result;
-    }
-
-    let lines = buildAllLines(secondary_lines);
-    let text_lines = lines.length;
-    if (text_lines === 0) return;
-
-    // Render tspans
-    function renderAllTspans(nameFontSize, secFontSize) {
-        text_element.selectAll('*').remove();
-        lines.forEach((line, i) => {
-            let dy = '1.2em';
-            if (i === 0) dy = '0em';
-            else if (i === name_lines.length) dy = '1.7em';
-            const is_name = line.type === 'name';
-            text_element.append('tspan')
-                .attr('x', window.box_width / 2)
-                .attr('text-anchor', 'middle')
-                .attr('dy', dy)
-                .attr('font-size', is_name ? nameFontSize : secFontSize)
-                .attr('font-weight', is_name && is_bold ? 'bold' : 'normal')
-                .text(line.text);
-        });
-    }
-
-    renderAllTspans(name_font_size, secondary_font_size);
-
-    window.min_text_size = Math.min(window.min_text_size, name_font_size);
-    window.max_text_size = Math.max(window.max_text_size, name_font_size);
-
-    // Handle overflow: if name fits at desired size, only shrink secondary font
+// Shrink font sizes until text fits within box, returns adjusted sizes and lines
+function shrinkToFit(name_lines, secondary_strings, place_strings, lines, name_font_size, secondary_font_size, name_fits_at_desired, is_bold) {
     const min_font_size = 6;
     const max_width = window.box_width;
     const max_height = window.box_height;
-    let bbox = text_element.node().getBBox();
+    let secondary_lines = lines.filter(l => l.type === 'secondary').map(l => l.text);
+    let est = estimateTextDimensions(lines, name_lines.length, name_font_size, secondary_font_size, is_bold);
 
-    if (bbox.width > max_width || bbox.height > max_height) {
+    if (est.width > max_width || est.height > max_height) {
         if (name_fits_at_desired && secondary_lines.length > 0) {
-            // Only shrink secondary font, re-wrap places, keep name font unchanged
             let sec_size = secondary_font_size;
-            while (sec_size > min_font_size && (bbox.width > max_width || bbox.height > max_height)) {
+            while (sec_size > min_font_size && (est.width > max_width || est.height > max_height)) {
                 sec_size--;
-                secondary_lines = buildSecondaryLines(sec_size);
-                lines = buildAllLines(secondary_lines);
-                text_lines = lines.length;
-                renderAllTspans(name_font_size, sec_size);
-                bbox = text_element.node().getBBox();
+                secondary_lines = buildSecondaryLines(secondary_strings, place_strings, sec_size);
+                lines = buildAllLines(name_lines, secondary_lines);
+                est = estimateTextDimensions(lines, name_lines.length, name_font_size, sec_size, is_bold);
             }
             secondary_font_size = sec_size;
-            // Ensure name is never smaller than secondary after shrinking
             if (name_font_size < secondary_font_size) secondary_font_size = name_font_size;
         }
 
-        // If still overflowing, scale both proportionally
-        if (bbox.width > max_width || bbox.height > max_height) {
-            let scale = Math.min(
-                bbox.width > max_width ? max_width / bbox.width : 1,
-                bbox.height > max_height ? max_height / bbox.height : 1
+        if (est.width > max_width || est.height > max_height) {
+            const scale = Math.min(
+                est.width > max_width ? max_width / est.width : 1,
+                est.height > max_height ? max_height / est.height : 1
             );
-            let new_name = Math.max(min_font_size, Math.floor(name_font_size * scale));
-            let new_sec = Math.min(new_name, Math.max(min_font_size, Math.floor(secondary_font_size * scale)));
-            renderAllTspans(new_name, new_sec);
-            window.min_text_size = Math.min(window.min_text_size, new_name);
-            window.max_text_size = Math.max(window.max_text_size, new_name);
-            bbox = text_element.node().getBBox();
+            name_font_size = Math.max(min_font_size, Math.floor(name_font_size * scale));
+            secondary_font_size = Math.min(name_font_size, Math.max(min_font_size, Math.floor(secondary_font_size * scale)));
         }
     }
 
-    if (bbox.width <= max_width && bbox.height <= max_height) window.max_text_size = Math.max(window.max_text_size, name_font_size);
-    window.auto_box_width = Math.max(window.auto_box_width, window.box_width * (bbox.width / max_width), 20);
-    window.auto_box_height = Math.max(window.auto_box_height, bbox.height, 20);
+    return { name_font_size, secondary_font_size, lines };
+}
 
-    // Vertically position text in node based on text_align setting
+// Position text element vertically based on text_align setting
+function alignTextVertically(text_element, bbox, text_lines) {
     const line_height = bbox.height / text_lines;
     const pad = window.box_padding || 0;
     let text_y;
@@ -576,7 +529,78 @@ function drawText(g, node) {
         text_y = line_height / 1.25 + (window.box_height - bbox.height) / 2;
     }
     text_element.attr('y', text_y);
+}
 
+function drawText(g, node) {
+    const text_luminance = window.text_brightness || 0;
+    const text_color = d3.hcl(0, 0, text_luminance);
+    const is_bold = ((node.type === 'ancestor' || node.individual.is_root || node.individual.is_descendant) && (window.pedigree_highlight_percent !== 100));
+    const text_element = g.append('text')
+        .attr('x', window.box_width / 2)
+        .attr('y', window.box_height / 2)
+        .attr('text-anchor', 'middle')
+        .attr('font-family', 'Arial, sans-serif')
+        .attr('font-weight', is_bold ? 'bold' : 'normal')
+        .attr('font-size', (window.text_size || window.default_text_size) + 'px')
+        .attr('fill', text_color)
+        .style('text-shadow', (window.text_shadow !== false) ? '1px 1px 2px rgba(0,0,0,0.75)' : 'none');
+
+    const name = node.individual.name || '';
+    const weight = is_bold ? 'bold' : 'normal';
+    const main_font_size = window.text_size || window.default_text_size || 12;
+    let secondary_font_size = Math.max(6, Math.round(main_font_size * 0.75));
+
+    // Build secondary content
+    const { secondary_strings, place_strings } = buildSecondaryStrings(node.individual);
+    let secondary_lines = buildSecondaryLines(secondary_strings, place_strings, secondary_font_size);
+
+    // Calculate available height for the name
+    let name_available_height = window.box_height;
+    if (secondary_lines.length > 0) {
+        const gap = secondary_font_size * 0.5;
+        name_available_height -= secondary_lines.length * secondary_font_size * 1.2 + gap;
+        name_available_height = Math.max(name_available_height, main_font_size * 1.2);
+    }
+
+    // Fit the name
+    let name_lines = [];
+    let name_font_size = main_font_size;
+    if (window.show_names && name) {
+        const fit = fitTextInBox(name, window.box_width, name_available_height, 'Arial, sans-serif', weight, main_font_size);
+        name_lines = fit.lines;
+        name_font_size = fit.fontSize;
+    }
+
+    // Ensure secondary font never exceeds name font
+    secondary_font_size = Math.min(secondary_font_size, name_font_size);
+    if (secondary_font_size < Math.max(6, Math.round(main_font_size * 0.75))) {
+        secondary_lines = buildSecondaryLines(secondary_strings, place_strings, secondary_font_size);
+    }
+
+    const name_fits_at_desired = (name_font_size === main_font_size);
+    let lines = buildAllLines(name_lines, secondary_lines);
+    if (lines.length === 0) return;
+
+    // Shrink to fit
+    const shrunk = shrinkToFit(name_lines, secondary_strings, place_strings, lines, name_font_size, secondary_font_size, name_fits_at_desired, is_bold);
+    name_font_size = shrunk.name_font_size;
+    secondary_font_size = shrunk.secondary_font_size;
+    lines = shrunk.lines;
+
+    window.min_text_size = Math.min(window.min_text_size, name_font_size);
+    window.max_text_size = Math.max(window.max_text_size, name_font_size);
+
+    // Single DOM render + getBBox
+    renderTspans(text_element, lines, name_lines.length, name_font_size, secondary_font_size, is_bold);
+    const bbox = text_element.node().getBBox();
+
+    const max_width = window.box_width;
+    const max_height = window.box_height;
+    if (bbox.width <= max_width && bbox.height <= max_height) window.max_text_size = Math.max(window.max_text_size, name_font_size);
+    window.auto_box_width = Math.max(window.auto_box_width, window.box_width * (bbox.width / max_width), 20);
+    window.auto_box_height = Math.max(window.auto_box_height, bbox.height, 20);
+
+    alignTextVertically(text_element, bbox, lines.length);
 }
 
 
@@ -612,7 +636,7 @@ function drawLink(svg_node, color, point1, point2, special) {
     };
 
     const stroke_width = window.link_width || 3;
-    if (window.vertical_inlaws || special == 'duplicate') {
+    if (window.vertical_inlaws || special === 'duplicate') {
         svg_node.append("path")
             .attr("d", customLink(point1, point2))
             .attr("fill", "none")
@@ -652,6 +676,10 @@ function getNodeHCL(node, inlaw_desaturated = true) {
 }
 
 
+// Shared off-screen canvas for text measurement (created once)
+const _measureCanvas = document.createElement('canvas');
+const _measureCtx = _measureCanvas.getContext('2d');
+
 function fitTextInBox(str, width, height, fontFamily = 'Arial, sans-serif', fontWeight = 'normal', maxFontSize = null) {
     // Returns { lines: string[], fontSize: number } with the largest font size
     // such that the wrapped lines fit within the given width and height.
@@ -661,8 +689,7 @@ function fitTextInBox(str, width, height, fontFamily = 'Arial, sans-serif', font
     width = Math.max(0, width - 2 * padding);
     height = Math.max(0, height - 2 * padding);
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const ctx = _measureCtx;
 
     function measureTextWidth(text, fontSize) {
         ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;

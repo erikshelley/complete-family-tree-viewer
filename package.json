@@ -1,0 +1,11 @@
+{
+  "name": "complete-family-tree",
+  "version": "1.0.0",
+  "scripts": {
+    "lint": "eslint static/js/",
+    "format": "prettier --write static/"
+  },
+  "devDependencies": {
+    "prettier": "3.8.1"
+  }
+}

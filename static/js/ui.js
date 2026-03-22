@@ -1,26 +1,11 @@
-/*
-UI functions for Complete Family Tree application
-Function List:
-- toggleOptions
-- updateOptionsVisibility
-- zoomToFit
-- scaleBodyForSmallScreens
-- toggleEnabled
-- setMaxLinksEnabled
-- updateMaxLinksState
-- selectGedcomFile
-- filterIndividuals
-- usePresetStyle
-- resetStyling
-- openSaveModal
-- saveSVG
-- savePNG
-- updateRangeThumbs
-- requestFamilyTreeUpdate
-- updateFamilyTree
-- populateIndividualSelect
-*/
-
+/* global optionsMenu, leftColumnWrapper, leftCol, rightCol, family_tree_div,
+    expand_styling_button, collapse_styling_button, file_name_span,
+    individual_filter, individual_select, generations_up_number,
+    generations_down_number, max_stack_size_number, hue_element, sat_element,
+    lum_element, text_lum_element, root_name, color_picker, save_filename_input,
+    save_modal, style_presets, elements */
+/* global filter_timeout:writable, update_in_progress:writable,
+    update_waiting:writable, update_timeout:writable */
 
 function expandAllStylingSections() {
     const details_elements = document.querySelectorAll('details');
@@ -95,7 +80,7 @@ function zoomToFitHorizontal() {
     svg.attr('viewBox', `0 0 ${ms * availWidth} ${ms * availHeight}`);
     // Scale content so its width fills the available width
     const k = availWidth / origW;
-    const origVW = ms * origW;
+    //const origVW = ms * origW;
     const origVH = ms * origH;
     const ty = (ms * availHeight - k * origVH) / 2;
     const transform = d3.zoomIdentity.translate(0, Math.max(0, ty)).scale(k);
@@ -121,7 +106,6 @@ function zoomToFitVertical() {
     // Scale content so its height fills the available height
     const k = availHeight / origH;
     const origVW = ms * origW;
-    const origVH = ms * origH;
     const tx = (ms * availWidth - k * origVW) / 2;
     const transform = d3.zoomIdentity.translate(Math.max(0, tx), 0).scale(k);
     svg.transition().call(zoom.transform, transform);
@@ -257,24 +241,6 @@ function usePresetStyle(preset_name) {
         }
     }
     updateRangeThumbs();
-    updateFamilyTree();
-}
-
-
-function resetStyling() {
-    for (const element_info of elements) {
-        if (!['generations-up-number', 'generations-down-number', 'max-stack-size-number', 'show-names-checkbox', 'show-years-checkbox', 'show-places-checkbox', 'hide-childless-inlaws-checkbox'].includes(element_info.id)) {
-            const element = document.getElementById(element_info.id);
-            if (element_info.type === 'checkbox') element.checked = element_info.default;
-            else element.value = element_info.default;
-            window[element_info.variable] = element_info.default;
-            if (element_info.linked_element) element_info.linked_element.value = element_info.default;
-        }
-    }
-    preset_select.value = 'default';
-    color_picker.value = "#000000";
-    window.tree_color = "#000000";
-    updateRangeThumbs();
     requestFamilyTreeUpdate();
 }
 
@@ -361,7 +327,7 @@ function savePNG() {
             ctx.drawImage(img, 0, 0, vbWidth, vbHeight);
         } catch (err) {
             errorOccurred = true;
-            alert(`Error saving PNG: The canvas size (${vbWidth}x${vbHeight}) may exceed the browser or system limit. Try reducing the tree size or saving it as an SVG.`);
+            alert(`Error ${err} saving PNG: The canvas size (${vbWidth}x${vbHeight}) may exceed the browser or system limit. Try reducing the tree size or saving it as an SVG.`);
             return;
         }
         if (!errorOccurred) {
@@ -372,7 +338,8 @@ function savePNG() {
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                URL.revokeObjectURL(url); //a.href
+                URL.revokeObjectURL(a.href);
+                URL.revokeObjectURL(url);
             }, 'image/png');
             if (original_vbHeight > vbHeight || original_vbWidth > vbWidth) {
                 alert('Note: The saved PNG has been scaled down to fit within browser limits. For the best quality, consider saving as SVG or reducing the tree size before saving as PNG.');
@@ -419,24 +386,22 @@ function updateRangeThumbs() {
 
 
 function requestFamilyTreeUpdate() {
-    if (!window.gedcom_content) {
-        //console.log('No GEDCOM content loaded, cannot update family tree.');
-        return;
-    }
-    //console.log('Family tree update requested...');
+    if (!window.gedcom_content) { return; }
     if (!update_in_progress) {
-        //console.log(`No update in progress, starting update...`);
         update_in_progress = true;
         setMaxLinksEnabled(false);
-        //console.log('Max links disabled...');
         toggleEnabled(false, 'auto-node-width-link');
         toggleEnabled(false, 'auto-node-height-link');
-        //console.log('Auto box size links disabled...');
         if (update_timeout) clearTimeout(update_timeout);
-        update_timeout = setTimeout(() => { updateFamilyTree(); }, 100);
+        update_timeout = setTimeout(() => { 
+            try {
+                updateFamilyTree(); 
+            } catch (error) {
+                console.error('Error updating family tree:', error);
+            }
+        }, 100);
     }
     else {
-        //console.log('Update already in progress, marking update as waiting...');
         update_waiting = true;
     }
 }
@@ -444,43 +409,47 @@ function requestFamilyTreeUpdate() {
 
 async function updateFamilyTree() {
     if (window.gedcom_content) {
-        //console.log('Gedcom content found, updating family tree...');
-        // The tree building process can change the data, so we reload to get a fresh copy each time
-        const parsed_data = parseGedcomData(window.gedcom_content);
-        window.individuals = parsed_data.individuals;
-        window.families = parsed_data.families;
-        update_in_progress = false;
+        try {
+            // The tree building process can change the data, so we reload to get a fresh copy each time
+            const parsed_data = parseGedcomData(window.gedcom_content);
+            window.individuals = parsed_data.individuals;
+            window.families = parsed_data.families;
+            update_in_progress = false;
 
-        const selected_id = individual_select.value || window.selected_individual.id;
+            const selected_id = individual_select.value || window.selected_individual.id;
 
-        if (selected_id && (selected_id !== 'Select an individual...')) {
-            const selected_individual = window.individuals.find(ind => ind.id === selected_id);
-            //console.log('Updating family tree for', selected_individual.name);
-            if (selected_individual) {
-                window.selected_individual = selected_individual;
-                await createFamilyTree(selected_individual);
-                if (generations_up_number.value > window.max_gen_up) {
-                    generations_up_number.value = window.max_gen_up;
-                    window.generations_up = window.max_gen_up;
-                }
-                if (generations_down_number.value > window.max_gen_down) {
-                    generations_down_number.value = window.max_gen_down;
-                    window.generations_down = window.max_gen_down;
-                }
-                if (max_stack_size_number.value > window.max_stack_actual) {
-                    max_stack_size_number.value = window.max_stack_actual;
-                    window.max_stack_size = window.max_stack_actual;
+            if (selected_id && (selected_id !== 'Select an individual...')) {
+                const selected_individual = window.individuals.find(ind => ind.id === selected_id);
+                if (selected_individual) {
+                    window.selected_individual = selected_individual;
+                    await createFamilyTree(selected_individual);
+                    if (generations_up_number.value > window.max_gen_up) {
+                        generations_up_number.value = window.max_gen_up;
+                        window.generations_up = window.max_gen_up;
+                    }
+                    if (generations_down_number.value > window.max_gen_down) {
+                        generations_down_number.value = window.max_gen_down;
+                        window.generations_down = window.max_gen_down;
+                    }
+                    if (max_stack_size_number.value > window.max_stack_actual) {
+                        max_stack_size_number.value = window.max_stack_actual;
+                        window.max_stack_size = window.max_stack_actual;
+                    }
                 }
             }
-        }
-        updateMaxLinksState();
-        setMaxLinksEnabled(true);
-        toggleEnabled(true, 'auto-node-width-link');
-        toggleEnabled(true, 'auto-node-height-link');
-        update_in_progress = false;
-        if (update_waiting) {
-            update_waiting = false;
-            requestFamilyTreeUpdate();
+        } catch (error) {
+            console.error('Failed to update family tree:', error);
+            family_tree_div.innerHTML = '<p style="color: red;">Error updating tree. Please try again or select a different individual.</p>';
+        } finally {
+            updateMaxLinksState();
+            setMaxLinksEnabled(true);
+            toggleEnabled(true, 'auto-node-width-link');
+            toggleEnabled(true, 'auto-node-height-link');
+            update_in_progress = false;
+            if (update_waiting) {
+                update_waiting = false;
+                requestFamilyTreeUpdate();
+            }
         }
     }
 }
@@ -488,6 +457,7 @@ async function updateFamilyTree() {
 
 function populateIndividualSelect(individuals) {
     individual_select.innerHTML = '';
+    const fragment = document.createDocumentFragment();
     let filter = window.individual_filter_value || '';
     let filtered = individuals;
     if (filter.length > 0) {
@@ -496,40 +466,14 @@ function populateIndividualSelect(individuals) {
     filtered.forEach(individual => {
         const option = document.createElement('option');
         option.value = individual.id;
-        let birthYear = '';
-        let deathYear = '';
-        if (individual.birth) {
-            const match = individual.birth.match(/\b(\d{4})\b/);
-            if (match) birthYear = match[1];
-        }
-        if (individual.death) {
-            const match = individual.death.match(/\b(\d{4})\b/);
-            if (match) deathYear = match[1];
-        }
+        const birthYear = individual.birth || '';
+        const deathYear = individual.death || '';
         let years = '';
         if (birthYear || deathYear) {
             years = ` (${birthYear}${deathYear ? '–' + deathYear : ''})`;
         }
         option.textContent = (individual.name || individual.id) + years;
-        individual_select.appendChild(option);
+        fragment.appendChild(option);
     });
+    individual_select.appendChild(fragment);
 }
-
-canvasSize.maxArea({
-  onSuccess({ width, height, testTime, totalTime }) {
-    window.max_canvas_width = width;
-    window.max_canvas_height = height;
-  }
-});
-
-canvasSize.maxWidth({
-    onSuccess({ width, testTime, totalTime }) {
-        window.max_canvas_width = width;
-    }
-})
-
-canvasSize.maxHeight({
-    onSuccess({ height, testTime, totalTime }) {
-        window.max_canvas_height = height;
-    }
-})

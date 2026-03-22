@@ -1,3 +1,16 @@
+/* global elements, none_links, auto_links,
+    save_modal_ok_button, save_filename_input, clearIndividualFilterbutton,
+    individual_filter, color_picker, optionsMenu, file_input, individual_select,
+    preset_select, save_tree_button, save_modal_cancel_button, save_modal,
+    resize_tree_button, resize_tree_horizontal_button, resize_tree_vertical_button,
+    expand_styling_button, collapse_styling_button */
+/* global requestFamilyTreeUpdate, updateRangeThumbs, populateIndividualSelect,
+    savePNG, saveSVG, expandAllStylingSections, collapseAllStylingSections,
+    toggleOptions, selectGedcomFile, filterIndividuals, usePresetStyle,
+    openSaveModal, zoomToFit, zoomToFitHorizontal, zoomToFitVertical,
+    scaleBodyForSmallScreens, updateOptionsVisibility, updateMaxLinksState,
+    calculateMaxGenUp, calculateMaxGenDown */
+
 document.addEventListener('DOMContentLoaded', function() {
     // Setup event listeners for all input elements based on the configuration in ui_declarations.js
     for (const element_info of elements) {
@@ -150,3 +163,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+canvasSize.maxArea({
+  onSuccess({ width, height, testTime, totalTime }) {
+    window.max_canvas_width = width;
+    window.max_canvas_height = height;
+  }
+});
+
+canvasSize.maxWidth({
+    onSuccess({ width, testTime, totalTime }) {
+        window.max_canvas_width = width;
+    }
+})
+
+canvasSize.maxHeight({
+    onSuccess({ height, testTime, totalTime }) {
+        window.max_canvas_height = height;
+    }
+})
