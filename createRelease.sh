@@ -20,6 +20,7 @@ cd "$(dirname "$0")" # Change to the directory where the script is located
 main() {
     EXPECTED_ARGS=1
 
+    # Make sure the correct number of arguments is provided
     if [ $# -ne $EXPECTED_ARGS ]; then
         echo "Error: Invalid number of arguments." >&2
         echo "Usage: $0 v#.#.#" >&2
@@ -33,13 +34,23 @@ main() {
         exit 1
     fi
 
-    # Prompt user with reminders
+    # Make sure version tag does not already exist
+    if git rev-parse "$1" >/dev/null 2>&1; then
+        echo "Error: Tag $1 already exists." >&2
+        exit 1
+    fi
+
+    # Prompt user with reminder
     read -p "Have you committed your changes with a proper commit message? (y/n) " -n 1 -r
     echo    # move to a new line
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo "Please commit your changes before creating a release."
         exit 1
     fi
+
+    # Update VERSION in the README.md file
+    sed -i.bak -E "s/VERSION/$1/g" README.md
+    rm README.md.bak
 
     # Strip leading v from version number for consistency
     if [[ $1 == v* ]]; then
@@ -49,7 +60,7 @@ main() {
     fi
 
     # Make sure version is present in README.md
-    if ! grep -q "complete-family-tree-viewer.$1.zip" README.md; then
+    if ! grep -q "$1/complete-family-tree-viewer.$1.zip" README.md; then
         echo "Error: Version $VERSION not found in README.md. Please update the version in README.md before creating a release." >&2
         exit 1
     fi
