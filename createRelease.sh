@@ -62,6 +62,17 @@ main() {
     git tag -a $1 -m "Version $VERSION release" # Create annotated tag
     git push origin $1 # Push tag to remote repository
     git tag -n # List tags with their messages
+
+    # Must be authorized
+    # gh auth status
+    # gh auth login
+    # Github > Settings > Developer settings > Personal access tokens > Tokens (classic) > Generate new token
+    # Select scopes: repo, workflow, read:org, admin:public_key
+
+    # Create GitHub release with the zip file as an asset
+    gh release create "$1" "complete-family-tree-viewer-$1.zip" \
+        --title "Version $VERSION" \
+        --notes "Version $VERSION release"
 }
 
 main "$@"
