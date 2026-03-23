@@ -40,7 +40,7 @@ async function drawTree(rows) {
         svg.attr('height', svg_height);
     }
     svg.attr('viewBox', `0 0 ${max_scale * svg_width} ${max_scale * svg_height}`);
-    const zoom = d3.zoom().scaleExtent([1, 2 * max_scale]).on("zoom", zoomed);
+    const zoom = d3.zoom().scaleExtent([1, 10 * max_scale]).on("zoom", zoomed);
     svg.call(zoom);
     svg.node().__zoom_behavior = zoom;
     svg.node().__orig_svg_width = svg_width;
@@ -293,6 +293,7 @@ function drawCircles(svg_node, rows) {
     });
 }
     
+
 async function drawNodes(svg_node, rows) {
     // Draw nodes on top of links
     let count = 0;
@@ -302,6 +303,10 @@ async function drawNodes(svg_node, rows) {
                 drawNode(svg_node, node);
                 count++;
                 if (count % 100 === 0) await scheduler.yield();
+                logPositioning('drawNodes', {
+                    name: node.individual.name,
+                    x: node.x,
+                });
             };
         };
     };

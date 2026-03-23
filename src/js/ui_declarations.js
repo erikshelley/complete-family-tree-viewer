@@ -113,7 +113,7 @@ const style_presets = {
         // Rounding
         'node-rounding': 25, 'link-rounding': 25,
     },
-    'compact': {
+    'compact-stacked': {
         // Content
         'max-stack-size': 99, 'vertical-inlaws': true, 'show-names': true, 'show-years': false, 'show-places': false,
         // Size
@@ -126,6 +126,20 @@ const style_presets = {
         'pedigree-highlight-percent': 100, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
         // Rounding
         'node-rounding': 25, 'link-rounding': 25,
+    },
+    'compact-traditional': {
+        // Content
+        'max-stack-size': 1, 'vertical-inlaws': false, 'show-names': true, 'show-years': false, 'show-places': false,
+        // Size
+        'node-width': 48, 'node-height': 48, 'node-border-width': 0, 'link-width': 2, 'text-size': 8,
+        // Spacing
+        'h-spacing': 8, 'v-spacing': 16, 'level-spacing': 8, 'box-padding': 4, 'tree-padding': 8, 'text-align': 'middle',
+        // Color
+        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#000000',
+        // Highlights
+        'pedigree-highlight-percent': 100, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
+        // Rounding
+        'node-rounding': 10, 'link-rounding': 10,
     },
     'detailed': {
         // Content

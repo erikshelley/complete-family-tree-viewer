@@ -16,6 +16,7 @@ async function createFamilyTree(selected_individual) {
 
     // Measure positionTree
     const tree_positions = positionTree(tree_data);
+    normalizeTreeX(tree_positions);
     setHeights(tree_positions);
 
     // Measure drawTree
