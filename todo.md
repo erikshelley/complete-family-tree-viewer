@@ -4,12 +4,12 @@
 
 | Priority |   Type  | &nbsp;Target&nbsp;  | Functions | Description |
 |:--------:|:-------:| ------------------- |:---------:| ----------- |
-|    🔴    |   Bug   |        | Position | *Sometimes siblings and spouses are spaced unevenly when some have children and others do not* |
-|    🔴    |   Bug   |        | Position | *Sometimes stacked siblings and spouses could be spread in the gaps to save horizontal space* |
-|    🟠    |   Bug   |        | Position | With stacking > 1 and only stackable child/sibling/spouse, they are no longer in the proper order |
-|    🟠    |   Bug   |        | Position | ~~Extra space between top level ancestors~~ |
-|    🟡    |   Bug   |        | Position | Sometimes extra gap between inlaws in descendant trees : Sharlot 0up x 2dn has no gap, 1up x 2dn has a gap |
+|    🔴    |   Bug   |        | Position | ~~Sometimes siblings and ancestor in-laws are spaced unevenly when some have children and others do not~~ |
 |    🟡    | Feature |        | Build + Position | Sometimes siblings/children can fit in the gaps with no need to stack them |
+|    🔴    |   Bug   |        | Position | Sometimes stacked siblings and spouses could be spread in the gaps to save horizontal space |
+|    🔴    |   Bug   |        | Position | Sometimes vertical spouses are spaced unevenly when some have children and others do not |
+|    🟠    |   Bug   |        | Position | With stacking > 1 and only stackable child/sibling/spouse, they are no longer in the proper order |
+|    🟡    |   Bug   |        | Position | Sometimes extra gap between inlaws in descendant trees : Sharlot 0up x 2dn has no gap, 1up x 2dn has a gap |
 |    🟡    | Feature |        | UI + Build + Position | Ignore order of birth to save space |
 |    ⚫    | ------- | ------ | ------ | ------ |
 |    🟠    |   Bug   |        | TBD | Issues when root has no gender? no spouse? Issue for non-root individuals? |

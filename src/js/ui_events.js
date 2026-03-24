@@ -151,7 +151,8 @@ document.addEventListener('DOMContentLoaded', function() {
     expand_styling_button.addEventListener('click', function() { expandAllStylingSections(); });
     collapse_styling_button.addEventListener('click', function() { collapseAllStylingSections(); });
 
-    preset_select.value = 'default';
+    preset_select.value = 'traditional';
+    usePresetStyle('traditional');
     scaleBodyForSmallScreens();
     updateOptionsVisibility();
     updateRangeThumbs();

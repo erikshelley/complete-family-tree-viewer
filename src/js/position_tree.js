@@ -8,11 +8,31 @@ window.max_stack_actual = 1;
 window.auto_box_width = 0;
 window.auto_box_height = 0;
 window.tree_padding = 160;
+window.positioning_log_level = 'none'; // 'none' | 'moves' | 'debug'
 window.debug_positioning = false;
 
 
+function getPositioningLogLevel() {
+    if (window.positioning_log_level) return window.positioning_log_level;
+    return window.debug_positioning ? 'debug' : 'none';
+}
+
+
 function logPositioning(message, data = null) {
-    if (!window.debug_positioning) return;
+    const level = getPositioningLogLevel();
+    if (level === 'none') return;
+    if ((level === 'moves') && (message !== 'balancing-node-moved')) return;
+
+    if ((level === 'moves') && (message === 'balancing-node-moved')) {
+        const move_summary = data ? {
+            name: data.name,
+            shift_x: (data.shift_x !== undefined) ? data.shift_x : data.allowed_shift,
+        } : null;
+        if (move_summary) console.log(`[position] ${message}`, move_summary);
+        else console.log(`[position] ${message}`);
+        return;
+    }
+
     if (data) console.log(`[position] ${message}`, data);
     else console.log(`[position] ${message}`);
 }
@@ -498,6 +518,129 @@ function positionChildren(node, rows, drop_sub_level) {
 }
 
 
+function adjustInnerNodesSpacingForChain(chain_nodes, rows, direction = 'right-to-left', fixed_outer_nodes = new Set()) {
+    if (!chain_nodes || chain_nodes.length < 3) return false;
+
+    const sorted_children = chain_nodes.slice().sort((a, b) => getChainSortX(a) - getChainSortX(b));
+    const inner_children = sorted_children.slice(1, -1);
+    if (direction === 'right-to-left') inner_children.reverse();
+
+    logPositioning('balancing-chain-pass', {
+        direction,
+        left_outer: sorted_children[0].individual.name,
+        right_outer: sorted_children[sorted_children.length - 1].individual.name,
+        inner_nodes: inner_children.map(node => node.individual.name),
+        all_nodes: sorted_children.map(node => node.individual.name),
+    });
+
+    let moved = false;
+
+    inner_children.forEach(child_node => {
+        if (fixed_outer_nodes.has(child_node)) {
+            logPositioning('balancing-node-skip', {
+                name: child_node.individual.name,
+                reason: 'outer-fixed',
+            });
+            return;
+        }
+
+        if (child_node.type === 'ancestor') {
+            logPositioning('balancing-node-skip', {
+                name: child_node.individual.name,
+                reason: 'ancestor-fixed',
+                spouse: child_node.pedigree_spouse_node ? child_node.pedigree_spouse_node.individual.name : null,
+            });
+            return;
+        }
+
+        if (child_node.stacked) {
+            logPositioning('balancing-node-skip', {
+                name: child_node.individual.name,
+                reason: 'stacked',
+            });
+            return;
+        }
+
+        const child_index = sorted_children.indexOf(child_node);
+        const left_sibling = sorted_children[child_index - 1];
+        const right_sibling = sorted_children[child_index + 1];
+        const movement_space = getSubtreeHorizontalMovementSpace(child_node, rows, window.h_spacing);
+
+        let left_space = movement_space.left;
+        let right_space = movement_space.right;
+
+        if (!Number.isFinite(left_space) || !Number.isFinite(right_space)) {
+            logPositioning('balancing-node-skip', {
+                name: child_node.individual.name,
+                reason: 'non-finite-space',
+                left_space,
+                right_space,
+                movement_space,
+            });
+            return;
+        }
+        left_space = Math.max(0, left_space);
+        right_space = Math.max(0, right_space);
+
+        // Center the subtree within the free interval currently available around it.
+        const centered_shift = (right_space - left_space) / 2;
+        const allowed_shift = Math.max(0, centered_shift);
+
+        logPositioning('balancing-node', {
+            name: child_node.individual.name,
+            left_sibling: left_sibling ? left_sibling.individual.name : null,
+            right_sibling: right_sibling ? right_sibling.individual.name : null,
+            left_space,
+            right_space,
+            centered_shift,
+            allowed_shift,
+            movement_left: movement_space.left,
+            movement_right: movement_space.right,
+            left_blocker: movement_space.left_blocker,
+            right_blocker: movement_space.right_blocker,
+            min_x: child_node.min_x,
+            max_x: child_node.max_x,
+            x: child_node.x,
+        });
+
+        if (Math.abs(allowed_shift) >= 0.5) {
+            shiftSubtree(child_node, allowed_shift);
+            moved = true;
+            logPositioning('balancing-node-moved', {
+                name: child_node.individual.name,
+                shift_x: allowed_shift,
+                allowed_shift,
+                new_x: child_node.x,
+                new_min_x: child_node.min_x,
+                new_max_x: child_node.max_x,
+            });
+        }
+    });
+
+    return moved;
+}
+
+
+function adjustInnerChildrenSpacingGlobal(rows, max_rounds = 12) {
+    if (!rows || max_rounds < 1) return;
+
+    const chains = getBalancingChains(rows);
+
+    for (let round = 0; round < max_rounds; round++) {
+        const direction = (round % 2 === 0) ? 'right-to-left' : 'left-to-right';
+        const fixed_outer_nodes = new Set([
+            ...getFixedAdjacentOuterNodes(rows),
+            ...getFixedStackOuterNodes(rows),
+        ]);
+        let moved = false;
+        chains.forEach(chain_nodes => {
+            if (adjustInnerNodesSpacingForChain(chain_nodes, rows, direction, fixed_outer_nodes)) moved = true;
+        });
+        if (!moved) break;
+    }
+}
+
+
 function enforceBoundary(node) {
     if (!window.level_boundary_node_ancestor[node.level]) return;
 
@@ -581,6 +724,258 @@ function shiftSiblings(node, shift_x) {
     const parent_node = node.father_node ? node.father_node : node.parent_node;
     if (!node || !parent_node) return;
     parent_node.children_nodes.filter(child_node => child_node !== node).forEach(sibling_node => { shiftSubtree(sibling_node, shift_x); });
+}
+
+
+function collectShiftableSubtreeNodes(root_node, collected_nodes = new Set()) {
+    if (!root_node || collected_nodes.has(root_node)) return collected_nodes;
+
+    collected_nodes.add(root_node);
+
+    if (root_node.spouse_nodes) {
+        root_node.spouse_nodes
+            .filter(spouse_node => spouse_node.type === 'inlaw')
+            .forEach(spouse_node => { collectShiftableSubtreeNodes(spouse_node, collected_nodes); });
+    }
+
+    const shift_children = root_node.children_nodes && (root_node.type !== 'ancestor' || !root_node.individual.pedigree_child_node);
+    if (shift_children) root_node.children_nodes.forEach(child_node => { collectShiftableSubtreeNodes(child_node, collected_nodes); });
+
+    return collected_nodes;
+}
+
+
+function flattenRows(rows) {
+    const nodes = [];
+    rows.forEach(level => {
+        level.forEach(sub_level => {
+            sub_level.forEach(node => {
+                nodes.push(node);
+            });
+        });
+    });
+    return nodes;
+}
+
+
+function getChainSortX(node) {
+    return node.x;
+}
+
+
+function getChainRightX(node) {
+    return node.x + window.box_width;
+}
+
+
+function addBalancingChain(chains, seen_keys, nodes, source = 'unknown') {
+    const unique_nodes = [...new Set((nodes || []).filter(Boolean))];
+    if (unique_nodes.length < 3) return;
+
+    const sorted_nodes = unique_nodes.slice().sort((a, b) => getChainSortX(a) - getChainSortX(b));
+    const chain_key = sorted_nodes
+        .map(node => `${node.individual.id}:${node.type}:${node.level}:${node.sub_level}`)
+        .join('|');
+
+    if (seen_keys.has(chain_key)) return;
+    seen_keys.add(chain_key);
+    chains.push(sorted_nodes);
+
+    logPositioning('balancing-chain', {
+        source,
+        nodes: sorted_nodes.map(node => node.individual.name),
+        left_outer: sorted_nodes[0].individual.name,
+        right_outer: sorted_nodes[sorted_nodes.length - 1].individual.name,
+    });
+}
+
+
+function getBalancingChains(rows) {
+    if (!rows) return [];
+
+    const all_nodes = flattenRows(rows);
+    const chains = [];
+    const seen_keys = new Set();
+    const ancestor_row_keys = new Set();
+
+    all_nodes.filter(node => node.type === 'ancestor').forEach(node => {
+        ancestor_row_keys.add(`${node.level}:${node.sub_level}`);
+
+        const sibling_nodes = node.father_node ? node.father_node.children_nodes : [];
+        const inlaw_spouses = node.spouse_nodes ? node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw') : [];
+
+        if (node.individual.gender === 'M') {
+            const left_outer_sibling = sibling_nodes.slice().sort((a, b) => getChainSortX(a) - getChainSortX(b))[0];
+            const ancestor_left_x = node.x;
+            const left_side_nodes = [...sibling_nodes, ...inlaw_spouses].filter(candidate => candidate.x < ancestor_left_x);
+            const near_outer = left_side_nodes
+                .slice()
+                .sort((a, b) => b.x - a.x)[0];
+
+            if (left_outer_sibling && near_outer && left_outer_sibling !== near_outer) {
+                const left_bound = left_outer_sibling.x;
+                const right_bound = near_outer.x;
+                const chain_nodes = left_side_nodes.filter(candidate => candidate.x >= left_bound && candidate.x <= right_bound);
+                addBalancingChain(chains, seen_keys, chain_nodes, `male-ancestor-left:${node.individual.name}`);
+            }
+        }
+
+        if (node.individual.gender === 'F') {
+            const right_outer_sibling = sibling_nodes.slice().sort((a, b) => getChainSortX(b) - getChainSortX(a))[0];
+            const ancestor_right_x = node.x;
+            const right_side_nodes = [...inlaw_spouses, ...sibling_nodes].filter(candidate => candidate.x > ancestor_right_x);
+            const near_outer = right_side_nodes
+                .slice()
+                .sort((a, b) => a.x - b.x)[0];
+
+            if (right_outer_sibling && near_outer && right_outer_sibling !== near_outer) {
+                const left_bound = near_outer.x;
+                const right_bound = right_outer_sibling.x;
+                const chain_nodes = right_side_nodes.filter(candidate => candidate.x >= left_bound && candidate.x <= right_bound);
+                addBalancingChain(chains, seen_keys, chain_nodes, `female-ancestor-right:${node.individual.name}`);
+            }
+        }
+    });
+
+    all_nodes.filter(node => node.children_nodes && node.children_nodes.length >= 3).forEach(node => {
+        const child_row_keys = new Set(node.children_nodes.map(child_node => `${child_node.level}:${child_node.sub_level}`));
+        const row_has_ancestor = [...child_row_keys].some(row_key => ancestor_row_keys.has(row_key));
+        if (!row_has_ancestor) addBalancingChain(chains, seen_keys, node.children_nodes, `children:${node.individual.name}`);
+    });
+
+    logPositioning('balancing-chain-count', { count: chains.length });
+
+    return chains;
+}
+
+
+function getFixedAdjacentOuterNodes(rows) {
+    const fixed_nodes = new Set();
+    if (!rows) return fixed_nodes;
+
+    const all_nodes = flattenRows(rows);
+
+    all_nodes.filter(node => node.type === 'ancestor').forEach(node => {
+        const sibling_nodes = node.father_node ? node.father_node.children_nodes : [];
+        const inlaw_spouses = node.spouse_nodes ? node.spouse_nodes.filter(spouse_node => spouse_node.type === 'inlaw') : [];
+
+        if (node.individual.gender === 'M') {
+            const candidates = [...sibling_nodes, ...inlaw_spouses].filter(candidate => candidate.x < node.x);
+            const adjacent_left = candidates.slice().sort((a, b) => b.x - a.x)[0];
+            if (adjacent_left) fixed_nodes.add(adjacent_left);
+        }
+
+        if (node.individual.gender === 'F') {
+            const candidates = [...inlaw_spouses, ...sibling_nodes].filter(candidate => candidate.x > node.x);
+            const adjacent_right = candidates.slice().sort((a, b) => a.x - b.x)[0];
+            if (adjacent_right) fixed_nodes.add(adjacent_right);
+        }
+    });
+
+    logPositioning('balancing-fixed-adjacent-outers', {
+        count: fixed_nodes.size,
+        names: [...fixed_nodes].map(node => node.individual.name),
+    });
+
+    return fixed_nodes;
+}
+
+
+function getFixedStackOuterNodes(rows) {
+    const fixed_nodes = new Set();
+    if (!rows || (window.max_stack_size <= 1)) return fixed_nodes;
+
+    const all_nodes = flattenRows(rows);
+
+    all_nodes.filter(node => node.children_nodes && node.children_nodes.length > 0).forEach(node => {
+        const all_children_stacked = node.children_nodes.every(child_node => child_node.stacked);
+        if (!all_children_stacked) return;
+
+        const stack_tops = node.children_nodes.filter(child_node => child_node.stack_top);
+        if (stack_tops.length === 0) return;
+
+        const right_most_stack_top = stack_tops.slice().sort((a, b) => b.x - a.x)[0];
+        if (right_most_stack_top) fixed_nodes.add(right_most_stack_top);
+    });
+
+    logPositioning('balancing-fixed-stack-outers', {
+        count: fixed_nodes.size,
+        names: [...fixed_nodes].map(node => node.individual.name),
+    });
+
+    return fixed_nodes;
+}
+
+
+function getSubtreeHorizontalMovementSpace(node, rows, extra_gap = 0) {
+    if (!node || !rows) return { left: 0, right: 0 };
+
+    const subtree_nodes = collectShiftableSubtreeNodes(node);
+    const all_nodes = flattenRows(rows);
+    const other_nodes = all_nodes.filter(other_node => !subtree_nodes.has(other_node));
+
+    let max_left = Infinity;
+    let max_right = Infinity;
+    let left_blocker = null;
+    let right_blocker = null;
+
+    subtree_nodes.forEach(subtree_node => {
+        const subtree_left = subtree_node.x - extra_gap;
+        const subtree_right = subtree_node.x + window.box_width + extra_gap;
+        const subtree_top = subtree_node.y;
+        const subtree_bottom = (subtree_node.y === undefined) ? undefined : subtree_node.y + window.box_height;
+
+        other_nodes.forEach(other_node => {
+            const other_top = other_node.y;
+            const other_bottom = (other_node.y === undefined) ? undefined : other_node.y + window.box_height;
+
+            let vertical_overlap = false;
+            if (subtree_top !== undefined && subtree_bottom !== undefined && other_top !== undefined && other_bottom !== undefined) {
+                vertical_overlap = subtree_top < other_bottom && other_top < subtree_bottom;
+            } else {
+                vertical_overlap = subtree_node.level === other_node.level && subtree_node.sub_level === other_node.sub_level;
+            }
+
+            if (!vertical_overlap) return;
+
+            const other_left = other_node.x;
+            const other_right = other_node.x + window.box_width;
+
+            if (other_left >= subtree_right) {
+                // Rightward movement is limited by outside nodes that are to the right.
+                const candidate_right = other_left - subtree_right;
+                if (candidate_right < max_right) {
+                    max_right = candidate_right;
+                    right_blocker = {
+                        subtree_node: subtree_node.individual.name,
+                        blocker_node: other_node.individual.name,
+                        blocker_x: other_node.x,
+                        available_space: candidate_right,
+                    };
+                }
+            }
+            if (other_right <= subtree_left) {
+                // Leftward movement is limited by outside nodes that are to the left.
+                const candidate_left = subtree_left - other_right;
+                if (candidate_left < max_left) {
+                    max_left = candidate_left;
+                    left_blocker = {
+                        subtree_node: subtree_node.individual.name,
+                        blocker_node: other_node.individual.name,
+                        blocker_x: other_node.x,
+                        available_space: candidate_left,
+                    };
+                }
+            }
+        });
+    });
+
+    return {
+        left: Number.isFinite(max_left) ? Math.max(0, max_left) : Infinity,
+        right: Number.isFinite(max_right) ? Math.max(0, max_right) : Infinity,
+        left_blocker,
+        right_blocker,
+    };
 }
 
 

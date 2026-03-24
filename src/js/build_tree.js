@@ -18,6 +18,8 @@ async function createFamilyTree(selected_individual) {
     const tree_positions = positionTree(tree_data);
     normalizeTreeX(tree_positions);
     setHeights(tree_positions);
+    adjustInnerChildrenSpacingGlobal(tree_positions);
+    normalizeTreeX(tree_positions);
 
     // Measure drawTree
     await drawTree(tree_positions);
