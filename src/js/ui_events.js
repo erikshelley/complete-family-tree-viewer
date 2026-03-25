@@ -11,7 +11,75 @@
     scaleBodyForSmallScreens, updateOptionsVisibility, updateMaxLinksState,
     calculateMaxGenUp, calculateMaxGenDown */
 
+function getNumberInputLabel(input) {
+    if (!input || !input.id) return 'value';
+    const label = document.querySelector(`label[for="${input.id}"]`);
+    if (label) return label.textContent.trim();
+    return input.id.replace(/-/g, ' ');
+}
+
+function setupCustomNumberSteppers() {
+    const number_inputs = document.querySelectorAll('input[type="number"]');
+    number_inputs.forEach((input) => {
+        if (input.dataset.customStepper === 'true') return;
+
+        const parent = input.parentNode;
+        if (!parent) return;
+
+        const wrapper = document.createElement('span');
+        wrapper.className = 'number-input-wrapper';
+
+        const controls = document.createElement('span');
+        controls.className = 'number-stepper-controls';
+
+        const increment_button = document.createElement('button');
+        increment_button.type = 'button';
+        increment_button.className = 'number-stepper-button';
+        increment_button.textContent = '\u25b2';
+
+        const decrement_button = document.createElement('button');
+        decrement_button.type = 'button';
+        decrement_button.className = 'number-stepper-button';
+        decrement_button.textContent = '\u25bc';
+
+        const label = getNumberInputLabel(input);
+        increment_button.setAttribute('aria-label', `Increase ${label}`);
+        decrement_button.setAttribute('aria-label', `Decrease ${label}`);
+
+        const applyStep = (delta) => {
+            if (input.disabled || input.readOnly) return;
+            const old_value = input.value;
+            if (delta > 0) input.stepUp(delta);
+            else input.stepDown(-delta);
+            if (old_value !== input.value) {
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        };
+
+        increment_button.addEventListener('click', function(event) {
+            event.preventDefault();
+            applyStep(1);
+        });
+
+        decrement_button.addEventListener('click', function(event) {
+            event.preventDefault();
+            applyStep(-1);
+        });
+
+        parent.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+        controls.appendChild(increment_button);
+        controls.appendChild(decrement_button);
+        wrapper.appendChild(controls);
+
+        input.dataset.customStepper = 'true';
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    setupCustomNumberSteppers();
+
     // Setup event listeners for all input elements based on the configuration in ui_declarations.js
     for (const element_info of elements) {
         let element = document.getElementById(element_info.id);

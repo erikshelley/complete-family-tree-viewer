@@ -226,6 +226,70 @@ input[type="number"], #individual-select, #individual-filter-text, #preset-selec
     font-size: 1em;
 }
 
+input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.number-input-wrapper {
+    display: inline-flex;
+    vertical-align: middle;
+    align-items: stretch;
+}
+
+.number-input-wrapper input[type="number"] {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.number-stepper-controls {
+    display: inline-flex;
+    flex-direction: column;
+}
+
+.number-stepper-button {
+    width: 24px;
+    min-width: 24px;
+    height: 16px;
+    padding: 0;
+    border: 1px solid #444;
+    border-left: none;
+    background-color: #2a2a2a;
+    color: #aaa;
+    cursor: pointer;
+    line-height: 1;
+    font-size: 0.75em;
+}
+
+.number-stepper-button:first-child {
+    border-top-right-radius: 6px;
+    border-bottom: none;
+}
+
+.number-stepper-button:last-child {
+    border-bottom-right-radius: 6px;
+}
+
+.number-stepper-button:hover {
+    background-color: #333;
+}
+
+.number-stepper-button:active {
+    background-color: #3a3a3a;
+}
+
+.number-stepper-button:focus-visible {
+    outline: 1px solid hsl(210, 50%, 70%);
+    outline-offset: -1px;
+    z-index: 1;
+}
+
 input[type="checkbox"] { margin: 0px 8px 0px 4px; }
 
 input[type="checkbox"],

@@ -5,6 +5,7 @@
 | Priority |   Type  | &nbsp;Target&nbsp;  | Functions | Description |
 |:--------:|:-------:| ------------------- |:---------:| ----------- |
 |    🔴    |   Bug   |        | Position | ~~Sometimes siblings and ancestor in-laws are spaced unevenly when some have children and others do not~~ |
+|    🟢    | Feature |        | Style | ~~Larger up and down buttons on the number inputs~~ |
 |    🟡    | Feature |        | Build + Position | Sometimes siblings/children can fit in the gaps with no need to stack them |
 |    🔴    |   Bug   |        | Position | Sometimes stacked siblings and spouses could be spread in the gaps to save horizontal space |
 |    🔴    |   Bug   |        | Position | Sometimes vertical spouses are spaced unevenly when some have children and others do not |
@@ -12,6 +13,7 @@
 |    🟡    |   Bug   |        | Position | Sometimes extra gap between inlaws in descendant trees : Sharlot 0up x 2dn has no gap, 1up x 2dn has a gap |
 |    🟡    | Feature |        | UI + Build + Position | Ignore order of birth to save space |
 |    ⚫    | ------- | ------ | ------ | ------ |
+|    🔴    |   Bug   |        | Draw | When adding places, sometimes the font becomes miniscule |
 |    🟠    |   Bug   |        | TBD | Issues when root has no gender? no spouse? Issue for non-root individuals? |
 |    🟡    |   Bug   |        | UI | Narrow windows push Tree Viewer header below buttons |
 |    🟡    |   Bug   |        | Draw | Text shadow can have issues when saving a large tree as a PNG |
