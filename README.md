@@ -24,15 +24,15 @@ If you don't have a GEDCOM file available, you can download one of these [GEDCOM
 ## Features
 |                                          | Feature                       | Description |
 | ---------------------------------------- | ----------------------------- | ----------- |
-| ![](src/png/icons8-browse-folder-48.png) | **GEDCOM Import**             | Select and view a GEDCOM file from your local device. |
-| ![](src/png/icons8-privacy-48.png)       | **Data Privacy**              | Rest assured that no data is uploaded anywhere by this application. Processing is done in your browser. |
-| ![](src/png/icons8-complete-48.png)      | **Complete Tree Viewing**     | View a complete family tree that has no crossing lines. Utilize [stacking](#stacking) to minimize tree width. |
-| ![](src/png/icons8-drag-48.png)          | **Interactive Tree Viewing**  | Zoom and pan to view the tree as you would with a map. |
-| ![](src/png/icons8-filter-48.png)        | **Customizable Tree Content** | Choose how many generations (unlimited) and what information (names, dates, places) to view. |
-| ![](src/png/icons8-layout-48.png)        | **Customizable Tree Layout**  | Configure the positioning of in-laws (beside or below their spouse) and children (stackable). |
-| ![](src/png/icons8-customize-48.png)     | **Customizable Tree Styling** | Customize sizes, spacing, colors, highlights, and shapes to fit your needs. |
-| ![](src/png/icons8-save-48.png)          | **PNG & SVG Exporting**       | Save the tree as a PNG or [SVG](https://en.wikipedia.org/wiki/SVG). |
-| ![](src/png/icons8-laptop-48.png)        | **Serverless Hosting**        | Save the application on your local device and run it without a web server. Simply open the HTML file in your browser. |
+| ![](readme/icons8-browse-folder-48.png) | **GEDCOM Import**             | Select and view a GEDCOM file from your local device. |
+| ![](readme/icons8-privacy-48.png)       | **Data Privacy**              | Rest assured that no data is uploaded anywhere by this application. Processing is done in your browser. |
+| ![](readme/icons8-complete-48.png)      | **Complete Tree Viewing**     | View a complete family tree that has no crossing lines. Utilize [stacking](#stacking) to minimize tree width. |
+| ![](readme/icons8-drag-48.png)          | **Interactive Tree Viewing**  | Zoom and pan to view the tree as you would with a map. |
+| ![](readme/icons8-filter-48.png)        | **Customizable Tree Content** | Choose how many generations (unlimited) and what information (names, dates, places) to view. |
+| ![](readme/icons8-layout-48.png)        | **Customizable Tree Layout**  | Configure the positioning of in-laws (beside or below their spouse) and children (stackable). |
+| ![](readme/icons8-customize-48.png)     | **Customizable Tree Styling** | Customize sizes, spacing, colors, highlights, and shapes to fit your needs. |
+| ![](readme/icons8-save-48.png)          | **PNG & SVG Exporting**       | Save the tree as a PNG or [SVG](https://en.wikipedia.org/wiki/SVG). |
+| ![](readme/icons8-laptop-48.png)        | **Serverless Hosting**        | Save the application on your local device and run it without a web server. Simply open the HTML file in your browser. |
 
 The application **does not** allow you to create or edit family trees. For that, you need to use some other genealogy applications or website that allows you to export your tree as a GEDCOM file. Here are some of the most popular options:
 - Websites: [Ancestry](https://www.ancestry.com/), [MyHeritage](https://www.myheritage.com/), [Family Search](https://www.familysearch.org/) 
@@ -87,12 +87,12 @@ The example below contains the same people as the previous example in the **leve
 
 | Option | Description |
 | ------ | ----------- |
-| ![](src/png/icons8-browse-folder-48.png) | Click the Browse button to select and load a GEDCOM file from your computer. The people in thte GEDCOM file will be populated in the list below. |
+| ![](src/png/icons8-browse-folder-48-gold.png) | Click the Browse button to select and load a GEDCOM file from your computer. The people in thte GEDCOM file will be populated in the list below. |
 | Filter | Type a name in this box to filter the list of people. |
 | Select Root Person | Click on a person to make the root of the tree. Their family tree will be drawn. |
-| Generations Up | Change this value to control how many generations above the root person will be displayed. Click the up arrow <img src="src/png/icons8-top-48.png" width="18" height="18"> to use the maximum possible value for the root person. |
-| Generations Down | Change this value to control how many generations below the root person will be displayed. Click the up arrow <img src="src/png/icons8-top-48.png" width="18" height="18"> to use the maximum possible value for the root person. |
-| Stack Size | Change this value to control how many leaf nodes can be stacked in a single stack. Click the up arrow <img src="src/png/icons8-top-48.png" width="18" height="18"> to use the maximum possible value for the root person. |
+| Generations Up | Change this value to control how many generations above the root person will be displayed. Click the up arrow <img src="src/png/icons8-top-48-gold.png" width="18" height="18"> to use the maximum possible value for the root person. |
+| Generations Down | Change this value to control how many generations below the root person will be displayed. Click the up arrow <img src="src/png/icons8-top-48-gold.png" width="18" height="18"> to use the maximum possible value for the root person. |
+| Stack Size | Change this value to control how many leaf nodes can be stacked in a single stack. Click the up arrow <img src="src/png/icons8-top-48-gold.png" width="18" height="18"> to use the maximum possible value for the root person. |
 | Position In-Laws Below Spouses | Click this checkbox to position in-laws below their spouses. If it is unchecked, they will be beside their spouses. |
 | Hide Childless In-Laws | Click this checkbox to hide in-laws who are leaf nodes. |
 
@@ -116,8 +116,8 @@ The example below contains the same people as the previous example in the **leve
 ### Size
 | Option | Description |
 | ------ | ----------- |
-| Box X | Change this value to control the width of the nodes. Click the resize icon <img src="src/png/icons8-resize-48.png" width="18" height="18"> to use the width needed to fit the text. |
-| Box Y | Change this value to control thet height of the nodes. Click the resize icon <img src="src/png/icons8-resize-48.png" width="18" height="18"> to use thhe height needed to fit the text. |
+| Box X | Change this value to control the width of the nodes. Click the resize icon <img src="src/png/icons8-resize-48-gold.png" width="18" height="18"> to use the width needed to fit the text. |
+| Box Y | Change this value to control thet height of the nodes. Click the resize icon <img src="src/png/icons8-resize-48-gold.png" width="18" height="18"> to use thhe height needed to fit the text. |
 | Borders | Change this value to control the size of the node borders. |
 | Links | Change this value to control how thick the links are between nodes. |
 | Font | Change this value to control the size of the text in the nodes. |
@@ -144,10 +144,10 @@ The example below contains the same people as the previous example in the **leve
 ### Highlights (%)
 | Option | Description |
 | ------ | ----------- |
-| Pedigree | Change this value to control if thte pedigree nodes (direct ancestors and descendants of the root person) are darker or brighter than everyone else. 0% is black, 100% is the same brightness as everyone else, and 200% is twice as bright as everyone else. Click the X icon <img src="src/png/icons8-cancel-48.png" width="18" height="18"> to use 100% for no highlighting. |
-| Borders | Change this value to control if the node borders are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="src/png/icons8-cancel-48.png" width="18" height="18"> to use 100% for no highlighting. |
-| Links | Change this value to control if the links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="src/png/icons8-cancel-48.png" width="18" height="18"> to use 100% for no highlighting. |
-| In-Law Links | Change this value to control if the in-law links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="src/png/icons8-cancel-48.png" width="18" height="18""> to use 100% for no highlighting. |
+| Pedigree | Change this value to control if thte pedigree nodes (direct ancestors and descendants of the root person) are darker or brighter than everyone else. 0% is black, 100% is the same brightness as everyone else, and 200% is twice as bright as everyone else. Click the X icon <img src="src/png/icons8-cancel-48-gold.png" width="18" height="18"> to use 100% for no highlighting. |
+| Borders | Change this value to control if the node borders are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="src/png/icons8-cancel-48-gold.png" width="18" height="18"> to use 100% for no highlighting. |
+| Links | Change this value to control if the links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="src/png/icons8-cancel-48-gold.png" width="18" height="18"> to use 100% for no highlighting. |
+| In-Law Links | Change this value to control if the in-law links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="src/png/icons8-cancel-48-gold.png" width="18" height="18""> to use 100% for no highlighting. |
 
 ### Rounded Corners
 | Option | Description |
@@ -160,10 +160,10 @@ The example below contains the same people as the previous example in the **leve
 
 | Option | Description |
 | ------ | ----------- |
-| ![](src/png/icons8-save-48.png) | Click this button to save the tree as a PNG or SVG. Only the visible part of the tree is saved. If you zoom in before clicking the list you will only save part of the tree. If the tree is too large to save as a PNG, it will be resized and saved at a smaller size. SVGs have no size limits. |
-| <img src="src/png/icons8-resize-vertical-48.png"> | Click the vertical resize icon to fit the tree to the height of the viewer. |
-| <img src="src/png/icons8-resize-horizontal-48.png"> | Click the horizontal resize icon to fit the tree to the width of the viewer. |
-| <img src="src/png/icons8-enlarge-48.png"> | Click the resize icon to fit the tree to the viewer. |
+| ![](src/png/icons8-save-48-gold.png) | Click this button to save the tree as a PNG or SVG. Only the visible part of the tree is saved. If you zoom in before clicking the list you will only save part of the tree. If the tree is too large to save as a PNG, it will be resized and saved at a smaller size. SVGs have no size limits. |
+| <img src="src/png/icons8-resize-vertical-48-gold.png"> | Click the vertical resize icon to fit the tree to the height of the viewer. |
+| <img src="src/png/icons8-resize-horizontal-48-gold.png"> | Click the horizontal resize icon to fit the tree to the width of the viewer. |
+| <img src="src/png/icons8-enlarge-48-gold.png"> | Click the resize icon to fit the tree to the viewer. |
 | Zoom | Zoom in on the tree as you would when using a mapping application like Google Maps (double-click, pinch, + key, - key, Esc key). |
 | Pan | Pan around a zoomed-in tree as you would when using a mapping application like Google Maps (click and drag, arrow keys). |
 
@@ -178,25 +178,25 @@ The page background came from this excellent source:
 
 The icons are from icons8 > [liquid glass](https://icons8.com/icons/all--style-liquid-glass).
 - ![](src/png/icons8-menu-48.png) <a target="_blank" href="https://icons8.com/icon/0mAtpPoNoAEd/menu">Menu</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-help-48.png) <a target="_blank" href="https://icons8.com/icon/osnYseY0Xola/help">Help</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-browse-folder-48.png) <a target="_blank" href="https://icons8.com/icon/lSqvuA59KBiX/browse-folder">Browse Folder</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-top-48.png) <a target="_blank" href="https://icons8.com/icon/Kxg3ddPq2XL6/upward-arrow">Top</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-help-48.png) <a target="_blank" href="https://icons8.com/icon/osnYseY0Xola/help">Help</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-browse-folder-48.png) <a target="_blank" href="https://icons8.com/icon/lSqvuA59KBiX/browse-folder">Browse Folder</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-top-48.png) <a target="_blank" href="https://icons8.com/icon/Kxg3ddPq2XL6/upward-arrow">Top</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
 - ![](src/png/icons8-expand-48.png) <a target="_blank" href="https://icons8.com/icon/1jinb9WZokXK/expand">Expand</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
 - ![](src/png/icons8-collapse-48.png) <a target="_blank" href="https://icons8.com/icon/oXQVibFkysZg/collapse">Collapse</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-resize-48.png) <a target="_blank" href="https://icons8.com/icon/PjMvq8ClC94p/resize">Resize</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-cancel-48.png) <a target="_blank" href="https://icons8.com/icon/DXECg4JU1n2x/cancel">Cancel</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-save-48.png) <a target="_blank" href="https://icons8.com/icon/3VO7xUNfMILv/save">Save</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-resize-vertical-48.png) <a target="_blank" href="https://icons8.com/icon/GiGSyDPA8118/resize-vertical">Resize Vertical</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-resize-horizontal-48.png) <a target="_blank" href="https://icons8.com/icon/GXzkVzhz4pZm/resize-horizontal">Resize Horizontal</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-enlarge-48.png) <a target="_blank" href="https://icons8.com/icon/bcZmJfs5prDE/enlarge">Enlarge</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-resize-48.png) <a target="_blank" href="https://icons8.com/icon/PjMvq8ClC94p/resize">Resize</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-cancel-48.png) <a target="_blank" href="https://icons8.com/icon/DXECg4JU1n2x/cancel">Cancel</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-save-48.png) <a target="_blank" href="https://icons8.com/icon/3VO7xUNfMILv/save">Save</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-resize-vertical-48.png) <a target="_blank" href="https://icons8.com/icon/GiGSyDPA8118/resize-vertical">Resize Vertical</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-resize-horizontal-48.png) <a target="_blank" href="https://icons8.com/icon/GXzkVzhz4pZm/resize-horizontal">Resize Horizontal</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-enlarge-48.png) <a target="_blank" href="https://icons8.com/icon/bcZmJfs5prDE/enlarge">Enlarge</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
 
-- ![](src/png/icons8-privacy-48.png) <a target="_blank" href="https://icons8.com/icon/KjQkA7JG7lDE/security-shield">Privacy</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-complete-48.png) <a target="_blank" href="https://icons8.com/icon/hJniet82Bq1U/approval">Complete</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-drag-48.png) <a target="_blank" href="https://icons8.com/icon/jQhdjj6cuiwg/drag">Drag</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-customize-48.png) <a target="_blank" href="https://icons8.com/icon/b6eLSBnQN1Xl/slider">Customize</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-filter-48.png) <a target="_blank" href="https://icons8.com/icon/lIPVBw1hMKkS/filter">Filter</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-layout-48.png) <a target="_blank" href="https://icons8.com/icon/I9FnHLOemrZ8/template">Layout</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-laptop-48.png) <a target="_blank" href="https://icons8.com/icon/vHaL5ib6nGhu/laptop-with-cursor">Laptop</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-privacy-48.png) <a target="_blank" href="https://icons8.com/icon/KjQkA7JG7lDE/security-shield">Privacy</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-complete-48.png) <a target="_blank" href="https://icons8.com/icon/hJniet82Bq1U/approval">Complete</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-drag-48.png) <a target="_blank" href="https://icons8.com/icon/jQhdjj6cuiwg/drag">Drag</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-customize-48.png) <a target="_blank" href="https://icons8.com/icon/b6eLSBnQN1Xl/slider">Customize</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-filter-48.png) <a target="_blank" href="https://icons8.com/icon/lIPVBw1hMKkS/filter">Filter</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-layout-48.png) <a target="_blank" href="https://icons8.com/icon/I9FnHLOemrZ8/template">Layout</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-laptop-48.png) <a target="_blank" href="https://icons8.com/icon/vHaL5ib6nGhu/laptop-with-cursor">Laptop</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
 
 
 ## Similar Repositories

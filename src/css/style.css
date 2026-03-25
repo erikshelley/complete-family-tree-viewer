@@ -212,7 +212,7 @@ input:disabled + label {
 }
 
 input.range-value[type="number"] {
-    width: 60px;
+    width: 40px;
 }
 
 input[type="number"], #individual-select, #individual-filter-text, #preset-select, #text-align-select {
