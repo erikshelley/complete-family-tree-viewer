@@ -48,8 +48,12 @@ main() {
         exit 1
     fi
 
-    # Update VERSION in the README.md file
-    sed -i.bak -E "s/VERSION/$1/g" README.md
+    # Get most recent version from git tags
+    MOST_RECENT_TAG=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+    echo "Most recent tag: $MOST_RECENT_TAG"
+
+    # Update version in the README.md file
+    sed -i.bak -E "s/$MOST_RECENT_TAG/$1/g" README.md
     rm README.md.bak
 
     # Strip leading v from version number for consistency
