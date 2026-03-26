@@ -17,8 +17,9 @@ If you don't have a GEDCOM file available, you can download one of these [GEDCOM
 2. [Examples](#examples)
 3. [Design](#design)
 4. [Usage](#usage)
-5. [Attributions](#attributions)
-6. [Similar Repositories](#similar-repositories)
+5. [Automated Testing](readme/Testing.md)
+6. [Attributions](#attributions)
+7. [Similar Repositories](#similar-repositories)
 
 
 ## Features

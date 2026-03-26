@@ -121,7 +121,7 @@ function drawNonBoldLinks(svg_node, rows) {
                 // Draw link between relative and spouse
                 if (node.type === 'relative' || node.type === 'root') {
                     if (window.vertical_inlaws) {
-                        node.spouse_nodes.forEach(spouse_node => {
+                        node.spouse_nodes.filter(spouse_node => !(spouse_node.stacked && !spouse_node.stack_top)).forEach(spouse_node => {
                             drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
                                                       {x: spouse_node.x + window.box_width / 2, y: spouse_node.y}, 'inlaw');
                         });
@@ -183,6 +183,14 @@ function drawNonBoldLinks(svg_node, rows) {
                 if ((node.type === 'relative') && node.stacked && !node.stack_top) {
                     drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y}, 
                                               {x: node.x + window.box_width / 2, y: node.y - window.v_spacing});
+                }
+
+                // Draw link between stacked in-law and previous stacked in-law
+                if ((node.type === 'inlaw') && node.stacked && !node.stack_top) {
+                    const pedigree_factor = (node.individual.is_descendant || node.individual.is_root) ? window.pedigree_highlight_percent / 100 : 1;
+                    const inlaw_color = d3.hcl(hue, 0, luminance * (window.inlaw_link_highlight_percent / 100) * pedigree_factor);
+                    drawLink(svg_node, inlaw_color, {x: node.x + window.box_width / 2, y: node.y},
+                                                    {x: node.x + window.box_width / 2, y: node.y - window.v_spacing}, 'inlaw');
                 }
 
             });
@@ -536,6 +544,56 @@ function alignTextVertically(text_element, bbox, text_lines) {
     text_element.attr('y', text_y);
 }
 
+function getNameAvailableHeight(secondary_lines, secondary_font_size) {
+    let name_available_height = window.box_height;
+    if (secondary_lines.length > 0) {
+        const gap = secondary_font_size * 0.5;
+        name_available_height -= secondary_lines.length * secondary_font_size * 1.2 + gap;
+    }
+    return Math.max(name_available_height, 6 * 1.2);
+}
+
+function selectInitialTextLayout(name, weight, main_font_size, secondary_strings, place_strings) {
+    const min_font_size = 6;
+    const preferred_secondary_size = Math.max(min_font_size, Math.round(main_font_size * 0.75));
+    let best_layout = null;
+
+    for (let sec_size = preferred_secondary_size; sec_size >= min_font_size; sec_size--) {
+        const secondary_lines = buildSecondaryLines(secondary_strings, place_strings, sec_size);
+        const name_available_height = getNameAvailableHeight(secondary_lines, sec_size);
+
+        let name_lines = [];
+        let name_font_size = main_font_size;
+        if (window.show_names && name) {
+            const fit = fitTextInBox(name, window.box_width, name_available_height, 'Arial, sans-serif', weight, main_font_size);
+            name_lines = fit.lines;
+            name_font_size = fit.fontSize;
+        }
+
+        const is_better_name = !best_layout || (name_font_size > best_layout.name_font_size);
+        const same_name_better_secondary = best_layout && (name_font_size === best_layout.name_font_size) && (sec_size > best_layout.secondary_font_size);
+
+        if (is_better_name || same_name_better_secondary) {
+            best_layout = {
+                name_lines,
+                name_font_size,
+                secondary_lines,
+                secondary_font_size: sec_size,
+            };
+        }
+
+        if (name_font_size === main_font_size) break;
+    }
+
+    if (best_layout) return best_layout;
+    return {
+        name_lines: [],
+        name_font_size: main_font_size,
+        secondary_lines: buildSecondaryLines(secondary_strings, place_strings, preferred_secondary_size),
+        secondary_font_size: preferred_secondary_size,
+    };
+}
+
 function drawText(g, node) {
     const text_luminance = window.text_brightness || 0;
     const text_color = d3.hcl(0, 0, text_luminance);
@@ -553,28 +611,14 @@ function drawText(g, node) {
     const name = node.individual.name || '';
     const weight = is_bold ? 'bold' : 'normal';
     const main_font_size = window.text_size || window.default_text_size || 12;
-    let secondary_font_size = Math.max(6, Math.round(main_font_size * 0.75));
 
     // Build secondary content
     const { secondary_strings, place_strings } = buildSecondaryStrings(node.individual);
-    let secondary_lines = buildSecondaryLines(secondary_strings, place_strings, secondary_font_size);
-
-    // Calculate available height for the name
-    let name_available_height = window.box_height;
-    if (secondary_lines.length > 0) {
-        const gap = secondary_font_size * 0.5;
-        name_available_height -= secondary_lines.length * secondary_font_size * 1.2 + gap;
-        name_available_height = Math.max(name_available_height, main_font_size * 1.2);
-    }
-
-    // Fit the name
-    let name_lines = [];
-    let name_font_size = main_font_size;
-    if (window.show_names && name) {
-        const fit = fitTextInBox(name, window.box_width, name_available_height, 'Arial, sans-serif', weight, main_font_size);
-        name_lines = fit.lines;
-        name_font_size = fit.fontSize;
-    }
+    const initial_layout = selectInitialTextLayout(name, weight, main_font_size, secondary_strings, place_strings);
+    let name_lines = initial_layout.name_lines;
+    let name_font_size = initial_layout.name_font_size;
+    let secondary_lines = initial_layout.secondary_lines;
+    let secondary_font_size = initial_layout.secondary_font_size;
 
     // Ensure secondary font never exceeds name font
     secondary_font_size = Math.min(secondary_font_size, name_font_size);
@@ -591,6 +635,23 @@ function drawText(g, node) {
     name_font_size = shrunk.name_font_size;
     secondary_font_size = shrunk.secondary_font_size;
     lines = shrunk.lines;
+
+    // Final conservative pass for name wrapping: if a long name ends up on one line at a very small size,
+    // retry wrapping with a slight width margin to avoid borderline overflow from measurement differences.
+    const current_name_lines = lines.filter(l => l.type === 'name').map(l => l.text);
+    const current_secondary_lines = lines.filter(l => l.type === 'secondary').map(l => l.text);
+    if (window.show_names && name && current_name_lines.length === 1 && name_font_size <= 7 && name.includes(' ')) {
+        const retry_name_height = getNameAvailableHeight(current_secondary_lines, secondary_font_size);
+        const conservative_fit = fitTextInBox(name, window.box_width * 0.92, retry_name_height, 'Arial, sans-serif', weight, name_font_size);
+        if ((conservative_fit.fontSize === name_font_size) && (conservative_fit.lines.length > 1)) {
+            const candidate_lines = buildAllLines(conservative_fit.lines, current_secondary_lines);
+            const candidate_est = estimateTextDimensions(candidate_lines, conservative_fit.lines.length, name_font_size, secondary_font_size, is_bold);
+            if ((candidate_est.width <= window.box_width) && (candidate_est.height <= window.box_height)) {
+                name_lines = conservative_fit.lines;
+                lines = candidate_lines;
+            }
+        }
+    }
 
     window.min_text_size = Math.min(window.min_text_size, name_font_size);
     window.max_text_size = Math.max(window.max_text_size, name_font_size);
@@ -704,13 +765,33 @@ function fitTextInBox(str, width, height, fontFamily = 'Arial, sans-serif', font
     // Word-wrap the string into lines that fit within maxWidth at the given fontSize.
     // Splits on spaces and after hyphens; tokens wider than maxWidth are placed on their own line.
     function wrapText(text, fontSize, maxWidth) {
+        function splitTokenToWidth(token) {
+            if (measureTextWidth(token, fontSize) <= maxWidth) return [token];
+
+            const pieces = [];
+            let current = '';
+
+            for (const ch of token) {
+                const candidate = current + ch;
+                if (current && (measureTextWidth(candidate, fontSize) > maxWidth)) {
+                    pieces.push(current);
+                    current = ch;
+                } else {
+                    current = candidate;
+                }
+            }
+
+            if (current) pieces.push(current);
+            return pieces.length > 0 ? pieces : [token];
+        }
+
         // Split into tokens that break on spaces and after hyphens (keeping the hyphen with the preceding token)
         const tokens = text.match(/[^\s-]+-|[^\s-]+|\s+/g) || [''];
         // Filter out whitespace-only tokens but track where spaces were
         const parts = [];
         for (const token of tokens) {
             if (/^\s+$/.test(token)) continue;
-            parts.push(token);
+            splitTokenToWidth(token).forEach(piece => parts.push(piece));
         }
         if (parts.length === 0) return [''];
         const lines = [];
@@ -742,10 +823,11 @@ function fitTextInBox(str, width, height, fontFamily = 'Arial, sans-serif', font
     }
 
     // Binary search for the largest integer font size that fits.
-    let lo = 1;
+    const minFontSize = 6;
+    let lo = minFontSize;
     let hi = maxFontSize ? Math.min(Math.ceil(height), maxFontSize) : Math.ceil(height);
-    let bestLines = [str];
-    let bestSize = 1;
+    let bestLines = wrapText(str, minFontSize, width);
+    let bestSize = minFontSize;
 
     while (lo <= hi) {
         const mid = Math.floor((lo + hi) / 2);

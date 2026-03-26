@@ -177,7 +177,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     save_modal_ok_button.addEventListener('click', function() {
-        window.save_filename = save_filename_input.value || 'family-tree';
+        const save_filename_error = document.getElementById('save-filename-error');
+        if (!save_filename_input.value.trim()) {
+            if (save_filename_error) save_filename_error.style.display = 'inline';
+            return;
+        }
+        if (save_filename_error) save_filename_error.style.display = 'none';
+        window.save_filename = save_filename_input.value;
         document.getElementById('save-modal').style.display = 'none';
         // Determine selected format
         const save_format_input = document.querySelector('input[name="save-format"]:checked');

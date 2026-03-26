@@ -51,6 +51,7 @@ function parseGedcomData(content) {
             current_event = null;
         } else if (level === 0 && parts.length >= 3 && parts[2] === 'FAM') {
             // New family: 0 @Fxxx@ FAM
+            if (current_individual) individuals.push(current_individual);
             if (current_family) families.push(current_family);
             current_family = { id: parts[1], husb: null, wife: null, chil: [] };
             current_individual = null; // Reset individual
@@ -102,7 +103,7 @@ function parseGedcomData(content) {
             const place_parts = parts.slice(2);
             let place = place_parts.join(' ');
             // Remove 'County' and extra spaces
-            place = place.replace(/\bCounty\b/g, '').replace(/\s{2,}/g, ' ').trim();
+            place = place.replace(/\bCounty\b/g, '').replace(/\s+,/g, ',').replace(/\s{2,}/g, ' ').trim();
             place = replaceUSStateNamesWithAbbr(place);
             place = replaceCountryNamesWithAlpha3(place);
             if (current_event === 'BIRT' && current_individual) {

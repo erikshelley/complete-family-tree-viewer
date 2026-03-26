@@ -8,7 +8,7 @@ window.max_stack_actual = 1;
 window.auto_box_width = 0;
 window.auto_box_height = 0;
 window.tree_padding = 160;
-window.positioning_log_level = 'stack'; // 'none' | 'moves' | 'stack' | 'debug'
+window.positioning_log_level = 'none'; // 'none' | 'moves' | 'stack' | 'debug'
 window.debug_positioning = false;
 
 
@@ -535,26 +535,14 @@ function getMinimalWidthRunGroupSizes(run_length) {
     if ((window.max_stack_size <= 1) || (run_length === 1)) return [1];
 
     const column_count = Math.ceil(run_length / window.max_stack_size);
-    const group_sizes = Array(column_count).fill(window.max_stack_size);
-    let remaining_slack = column_count * window.max_stack_size - run_length;
+    const base_group_size = Math.floor(run_length / column_count);
+    const group_sizes = Array(column_count).fill(base_group_size);
+    const remainder = run_length % column_count;
+    const expanded_indexes = getCenteredColumnOrder(column_count).slice(0, remainder);
 
-    const max_singleton_columns = Math.floor(remaining_slack / (window.max_stack_size - 1));
-    const singleton_indexes = getEvenlySpacedColumnIndexes(column_count, max_singleton_columns);
-
-    singleton_indexes.forEach(index => {
-        group_sizes[index] = 1;
-        remaining_slack -= (window.max_stack_size - 1);
+    expanded_indexes.forEach(index => {
+        group_sizes[index] += 1;
     });
-
-    const adjustable_indexes = getCenteredColumnOrder(column_count).filter(index => group_sizes[index] > 1);
-    let adjustment_index = 0;
-
-    while ((remaining_slack > 0) && (adjustable_indexes.length > 0)) {
-        const index = adjustable_indexes[adjustment_index % adjustable_indexes.length];
-        group_sizes[index] -= 1;
-        remaining_slack -= 1;
-        adjustment_index += 1;
-    }
 
     return group_sizes;
 }
@@ -746,9 +734,10 @@ function shouldAcceptChildLayoutTrial(current_layout, trial_layout) {
 }
 
 
-function layoutChildrenWithPlan(node, ordered_children, rows, drop_sub_level, has_grandchildren, stacked_children, child_layout_nodes, layout_snapshot, enable_logging = true) {
+function layoutChildrenWithPlan(node, ordered_children, rows, drop_sub_level, has_grandchildren, stacked_children, stack_groups, child_layout_nodes, layout_snapshot, enable_logging = true) {
     const previous_suppressed = !!window.suppress_positioning_log;
     window.suppress_positioning_log = previous_suppressed || !enable_logging;
+    const stack_top_children = new Set((stack_groups || []).map(stack_group => stack_group[0]).filter(Boolean));
 
     resetChildLayoutNodes(child_layout_nodes, rows);
     restoreChildLayoutState(layout_snapshot);
@@ -759,6 +748,12 @@ function layoutChildrenWithPlan(node, ordered_children, rows, drop_sub_level, ha
     let stack_sub_level = node.sub_level + (drop_sub_level ? 1 : 0);
 
     ordered_children.forEach(child_node => {
+        if (stacked_children.has(child_node) && stack_top_children.has(child_node) && (stacks.length > 0)) {
+            alignStacks(stacks);
+            stacks = [];
+            stack_sub_level = node.sub_level + (drop_sub_level ? 1 : 0);
+        }
+
         if (!stacked_children.has(child_node) && (stacks.length > 0)) {
             alignStacks(stacks);
             stacks = [];
@@ -829,6 +824,16 @@ function positionSpouses(node, rows, type_to_drop) {
 function positionChildren(node, rows, drop_sub_level) {
     const has_grandchildren = hasGrandChildren(node);
 
+    // Sort children by birth year (ascending), nodes without a birth year go to the right end
+    node.children_nodes.sort((a, b) => {
+        const aYear = parseInt(a.individual.birth, 10);
+        const bYear = parseInt(b.individual.birth, 10);
+        if (isNaN(aYear) && isNaN(bYear)) return 0;
+        if (isNaN(aYear)) return 1;
+        if (isNaN(bYear)) return -1;
+        return aYear - bYear;
+    });
+
     // If node is a parent of root and root would be in a stack, make sure they are the top of the stack
     if ((node.type === 'ancestor') && (window.max_stack_size > 1) && (node.children_nodes.length > 0) && !node.individual.pedigree_child_node) {
         const root_node = node.children_nodes.find(child_node => child_node.individual.is_root);
@@ -845,7 +850,7 @@ function positionChildren(node, rows, drop_sub_level) {
     const child_layout_nodes = collectChildLayoutNodes(node.children_nodes);
     const layout_snapshot = snapshotChildLayoutState();
     let { stacked_children, stack_groups, layout_order } = planOrderedChildStacks(node, node.children_nodes, has_grandchildren);
-    let best_layout = layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, child_layout_nodes, layout_snapshot, true);
+    let best_layout = layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, stack_groups, child_layout_nodes, layout_snapshot, true);
 
     let released_stack_group = true;
     while (released_stack_group) {
@@ -858,7 +863,7 @@ function positionChildren(node, rows, drop_sub_level) {
             const trial_stack_groups = removeMatchingStackGroup(stack_groups, stack_group);
             const trial_layout_order = buildChildLayoutOrder(node.children_nodes, trial_stack_groups);
 
-            const trial_layout = layoutChildrenWithPlan(node, trial_layout_order, rows, drop_sub_level, has_grandchildren, trial_stacked_children, child_layout_nodes, layout_snapshot, false);
+            const trial_layout = layoutChildrenWithPlan(node, trial_layout_order, rows, drop_sub_level, has_grandchildren, trial_stacked_children, trial_stack_groups, child_layout_nodes, layout_snapshot, false);
             const accepted = shouldAcceptChildLayoutTrial(best_layout, trial_layout);
 
             logPositioning('child-stack-width-check', {
@@ -880,7 +885,7 @@ function positionChildren(node, rows, drop_sub_level) {
                 stacked_children = trial_stacked_children;
                 stack_groups = trial_stack_groups;
                 layout_order = trial_layout_order;
-                best_layout = layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, child_layout_nodes, layout_snapshot, true);
+                best_layout = layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, stack_groups, child_layout_nodes, layout_snapshot, true);
                 released_stack_group = true;
                 logPositioning('child-stack-release', {
                     parent: getNodeLogName(node),
@@ -891,7 +896,7 @@ function positionChildren(node, rows, drop_sub_level) {
                 break;
             }
 
-            best_layout = layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, child_layout_nodes, layout_snapshot, false);
+            best_layout = layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, stack_groups, child_layout_nodes, layout_snapshot, false);
         }
     }
 
