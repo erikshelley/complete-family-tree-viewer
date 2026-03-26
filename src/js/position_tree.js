@@ -8,7 +8,7 @@ window.max_stack_actual = 1;
 window.auto_box_width = 0;
 window.auto_box_height = 0;
 window.tree_padding = 160;
-window.positioning_log_level = 'none'; // 'none' | 'moves' | 'debug'
+window.positioning_log_level = 'stack'; // 'none' | 'moves' | 'stack' | 'debug'
 window.debug_positioning = false;
 
 
@@ -21,7 +21,9 @@ function getPositioningLogLevel() {
 function logPositioning(message, data = null) {
     const level = getPositioningLogLevel();
     if (level === 'none') return;
+    if (window.suppress_positioning_log) return;
     if ((level === 'moves') && (message !== 'balancing-node-moved')) return;
+    if ((level === 'stack') && !message.startsWith('child-stack-') && (message !== 'child-subtree-width')) return;
 
     if ((level === 'moves') && (message === 'balancing-node-moved')) {
         const move_summary = data ? {
@@ -35,6 +37,22 @@ function logPositioning(message, data = null) {
 
     if (data) console.log(`[position] ${message}`, data);
     else console.log(`[position] ${message}`);
+}
+
+
+function getNodeLogName(node) {
+    if (!node) return 'unknown';
+    return node.individual && node.individual.name ? node.individual.name : 'unknown';
+}
+
+
+function getGroupNodeNames(nodes, group_sizes) {
+    let group_start = 0;
+    return group_sizes.map(group_size => {
+        const names = nodes.slice(group_start, group_start + group_size).map(getNodeLogName);
+        group_start += group_size;
+        return names;
+    });
 }
 
 function positionTree(node, rows = []) {
@@ -406,23 +424,34 @@ function hasGrandChildren(node) {
 
 function alignStacks(stacks) {
     stacks.forEach(stack => {
+        const before_x = stack.map(n => ({ name: getNodeLogName(n), x: n.x }));
         let max_x = stack.map(n => n.x).reduce((a, b) => Math.max(a, b), -Infinity);
+        let total_extra_x = 0;
         stack.filter(n => n.stacked).forEach(n => {
             n.x = max_x;
             if (n.left_neighbor && (n.left_neighbor.x + window.box_width + window.h_spacing) > n.x) {
                 let extra_x = n.left_neighbor.x + window.box_width + window.h_spacing - n.x;
                 n.x += extra_x;
                 max_x += extra_x;
+                total_extra_x += extra_x;
             }
             n.min_x = n.x;
             n.max_x = n.x + window.box_width;
+        });
+        logPositioning('child-stack-align', {
+            stack: stack.map(getNodeLogName),
+            before_x,
+            after_x: stack.map(n => ({ name: getNodeLogName(n), x: n.x })),
+            final_stack_x: max_x,
+            total_extra_x,
         });
     });
 }
 
 
-function positionStackableNode(parent_node, target_node, rows, has_grandchildren, drop_sub_level, stack_sub_level, stacks, result_min_x, result_max_x, check_spouse_nodes = true) {
-    const is_stackable = (window.max_stack_size > 1) && (!has_grandchildren || (target_node.children_nodes.length === 0 && (!check_spouse_nodes || target_node.spouse_nodes.length === 0)));
+function positionStackableNode(parent_node, target_node, rows, has_grandchildren, drop_sub_level, stack_sub_level, stacks, result_min_x, result_max_x, check_spouse_nodes = true, force_stack = null) {
+    const auto_stackable = (window.max_stack_size > 1) && (!has_grandchildren || (target_node.children_nodes.length === 0 && (!check_spouse_nodes || target_node.spouse_nodes.length === 0)));
+    const is_stackable = (force_stack === null) ? auto_stackable : force_stack;
     if (is_stackable) {
         let min_stack_level = parent_node.sub_level + (drop_sub_level ? 1 : 0);
         let max_stack_level = min_stack_level + window.max_stack_size;
@@ -443,7 +472,323 @@ function positionStackableNode(parent_node, target_node, rows, has_grandchildren
     positionTree(target_node, rows);
     result_min_x = Math.min(result_min_x, target_node.min_x);
     result_max_x = Math.max(result_max_x, target_node.max_x);
+    logPositioning('child-stack-placement', {
+        parent: getNodeLogName(parent_node),
+        child: getNodeLogName(target_node),
+        auto_stackable,
+        forced_stack: force_stack,
+        stacked: !!target_node.stacked,
+        stack_top: !!target_node.stack_top,
+        sub_level: target_node.sub_level,
+        x: target_node.x,
+        min_x: target_node.min_x,
+        max_x: target_node.max_x,
+        stack_count: stacks.length,
+    });
     return [result_min_x, result_max_x, stacks, stack_sub_level];
+}
+
+
+function shouldChildBeStacked(child_node, has_grandchildren) {
+    return (window.max_stack_size > 1) && (!has_grandchildren || (child_node.spouse_nodes.length === 0));
+}
+
+
+function getCenteredColumnOrder(column_count) {
+    const center = (column_count - 1) / 2;
+    return Array.from({ length: column_count }, (_, index) => index)
+        .sort((a, b) => {
+            const distance_a = Math.abs(a - center);
+            const distance_b = Math.abs(b - center);
+            if (distance_a !== distance_b) return distance_a - distance_b;
+            return a - b;
+        });
+}
+
+
+function getEvenlySpacedColumnIndexes(column_count, selected_count) {
+    if (selected_count <= 0) return [];
+
+    const indexes = [];
+    const used_indexes = new Set();
+
+    for (let position = 0; position < selected_count; position++) {
+        const ideal_index = ((position + 1) * (column_count + 1) / (selected_count + 1)) - 1;
+        let candidate_index = Math.round(ideal_index);
+        let offset = 0;
+
+        while (used_indexes.has(candidate_index + offset) || (candidate_index + offset < 0) || (candidate_index + offset >= column_count)) {
+            offset = (offset <= 0) ? Math.abs(offset) + 1 : -offset;
+        }
+
+        candidate_index += offset;
+        used_indexes.add(candidate_index);
+        indexes.push(candidate_index);
+    }
+
+    return indexes.sort((a, b) => a - b);
+}
+
+
+function getMinimalWidthRunGroupSizes(run_length) {
+    if (run_length <= 0) return [];
+    if ((window.max_stack_size <= 1) || (run_length === 1)) return [1];
+
+    const column_count = Math.ceil(run_length / window.max_stack_size);
+    const group_sizes = Array(column_count).fill(window.max_stack_size);
+    let remaining_slack = column_count * window.max_stack_size - run_length;
+
+    const max_singleton_columns = Math.floor(remaining_slack / (window.max_stack_size - 1));
+    const singleton_indexes = getEvenlySpacedColumnIndexes(column_count, max_singleton_columns);
+
+    singleton_indexes.forEach(index => {
+        group_sizes[index] = 1;
+        remaining_slack -= (window.max_stack_size - 1);
+    });
+
+    const adjustable_indexes = getCenteredColumnOrder(column_count).filter(index => group_sizes[index] > 1);
+    let adjustment_index = 0;
+
+    while ((remaining_slack > 0) && (adjustable_indexes.length > 0)) {
+        const index = adjustable_indexes[adjustment_index % adjustable_indexes.length];
+        group_sizes[index] -= 1;
+        remaining_slack -= 1;
+        adjustment_index += 1;
+    }
+
+    return group_sizes;
+}
+
+
+function buildChildLayoutOrder(children_nodes, stack_groups) {
+    const layout_order = [];
+    const group_by_child = new Map();
+
+    stack_groups.forEach((stack_group, group_index) => {
+        stack_group.forEach(child_node => { group_by_child.set(child_node, group_index); });
+    });
+
+    const inserted_groups = new Set();
+
+    children_nodes.forEach(child_node => {
+        const group_index = group_by_child.get(child_node);
+        if (group_index === undefined) {
+            layout_order.push(child_node);
+            return;
+        }
+
+        if (inserted_groups.has(group_index)) return;
+        inserted_groups.add(group_index);
+        stack_groups[group_index].forEach(group_child => { layout_order.push(group_child); });
+    });
+
+    return layout_order;
+}
+
+
+function planOrderedChildStacks(parent_node, children_nodes, has_grandchildren) {
+    const eligible_children = children_nodes.filter(child_node => shouldChildBeStacked(child_node, has_grandchildren));
+    const stacked_children = new Set();
+    const stack_groups = [];
+
+    if (eligible_children.length <= 1) {
+        if (eligible_children.length === 1) {
+            logPositioning('child-stack-run', {
+                parent: getNodeLogName(parent_node),
+                run_children: eligible_children.map(getNodeLogName),
+                eligible_count: eligible_children.length,
+                max_stack_size: window.max_stack_size,
+                column_count: 1,
+                group_sizes: [1],
+                grouped_children: [eligible_children.map(getNodeLogName)],
+                stacked_children: [],
+                unstacked_children: eligible_children.map(getNodeLogName),
+                reason: 'single-eligible-child',
+            });
+        }
+
+        return {
+            stacked_children,
+            stack_groups,
+            layout_order: children_nodes.slice(),
+        };
+    }
+
+    const group_sizes = getMinimalWidthRunGroupSizes(eligible_children.length);
+    const grouped_children = getGroupNodeNames(eligible_children, group_sizes);
+    const column_count = group_sizes.length;
+    let child_index = 0;
+
+    group_sizes.forEach(group_size => {
+        const group_children = eligible_children.slice(child_index, child_index + group_size);
+        if (group_size > 1) {
+            stack_groups.push(group_children);
+            group_children.forEach(child_node => { stacked_children.add(child_node); });
+        }
+        child_index += group_size;
+    });
+
+    logPositioning('child-stack-run', {
+        parent: getNodeLogName(parent_node),
+        run_children: eligible_children.map(getNodeLogName),
+        eligible_count: eligible_children.length,
+        max_stack_size: window.max_stack_size,
+        column_count,
+        group_sizes,
+        grouped_children,
+        stacked_children: eligible_children.filter(child_node => stacked_children.has(child_node)).map(getNodeLogName),
+        unstacked_children: eligible_children.filter(child_node => !stacked_children.has(child_node)).map(getNodeLogName),
+    });
+
+    grouped_children.forEach((grouped_names, group_index) => {
+        logPositioning('child-stack-decision', {
+            parent: getNodeLogName(parent_node),
+            group_index,
+            group_size: group_sizes[group_index],
+            children: grouped_names,
+            stacked: group_sizes[group_index] > 1,
+            reason: group_sizes[group_index] > 1 ? 'minimal-width multi-child column' : 'minimal-width singleton column',
+        });
+    });
+
+    return {
+        stacked_children,
+        stack_groups,
+        layout_order: buildChildLayoutOrder(children_nodes, stack_groups),
+    };
+}
+
+
+function snapshotChildLayoutState() {
+    return {
+        level_boundary_node_leaf: window.level_boundary_node_leaf.slice(),
+        level_heights: window.level_heights.slice(),
+        max_stack_actual: window.max_stack_actual,
+    };
+}
+
+
+function restoreChildLayoutState(snapshot) {
+    window.level_boundary_node_leaf = snapshot.level_boundary_node_leaf.slice();
+    window.level_heights = snapshot.level_heights.slice();
+    window.max_stack_actual = snapshot.max_stack_actual;
+}
+
+
+function collectChildLayoutNodes(children_nodes) {
+    const collected_nodes = new Set();
+    children_nodes.forEach(child_node => {
+        collectShiftableSubtreeNodes(child_node, collected_nodes);
+    });
+    return [...collected_nodes];
+}
+
+
+function removeNodeFromRows(rows, node) {
+    if (!rows || !node || (node.level === undefined) || (node.sub_level === undefined)) return;
+    const level_rows = rows[node.level];
+    if (!level_rows || !level_rows[node.sub_level]) return;
+    level_rows[node.sub_level] = level_rows[node.sub_level].filter(row_node => row_node !== node);
+}
+
+
+function resetChildLayoutNodes(nodes, rows) {
+    nodes.forEach(node => {
+        if (node.is_positioned) removeNodeFromRows(rows, node);
+        node.is_positioned = false;
+        node.left_neighbor = null;
+        node.stacked = false;
+        node.stack_top = false;
+        node.x = undefined;
+        node.y = undefined;
+        node.min_x = undefined;
+        node.max_x = undefined;
+        node.sub_level = undefined;
+    });
+}
+
+
+function getCurrentStackGroups(children_nodes) {
+    const stack_groups = [];
+    let current_group = [];
+
+    children_nodes.forEach(child_node => {
+        if (child_node.stacked) current_group.push(child_node);
+        else if (current_group.length > 0) {
+            stack_groups.push(current_group);
+            current_group = [];
+        }
+    });
+
+    if (current_group.length > 0) stack_groups.push(current_group);
+    return stack_groups;
+}
+
+
+function removeMatchingStackGroup(stack_groups, target_group) {
+    return stack_groups.filter(group => {
+        if (group.length !== target_group.length) return true;
+        return !group.every((child_node, index) => child_node === target_group[index]);
+    });
+}
+
+
+function shouldAcceptChildLayoutTrial(current_layout, trial_layout) {
+    const epsilon = 0.5;
+
+    if (trial_layout.child_max_x < current_layout.child_max_x - epsilon) return true;
+    if (trial_layout.child_max_x > current_layout.child_max_x + epsilon) return false;
+
+    if (trial_layout.subtree_width < current_layout.subtree_width - epsilon) return true;
+    if (trial_layout.subtree_width > current_layout.subtree_width + epsilon) return false;
+
+    return trial_layout.child_min_x >= current_layout.child_min_x - epsilon;
+}
+
+
+function layoutChildrenWithPlan(node, ordered_children, rows, drop_sub_level, has_grandchildren, stacked_children, child_layout_nodes, layout_snapshot, enable_logging = true) {
+    const previous_suppressed = !!window.suppress_positioning_log;
+    window.suppress_positioning_log = previous_suppressed || !enable_logging;
+
+    resetChildLayoutNodes(child_layout_nodes, rows);
+    restoreChildLayoutState(layout_snapshot);
+
+    let child_min_x = Infinity;
+    let child_max_x = -Infinity;
+    let stacks = [];
+    let stack_sub_level = node.sub_level + (drop_sub_level ? 1 : 0);
+
+    ordered_children.forEach(child_node => {
+        if (!stacked_children.has(child_node) && (stacks.length > 0)) {
+            alignStacks(stacks);
+            stacks = [];
+            stack_sub_level = node.sub_level + (drop_sub_level ? 1 : 0);
+        }
+
+        [child_min_x, child_max_x, stacks, stack_sub_level]
+            = positionStackableNode(
+                node,
+                child_node,
+                rows,
+                has_grandchildren,
+                drop_sub_level,
+                stack_sub_level,
+                stacks,
+                child_min_x,
+                child_max_x,
+                true,
+                stacked_children.has(child_node),
+            );
+    });
+
+    alignStacks(stacks);
+    window.suppress_positioning_log = previous_suppressed;
+
+    return {
+        child_min_x,
+        child_max_x,
+        subtree_width: (Number.isFinite(child_min_x) && Number.isFinite(child_max_x)) ? (child_max_x - child_min_x) : 0,
+    };
 }
 
 
@@ -482,9 +827,6 @@ function positionSpouses(node, rows, type_to_drop) {
 
 // drop_sub_level will be true for inlaws so that their children are positioned one sub-level lower than the inlaw
 function positionChildren(node, rows, drop_sub_level) {
-    let child_min_x = Infinity, child_max_x = -Infinity;
-    let stacks = [];
-    let stack_sub_level = node.sub_level + (drop_sub_level ? 1 : 0);
     const has_grandchildren = hasGrandChildren(node);
 
     // If node is a parent of root and root would be in a stack, make sure they are the top of the stack
@@ -500,18 +842,70 @@ function positionChildren(node, rows, drop_sub_level) {
         }
     }
 
-    // Position stacked children
-    node.children_nodes.filter(child_node => (window.max_stack_size > 1) && (!has_grandchildren || (child_node.spouse_nodes.length === 0))).forEach(child_node => { 
-        [child_min_x, child_max_x, stacks, stack_sub_level] 
-            = positionStackableNode(node, child_node, rows, has_grandchildren, drop_sub_level, stack_sub_level, stacks, child_min_x, child_max_x);
-    });
+    const child_layout_nodes = collectChildLayoutNodes(node.children_nodes);
+    const layout_snapshot = snapshotChildLayoutState();
+    let { stacked_children, stack_groups, layout_order } = planOrderedChildStacks(node, node.children_nodes, has_grandchildren);
+    let best_layout = layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, child_layout_nodes, layout_snapshot, true);
 
-    alignStacks(stacks);
+    let released_stack_group = true;
+    while (released_stack_group) {
+        released_stack_group = false;
+        const current_stack_groups = stack_groups.filter(stack_group => stack_group.length > 1);
 
-    // Position unstacked children
-    node.children_nodes.filter(child_node => (window.max_stack_size === 1) || (child_node.spouse_nodes.length > 0)).forEach(child_node => { 
-        [child_min_x, child_max_x, stacks, stack_sub_level] 
-            = positionStackableNode(node, child_node, rows, has_grandchildren, drop_sub_level, stack_sub_level, stacks, child_min_x, child_max_x);
+        for (const stack_group of current_stack_groups) {
+            const trial_stacked_children = new Set(stacked_children);
+            stack_group.forEach(child_node => { trial_stacked_children.delete(child_node); });
+            const trial_stack_groups = removeMatchingStackGroup(stack_groups, stack_group);
+            const trial_layout_order = buildChildLayoutOrder(node.children_nodes, trial_stack_groups);
+
+            const trial_layout = layoutChildrenWithPlan(node, trial_layout_order, rows, drop_sub_level, has_grandchildren, trial_stacked_children, child_layout_nodes, layout_snapshot, false);
+            const accepted = shouldAcceptChildLayoutTrial(best_layout, trial_layout);
+
+            logPositioning('child-stack-width-check', {
+                parent: getNodeLogName(node),
+                released_children: stack_group.map(getNodeLogName),
+                current_stacked_children: [...stacked_children].map(getNodeLogName),
+                trial_stacked_children: [...trial_stacked_children].map(getNodeLogName),
+                current_width: best_layout.subtree_width,
+                trial_width: trial_layout.subtree_width,
+                current_min_x: best_layout.child_min_x,
+                current_max_x: best_layout.child_max_x,
+                trial_min_x: trial_layout.child_min_x,
+                trial_max_x: trial_layout.child_max_x,
+                max_x_improved: trial_layout.child_max_x < best_layout.child_max_x,
+                accepted,
+            });
+
+            if (accepted) {
+                stacked_children = trial_stacked_children;
+                stack_groups = trial_stack_groups;
+                layout_order = trial_layout_order;
+                best_layout = layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, child_layout_nodes, layout_snapshot, true);
+                released_stack_group = true;
+                logPositioning('child-stack-release', {
+                    parent: getNodeLogName(node),
+                    released_children: stack_group.map(getNodeLogName),
+                    resulting_stacked_children: [...stacked_children].map(getNodeLogName),
+                    resulting_width: best_layout.subtree_width,
+                });
+                break;
+            }
+
+            best_layout = layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, child_layout_nodes, layout_snapshot, false);
+        }
+    }
+
+    const child_min_x = best_layout.child_min_x;
+    const child_max_x = best_layout.child_max_x;
+
+    logPositioning('child-subtree-width', {
+        parent: getNodeLogName(node),
+        child_order: node.children_nodes.map(getNodeLogName),
+        stacked_children: node.children_nodes.filter(child_node => child_node.stacked).map(getNodeLogName),
+        unstacked_children: node.children_nodes.filter(child_node => !child_node.stacked).map(getNodeLogName),
+        child_min_x,
+        child_max_x,
+        subtree_width: (Number.isFinite(child_min_x) && Number.isFinite(child_max_x)) ? (child_max_x - child_min_x) : 0,
     });
 
     return [child_min_x, child_max_x];

@@ -2,8 +2,8 @@
   "name": "complete-family-tree",
   "version": "1.0.0",
   "scripts": {
-    "lint": "eslint static/js/",
-    "format": "prettier --write static/"
+    "lint": "eslint src/js/",
+    "format": "prettier --write src/"
   },
   "devDependencies": {
     "prettier": "3.8.1"

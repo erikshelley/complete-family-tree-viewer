@@ -4,14 +4,16 @@
 
 | Priority |   Type  | &nbsp;Target&nbsp;  | Functions | Description |
 |:--------:|:-------:| ------------------- |:---------:| ----------- |
-|    🔴    |   Bug   |        | Position | ~~Sometimes siblings and ancestor in-laws are spaced unevenly when some have children and others do not~~ |
-|    🟢    | Feature |        | Style | ~~Larger up and down buttons on the number inputs~~ |
-|    🟡    | Feature |        | Build + Position | Sometimes siblings/children can fit in the gaps with no need to stack them |
-|    🔴    |   Bug   |        | Position | Sometimes stacked siblings and spouses could be spread in the gaps to save horizontal space |
+|    🔴    |   Bug   |        | ✅ Position | Sometimes siblings and ancestor in-laws are spaced unevenly when some have children and others do not |
+|    🟢    | Feature |        | ✅ Style | Larger up and down buttons on the number inputs |
+|    🟢    | Feature |        | ✅ Style | Colorful png buttons |
+|    🟡    | Feature |        | ✅ Build + Position | Sometimes siblings/children can fit in the gaps with no need to stack them |
+|    🔴    |   Bug   |        | ✅ Position | Sometimes stacked siblings and spouses could be spread in the gaps to save horizontal space |
+|    🟠    |   Bug   |        | ✅ Position | With stacking > 1 and only stackable child/sibling/spouse, they are no longer in the proper order |
+|    🟡    | Feature |        | Position | Sometimes there is one very large stack and one very small stack - we should try to make sibling stacks evenly sized |
+|    🟠    |   Bug   |        | Position | When there are three stacked spouses with a max stack size of two - there are issues (Reese BB) |
 |    🔴    |   Bug   |        | Position | Sometimes vertical spouses are spaced unevenly when some have children and others do not |
-|    🟠    |   Bug   |        | Position | With stacking > 1 and only stackable child/sibling/spouse, they are no longer in the proper order |
 |    🟡    |   Bug   |        | Position | Sometimes extra gap between inlaws in descendant trees : Sharlot 0up x 2dn has no gap, 1up x 2dn has a gap |
-|    🟡    | Feature |        | UI + Build + Position | Ignore order of birth to save space |
 |    ⚫    | ------- | ------ | ------ | ------ |
 |    🔴    |   Bug   |        | Draw | When adding places, sometimes the font becomes miniscule |
 |    🟠    |   Bug   |        | TBD | Issues when root has no gender? no spouse? Issue for non-root individuals? |
@@ -27,6 +29,7 @@
 |    🟡    | Feature |        | Draw | *Click on node to make them the new root person - is this possible?* |
 |    🟡    | Feature |        | UI + Build + Draw | *After selecting root, create 2nd list of people to select from (or click on another person), highlight the path between them* |
 |    🟡    | Feature |        | UI + Draw | Tooltips |
+|    🟡    | Feature |        | UI + Build + Position | Ignore order of birth to save space |
 |    🟢    | Feature |        | UI + Draw | Auto text size |
 |    🟢    | Feature |        | UI | Save and load settings |
 |    🟢    | Feature |        | UI + Build + Position | Allow end siblings/children to be moved into gaps to compress the tree - violate age order |
