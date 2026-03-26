@@ -11,6 +11,8 @@ export function createBrowserContext(options = {}) {
         console,
         setTimeout,
         clearTimeout,
+        TextDecoder,
+        TextEncoder,
     };
 
     Object.assign(context, globalOverrides);

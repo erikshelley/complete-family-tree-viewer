@@ -129,4 +129,32 @@ describe('gedcom utilities', () => {
             chil: ['@I3@'],
         });
     });
+
+    it('preserves UTF-8 and special characters in names and places', () => {
+        const { parseGedcomData } = loadGedcomFunctions();
+
+        const content = [
+            '0 HEAD',
+            '1 CHAR UTF-8',
+            '0 @I1@ INDI',
+            '1 NAME José /Muñoz/',
+            '1 BIRT',
+            '2 DATE 1980',
+            '2 PLAC Göteborg, Västra Götaland, Sweden',
+            '0 @I2@ INDI',
+            '1 NAME 李 /小龍/',
+            '1 BIRT',
+            '2 DATE 1940',
+            '2 PLAC Hong Kong, China',
+            '0 TRLR',
+        ].join('\n');
+
+        const result = parseGedcomData(content);
+
+        expect(result.individuals).toHaveLength(2);
+        expect(result.individuals[0].name).toBe('José Muñoz');
+        expect(result.individuals[0].birth_place).toBe('Göteborg, Västra Götaland, SWE');
+        expect(result.individuals[1].name).toBe('李 小龍');
+        expect(result.individuals[1].birth_place).toBe('Hong Kong, CHN');
+    });
 });

@@ -503,4 +503,67 @@ describe('ui behavior cases', () => {
         expect(errorSpan.style.display).not.toBe('none');
         expect(savesCalled).toBe(0);
     });
+
+    it('06.18 selectGedcomFile renders file name as text in status bar', () => {
+        const { context, dom } = loadUiContextWithDom(`
+            <div id="family-tree-div"></div>
+            <input id="individual-filter-text" />
+            <select id="individual-select"></select>
+            <div id="status-bar-div"></div>
+        `);
+
+        context.validateGedcom = () => true;
+        context.parseGedcomData = () => ({ individuals: [{ id: '@I1@' }], families: [{ id: '@F1@' }] });
+        context.populateIndividualSelect = () => {};
+        context.FileReader = class {
+            readAsArrayBuffer() {
+                const bytes = Uint8Array.from([48, 32, 72, 69, 65, 68, 10, 48, 32, 84, 82, 76, 82]);
+                this.onload({ target: { result: bytes.buffer } });
+            }
+        };
+
+        const file = { name: 'evil<img src=x onerror=1>.ged' };
+        context.selectGedcomFile(file);
+
+        const statusBar = dom.window.document.getElementById('status-bar-div');
+        expect(statusBar.querySelector('img')).toBeNull();
+        expect(statusBar.textContent).toContain('evil<img src=x onerror=1>.ged');
+        expect(statusBar.querySelector('b')?.textContent).toBe('evil<img src=x onerror=1>.ged');
+    });
+
+    it('06.19 decodeGedcomArrayBuffer decodes ANSI-declared bytes for Norse characters', () => {
+        const { context } = loadUiContextWithDom('<div></div>');
+
+        const ansiGedcom = [
+            '0 HEAD',
+            '1 CHAR ANSI',
+            '0 @I1@ INDI',
+            '1 NAME Þór /Óðinsson/',
+            '0 TRLR',
+        ].join('\n');
+        const ansiBytes = new Uint8Array(Buffer.from(ansiGedcom, 'latin1'));
+        const decoded = context.decodeGedcomArrayBuffer(ansiBytes.buffer);
+
+        expect(decoded.declared_charset).toBe('ANSI');
+        expect(decoded.decoded_with).toBe('windows-1252');
+        expect(decoded.content).toContain('1 NAME Þór /Óðinsson/');
+    });
+
+    it('06.20 decodeGedcomArrayBuffer preserves UTF-8 multibyte characters', () => {
+        const { context } = loadUiContextWithDom('<div></div>');
+
+        const utfGedcom = [
+            '0 HEAD',
+            '1 CHAR UTF-8',
+            '0 @I1@ INDI',
+            '1 NAME José /Muñoz/',
+            '0 TRLR',
+        ].join('\n');
+        const utfBytes = new TextEncoder().encode(utfGedcom);
+        const decoded = context.decodeGedcomArrayBuffer(utfBytes.buffer);
+
+        expect(decoded.declared_charset).toBe('UTF-8');
+        expect(decoded.decoded_with).toBe('utf-8');
+        expect(decoded.content).toContain('1 NAME José /Muñoz/');
+    });
 });

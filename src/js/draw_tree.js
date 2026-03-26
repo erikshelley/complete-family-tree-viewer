@@ -63,7 +63,7 @@ async function drawTree(rows) {
     drawNodes(svg_node, rows);
 
     const root_name_span = document.getElementById('root-name');
-    root_name_span.innerHTML = '&nbsp;&nbsp;&bull;&nbsp;&nbsp;' + selected_individual.name.replace(/ /g, '&nbsp;');
+    root_name_span.textContent = '\u00A0\u00A0\u2022\u00A0\u00A0' + selected_individual.name;
 
     const status_bar_div = document.getElementById('status-bar-div');
     let people_shown;
@@ -594,10 +594,52 @@ function selectInitialTextLayout(name, weight, main_font_size, secondary_strings
     };
 }
 
+const TREE_TEXT_SHADOW_FILTER_ID = 'tree-text-shadow-filter';
+
+function ensureTextShadowFilter(selection) {
+    if (window.text_shadow === false) return null;
+
+    const selection_node = selection && typeof selection.node === 'function' ? selection.node() : null;
+    if (!selection_node) return null;
+
+    const svg = (selection_node.tagName && selection_node.tagName.toLowerCase() === 'svg') ? selection_node : selection_node.ownerSVGElement;
+    if (!svg) return null;
+
+    let filter = svg.querySelector(`#${TREE_TEXT_SHADOW_FILTER_ID}`);
+    if (filter) return TREE_TEXT_SHADOW_FILTER_ID;
+
+    let defs = svg.querySelector('defs');
+    if (!defs) {
+        defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        if (svg.firstChild) svg.insertBefore(defs, svg.firstChild);
+        else svg.appendChild(defs);
+    }
+
+    filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+    filter.setAttribute('id', TREE_TEXT_SHADOW_FILTER_ID);
+    filter.setAttribute('x', '-20%');
+    filter.setAttribute('y', '-20%');
+    filter.setAttribute('width', '160%');
+    filter.setAttribute('height', '160%');
+
+    const drop_shadow = document.createElementNS('http://www.w3.org/2000/svg', 'feDropShadow');
+    drop_shadow.setAttribute('dx', '1');
+    drop_shadow.setAttribute('dy', '1');
+    drop_shadow.setAttribute('stdDeviation', '1');
+    drop_shadow.setAttribute('flood-color', '#000000');
+    drop_shadow.setAttribute('flood-opacity', '0.75');
+
+    filter.appendChild(drop_shadow);
+    defs.appendChild(filter);
+
+    return TREE_TEXT_SHADOW_FILTER_ID;
+}
+
 function drawText(g, node) {
     const text_luminance = window.text_brightness || 0;
     const text_color = d3.hcl(0, 0, text_luminance);
     const is_bold = ((node.type === 'ancestor' || node.individual.is_root || node.individual.is_descendant) && (window.pedigree_highlight_percent !== 100));
+    const text_shadow_filter_id = ensureTextShadowFilter(g);
     const text_element = g.append('text')
         .attr('x', window.box_width / 2)
         .attr('y', window.box_height / 2)
@@ -605,8 +647,11 @@ function drawText(g, node) {
         .attr('font-family', 'Arial, sans-serif')
         .attr('font-weight', is_bold ? 'bold' : 'normal')
         .attr('font-size', (window.text_size || window.default_text_size) + 'px')
-        .attr('fill', text_color)
-        .style('text-shadow', (window.text_shadow !== false) ? '1px 1px 2px rgba(0,0,0,0.75)' : 'none');
+        .attr('fill', text_color);
+
+    if (text_shadow_filter_id) {
+        text_element.attr('filter', `url(#${text_shadow_filter_id})`);
+    }
 
     const name = node.individual.name || '';
     const weight = is_bold ? 'bold' : 'normal';

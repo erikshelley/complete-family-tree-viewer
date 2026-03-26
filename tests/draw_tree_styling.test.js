@@ -550,4 +550,59 @@ describe('draw tree styling outcomes', () => {
         expect(secondaryStartIndex).toBeGreaterThan(1);
         expect(tspans[secondaryStartIndex].textContent).toBe('1900-1980');
     });
+
+    it('11.17 drawText uses a shared SVG filter for text shadows', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                text_shadow: true,
+                show_names: true,
+                show_years: false,
+                show_places: false,
+            },
+        });
+
+        dom.window.SVGElement.prototype.getBBox = function() {
+            return { width: 40, height: 16 };
+        };
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        const svgSelection = new SvgSelection(svg);
+
+        const firstNode = {
+            type: 'relative',
+            generation: 0,
+            individual: {
+                name: 'First Person',
+                is_root: false,
+                is_descendant: false,
+            },
+        };
+
+        const secondNode = {
+            type: 'relative',
+            generation: 0,
+            individual: {
+                name: 'Second Person',
+                is_root: false,
+                is_descendant: false,
+            },
+        };
+
+        context.drawText(svgSelection.append('g'), firstNode);
+        context.drawText(svgSelection.append('g'), secondNode);
+
+        const textNodes = svg.querySelectorAll('text');
+        expect(textNodes).toHaveLength(2);
+        expect(textNodes[0].getAttribute('filter')).toBe('url(#tree-text-shadow-filter)');
+        expect(textNodes[1].getAttribute('filter')).toBe('url(#tree-text-shadow-filter)');
+
+        const filters = svg.querySelectorAll('defs filter#tree-text-shadow-filter');
+        expect(filters).toHaveLength(1);
+
+        const dropShadow = filters[0].querySelector('feDropShadow');
+        expect(dropShadow).not.toBeNull();
+        expect(dropShadow.getAttribute('dx')).toBe('1');
+        expect(dropShadow.getAttribute('dy')).toBe('1');
+        expect(dropShadow.getAttribute('stdDeviation')).toBe('1');
+    });
 });

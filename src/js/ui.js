@@ -154,12 +154,75 @@ function updateMaxLinksState() {
 }
 
 
+function extractGedcomCharset(content_preview) {
+    const header = (content_preview || '').slice(0, 20000);
+    const lines = header.split(/\r?\n/);
+    for (const line of lines) {
+        const match = line.match(/^1\s+CHAR\s+(.+)$/i);
+        if (match) return match[1].trim().toUpperCase();
+    }
+    return '';
+}
+
+
+function resolveGedcomDecoderEncoding(declared_charset) {
+    const normalized = (declared_charset || '').toUpperCase();
+    if (normalized === 'UTF-8' || normalized === 'UTF8' || normalized === 'UNICODE') {
+        return 'utf-8';
+    }
+    if (normalized === 'ANSI' || normalized === 'ANSEL' || normalized === 'ASCII') {
+        return 'windows-1252';
+    }
+    return 'utf-8';
+}
+
+
+function decodeGedcomArrayBuffer(array_buffer) {
+    const bytes = new Uint8Array(array_buffer);
+    const probe_decoder = new TextDecoder('windows-1252');
+    const preview = probe_decoder.decode(bytes.subarray(0, Math.min(bytes.length, 20000)));
+    const declared_charset = extractGedcomCharset(preview);
+    const encoding = resolveGedcomDecoderEncoding(declared_charset);
+
+    try {
+        return {
+            content: new TextDecoder(encoding).decode(bytes),
+            declared_charset,
+            decoded_with: encoding,
+        };
+    } catch {
+        return {
+            content: new TextDecoder('utf-8').decode(bytes),
+            declared_charset,
+            decoded_with: 'utf-8',
+        };
+    }
+}
+
+
+function renderLoadedGedcomStatus(file_name, individuals_count, families_count) {
+    const status_bar_div = document.getElementById('status-bar-div');
+    if (!status_bar_div) return;
+
+    status_bar_div.textContent = '';
+
+    const bold_name = document.createElement('b');
+    bold_name.textContent = file_name;
+    status_bar_div.appendChild(bold_name);
+    status_bar_div.appendChild(document.createTextNode('\u00A0\u00A0\u2022\u00A0\u00A0'));
+    status_bar_div.appendChild(document.createTextNode(`${individuals_count.toLocaleString()} individuals`));
+    status_bar_div.appendChild(document.createTextNode('\u00A0\u00A0\u2022\u00A0\u00A0'));
+    status_bar_div.appendChild(document.createTextNode(`${families_count.toLocaleString()} families`));
+}
+
+
 function selectGedcomFile(file) {
     if (file) {
         file_name_span.textContent = file.name;
         const reader = new FileReader();
         reader.onload = function(e) {
-            window.gedcom_content = e.target.result;
+            const decoded = decodeGedcomArrayBuffer(e.target.result);
+            window.gedcom_content = decoded.content;
             const is_valid_gedcom = validateGedcom(window.gedcom_content);
 
             if (is_valid_gedcom) {
@@ -174,9 +237,7 @@ function selectGedcomFile(file) {
                 window.individual_filter_value = '';
 
                 populateIndividualSelect(window.individuals);
-                const status_bar_div = document.getElementById('status-bar-div');
-                // Update status bar with file info, and individual and family counts formatted with commas
-                status_bar_div.innerHTML = `<b>${file.name}</b>&nbsp;&nbsp;&bull;&nbsp;&nbsp;${window.individuals.length.toLocaleString()} individuals&nbsp;&nbsp;&bull;&nbsp;&nbsp;${window.families.length.toLocaleString()} families`;
+                renderLoadedGedcomStatus(file.name, window.individuals.length, window.families.length);
             } else {
                 family_tree_div.innerHTML = '<p style="color: red;">Invalid GEDCOM file. Please select a valid GEDCOM file.</p>';
                 // Clear the dropdown
@@ -185,7 +246,7 @@ function selectGedcomFile(file) {
                 window.families = [];
             }
         };
-        reader.readAsText(file);
+        reader.readAsArrayBuffer(file);
     } else {
         file_name_span.textContent = '';
     }
