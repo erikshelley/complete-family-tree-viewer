@@ -63,6 +63,8 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 03.13 | Thirteen child nodes with max stack size three split into balanced 2 and 3 node stacks |
 |  Automated  | 03.14 | Thirteen child nodes with max stack size four split into balanced 3 and 4 node stacks |
 |  Automated  | 03.15 | positionChildren preserves balanced final stack groups for thirteen child nodes at max stack size four |
+|  Automated  | 03.16 | positionChildren compacts the left-most child subtree rightward when free horizontal space exists before parent centering |
+|  Automated  | 03.17 | left-most compaction is skipped when that node is the top of a multi-node stack |
 
 ### 04 UI Helpers (ui_events)
 |    Status   |  ID   | Test Description |

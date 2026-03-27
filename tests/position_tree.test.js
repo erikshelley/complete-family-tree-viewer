@@ -225,6 +225,76 @@ describe('position tree helpers', () => {
         expect(context.shouldAcceptChildLayoutTrial(current, equalMaxEqualWidthBetterLeft)).toBe(true);
     });
 
+    it('returns stack depth for a stack top and zero for non-stack-top nodes', () => {
+        const context = loadPositioningContext();
+
+        const top = { stacked: true, stack_top: true };
+        const middle = { stacked: true, stack_top: false };
+        const bottom = { stacked: true, stack_top: false };
+        const nextTop = { stacked: true, stack_top: true };
+
+        const depth = context.getStackDepthAtTopNode([top, middle, bottom, nextTop], top);
+        const notTopDepth = context.getStackDepthAtTopNode([top, middle, bottom], middle);
+
+        expect(depth).toBe(3);
+        expect(notTopDepth).toBe(0);
+    });
+
+    it('detects stack depth from layout geometry when stacked members are non-contiguous in array order', () => {
+        const context = loadPositioningContext();
+
+        const top = { stacked: true, stack_top: true, x: 120, sub_level: 1 };
+        const unrelated = { stacked: false, stack_top: false, x: 240, sub_level: 1 };
+        const below = { stacked: true, stack_top: false, x: 120, sub_level: 2 };
+
+        const depth = context.getStackDepthAtTopNode([top, unrelated, below], top);
+
+        expect(depth).toBe(2);
+    });
+
+    it('does not compact left-most node when it is the top of a stack deeper than one', () => {
+        const context = loadPositioningContext({
+            h_spacing: 20,
+            box_width: 80,
+        });
+
+        const leftTop = {
+            individual: { name: 'Left Top' },
+            x: 100,
+            min_x: 100,
+            max_x: 180,
+            stacked: true,
+            stack_top: true,
+        };
+        const leftBelow = {
+            individual: { name: 'Left Below' },
+            x: 100,
+            min_x: 100,
+            max_x: 180,
+            stacked: true,
+            stack_top: false,
+        };
+        const rightNode = {
+            individual: { name: 'Right' },
+            x: 320,
+            min_x: 320,
+            max_x: 400,
+            stacked: false,
+            stack_top: false,
+        };
+
+        let shiftCalled = false;
+        context.getSubtreeHorizontalMovementSpace = () => ({ left: 0, right: 90, left_blocker: null, right_blocker: null });
+        context.shiftSubtree = () => { shiftCalled = true; };
+
+        const result = context.compactLeftMostGroupNodeRight([leftTop, leftBelow, rightNode], [], 'children');
+
+        expect(result.moved).toBe(false);
+        expect(result.shift_x).toBe(0);
+        expect(shiftCalled).toBe(false);
+        expect(leftTop.x).toBe(100);
+    });
+
     it('normalizes tree x positions to be non-negative with padding', () => {
         const context = loadPositioningContext({ tree_padding: 100 });
 
@@ -378,5 +448,96 @@ describe('position tree helpers', () => {
         expect(stackDepths).toEqual([3, 3, 3, 4]);
         expect(Math.max(...stackDepths) - Math.min(...stackDepths)).toBeLessThanOrEqual(1);
         expect(children.every(child => child.stacked)).toBe(true);
+    });
+
+    it('positionChildren compacts the left-most child subtree to the right before parent centering', () => {
+        const context = loadPositioningContext({
+            max_stack_size: 1,
+            vertical_inlaws: true,
+            box_width: 80,
+            h_spacing: 20,
+            v_spacing: 20,
+            level_boundary_node_leaf: [],
+            level_boundary_node_ancestor: [],
+            level_heights: [],
+        });
+
+        const children = [
+            {
+                individual: { name: 'Child A', is_root: false },
+                spouse_nodes: [],
+                children_nodes: [],
+                stacked: false,
+                stack_top: false,
+                left_neighbor: null,
+            },
+            {
+                individual: { name: 'Child B', is_root: false },
+                spouse_nodes: [],
+                children_nodes: [],
+                stacked: false,
+                stack_top: false,
+                left_neighbor: null,
+            },
+        ];
+
+        const parent = {
+            type: 'root',
+            individual: { name: 'Parent', gender: 'M' },
+            spouse_nodes: [],
+            children_nodes: children,
+            sub_level: 0,
+            level: 0,
+            x: 100,
+        };
+
+        context.collectChildLayoutNodes = () => children;
+        context.snapshotChildLayoutState = () => ({
+            level_boundary_node_leaf: [],
+            level_heights: [],
+            max_stack_actual: 1,
+        });
+        context.restoreChildLayoutState = () => {};
+        context.planOrderedChildStacks = () => ({
+            stacked_children: new Set(),
+            stack_groups: [],
+            layout_order: children,
+        });
+
+        context.layoutChildrenWithPlan = () => {
+            children[0].x = 100;
+            children[0].min_x = 100;
+            children[0].max_x = 180;
+            children[1].x = 340;
+            children[1].min_x = 340;
+            children[1].max_x = 420;
+
+            return {
+                child_min_x: 100,
+                child_max_x: 420,
+                subtree_width: 320,
+            };
+        };
+
+        context.getSubtreeHorizontalMovementSpace = node => {
+            if (node === children[0]) {
+                return { left: 0, right: 80, left_blocker: null, right_blocker: null };
+            }
+            return { left: 0, right: 0, left_blocker: null, right_blocker: null };
+        };
+
+        context.shiftSubtree = (node, shiftX) => {
+            node.x += shiftX;
+            node.min_x += shiftX;
+            node.max_x += shiftX;
+        };
+
+        const [childMinX, childMaxX] = context.positionChildren(parent, [[]], false);
+
+        expect(children[0].x).toBe(180);
+        expect(children[0].min_x).toBe(180);
+        expect(children[0].max_x).toBe(260);
+        expect(childMinX).toBe(180);
+        expect(childMaxX).toBe(420);
     });
 });

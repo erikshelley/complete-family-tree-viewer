@@ -734,6 +734,91 @@ function shouldAcceptChildLayoutTrial(current_layout, trial_layout) {
 }
 
 
+function getStackDepthAtTopNode(group_nodes, top_node) {
+    if (!top_node || !top_node.stack_top || !top_node.stacked) return 0;
+
+    const top_index = group_nodes.indexOf(top_node);
+    if (top_index < 0) return 0;
+
+    let depth = 1;
+    for (let index = top_index + 1; index < group_nodes.length; index++) {
+        const candidate = group_nodes[index];
+        if (!candidate.stacked || candidate.stack_top) break;
+        depth += 1;
+    }
+
+    // Fallback: stacked nodes can be non-contiguous in array order.
+    // In that case, detect stack depth from aligned x and deeper sub-levels.
+    if (depth <= 1) {
+        const epsilon = 0.5;
+        const aligned_depth = (group_nodes || []).filter(candidate => {
+            if (!candidate || !candidate.stacked) return false;
+            if (!Number.isFinite(candidate.x) || !Number.isFinite(top_node.x)) return false;
+            if (!Number.isFinite(candidate.sub_level) || !Number.isFinite(top_node.sub_level)) return false;
+            if (Math.abs(candidate.x - top_node.x) > epsilon) return false;
+            return candidate.sub_level >= top_node.sub_level;
+        }).length;
+        depth = Math.max(depth, aligned_depth);
+    }
+
+    return depth;
+}
+
+
+function compactLeftMostGroupNodeRight(group_nodes, rows, group_label = 'group') {
+    const candidates = (group_nodes || []).filter(node => node && Number.isFinite(node.min_x) && Number.isFinite(node.max_x));
+    if (candidates.length === 0) return { shift_x: 0, moved: false };
+
+    const left_most_node = candidates
+        .slice()
+        .sort((a, b) => {
+            if (a.min_x !== b.min_x) return a.min_x - b.min_x;
+            return a.x - b.x;
+        })[0];
+
+    const stack_depth = getStackDepthAtTopNode(group_nodes || [], left_most_node);
+    if (stack_depth > 1) {
+        logPositioning('compact-left-most-subtree-skipped', {
+            group: group_label,
+            moved_node: getNodeLogName(left_most_node),
+            reason: 'left-most-is-multi-node-stack-top',
+            stack_depth,
+        });
+        return {
+            shift_x: 0,
+            moved: false,
+            node: left_most_node,
+            movement_space: null,
+        };
+    }
+
+    const movement_space = getSubtreeHorizontalMovementSpace(left_most_node, rows, window.h_spacing);
+    const shift_x = Number.isFinite(movement_space.right) ? Math.max(0, movement_space.right) : 0;
+    const moved = shift_x >= 0.5;
+
+    if (moved) {
+        shiftSubtree(left_most_node, shift_x);
+        logPositioning('compact-left-most-subtree', {
+            group: group_label,
+            moved_node: getNodeLogName(left_most_node),
+            shift_x,
+            movement_right: movement_space.right,
+            right_blocker: movement_space.right_blocker,
+            new_x: left_most_node.x,
+            new_min_x: left_most_node.min_x,
+            new_max_x: left_most_node.max_x,
+        });
+    }
+
+    return {
+        shift_x,
+        moved,
+        node: left_most_node,
+        movement_space,
+    };
+}
+
+
 function layoutChildrenWithPlan(node, ordered_children, rows, drop_sub_level, has_grandchildren, stacked_children, stack_groups, child_layout_nodes, layout_snapshot, enable_logging = true) {
     const previous_suppressed = !!window.suppress_positioning_log;
     window.suppress_positioning_log = previous_suppressed || !enable_logging;
@@ -814,6 +899,18 @@ function positionSpouses(node, rows, type_to_drop) {
             [spouse_min_x, spouse_max_x, stacks, stack_sub_level] 
                 = positionStackableNode(node, spouse_node, rows, has_grandchildren, drop_sub_level, stack_sub_level, stacks, spouse_min_x, spouse_max_x, false);
         });
+    }
+
+    if (window.vertical_inlaws && drop_sub_level && (node.spouse_nodes.length > 0)) {
+        const compact_result = compactLeftMostGroupNodeRight(node.spouse_nodes, rows, 'spouses');
+        if (compact_result.moved) {
+            spouse_min_x = Infinity;
+            spouse_max_x = -Infinity;
+            node.spouse_nodes.forEach(spouse_node => {
+                spouse_min_x = Math.min(spouse_min_x, spouse_node.min_x);
+                spouse_max_x = Math.max(spouse_max_x, spouse_node.max_x);
+            });
+        }
     }
 
     return [spouse_min_x, spouse_max_x];
@@ -898,6 +995,17 @@ function positionChildren(node, rows, drop_sub_level) {
 
             best_layout = layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, stack_groups, child_layout_nodes, layout_snapshot, false);
         }
+    }
+
+    const compact_result = compactLeftMostGroupNodeRight(node.children_nodes, rows, 'children');
+    if (compact_result.moved) {
+        best_layout.child_min_x = Infinity;
+        best_layout.child_max_x = -Infinity;
+        node.children_nodes.forEach(child_node => {
+            best_layout.child_min_x = Math.min(best_layout.child_min_x, child_node.min_x);
+            best_layout.child_max_x = Math.max(best_layout.child_max_x, child_node.max_x);
+        });
+        best_layout.subtree_width = best_layout.child_max_x - best_layout.child_min_x;
     }
 
     const child_min_x = best_layout.child_min_x;
