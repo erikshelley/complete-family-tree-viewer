@@ -524,7 +524,6 @@ describe('ui behavior cases', () => {
 
         const file = { name: 'evil<img src=x onerror=1>.ged' };
         context.selectGedcomFile(file);
-
         const statusBar = dom.window.document.getElementById('status-bar-div');
         expect(statusBar.querySelector('img')).toBeNull();
         expect(statusBar.textContent).toContain('evil<img src=x onerror=1>.ged');
@@ -565,5 +564,26 @@ describe('ui behavior cases', () => {
         expect(decoded.declared_charset).toBe('UTF-8');
         expect(decoded.decoded_with).toBe('utf-8');
         expect(decoded.content).toContain('1 NAME José /Muñoz/');
+    });
+
+    it('06.21 hide non-pedigree family checkbox updates state and triggers redraw', () => {
+        let redraws = 0;
+        const { context, dom } = loadUiEventsContextWithDom(`
+            <input id="hide-non-pedigree-family-checkbox" type="checkbox" />
+        `, {
+            globalOverrides: {
+                elements: [
+                    { id: 'hide-non-pedigree-family-checkbox', type: 'checkbox', default: false, variable: 'hide_non_pedigree_family' },
+                ],
+                requestFamilyTreeUpdate: () => { redraws += 1; },
+            },
+        });
+
+        const checkbox = dom.window.document.getElementById('hide-non-pedigree-family-checkbox');
+        checkbox.checked = true;
+        checkbox.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+
+        expect(context.window.hide_non_pedigree_family).toBe(true);
+        expect(redraws).toBe(1);
     });
 });

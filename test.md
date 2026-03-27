@@ -88,6 +88,8 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 05.07 | Wide in-law subtree nodes do not cross the ancestor-to-child pedigree connector line |
 |  Automated  | 05.08 | createFamilyTree executes without network/upload API calls (privacy/serverless behavior) |
 |  Automated  | 05.09 | Siblings/children are positioned left-to-right in birth-year order with no-year nodes rightmost |
+|  Automated  | 05.10 | Hide Non-Pedigree Family excludes root/ancestor sibling branches from the built tree |
+|  Automated  | 05.11 | Hide Non-Pedigree Family excludes ancestor in-law spouse branches from the built tree |
 
 ## 06 UI Behavior Test Cases
 |    Status   |  ID   | Test Description |
@@ -109,6 +111,8 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 06.15 | Keyboard shortcuts (Esc, +/-, arrow keys) trigger zoom reset/zoom and pan actions |
 |  Automated  | 06.16 | Window resize triggers options visibility update, body scaling, and redraw |
 |  Automated  | 06.17 | Save modal OK with empty filename shows error message and does not save |
+|  Automated  | 06.21 | Hide Non-Pedigree Family checkbox updates state and triggers redraw |
+|  Automated  | 06.22 | All checkbox labels use the pointer cursor |
 
 ## 07 Export Test Cases
 |    Status   |  ID   | Test Description |

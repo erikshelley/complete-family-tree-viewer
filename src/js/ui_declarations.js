@@ -48,6 +48,7 @@ window.generations_up;
 window.generations_down;
 window.max_stack_size;
 window.hide_childless_inlaws;
+window.hide_non_pedigree_family;
 
 // Tree Styling Variables
 window.box_width; window.default_box_width;
@@ -195,6 +196,7 @@ const elements = [
     { id: 'show-places-checkbox',                type: 'checkbox', default: false, variable: 'show_places' },
     { id: 'vertical-inlaws-checkbox',            type: 'checkbox', default: true,  variable: 'vertical_inlaws' },
     { id: 'hide-childless-inlaws-checkbox',      type: 'checkbox', default: false, variable: 'hide_childless_inlaws' },
+    { id: 'hide-non-pedigree-family-checkbox',   type: 'checkbox', default: false, variable: 'hide_non_pedigree_family' },
 
     // Tree Styling
     // Size

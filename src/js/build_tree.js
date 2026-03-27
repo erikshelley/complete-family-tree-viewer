@@ -173,7 +173,16 @@ function addPedigreeChildren(node, fam_id, anchor_gen) {
     if (!node.individual.is_father) return;
 
     node.individual.pedigree_family.chil
-        .filter(child_id => !node.individual.pedigree_child_node || child_id !== node.individual.pedigree_child_node.individual.id)
+        .filter(child_id => {
+            if (window.hide_non_pedigree_family) {
+                const pedigree_child_id = node.individual.pedigree_child_node
+                    ? node.individual.pedigree_child_node.individual.id
+                    : (window.root_node ? window.root_node.individual.id : null);
+                return child_id === pedigree_child_id;
+            }
+
+            return !node.individual.pedigree_child_node || child_id !== node.individual.pedigree_child_node.individual.id;
+        })
         .forEach(child_id => {
             const child = window.individuals.find(ind => ind.id === child_id);
             if (child) {
@@ -215,6 +224,7 @@ function addSpousesAndRelatives(node, anchor_gen) {
         if (node.individual.pedigree_family && node.individual.pedigree_family.id === fam_id) {
             addPedigreeChildren(node, fam_id, anchor_gen);
         } else {
+            if (window.hide_non_pedigree_family && (node.type === 'ancestor')) return;
             addInlawSpouse(node, fam_id, anchor_gen);
         }
     });

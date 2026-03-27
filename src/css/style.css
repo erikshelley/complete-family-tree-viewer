@@ -206,6 +206,10 @@ label {
     color: #aaa;
 }
 
+input[type="checkbox"] + label {
+    cursor: pointer;
+}
+
 input:disabled + label {
     color: #555;
     cursor: not-allowed;

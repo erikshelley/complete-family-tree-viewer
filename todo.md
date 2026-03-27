@@ -4,12 +4,10 @@
 
 | Priority |   Type  | Functions | Description |
 |:--------:|:-------:|:---------:| ----------- |
-|    🟠    |   Bug   | Position | ✅ Sometimes vertical spouses are spaced unevenly when some have children and others do not |
-|    🟠    |   Bug   | Position | ✅ Sometimes extra gap between inlaws in descendant trees : Sharlot 0up x 2dn has no gap, 1up x 2dn has a gap |
 |    🟠    |   Bug   | TBD      | Issues when root has no gender? no spouse? Issue for non-root individuals? |
 |    🟡    |   Bug   | UI       | Narrow windows push Tree Viewer header below buttons |
 |    🟢    |   Bug   | Draw     | Slower rendering for very large trees seems to be due to the text - without text it is quick |
-|    🟠    | Feature | UI + Build | Option to hide siblings (and ancestor inlaws) - pedigree only tree |
+|    🟠    | Feature | UI + Build | ✅ Option to hide siblings (and ancestor inlaws) - pedigree only tree |
 |    🟠    | Feature | Gedcom + UI | Open Gedcom from URL |
 |    🟡    | Feature | Draw | Click on node to make them the new root person - is this possible? |
 |    🟡    | Feature | UI + Build + Draw | After selecting root, create 2nd list of people to select from (or click on another person), highlight the path between them |

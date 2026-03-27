@@ -104,6 +104,60 @@ function getWideInlawGedcom() {
     ].join('\n');
 }
 
+function getPedigreeSiblingGedcom() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI',
+        '1 NAME Root /Person/',
+        '1 SEX M',
+        '1 FAMC @F0@',
+        '1 FAMS @F2@',
+        '0 @I2@ INDI',
+        '1 NAME RootSibling /Person/',
+        '1 SEX F',
+        '1 FAMC @F0@',
+        '1 FAMS @F1@',
+        '0 @I3@ INDI',
+        '1 NAME Father /Ancestor/',
+        '1 SEX M',
+        '1 FAMS @F0@',
+        '0 @I4@ INDI',
+        '1 NAME Mother /Ancestor/',
+        '1 SEX F',
+        '1 FAMS @F0@',
+        '0 @I5@ INDI',
+        '1 NAME SiblingSpouse /Branch/',
+        '1 SEX M',
+        '1 FAMS @F1@',
+        '0 @I6@ INDI',
+        '1 NAME SiblingChild /Branch/',
+        '1 SEX F',
+        '1 FAMC @F1@',
+        '0 @I7@ INDI',
+        '1 NAME RootSpouse /Branch/',
+        '1 SEX F',
+        '1 FAMS @F2@',
+        '0 @I8@ INDI',
+        '1 NAME RootChild /Branch/',
+        '1 SEX M',
+        '1 FAMC @F2@',
+        '0 @F0@ FAM',
+        '1 HUSB @I3@',
+        '1 WIFE @I4@',
+        '1 CHIL @I1@',
+        '1 CHIL @I2@',
+        '0 @F1@ FAM',
+        '1 HUSB @I5@',
+        '1 WIFE @I2@',
+        '1 CHIL @I6@',
+        '0 @F2@ FAM',
+        '1 HUSB @I1@',
+        '1 WIFE @I7@',
+        '1 CHIL @I8@',
+        '0 TRLR',
+    ].join('\n');
+}
+
 function getLayoutWidth(rootNode) {
     let minX = Infinity;
     let maxX = -Infinity;
@@ -660,5 +714,50 @@ describe('integration test cases', () => {
         // Birth years (where present) should be in ascending order left to right
         const years = birthYears.filter(y => y !== null);
         expect(years, 'birth years should be in ascending order left to right').toEqual([...years].sort((a, b) => a - b));
+    });
+
+    it('05.10 hide_non_pedigree_family excludes root sibling branches from the built tree', () => {
+        const parsed = createPipelineContext().parseGedcomData(getPedigreeSiblingGedcom());
+
+        function getFatherChildren(hideNonPedigreeFamily) {
+            const context = createPipelineContext();
+            context.window.individuals = structuredClone(parsed.individuals);
+            context.window.families = structuredClone(parsed.families);
+            context.window.hide_non_pedigree_family = hideNonPedigreeFamily;
+            context.window.generations_up = 1;
+            context.window.generations_down = 2;
+
+            const root = context.window.individuals.find(person => person.id === '@I1@');
+            const rootNode = context.buildTree(root);
+            return rootNode.father_node.children_nodes;
+        }
+
+        const withBranches = getFatherChildren(false);
+        const withoutBranches = getFatherChildren(true);
+
+        expect(withBranches.map(node => node.individual.id)).toEqual(['@I1@', '@I2@']);
+        expect(withoutBranches.map(node => node.individual.id)).toEqual(['@I1@']);
+        expect(withoutBranches[0].spouse_nodes.map(node => node.individual.id)).toEqual(['@I7@']);
+        expect(withoutBranches[0].spouse_nodes[0].children_nodes.map(node => node.individual.id)).toEqual(['@I8@']);
+    });
+
+    it('05.11 hide_non_pedigree_family excludes ancestor in-law spouse branches from the built tree', () => {
+        const parsed = createPipelineContext().parseGedcomData(getWideInlawGedcom());
+
+        function getFatherInlawIds(hideNonPedigreeFamily) {
+            const context = createPipelineContext();
+            context.window.individuals = structuredClone(parsed.individuals);
+            context.window.families = structuredClone(parsed.families);
+            context.window.hide_non_pedigree_family = hideNonPedigreeFamily;
+            context.window.generations_up = 1;
+            context.window.generations_down = 1;
+
+            const root = context.window.individuals.find(person => person.id === '@I1@');
+            const rootNode = context.buildTree(root);
+            return rootNode.father_node.spouse_nodes.map(node => node.individual.id).sort();
+        }
+
+        expect(getFatherInlawIds(false)).toEqual(['@I4@']);
+        expect(getFatherInlawIds(true)).toEqual([]);
     });
 });

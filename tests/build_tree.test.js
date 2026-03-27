@@ -189,4 +189,87 @@ describe('build tree utilities', () => {
 
         expect(depth).toBe(2);
     });
+
+    it('hides non-pedigree family by excluding root sibling branches from ancestor children', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Root Person', famc: '@F0@', fams: ['@F3@'], gender: 'M' },
+            { id: '@I2@', name: 'Root Sibling', famc: '@F0@', fams: ['@F2@'], gender: 'F' },
+            { id: '@I3@', name: 'Father Person', famc: null, fams: ['@F0@'], gender: 'M' },
+            { id: '@I4@', name: 'Mother Person', famc: null, fams: ['@F0@'], gender: 'F' },
+            { id: '@I5@', name: 'Sibling Spouse', famc: null, fams: ['@F2@'], gender: 'M' },
+            { id: '@I6@', name: 'Sibling Child', famc: '@F2@', fams: [], gender: 'M' },
+            { id: '@I7@', name: 'Root Spouse', famc: null, fams: ['@F3@'], gender: 'F' },
+            { id: '@I8@', name: 'Root Child', famc: '@F3@', fams: [], gender: 'F' },
+        ];
+
+        const families = [
+            { id: '@F0@', husb: '@I3@', wife: '@I4@', chil: ['@I1@', '@I2@'] },
+            { id: '@F2@', husb: '@I5@', wife: '@I2@', chil: ['@I6@'] },
+            { id: '@F3@', husb: '@I1@', wife: '@I7@', chil: ['@I8@'] },
+        ];
+
+        function buildRoot(hideNonPedigreeFamily) {
+            const context = loadBuildTreeContext({
+                individuals: structuredClone(individuals),
+                families: structuredClone(families),
+                generations_up: 1,
+                generations_down: 2,
+                hide_childless_inlaws: false,
+                hide_non_pedigree_family: hideNonPedigreeFamily,
+                pedigree_only: false,
+                max_gen_up: 0,
+                max_gen_down: 0,
+            });
+
+            return context.buildTree(context.window.individuals.find(person => person.id === '@I1@'));
+        }
+
+        const withBranches = buildRoot(false);
+        const withoutBranches = buildRoot(true);
+
+        expect(withBranches.father_node.children_nodes.map(node => node.individual.id)).toEqual(['@I1@', '@I2@']);
+        expect(withBranches.father_node.children_nodes[1].spouse_nodes).toHaveLength(1);
+        expect(withBranches.father_node.children_nodes[1].spouse_nodes[0].children_nodes.map(node => node.individual.id)).toEqual(['@I6@']);
+        expect(withoutBranches.father_node.children_nodes.map(node => node.individual.id)).toEqual(['@I1@']);
+        expect(withoutBranches.father_node.children_nodes[0].spouse_nodes.map(node => node.individual.id)).toEqual(['@I7@']);
+        expect(withoutBranches.father_node.children_nodes[0].spouse_nodes[0].children_nodes.map(node => node.individual.id)).toEqual(['@I8@']);
+    });
+
+    it('hides non-pedigree family by excluding ancestor in-law spouse branches', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Root Person', famc: '@F0@', fams: [], gender: 'M' },
+            { id: '@I2@', name: 'Father Person', famc: null, fams: ['@F0@', '@F1@'], gender: 'M' },
+            { id: '@I3@', name: 'Mother Person', famc: null, fams: ['@F0@'], gender: 'F' },
+            { id: '@I4@', name: 'Inlaw Spouse', famc: null, fams: ['@F1@'], gender: 'F' },
+            { id: '@I5@', name: 'Inlaw Child', famc: '@F1@', fams: [], gender: 'M' },
+        ];
+
+        const families = [
+            { id: '@F0@', husb: '@I2@', wife: '@I3@', chil: ['@I1@'] },
+            { id: '@F1@', husb: '@I2@', wife: '@I4@', chil: ['@I5@'] },
+        ];
+
+        function buildRoot(hideNonPedigreeFamily) {
+            const context = loadBuildTreeContext({
+                individuals: structuredClone(individuals),
+                families: structuredClone(families),
+                generations_up: 1,
+                generations_down: 1,
+                hide_childless_inlaws: false,
+                hide_non_pedigree_family: hideNonPedigreeFamily,
+                pedigree_only: false,
+                max_gen_up: 0,
+                max_gen_down: 0,
+            });
+
+            return context.buildTree(context.window.individuals.find(person => person.id === '@I1@'));
+        }
+
+        const withInlawBranch = buildRoot(false);
+        const withoutInlawBranch = buildRoot(true);
+
+        expect(withInlawBranch.father_node.spouse_nodes.map(node => node.individual.id)).toEqual(['@I4@']);
+        expect(withInlawBranch.father_node.spouse_nodes[0].children_nodes.map(node => node.individual.id)).toEqual(['@I5@']);
+        expect(withoutInlawBranch.father_node.spouse_nodes).toHaveLength(0);
+    });
 });
