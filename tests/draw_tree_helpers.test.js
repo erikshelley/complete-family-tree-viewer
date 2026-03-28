@@ -206,18 +206,16 @@ describe('rendering helpers', () => {
         expect(layout.name_lines).toEqual(['Very Long', 'Person Name']);
     });
 
-    it('11.14 fitTextInBox wraps long unbroken names across multiple lines when height allows', () => {
+    it('11.14 fitTextInBox does not split unbroken names mid-character; falls back to min font size', () => {
         const context = loadDrawTreeContext({ box_width: 72, box_height: 56, box_padding: 2 });
 
+        // A single token with no spaces or hyphens must not be broken mid-character.
+        // It stays on one line and the font size falls to the minimum.
         const fit = context.fitTextInBox('AlexandriaCatherineMontgomerySmythe', 72, 56, 'Arial, sans-serif', 'normal', 12);
 
-        expect(fit.fontSize).toBeGreaterThan(6);
-        expect(fit.lines.length).toBeGreaterThan(1);
-        fit.lines.forEach(line => {
-            const lineFit = context.fitTextInBox(line, 72, 56, 'Arial, sans-serif', 'normal', fit.fontSize);
-            expect(lineFit.lines.length).toBe(1);
-            expect(lineFit.fontSize).toBeGreaterThanOrEqual(fit.fontSize);
-        });
+        expect(fit.fontSize).toBe(6);
+        expect(fit.lines.length).toBe(1);
+        expect(fit.lines[0]).toBe('AlexandriaCatherineMontgomerySmythe');
     });
 
     it('11.15 fitTextInBox fallback still returns wrapped lines at min size when no size fully fits height', () => {

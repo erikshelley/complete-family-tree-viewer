@@ -760,35 +760,16 @@ function fitTextInBox(str, width, height, fontFamily = 'Arial, sans-serif', font
     }
 
     // Word-wrap the string into lines that fit within maxWidth at the given fontSize.
-    // Splits on spaces and after hyphens; tokens wider than maxWidth are placed on their own line.
+    // Splits only on spaces and after hyphens; tokens wider than maxWidth are placed on their
+    // own line without further character splitting (the caller reduces font size instead).
     function wrapText(text, fontSize, maxWidth) {
-        function splitTokenToWidth(token) {
-            if (measureTextWidth(token, fontSize) <= maxWidth) return [token];
-
-            const pieces = [];
-            let current = '';
-
-            for (const ch of token) {
-                const candidate = current + ch;
-                if (current && (measureTextWidth(candidate, fontSize) > maxWidth)) {
-                    pieces.push(current);
-                    current = ch;
-                } else {
-                    current = candidate;
-                }
-            }
-
-            if (current) pieces.push(current);
-            return pieces.length > 0 ? pieces : [token];
-        }
-
         // Split into tokens that break on spaces and after hyphens (keeping the hyphen with the preceding token)
         const tokens = text.match(/[^\s-]+-|[^\s-]+|\s+/g) || [''];
-        // Filter out whitespace-only tokens but track where spaces were
+        // Filter out whitespace-only tokens
         const parts = [];
         for (const token of tokens) {
             if (/^\s+$/.test(token)) continue;
-            splitTokenToWidth(token).forEach(piece => parts.push(piece));
+            parts.push(token);
         }
         if (parts.length === 0) return [''];
         const lines = [];

@@ -218,7 +218,7 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 11.11 | In-law spouse/stack links are always desaturated (grey) |
 |  Automated  | 11.12 | drawText initial layout can reduce secondary font size (years shown) to improve long-name fit |
 |  Automated  | 11.13 | drawText renders long names across multiple name lines before years when places are hidden |
-|  Automated  | 11.14 | fitTextInBox wraps long unbroken names to multiple lines when vertical space allows |
+|  Automated  | 11.14 | fitTextInBox does not split unbroken names mid-character; falls back to min font size instead |
 |  Automated  | 11.15 | fitTextInBox fallback returns wrapped min-size lines when height is too constrained for a full fit |
 |  Automated  | 11.16 | drawText wraps a long multi-part name before years when places are hidden |
 |  Automated  | 11.17 | drawText uses a shared SVG filter for text shadows |

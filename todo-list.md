@@ -4,8 +4,6 @@
 
 | Priority |   Type  | Functions          | Description |
 |:--------:|:-------:|:---------------- -:| ----------- |
-|    🟠    |   Bug   | TBD               | ✅ Issues when root has no gender? no spouse? Issue for non-root individuals? |
-|    🔴    |   Bug   | Draw              | ✅ Auto box sizing no longer works |
 |    🟡    |   Bug   | Draw              | Auto box sizing sometimes seems to make errors |
 |    🟡    |   Bug   | UI                | Narrow windows push Tree Viewer header below buttons |
 |    🟢    |   Bug   | Draw              | Slower rendering for very large trees seems to be due to the text - without text it is quick |

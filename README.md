@@ -26,10 +26,10 @@ If you don't have a GEDCOM file available, you can download one of these [GEDCOM
 |                                          | Feature                       | Description |
 | ---------------------------------------- | ----------------------------- | ----------- |
 | ![](readme/icons8-browse-folder-48.png) | **GEDCOM Import**             | Select and view a GEDCOM file from your local device. |
-| ![](readme/icons8-privacy-48.png)       | **Data Privacy**              | Rest assured that no data is uploaded anywhere by this application. Processing is done in your browser. |
+| ![](readme/icons8-privacy-48.png)       | **Data Privacy**              | No data is uploaded anywhere by this application. Processing is done in your browser. |
 | ![](readme/icons8-complete-48.png)      | **Complete Tree Viewing**     | View a complete family tree that has no crossing lines. Utilize [stacking](#stacking) to minimize tree width. |
 | ![](readme/icons8-drag-48.png)          | **Interactive Tree Viewing**  | Zoom and pan to view the tree as you would with a map. |
-| ![](readme/icons8-filter-48.png)        | **Customizable Tree Content** | Choose how many generations (unlimited) and what information (names, dates, places) to view. |
+| ![](readme/icons8-filter-48.png)        | **Customizable Tree Content** | Choose how many generations (unlimited), which relatives (everyone or pedigree-only), and what information (names, dates, places) to view. |
 | ![](readme/icons8-layout-48.png)        | **Customizable Tree Layout**  | Configure the positioning of in-laws (beside or below their spouse) and children (stackable). |
 | ![](readme/icons8-customize-48.png)     | **Customizable Tree Styling** | Customize sizes, spacing, colors, highlights, and shapes to fit your needs. |
 | ![](readme/icons8-save-48.png)          | **PNG & SVG Exporting**       | Save the tree as a PNG or [SVG](https://en.wikipedia.org/wiki/SVG). |
@@ -88,14 +88,16 @@ The example below contains the same people as the previous example in the **leve
 
 | Option | Description |
 | ------ | ----------- |
-| ![](src/png/icons8-browse-folder-48-gold.png) | Click the Browse button to select and load a GEDCOM file from your computer. The people in thte GEDCOM file will be populated in the list below. |
+| ![](src/png/icons8-browse-folder-48-gold.png) | Click the Local Browse button to select and load a GEDCOM file from your computer. The people in thte GEDCOM file will be populated in the list below. |
+| ![](src/png/icons8-cloud-folder-48-gold.png) | Click the Cloud Browse button to select and load a GEDCOM file from a short list of online sample files. The people in thte GEDCOM file will be populated in the list below. |
 | Filter | Type a name in this box to filter the list of people. |
 | Select Root Person | Click on a person to make the root of the tree. Their family tree will be drawn. |
 | Generations Up | Change this value to control how many generations above the root person will be displayed. Click the up arrow <img src="src/png/icons8-top-48-gold.png" width="18" height="18"> to use the maximum possible value for the root person. |
 | Generations Down | Change this value to control how many generations below the root person will be displayed. Click the up arrow <img src="src/png/icons8-top-48-gold.png" width="18" height="18"> to use the maximum possible value for the root person. |
 | Stack Size | Change this value to control how many leaf nodes can be stacked in a single stack. Click the up arrow <img src="src/png/icons8-top-48-gold.png" width="18" height="18"> to use the maximum possible value for the root person. |
-| Position In-Laws Below Spouses | Click this checkbox to position in-laws below their spouses. If it is unchecked, they will be beside their spouses. |
+| Position&nbsp;In&#8209;Laws&nbsp;Below&nbsp;Spouses | Click this checkbox to position in-laws below their spouses. If it is unchecked, they will be beside their spouses. |
 | Hide Childless In-Laws | Click this checkbox to hide in-laws who are leaf nodes. |
+| Hide Non-Pedigree Family | Click this checkbox to hide all people who are not direct ancestors or descendants of the root person, or spouses of the root person and their descendants. |
 
 ### Person Details
 | Option | Description |
