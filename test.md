@@ -122,6 +122,9 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 05.41 | Shared great-grandparents have a duplicate pedigree link to the second ancestor |
 |  Automated  | 05.42 | Root inlaw spouse and their descendants are not duplicated as relatives under an ancestor |
 |  Automated  | 05.43 | Ancestor stackable siblings are not stacked when they fit into existing horizontal space |
+|  Automated  | 05.44 | Each descendant child is centered below the connector circle to the right of their male relative father |
+|  Automated  | 05.45 | Child of female relative and male inlaw is centered below the connector circle to the left of the female relative |
+|  Automated  | 05.46 | Pedigree-sibling link from parents does not intersect with another branch pedigree-sibling link from parents |
 
 ## 06 UI Behavior Test Cases
 |    Status   |  ID   | Test Description |

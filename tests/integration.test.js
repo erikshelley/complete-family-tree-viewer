@@ -514,6 +514,101 @@ function getMaleRootCenteringGedcom() {
     ].join('\n');
 }
 
+// Mock for horizontal inlaw centering 4 levels deep (05.44).
+// RootF (female root) has no ancestors. RootSpouse (@I2@) is the inlaw.
+// Two branches each descend 4 levels to a single child: ChildA (@I9@) via @I3@→@I5@→@I7@,
+// and ChildB (@I16@) via @I10@→@I12@→@I14@.
+// In horizontal-inlaw mode each male relative has his female inlaw wife to the right.
+// ChildA and ChildB (at gen=0) should each be centered below the connector circle between their
+// respective father and mother, i.e. father.x + box_width + h_spacing/2.
+function getHorizInlawFourGenMock() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME RootF /Root/', '1 SEX F', '1 FAMS @F0@',
+        '0 @I2@ INDI', '1 NAME RootSpouse /Partner/', '1 SEX M', '1 FAMS @F0@',
+        '0 @I3@ INDI', '1 NAME BranchAGen3 /Person/', '1 SEX M', '1 FAMS @F1@',
+        '0 @I4@ INDI', '1 NAME BranchAGen3Wife /Partner/', '1 SEX F', '1 FAMS @F1@',
+        '0 @I5@ INDI', '1 NAME BranchAGen2 /Person/', '1 SEX M', '1 FAMS @F2@',
+        '0 @I6@ INDI', '1 NAME BranchAGen2Wife /Partner/', '1 SEX F', '1 FAMS @F2@',
+        '0 @I7@ INDI', '1 NAME FatherA /Person/', '1 SEX M', '1 FAMS @F3@',
+        '0 @I8@ INDI', '1 NAME MotherA /Partner/', '1 SEX F', '1 FAMS @F3@',
+        '0 @I9@ INDI', '1 NAME ChildA /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @I10@ INDI', '1 NAME BranchBGen3 /Person/', '1 SEX M', '1 FAMS @F4@',
+        '0 @I11@ INDI', '1 NAME BranchBGen3Wife /Partner/', '1 SEX F', '1 FAMS @F4@',
+        '0 @I12@ INDI', '1 NAME BranchBGen2 /Person/', '1 SEX M', '1 FAMS @F5@',
+        '0 @I13@ INDI', '1 NAME BranchBGen2Wife /Partner/', '1 SEX F', '1 FAMS @F5@',
+        '0 @I14@ INDI', '1 NAME FatherB /Person/', '1 SEX M', '1 FAMS @F6@',
+        '0 @I15@ INDI', '1 NAME MotherB /Partner/', '1 SEX F', '1 FAMS @F6@',
+        '0 @I16@ INDI', '1 NAME ChildB /Person/', '1 SEX F', '1 FAMC @F6@',
+        '0 @F0@ FAM', '1 HUSB @I2@', '1 WIFE @I1@', '1 CHIL @I3@', '1 CHIL @I10@',
+        '0 @F1@ FAM', '1 HUSB @I3@', '1 WIFE @I4@', '1 CHIL @I5@',
+        '0 @F2@ FAM', '1 HUSB @I5@', '1 WIFE @I6@', '1 CHIL @I7@',
+        '0 @F3@ FAM', '1 HUSB @I7@', '1 WIFE @I8@', '1 CHIL @I9@',
+        '0 @F4@ FAM', '1 HUSB @I10@', '1 WIFE @I11@', '1 CHIL @I12@',
+        '0 @F5@ FAM', '1 HUSB @I12@', '1 WIFE @I13@', '1 CHIL @I14@',
+        '0 @F6@ FAM', '1 HUSB @I14@', '1 WIFE @I15@', '1 CHIL @I16@',
+        '0 TRLR',
+    ].join('\n');
+}
+
+// Mock for horizontal inlaw centering with a female relative parent (05.45).
+// RootF (female root) has no ancestors. RootSpouse (@I2@) is the male inlaw.
+// A single branch descends 4 levels: root → RelGen3 (M) → RelGen2 (M) → RelFem (F) → ChildD.
+// RelFem is a female relative with a male inlaw FemRelSpouse to her left.
+// ChildD should be centered below the connector circle to the left of RelFem,
+// i.e. RelFem.x − h_spacing/2.
+function getFemRelInlawMock() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME RootF /Root/', '1 SEX F', '1 FAMS @F0@',
+        '0 @I2@ INDI', '1 NAME RootSpouse /Partner/', '1 SEX M', '1 FAMS @F0@',
+        '0 @I3@ INDI', '1 NAME RelGen3 /Person/', '1 SEX M', '1 FAMS @F1@',
+        '0 @I4@ INDI', '1 NAME RelGen3Spouse /Partner/', '1 SEX F', '1 FAMS @F1@',
+        '0 @I5@ INDI', '1 NAME RelGen2 /Person/', '1 SEX M', '1 FAMS @F2@',
+        '0 @I6@ INDI', '1 NAME RelGen2Spouse /Partner/', '1 SEX F', '1 FAMS @F2@',
+        '0 @I7@ INDI', '1 NAME RelFem /Person/', '1 SEX F', '1 FAMS @F3@',
+        '0 @I8@ INDI', '1 NAME FemRelSpouse /Partner/', '1 SEX M', '1 FAMS @F3@',
+        '0 @I9@ INDI', '1 NAME ChildD /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @F0@ FAM', '1 HUSB @I2@', '1 WIFE @I1@', '1 CHIL @I3@',
+        '0 @F1@ FAM', '1 HUSB @I3@', '1 WIFE @I4@', '1 CHIL @I5@',
+        '0 @F2@ FAM', '1 HUSB @I5@', '1 WIFE @I6@', '1 CHIL @I7@',
+        '0 @F3@ FAM', '1 HUSB @I8@', '1 WIFE @I7@', '1 CHIL @I9@',
+        '0 TRLR',
+    ].join('\n');
+}
+
+// Mock for pedigree-sibling link non-intersection test (05.46).
+// Root (M) has two pedigree ancestor branches:
+//   Paternal: Father → PatGF → PatGGF+PatGGM. PatGGF also has a sibling-relative SibA (Mathias equiv).
+//   Maternal: Mother → MatGF → MatGGF+MatGGM. MatGGF also has a sibling-relative SibB (Rose equiv).
+// With vertical_inlaws=true and max_stack_size=12, SibA and SibB both land at level=2, sub_level=0.
+// The link from (PatGGF+PatGGM connector) to SibA and the link from (MatGGF+MatGGM connector) to SibB
+// must not intersect: the connector circles and the siblings must be in the same left-right order.
+function getSiblingRelativesNoLinkCrossMock() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME Root /Person/', '1 SEX M', '1 FAMC @F0@',
+        '0 @I2@ INDI', '1 NAME Father /Ancestor/', '1 SEX M', '1 FAMS @F0@', '1 FAMC @F1@',
+        '0 @I3@ INDI', '1 NAME Mother /Ancestor/', '1 SEX F', '1 FAMS @F0@', '1 FAMC @F2@',
+        '0 @I4@ INDI', '1 NAME PatGF /Ancestor/', '1 SEX M', '1 FAMS @F1@', '1 FAMC @F3@',
+        '0 @I5@ INDI', '1 NAME PatGM /Ancestor/', '1 SEX F', '1 FAMS @F1@',
+        '0 @I6@ INDI', '1 NAME MatGF /Ancestor/', '1 SEX M', '1 FAMS @F2@', '1 FAMC @F4@',
+        '0 @I7@ INDI', '1 NAME MatGM /Ancestor/', '1 SEX F', '1 FAMS @F2@',
+        '0 @I8@ INDI', '1 NAME PatGGF /Ancestor/', '1 SEX M', '1 FAMS @F3@',
+        '0 @I9@ INDI', '1 NAME PatGGM /Ancestor/', '1 SEX F', '1 FAMS @F3@',
+        '0 @I10@ INDI', '1 NAME SibA /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @I11@ INDI', '1 NAME MatGGF /Ancestor/', '1 SEX M', '1 FAMS @F4@',
+        '0 @I12@ INDI', '1 NAME MatGGM /Ancestor/', '1 SEX F', '1 FAMS @F4@',
+        '0 @I13@ INDI', '1 NAME SibB /Person/', '1 SEX F', '1 FAMC @F4@',
+        '0 @F0@ FAM', '1 HUSB @I2@', '1 WIFE @I3@', '1 CHIL @I1@',
+        '0 @F1@ FAM', '1 HUSB @I4@', '1 WIFE @I5@', '1 CHIL @I2@',
+        '0 @F2@ FAM', '1 HUSB @I6@', '1 WIFE @I7@', '1 CHIL @I3@',
+        '0 @F3@ FAM', '1 HUSB @I8@', '1 WIFE @I9@', '1 CHIL @I4@', '1 CHIL @I10@',
+        '0 @F4@ FAM', '1 HUSB @I11@', '1 WIFE @I12@', '1 CHIL @I6@', '1 CHIL @I13@',
+        '0 TRLR',
+    ].join('\n');
+}
+
 function buildAndPositionTree(context, rootId) {
     const root = context.window.individuals.find(person => person.id === rootId);
     const rootNode = context.buildTree(root);
@@ -1950,5 +2045,109 @@ describe('integration test cases', () => {
         expect(sibA.stacked, 'SibA should not be stacked').toBe(false);
         expect(sibB.stacked, 'SibB should not be stacked').toBe(false);
         expect(sibC.stacked, 'SibC should not be stacked').toBe(false);
+    });
+
+    it('05.44 each descendant child is centered below the connector circle to the right of their male relative father', () => {
+        const parsed = createPipelineContext().parseGedcomData(getHorizInlawFourGenMock());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 0;
+        context.window.generations_down = 4;
+        context.window.max_stack_size = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const fatherA = find('@I7@');
+        const motherA = find('@I8@');
+        const childA = find('@I9@');
+        const fatherB = find('@I14@');
+        const motherB = find('@I15@');
+        const childB = find('@I16@');
+
+        expect(fatherA, 'FatherA should be in tree').toBeDefined();
+        expect(motherA, 'MotherA should be in tree').toBeDefined();
+        expect(childA, 'ChildA should be in tree').toBeDefined();
+        expect(fatherB, 'FatherB should be in tree').toBeDefined();
+        expect(motherB, 'MotherB should be in tree').toBeDefined();
+        expect(childB, 'ChildB should be in tree').toBeDefined();
+
+        const bw = context.window.box_width;
+
+        const coupleCenterA = (Math.min(fatherA.x, motherA.x) + Math.max(fatherA.x, motherA.x) + bw) / 2;
+        expect(childA.x + bw / 2).toBe(coupleCenterA);
+
+        const coupleCenterB = (Math.min(fatherB.x, motherB.x) + Math.max(fatherB.x, motherB.x) + bw) / 2;
+        expect(childB.x + bw / 2).toBe(coupleCenterB);
+    });
+
+    it('05.45 child of female relative and male inlaw is centered below the connector circle to the left of the female relative', () => {        const parsed = createPipelineContext().parseGedcomData(getFemRelInlawMock());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 0;
+        context.window.generations_down = 4;
+        context.window.max_stack_size = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const relFem = find('@I7@');
+        const femRelSpouse = find('@I8@');
+        const childD = find('@I9@');
+
+        expect(relFem, 'RelFem should be in tree').toBeDefined();
+        expect(femRelSpouse, 'FemRelSpouse should be in tree').toBeDefined();
+        expect(childD, 'ChildD should be in tree').toBeDefined();
+
+        const bw = context.window.box_width;
+        const coupleCenter = (Math.min(relFem.x, femRelSpouse.x) + Math.max(relFem.x, femRelSpouse.x) + bw) / 2;
+        expect(childD.x + bw / 2).toBe(coupleCenter);
+    });
+
+    it('05.46 pedigree-sibling link from parents does not intersect with another branch pedigree-sibling link from parents', () => {
+        const parsed = createPipelineContext().parseGedcomData(getSiblingRelativesNoLinkCrossMock());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 3;
+        context.window.generations_down = 0;
+        context.window.max_stack_size = 12;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const patGGF = find('@I8@');
+        const sibA = find('@I10@');  // Mathias equiv: sibling of PatGF, child of PatGGF+PatGGM
+        const matGGF = find('@I11@');
+        const sibB = find('@I13@');  // Rose equiv: sibling of MatGF, child of MatGGF+MatGGM
+
+        expect(patGGF, 'PatGGF should be in tree').toBeDefined();
+        expect(sibA, 'SibA should be in tree').toBeDefined();
+        expect(matGGF, 'MatGGF should be in tree').toBeDefined();
+        expect(sibB, 'SibB should be in tree').toBeDefined();
+
+        const bw = context.window.box_width;
+        const hs = context.window.h_spacing;
+
+        // Connector circle x for each parent couple (at the slot between father and mother)
+        const sibAConnector = patGGF.x + bw + hs / 2;
+        const sibBConnector = matGGF.x + bw + hs / 2;
+
+        // The sibling and its parent connector must be in the same left-right order;
+        // otherwise the link from each parent couple to its child would cross the other link.
+        expect(sibA.x < sibB.x, 'SibA should be to the left of SibB').toBe(true);
+        expect(sibAConnector < sibBConnector, 'SibA parent connector should be left of SibB parent connector').toBe(true);
+        expect(sibA.x < sibB.x).toBe(sibAConnector < sibBConnector);
     });
 });
