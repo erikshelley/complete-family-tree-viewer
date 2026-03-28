@@ -16,6 +16,10 @@ const file_input = document.getElementById('file-input-button');
 const individual_filter = document.getElementById('individual-filter-text');
 const clearIndividualFilterbutton = document.getElementById('clear-individual-filter');
 const individual_select = document.getElementById('individual-select');
+const connection_filter = document.getElementById('connection-filter-text');
+const clearConnectionFilterbutton = document.getElementById('clear-connection-filter');
+const connection_select = document.getElementById('connection-select');
+const connection_container = document.getElementById('connection-container');
 
 const preset_select = document.getElementById('preset-select');
 
@@ -46,7 +50,10 @@ let update_timeout = null;
 
 // Tree Content Variables
 window.individual_filter_value = '';
+window.connection_filter_value = '';
+window.connection_selected_id = null;
 window.selected_individual = '';
+window.tree_rows = null;
 window.generations_up;
 window.generations_down;
 window.max_stack_size;
@@ -77,6 +84,8 @@ window.link_highlight_percent; window.default_link_highlight_percent;
 window.inlaw_link_highlight_percent; window.default_inlaw_link_highlight_percent;
 
 window.pedigree_highlight_percent; window.default_pedigree_highlight_percent;
+
+window.highlight_type;
 
 window.text_size; window.default_text_size;
 window.text_brightness; window.default_text_brightness;

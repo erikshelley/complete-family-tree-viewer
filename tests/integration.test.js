@@ -750,6 +750,7 @@ describe('integration test cases', () => {
                     update_in_progress: false,
                     update_waiting: false,
                     update_timeout: null,
+                    connection_select: { innerHTML: '', appendChild: () => {} },
                 },
             }
         );

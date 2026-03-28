@@ -1,13 +1,16 @@
 /* global elements, none_links, auto_links,
     save_modal_ok_button, save_filename_input, clearIndividualFilterbutton,
-    individual_filter, color_picker, optionsMenu, file_input, individual_select,
+    individual_filter, connection_filter, clearConnectionFilterbutton,
+    color_picker, optionsMenu, file_input, individual_select, connection_select,
     preset_select, save_tree_button, save_modal_cancel_button, save_modal,
     resize_tree_button, resize_tree_horizontal_button, resize_tree_vertical_button,
     expand_styling_button, collapse_styling_button,
-    open_online_button, online_gedcom_modal, online_gedcom_cancel_button */
+    open_online_button, online_gedcom_modal, online_gedcom_cancel_button,
+    connection_container */
 /* global requestFamilyTreeUpdate, updateRangeThumbs, populateIndividualSelect,
     savePNG, saveSVG, expandAllStylingSections, collapseAllStylingSections,
-    toggleOptions, selectGedcomFile, filterIndividuals, usePresetStyle,
+    toggleOptions, selectGedcomFile, filterIndividuals, filterConnections,
+    populateConnectionSelect, usePresetStyle,
     openSaveModal, zoomToFit, zoomToFitHorizontal, zoomToFitVertical,
     scaleBodyForSmallScreens, updateOptionsVisibility, updateMaxLinksState,
     calculateMaxGenUp, calculateMaxGenDown,
@@ -199,6 +202,12 @@ document.addEventListener('DOMContentLoaded', function() {
         populateIndividualSelect(window.individuals);
     });
 
+    clearConnectionFilterbutton.addEventListener('click', function() {
+        connection_filter.value = '';
+        window.connection_filter_value = '';
+        populateConnectionSelect();
+    });
+
     color_picker.addEventListener('input', function(event) {
         window.tree_color = event.target.value;
         requestFamilyTreeUpdate();
@@ -221,7 +230,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     individual_filter.addEventListener('input', function(event) { filterIndividuals(event.target.value); });
+    connection_filter.addEventListener('input', function(event) { filterConnections(event.target.value); });
     individual_select.addEventListener('change', function(event) { requestFamilyTreeUpdate(); });
+    connection_select.addEventListener('change', function(event) {
+        window.connection_selected_id = event.target.value;
+        if (window.highlight_type === 'connection') requestFamilyTreeUpdate();
+    });
+
+    const highlights_select_el = document.getElementById('highlights-select');
+    if (highlights_select_el) {
+        window.highlight_type = highlights_select_el.value;
+        highlights_select_el.addEventListener('change', function(event) {
+            window.highlight_type = event.target.value;
+            if (event.target.value === 'connection') {
+                connection_container.classList.remove('hidden');
+            } else {
+                connection_container.classList.add('hidden');
+            }
+            requestFamilyTreeUpdate();
+        });
+    }
     preset_select.addEventListener('change', function(event) { usePresetStyle(event.target.value); });
     save_tree_button.addEventListener('click', function() { openSaveModal(); });
     save_modal_cancel_button.addEventListener('click', function() { document.getElementById('save-modal').style.display = 'none'; });

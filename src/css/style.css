@@ -165,7 +165,7 @@ svg {
     overflow-x: scroll;
 }
 
-#individual-select {
+#individual-select, #connection-select {
     width: 100%;
     margin-top: 8px;
 }
@@ -178,10 +178,17 @@ svg {
     width: calc(100% - 12px);
 }
 
+/*
 #individual-select-text option {
     background-color: #202020;
     color: #aaa;
 }
+
+#connection-select-text option {
+    background-color: #202020;
+    color: #aaa;
+}
+*/
 
 /* Styling for file name display */
 #file-name {
@@ -219,7 +226,7 @@ input.range-value[type="number"] {
     width: 40px;
 }
 
-input[type="number"], #individual-select, #individual-filter-text, #preset-select, #text-align-select {
+input[type="number"], #individual-select, #individual-filter-text, #preset-select, #text-align-select, #highlights-select, #connection-select, #connection-filter-text {
     display: inline-block;
     vertical-align: middle;
     background-color: #202020;
@@ -522,4 +529,8 @@ input[type="color"]:focus {
     margin-bottom: 12px;
     font-size: 0.95em;
     text-align: center;
+}
+
+.hidden {
+    display: none !important;
 }

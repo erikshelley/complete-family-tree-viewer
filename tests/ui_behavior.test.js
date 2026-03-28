@@ -32,7 +32,9 @@ function loadUiContextWithDom(html) {
             collapse_styling_button: { style: {} },
             file_name_span: { textContent: '' },
             individual_filter: dom.window.document.getElementById('individual-filter-text') || { value: '' },
+            connection_filter: dom.window.document.getElementById('connection-filter-text') || { value: '' },
             individual_select: dom.window.document.getElementById('individual-select') || { innerHTML: '' },
+            connection_select: dom.window.document.getElementById('connection-select') || { innerHTML: '', appendChild: () => {} },
             generations_up_number: { value: '1' },
             generations_down_number: { value: '1' },
             max_stack_size_number: { value: '1' },
@@ -64,6 +66,8 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
         save_filename_input: dom.window.document.getElementById('save-filename-input') || { value: '' },
         clearIndividualFilterbutton: dom.window.document.getElementById('clear-individual-filter') || { addEventListener: () => {} },
         individual_filter: dom.window.document.getElementById('individual-filter-text') || { value: '', addEventListener: () => {} },
+        connection_filter: dom.window.document.getElementById('connection-filter-text') || { value: '', addEventListener: () => {} },
+        clearConnectionFilterbutton: dom.window.document.getElementById('clear-connection-filter') || { addEventListener: () => {} },
         color_picker: dom.window.document.getElementById('color-picker') || { value: '#000000', addEventListener: () => {} },
         optionsMenu: dom.window.document.getElementById('options-menu-button') || { addEventListener: () => {}, style: {} },
         file_input: dom.window.document.getElementById('file-input-button') || { addEventListener: () => {} },
@@ -71,6 +75,7 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
         online_gedcom_modal: dom.window.document.getElementById('online-gedcom-modal') || { addEventListener: () => {}, style: {} },
         online_gedcom_cancel_button: dom.window.document.getElementById('online-gedcom-cancel-button') || { addEventListener: () => {} },
         individual_select: dom.window.document.getElementById('individual-select') || { addEventListener: () => {}, innerHTML: '' },
+        connection_select: dom.window.document.getElementById('connection-select') || { addEventListener: () => {}, value: '' },
         preset_select: dom.window.document.getElementById('preset-select') || { addEventListener: () => {}, value: '' },
         save_tree_button: dom.window.document.getElementById('save-tree-button') || { addEventListener: () => {} },
         save_modal_cancel_button: dom.window.document.getElementById('save-modal-cancel-button') || { addEventListener: () => {}, click: () => {} },
@@ -80,6 +85,7 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
         resize_tree_vertical_button: dom.window.document.getElementById('resize-tree-vertical-button') || { addEventListener: () => {} },
         expand_styling_button: dom.window.document.getElementById('expand-styling-button') || { addEventListener: () => {} },
         collapse_styling_button: dom.window.document.getElementById('collapse-styling-button') || { addEventListener: () => {} },
+        connection_container: dom.window.document.getElementById('connection-container') || { classList: { add: () => {}, remove: () => {} } },
     };
 
     const context = loadBrowserScript('src/js/ui_events.js', {
@@ -88,6 +94,7 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
             addEventListener: () => {},
             individuals: [],
             individual_filter_value: '',
+            connection_filter_value: '',
             ...overrides.windowOverrides,
         },
         globalOverrides: {
@@ -112,6 +119,8 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
             toggleOptions: () => {},
             selectGedcomFile: () => {},
             filterIndividuals: () => {},
+            filterConnections: () => {},
+            populateConnectionSelect: () => {},
             usePresetStyle: () => {},
             openSaveModal: () => {},
             openOnlineGedcomModal: () => {},
@@ -776,5 +785,211 @@ describe('ui behavior cases', () => {
         expect(modal.style.display).toBe('flex');
         const item = dom.window.document.querySelector('.online-gedcom-item');
         expect(item.disabled).toBe(false);
+    });
+
+    it('06.32 populateIndividualSelect does not modify connection-select', () => {
+        const { context, dom } = loadUiContextWithDom(`
+            <div id="family-tree-div"></div>
+            <input id="individual-filter-text" />
+            <select id="individual-select"></select>
+            <select id="connection-select">
+                <option value="@I2@">Bob Branch</option>
+            </select>
+        `);
+
+        context.window.individuals = [
+            { id: '@I1@', name: 'Alice Root', birth: '', death: '' },
+            { id: '@I2@', name: 'Bob Branch', birth: '', death: '' },
+            { id: '@I3@', name: 'Carol Leaf', birth: '', death: '' },
+        ];
+
+        context.populateIndividualSelect(context.window.individuals);
+
+        expect(dom.window.document.querySelectorAll('#individual-select option').length).toBe(3);
+        // connection-select must remain unchanged
+        const connOptions = dom.window.document.querySelectorAll('#connection-select option');
+        expect(connOptions.length).toBe(1);
+        expect(connOptions[0].value).toBe('@I2@');
+    });
+
+    it('06.33 populateConnectionSelect populates connection-select with tree individuals except root', () => {
+        const { context, dom } = loadUiContextWithDom(`
+            <div id="family-tree-div"></div>
+            <input id="individual-filter-text" />
+            <select id="individual-select"></select>
+            <select id="connection-select"></select>
+        `);
+
+        context.window.selected_individual = { id: '@I1@', name: 'Alice Root' };
+        context.window.tree_rows = [[
+            [
+                { individual: { id: '@I1@', name: 'Alice Root', birth: '', death: '' } },
+                { individual: { id: '@I2@', name: 'Bob Branch', birth: '1950', death: '' } },
+                { individual: { id: '@I3@', name: 'Carol Leaf', birth: '', death: '2000' } },
+            ],
+        ]];
+
+        context.populateConnectionSelect();
+
+        const connValues = Array.from(dom.window.document.querySelectorAll('#connection-select option')).map(o => o.value);
+        expect(connValues).toEqual(['@I2@', '@I3@']);
+    });
+
+    it('06.34 populateConnectionSelect deduplicates individuals appearing in multiple tree nodes', () => {
+        const { context, dom } = loadUiContextWithDom(`
+            <div id="family-tree-div"></div>
+            <input id="individual-filter-text" />
+            <select id="individual-select"></select>
+            <select id="connection-select"></select>
+        `);
+
+        context.window.selected_individual = { id: '@I1@', name: 'Root' };
+        context.window.tree_rows = [
+            [[
+                { individual: { id: '@I1@', name: 'Root', birth: '', death: '' } },
+                { individual: { id: '@I2@', name: 'Bob', birth: '', death: '' } },
+            ]],
+            [[
+                { individual: { id: '@I2@', name: 'Bob', birth: '', death: '' } },
+                { individual: { id: '@I3@', name: 'Carol', birth: '', death: '' } },
+            ]],
+        ];
+
+        context.populateConnectionSelect();
+
+        const connValues = Array.from(dom.window.document.querySelectorAll('#connection-select option')).map(o => o.value);
+        expect(connValues).toEqual(['@I2@', '@I3@']);
+    });
+
+    it('06.35 selecting connection in highlights-select shows connection-container', () => {
+        const { dom } = loadUiEventsContextWithDom(`
+            <select id="highlights-select">
+                <option value="none">None</option>
+                <option value="root" selected>Root</option>
+                <option value="connection">Connection</option>
+            </select>
+            <div id="connection-container" class="hidden"></div>
+        `);
+
+        const highlightsSelect = dom.window.document.getElementById('highlights-select');
+        highlightsSelect.value = 'connection';
+        highlightsSelect.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+
+        expect(dom.window.document.getElementById('connection-container').classList.contains('hidden')).toBe(false);
+    });
+
+    it('06.36 selecting a non-connection value in highlights-select hides connection-container', () => {
+        const { dom } = loadUiEventsContextWithDom(`
+            <select id="highlights-select">
+                <option value="none">None</option>
+                <option value="root">Root</option>
+                <option value="connection" selected>Connection</option>
+            </select>
+            <div id="connection-container"></div>
+        `);
+
+        const highlightsSelect = dom.window.document.getElementById('highlights-select');
+        highlightsSelect.value = 'root';
+        highlightsSelect.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+
+        expect(dom.window.document.getElementById('connection-container').classList.contains('hidden')).toBe(true);
+    });
+
+    it('06.37 filterConnections narrows connection-select options by typed substring', () => {
+        vi.useFakeTimers();
+        const { context, dom } = loadUiContextWithDom(`
+            <div id="family-tree-div"></div>
+            <input id="individual-filter-text" />
+            <input id="connection-filter-text" />
+            <select id="individual-select"></select>
+            <select id="connection-select"></select>
+        `);
+
+        context.window.selected_individual = { id: '@I1@', name: 'Alice Root' };
+        context.window.tree_rows = [[
+            [
+                { individual: { id: '@I1@', name: 'Alice Root', birth: '', death: '' } },
+                { individual: { id: '@I2@', name: 'Bob Branch', birth: '', death: '' } },
+                { individual: { id: '@I3@', name: 'Alicia Leaf', birth: '', death: '' } },
+            ],
+        ]];
+
+        context.populateConnectionSelect();
+        expect(dom.window.document.querySelectorAll('#connection-select option').length).toBe(2);
+
+        context.filterConnections('ali');
+        vi.advanceTimersByTime(150);
+
+        const optionTexts = Array.from(dom.window.document.querySelectorAll('#connection-select option')).map(o => o.textContent);
+        expect(optionTexts).toEqual(['Alicia Leaf']);
+
+        vi.useRealTimers();
+    });
+
+    it('06.38 clear connection filter resets text and repopulates all connections', () => {
+        const { dom } = loadUiEventsContextWithDom(`
+            <button id="clear-connection-filter"></button>
+            <input id="connection-filter-text" value="ali" />
+            <select id="connection-select"></select>
+        `, {
+            windowOverrides: {
+                connection_filter_value: 'ali',
+                tree_rows: [[
+                    [
+                        { individual: { id: '@I2@', name: 'Bob', birth: '', death: '' } },
+                        { individual: { id: '@I3@', name: 'Alicia', birth: '', death: '' } },
+                    ],
+                ]],
+            },
+            globalOverrides: {
+                populateConnectionSelect: () => {
+                    const select = dom.window.document.getElementById('connection-select');
+                    select.innerHTML = '<option>@I2@</option><option>@I3@</option>';
+                },
+            },
+        });
+
+        dom.window.document.getElementById('clear-connection-filter').click();
+
+        expect(dom.window.document.getElementById('connection-filter-text').value).toBe('');
+        expect(dom.window.document.querySelectorAll('#connection-select option').length).toBe(2);
+    });
+
+    it('06.39 connection-select change sets connection_selected_id and triggers redraw when highlight_type is connection', () => {
+        let redrawCalled = false;
+        const { context, dom } = loadUiEventsContextWithDom(`
+            <select id="connection-select">
+                <option value="@I2@">Father</option>
+            </select>
+        `, {
+            windowOverrides: { highlight_type: 'connection' },
+            globalOverrides: { requestFamilyTreeUpdate: () => { redrawCalled = true; } },
+        });
+
+        const sel = dom.window.document.getElementById('connection-select');
+        sel.value = '@I2@';
+        sel.dispatchEvent(new dom.window.Event('change'));
+
+        expect(context.window.connection_selected_id).toBe('@I2@');
+        expect(redrawCalled).toBe(true);
+    });
+
+    it('06.40 connection-select change sets connection_selected_id but does not trigger redraw when highlight_type is not connection', () => {
+        let redrawCalled = false;
+        const { context, dom } = loadUiEventsContextWithDom(`
+            <select id="connection-select">
+                <option value="@I2@">Father</option>
+            </select>
+        `, {
+            windowOverrides: { highlight_type: 'pedigree' },
+            globalOverrides: { requestFamilyTreeUpdate: () => { redrawCalled = true; } },
+        });
+
+        const sel = dom.window.document.getElementById('connection-select');
+        sel.value = '@I2@';
+        sel.dispatchEvent(new dom.window.Event('change'));
+
+        expect(context.window.connection_selected_id).toBe('@I2@');
+        expect(redrawCalled).toBe(false);
     });
 });

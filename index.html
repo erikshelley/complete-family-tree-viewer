@@ -7,7 +7,7 @@
     <meta name="darkreader-lock">
     <title>Complete Family Tree Viewer</title>
     <link rel="stylesheet" href="src/css/style_ranges.css?v=2026-03-21">
-    <link rel="stylesheet" href="src/css/style.css?v=2026-03-24">
+    <link rel="stylesheet" href="src/css/style.css?v=2026-03-28">
     <link rel="stylesheet" href="src/css/style_media.css?v=2026-03-21">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-size@2"></script>
@@ -241,11 +241,34 @@
                     </p>
                 </details>
 
+                <!--
+The value selected in highlights-select will determine which elements of the tree are highlighted.
+If "None" is selected, no elements will be highlighted regardless of the percentage value.
+If "Root" is selected, only the root node will be highlighted.
+If "Pedigree" is selected, all nodes and links that are part of the pedigree (ancestors, siblings, and descendants of the root individual) will be highlighted.
+If "Connection" is selected, all nodes and links that are part of the connection (the path from the selected individual to the root, including all siblings and their descendants along that path) will be highlighted
+The "Pedigree" option is how highlighting currently works.
+Let's add functionality to handle "None" and "Root".
+                -->
                 <details closed><summary>Highlights (%)</summary>
                     <p>
                         <input type="number" class="range-value" id="pedigree-highlight-percent-number" min="0" max="200" value="125">
                         <input type="range" id="pedigree-highlight-percent-range" min="0" max="200" value="125">
-                        <label for="pedigree-highlight-percent-range">Pedigree</label>&nbsp;<a href="#" class="right-shortcut" id="no-pedigree-highlight-percent"><img src="src/png/icons8-cancel-48-gold.png" alt="No Highlights" title="No Highlights" width="24" height="24"></a>
+                        <label for="pedigree-highlight-percent-range">
+                            <select id="highlights-select" size="1">
+                                <option value="none">None</option>
+                                <option value="root" selected>Root</option>
+                                <option value="pedigree">Pedigree</option>
+                                <option value="connection">Connection</option>
+                            </select>
+                        </label>
+                        <div class="hidden" id="connection-container">
+                            <div class="filter-container">
+                                <input type="text" id="connection-filter-text" class="filter-input" placeholder="Type to filter names...">
+                                <button id="clear-connection-filter" type="button" class="clear-filter-button">&#10005;</button>
+                            </div>
+                            <select id="connection-select" size="10"></select>
+                        </div>
                     </p>
                     <p>
                         <input type="number" class="range-value" id="border-highlight-percent-number" min="0" max="200" value="125">

@@ -1,6 +1,6 @@
 /* global optionsMenu, leftColumnWrapper, leftCol, rightCol, family_tree_div,
     expand_styling_button, collapse_styling_button, file_name_span,
-    individual_filter, individual_select, generations_up_number,
+    individual_filter, connection_filter, individual_select, connection_select, generations_up_number,
     generations_down_number, max_stack_size_number, hue_element, sat_element,
     lum_element, text_lum_element, root_name, color_picker, save_filename_input,
     save_modal, style_presets, elements */
@@ -235,13 +235,21 @@ function selectGedcomFile(file) {
 
                 individual_filter.value = '';
                 window.individual_filter_value = '';
+                connection_filter.value = '';
+                window.connection_filter_value = '';
 
+                connection_select.innerHTML = '';
+                window.connection_selected_id = null;
+                window.tree_rows = null;
                 populateIndividualSelect(window.individuals);
                 renderLoadedGedcomStatus(file.name, window.individuals.length, window.families.length);
             } else {
                 family_tree_div.innerHTML = '<p style="color: red;">Invalid GEDCOM file. Please select a valid GEDCOM file.</p>';
                 // Clear the dropdown
                 individual_select.innerHTML = '<option>Select an individual...</option>';
+                connection_select.innerHTML = '';
+                window.connection_selected_id = null;
+                window.tree_rows = null;
                 window.individuals = [];
                 window.families = [];
             }
@@ -296,7 +304,12 @@ function loadGedcomFromUrl(url, display_name) {
 
                 individual_filter.value = '';
                 window.individual_filter_value = '';
+                connection_filter.value = '';
+                window.connection_filter_value = '';
 
+                connection_select.innerHTML = '';
+                window.connection_selected_id = null;
+                window.tree_rows = null;
                 populateIndividualSelect(window.individuals);
                 renderLoadedGedcomStatus(file_name, window.individuals.length, window.families.length);
 
@@ -544,6 +557,7 @@ async function updateFamilyTree() {
                 if (selected_individual) {
                     window.selected_individual = selected_individual;
                     await createFamilyTree(selected_individual);
+                    populateConnectionSelect();
                     if (generations_up_number.value > window.max_gen_up) {
                         generations_up_number.value = window.max_gen_up;
                         window.generations_up = window.max_gen_up;
@@ -597,4 +611,45 @@ function populateIndividualSelect(individuals) {
         fragment.appendChild(option);
     });
     individual_select.appendChild(fragment);
+}
+
+function populateConnectionSelect() {
+    connection_select.innerHTML = '';
+    const rows = window.tree_rows;
+    if (!rows) return;
+    const root_id = window.selected_individual ? window.selected_individual.id : null;
+    const filter = (window.connection_filter_value || '').toLowerCase();
+    const seen = new Set();
+    const fragment = document.createDocumentFragment();
+    for (const level of rows) {
+        for (const sub_level of level ? level : []) {
+            for (const node of sub_level) {
+                const individual = node.individual;
+                if (!individual || seen.has(individual.id) || individual.id === root_id) continue;
+                seen.add(individual.id);
+                const display_name = individual.name || individual.id;
+                if (filter.length > 0 && !display_name.toLowerCase().includes(filter)) continue;
+                const option = document.createElement('option');
+                option.value = individual.id;
+                const birthYear = individual.birth || '';
+                const deathYear = individual.death || '';
+                let years = '';
+                if (birthYear || deathYear) {
+                    years = ` (${birthYear}${deathYear ? '–' + deathYear : ''})`;
+                }
+                option.textContent = display_name + years;
+                fragment.appendChild(option);
+            }
+        }
+    }
+    connection_select.appendChild(fragment);
+}
+
+
+function filterConnections(filter) {
+    window.connection_filter_value = filter.toLowerCase();
+    if (filter_timeout) clearTimeout(filter_timeout);
+    filter_timeout = setTimeout(() => {
+        populateConnectionSelect();
+    }, 100);
 }

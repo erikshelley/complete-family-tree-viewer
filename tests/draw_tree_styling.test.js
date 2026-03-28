@@ -1077,6 +1077,198 @@ describe('draw tree styling outcomes', () => {
         expect(parentHue).toBe(0);
     });
 
+    it('13.12 drawNode with highlight_type none applies no pedigree factor to any node', () => {
+        const hclCalls = [];
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                highlight_type: 'none',
+                pedigree_highlight_percent: 150,
+                border_highlight_percent: 120,
+                node_brightness: 40,
+            },
+            d3Overrides: {
+                hcl: (h, c, l) => { hclCalls.push([h, c, l]); return `hcl(${h},${c},${l})`; },
+            },
+        });
+        context.drawText = () => {};
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        const svgSelection = new SvgSelection(svg);
+        const node = {
+            type: 'ancestor', generation: 0,
+            individual: { name: 'Ancestor', is_root: false, is_descendant: false },
+        };
+
+        context.drawNode(svgSelection, node);
+
+        // Neither fill nor stroke should have the pedigree factor applied
+        expect(hclCalls[0][2]).toBeCloseTo(40, 5);   // fill: node_brightness unchanged
+        expect(hclCalls[1][2]).toBeCloseTo(48, 5);   // stroke: 40 * 120/100 = 48, unchanged
+    });
+
+    it('13.13 drawNode with highlight_type root applies pedigree factor only to the root node', () => {
+        const hclCallsRoot = [];
+        const hclCallsAnc = [];
+
+        const makeContext = (calls) => {
+            const { context, dom } = loadDrawTreeContext({
+                windowOverrides: {
+                    highlight_type: 'root',
+                    pedigree_highlight_percent: 150,
+                    border_highlight_percent: 120,
+                    node_brightness: 40,
+                },
+                d3Overrides: {
+                    hcl: (h, c, l) => { calls.push([h, c, l]); return `hcl(${h},${c},${l})`; },
+                },
+            });
+            context.drawText = () => {};
+            return { context, dom };
+        };
+
+        // Root node should be highlighted
+        const { context: ctxRoot, dom: domRoot } = makeContext(hclCallsRoot);
+        ctxRoot.drawNode(
+            new SvgSelection(domRoot.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg')),
+            { type: 'relative', generation: 0, individual: { name: 'Root', is_root: true, is_descendant: false } }
+        );
+        expect(hclCallsRoot[0][2]).toBeCloseTo(60, 5);  // 40 * 150/100 = 60
+        expect(hclCallsRoot[1][2]).toBeCloseTo(72, 5);  // 48 * 150/100 = 72
+
+        // Ancestor node should NOT be highlighted
+        const { context: ctxAnc, dom: domAnc } = makeContext(hclCallsAnc);
+        ctxAnc.drawNode(
+            new SvgSelection(domAnc.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg')),
+            { type: 'ancestor', generation: 0, individual: { name: 'Ancestor', is_root: false, is_descendant: false } }
+        );
+        expect(hclCallsAnc[0][2]).toBeCloseTo(40, 5);  // no pedigree factor
+        expect(hclCallsAnc[1][2]).toBeCloseTo(48, 5);  // no pedigree factor
+    });
+
+    it('13.14 findConnectionPath returns IDs of all nodes on the path from root to target', () => {
+        const context = loadDrawTreeContext().context;
+
+        const grandpa_ind = { id: '@I3@', name: 'Grandpa' };
+        const father_ind  = { id: '@I2@', name: 'Father' };
+        const root_ind    = { id: '@I1@', name: 'Root', is_root: true };
+        const uncle_ind   = { id: '@I4@', name: 'Uncle' };
+
+        const grandpa_node = { individual: grandpa_ind, father_node: null, mother_node: null, pedigree_spouse_node: null, spouse_nodes: [], children_nodes: [], parent_node: null };
+        const father_node  = { individual: father_ind,  father_node: grandpa_node, mother_node: null, pedigree_spouse_node: null, spouse_nodes: [], children_nodes: [], parent_node: null };
+        const root_node    = { individual: root_ind,    father_node: father_node, mother_node: null, pedigree_spouse_node: null, spouse_nodes: [], children_nodes: [], parent_node: null };
+        // Uncle is a sibling – child of grandpa, not on the root→grandpa path
+        const uncle_node   = { individual: uncle_ind,   father_node: null, mother_node: null, pedigree_spouse_node: null, spouse_nodes: [], children_nodes: [], parent_node: grandpa_node };
+        grandpa_node.children_nodes.push(uncle_node);
+
+        context.window.root_node = root_node;
+        context.window.connection_path_ids = new Set();
+
+        // Path to grandpa should include root, father, grandpa, AND grandpa's pedigree spouse
+        // (pedigree_spouse_node is null on all nodes in this test, so no spouse expansion)
+        const path = context.findConnectionPath('@I3@');
+        expect(path.has('@I1@')).toBe(true);
+        expect(path.has('@I2@')).toBe(true);
+        expect(path.has('@I3@')).toBe(true);
+        expect(path.size).toBe(3);
+
+        // Path to uncle: root → father → grandpa → uncle
+        const uncle_path = context.findConnectionPath('@I4@');
+        expect(uncle_path.has('@I1@')).toBe(true);
+        expect(uncle_path.has('@I4@')).toBe(true);
+        expect(uncle_path.size).toBe(4);
+
+        // Unknown ID returns empty set
+        expect(context.findConnectionPath('@IX@').size).toBe(0);
+
+        // Pedigree spouse expansion: if father has a pedigree_spouse_node (mother), she is added
+        const mother_ind = { id: '@I6@', name: 'Grandma' };
+        const mother_node = { individual: mother_ind, father_node: null, mother_node: null, pedigree_spouse_node: null, spouse_nodes: [], children_nodes: [], parent_node: null };
+        grandpa_node.pedigree_spouse_node = mother_node;
+        const path_with_spouse = context.findConnectionPath('@I3@');
+        expect(path_with_spouse.has('@I6@')).toBe(true);
+        expect(path_with_spouse.size).toBe(4);  // root, father, grandpa, grandma
+    });
+
+    it('13.15 drawNode with highlight_type connection brightens on-path nodes and leaves off-path nodes unchanged', () => {
+        const hclOnPath  = [];
+        const hclOffPath = [];
+
+        const makeCtx = (calls, id, path_ids) => {
+            const { context, dom } = loadDrawTreeContext({
+                windowOverrides: {
+                    highlight_type: 'connection',
+                    connection_path_ids: path_ids,
+                    pedigree_highlight_percent: 150,
+                    border_highlight_percent: 120,
+                    node_brightness: 40,
+                },
+                d3Overrides: {
+                    hcl: (h, c, l) => { calls.push([h, c, l]); return `hcl(${h},${c},${l})`; },
+                },
+            });
+            context.drawText = () => {};
+            return { context, dom };
+        };
+
+        const path_ids = new Set(['@I2@']);
+
+        // On-path node should be highlighted
+        const { context: ctxOn, dom: domOn } = makeCtx(hclOnPath, '@I2@', path_ids);
+        ctxOn.drawNode(
+            new SvgSelection(domOn.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg')),
+            { type: 'ancestor', generation: 1, individual: { id: '@I2@', name: 'Father', is_root: false, is_descendant: false } }
+        );
+        expect(hclOnPath[0][2]).toBeCloseTo(60, 5);   // 40 * 150/100 = 60
+
+        // Off-path node should not be highlighted
+        const { context: ctxOff, dom: domOff } = makeCtx(hclOffPath, '@I5@', path_ids);
+        ctxOff.drawNode(
+            new SvgSelection(domOff.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg')),
+            { type: 'ancestor', generation: 2, individual: { id: '@I5@', name: 'Uncle', is_root: false, is_descendant: false } }
+        );
+        expect(hclOffPath[0][2]).toBeCloseTo(40, 5);  // no highlight
+    });
+
+    it('13.16 getLinkHighlightFactor with linked_node requires both endpoints on path in connection mode', () => {
+        const { context } = loadDrawTreeContext({
+            windowOverrides: {
+                highlight_type: 'connection',
+                connection_path_ids: new Set(['@I1@', '@I2@']),
+                pedigree_highlight_percent: 150,
+            },
+        });
+
+        const on_path  = { individual: { id: '@I1@' } };
+        const on_path2 = { individual: { id: '@I2@' } };
+        const off_path = { individual: { id: '@I3@' } };
+
+        // Both on path → highlight
+        expect(context.getLinkHighlightFactor(on_path, on_path2)).toBeCloseTo(1.5, 5);
+        // One endpoint off path → no highlight
+        expect(context.getLinkHighlightFactor(on_path, off_path)).toBe(1);
+        expect(context.getLinkHighlightFactor(off_path, on_path)).toBe(1);
+        // No linked_node → falls back to single-node check
+        expect(context.getLinkHighlightFactor(on_path)).toBeCloseTo(1.5, 5);
+        expect(context.getLinkHighlightFactor(off_path)).toBe(1);
+    });
+
+    it('13.17 getLinkHighlightFactor with linked_node is ignored for pedigree and none modes', () => {
+        const make = (ht) => loadDrawTreeContext({
+            windowOverrides: { highlight_type: ht, connection_path_ids: new Set(['@I1@']), pedigree_highlight_percent: 150 },
+        }).context;
+
+        const node_a = { individual: { id: '@I1@', is_root: true, is_descendant: false } };
+        const node_b = { individual: { id: '@I2@', is_root: false, is_descendant: false } };
+
+        // pedigree mode: linked_node ignored, result based solely on node_a
+        const ctx_ped = make('pedigree');
+        expect(ctx_ped.getLinkHighlightFactor(node_a, node_b)).toBeCloseTo(1.5, 5);
+
+        // none mode: always 1 regardless of linked_node
+        const ctx_none = make('none');
+        expect(ctx_none.getLinkHighlightFactor(node_a, node_b)).toBe(1);
+    });
+
     it('11.18 auto_box_width equals text width at desired font size plus padding when name fits without shrinking', () => {
         const { context, dom } = loadDrawTreeContext({
             windowOverrides: {
@@ -1248,5 +1440,85 @@ describe('draw tree styling outcomes', () => {
         dashedPaths.forEach(p => {
             expect(p.getAttribute('stroke-dasharray')).toBe(`${linkWidth},${linkWidth}`);
         });
+    });
+
+    it('13.18 promoteConnectionNodesInStacks swaps a non-top stacked node to stack_top when it is on the connection path', () => {
+        const { context } = loadDrawTreeContext({
+            windowOverrides: {
+                highlight_type: 'connection',
+            },
+        });
+
+        const top_ind  = { id: '@I1@', name: 'Top' };
+        const lower_ind = { id: '@I2@', name: 'Lower' };
+
+        const top_node = {
+            type: 'relative', generation: 0,
+            x: 100, y: 200,
+            stacked: true, stack_top: true,
+            individual: top_ind, spouse_nodes: [], children_nodes: [],
+        };
+        const lower_node = {
+            type: 'relative', generation: 0,
+            x: 100, y: 230,
+            stacked: true, stack_top: false,
+            individual: lower_ind, spouse_nodes: [], children_nodes: [],
+        };
+
+        // lower_node is on the connection path; top_node is not
+        context.window.connection_path_ids = new Set(['@I2@']);
+        const rows = [[ [top_node, lower_node] ]];
+
+        context.promoteConnectionNodesInStacks(rows);
+
+        // After promotion: lower_node should be stack_top at y=200; top_node at y=230
+        expect(lower_node.stack_top).toBe(true);
+        expect(lower_node.y).toBe(200);
+        expect(top_node.stack_top).toBe(false);
+        expect(top_node.y).toBe(230);
+    });
+
+    it('13.19 promoteConnectionNodesInStacks leaves the stack unchanged when the stack_top is already on the connection path', () => {
+        const { context } = loadDrawTreeContext({
+            windowOverrides: { highlight_type: 'connection' },
+        });
+
+        const top_ind   = { id: '@I1@', name: 'Top' };
+        const lower_ind = { id: '@I2@', name: 'Lower' };
+
+        const top_node = {
+            type: 'relative', generation: 0,
+            x: 100, y: 200,
+            stacked: true, stack_top: true,
+            individual: top_ind, spouse_nodes: [], children_nodes: [],
+        };
+        const lower_node = {
+            type: 'relative', generation: 0,
+            x: 100, y: 230,
+            stacked: true, stack_top: false,
+            individual: lower_ind, spouse_nodes: [], children_nodes: [],
+        };
+
+        // top_node is already on the connection path — no swap needed
+        context.window.connection_path_ids = new Set(['@I1@']);
+        context.promoteConnectionNodesInStacks([[ [top_node, lower_node] ]]);
+
+        expect(top_node.stack_top).toBe(true);
+        expect(top_node.y).toBe(200);
+        expect(lower_node.stack_top).toBe(false);
+        expect(lower_node.y).toBe(230);
+    });
+
+    it('13.20 promoteConnectionNodesInStacks does nothing when connection_path_ids is empty', () => {
+        const { context } = loadDrawTreeContext();
+
+        const top_node   = { type: 'relative', generation: 0, x: 100, y: 200, stacked: true, stack_top: true,  individual: { id: '@I1@' }, spouse_nodes: [], children_nodes: [] };
+        const lower_node = { type: 'relative', generation: 0, x: 100, y: 230, stacked: true, stack_top: false, individual: { id: '@I2@' }, spouse_nodes: [], children_nodes: [] };
+
+        context.window.connection_path_ids = new Set();
+        context.promoteConnectionNodesInStacks([[ [top_node, lower_node] ]]);
+
+        expect(top_node.stack_top).toBe(true);
+        expect(top_node.y).toBe(200);
     });
 });

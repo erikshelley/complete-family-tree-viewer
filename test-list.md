@@ -167,6 +167,15 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 06.29 | loadGedcomFromUrl on HTTP error shows error in status div |
 |  Automated  | 06.30 | loadGedcomFromUrl on network failure shows error in status div |
 |  Automated  | 06.31 | loadGedcomFromUrl on invalid GEDCOM shows error and re-enables items |
+|  Automated  | 06.32 | populateIndividualSelect does not modify connection-select |
+|  Automated  | 06.33 | populateConnectionSelect populates connection-select with tree individuals except root |
+|  Automated  | 06.34 | populateConnectionSelect deduplicates individuals appearing in multiple tree nodes |
+|  Automated  | 06.35 | Selecting "connection" in highlights-select shows connection-container |
+|  Automated  | 06.36 | Selecting a non-connection value in highlights-select hides connection-container |
+|  Automated  | 06.37 | filterConnections narrows connection-select options by typed substring |
+|  Automated  | 06.38 | Clear connection filter resets text and repopulates all connections |
+|  Automated  | 06.39 | connection-select change sets connection_selected_id and triggers redraw when highlight_type is connection |
+|  Automated  | 06.40 | connection-select change sets connection_selected_id but does not trigger redraw when highlight_type is not connection |
 
 ## 07 Export Test Cases
 |    Status   |  ID   | Test Description |
@@ -249,6 +258,15 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 13.09 | Links drawn to in-law spouses have stroke-dasharray equal to link_width,link_width |
 |  Automated  | 13.10 | Nieces and nephews hue wraps to 300 when root_hue is 0 (no negative hues) |
 |  Automated  | 13.11 | Parents hue wraps to 0 when root_hue is 300 (no hues >= 360) |
+|  Automated  | 13.12 | drawNode with highlight_type "none" applies no pedigree factor to any node |
+|  Automated  | 13.13 | drawNode with highlight_type "root" applies pedigree factor only to the root node, not ancestors |
+|  Automated  | 13.14 | findConnectionPath returns IDs of all nodes on the path from root to target |
+|  Automated  | 13.15 | drawNode with highlight_type "connection" brightens on-path nodes and leaves off-path nodes unchanged |
+|  Automated  | 13.16 | getLinkHighlightFactor with linked_node requires both endpoints on path in connection mode |
+|  Automated  | 13.17 | getLinkHighlightFactor with linked_node is ignored for pedigree and none modes |
+|  Automated  | 13.18 | promoteConnectionNodesInStacks swaps a non-top stacked node to stack_top when it is on the connection path |
+|  Automated  | 13.19 | promoteConnectionNodesInStacks leaves the stack unchanged when the stack_top is already on the connection path |
+|  Automated  | 13.20 | promoteConnectionNodesInStacks does nothing when connection_path_ids is empty |
 
 ## Coverage Tracking
 Mark each case as one of:
