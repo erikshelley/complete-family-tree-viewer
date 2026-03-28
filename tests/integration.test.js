@@ -210,6 +210,335 @@ function createPipelineContext({ dom, drawTree } = {}) {
     return context;
 }
 
+// Mock reproducing conditions from a real GEDCOM file with a female root.
+// Family structure: Root (F) married InlawSpouse (M), children ChildA + ChildB.
+// Parents: Father (M) + Mother (F).
+// Siblings: BrotherSib (M, two marriages: SibWifeA + SibWifeB, no children)
+//           and SisterSib (F, married SibHusb, one child).
+// The sibling subtrees give Father enough width to be placed well to the right of
+// Root's own generation, producing the in-law ordering under test.
+function getFemaleRootHorizontalInlawGedcom() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME Root /Person/', '1 SEX F', '1 FAMC @F0@', '1 FAMS @F1@',
+        '0 @I2@ INDI', '1 NAME InlawSpouse /Partner/', '1 SEX M', '1 FAMS @F1@',
+        '0 @I3@ INDI', '1 NAME ChildA /Person/', '1 SEX M', '1 FAMC @F1@',
+        '0 @I4@ INDI', '1 NAME ChildB /Person/', '1 SEX M', '1 FAMC @F1@',
+        '0 @I5@ INDI', '1 NAME Father /Ancestor/', '1 SEX M', '1 FAMS @F0@',
+        '0 @I6@ INDI', '1 NAME Mother /Ancestor/', '1 SEX F', '1 FAMS @F0@',
+        '0 @I7@ INDI', '1 NAME BrotherSib /Person/', '1 SEX M', '1 FAMC @F0@', '1 FAMS @F2@', '1 FAMS @F3@',
+        '0 @I8@ INDI', '1 NAME SibWifeA /Partner/', '1 SEX F', '1 FAMS @F2@',
+        '0 @I9@ INDI', '1 NAME SibWifeB /Partner/', '1 SEX F', '1 FAMS @F3@',
+        '0 @I10@ INDI', '1 NAME SisterSib /Person/', '1 SEX F', '1 FAMC @F0@', '1 FAMS @F4@',
+        '0 @I11@ INDI', '1 NAME SibHusb /Partner/', '1 SEX M', '1 FAMS @F4@',
+        '0 @I12@ INDI', '1 NAME SibChild /Partner/', '1 SEX F', '1 FAMC @F4@',
+        '0 @F0@ FAM', '1 HUSB @I5@', '1 WIFE @I6@', '1 CHIL @I1@', '1 CHIL @I7@', '1 CHIL @I10@',
+        '0 @F1@ FAM', '1 HUSB @I2@', '1 WIFE @I1@', '1 CHIL @I3@', '1 CHIL @I4@',
+        '0 @F2@ FAM', '1 HUSB @I7@', '1 WIFE @I8@',
+        '0 @F3@ FAM', '1 HUSB @I7@', '1 WIFE @I9@',
+        '0 @F4@ FAM', '1 HUSB @I11@', '1 WIFE @I10@', '1 CHIL @I12@',
+        '0 TRLR',
+    ].join('\n');
+}
+
+// Mock reproducing conditions from a real GEDCOM file with a male root and two childless wives.
+// Family structure: Root (M) had two marriages — WifeA (F) and WifeB (F), neither with children.
+// Parents: Father (M) + Mother (F).
+// Siblings: SisterA (F, married SibHusbA, two children: SibChildA + SibChildB)
+//           and SisterB (F, married SibHusbB, one child).
+// The sibling subtrees push Father far enough right that both of Root's female in-laws
+// land between Root and Father, satisfying both 05.13 and 05.14.
+function getMaleRootHorizontalInlawGedcom() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME Root /Person/', '1 SEX M', '1 FAMC @F0@', '1 FAMS @F1@', '1 FAMS @F2@',
+        '0 @I2@ INDI', '1 NAME WifeA /Partner/', '1 SEX F', '1 FAMS @F1@',
+        '0 @I3@ INDI', '1 NAME WifeB /Partner/', '1 SEX F', '1 FAMS @F2@',
+        '0 @I4@ INDI', '1 NAME Father /Ancestor/', '1 SEX M', '1 FAMS @F0@',
+        '0 @I5@ INDI', '1 NAME Mother /Ancestor/', '1 SEX F', '1 FAMS @F0@',
+        '0 @I6@ INDI', '1 NAME SisterA /Person/', '1 SEX F', '1 FAMC @F0@', '1 FAMS @F3@',
+        '0 @I7@ INDI', '1 NAME SibHusbA /Partner/', '1 SEX M', '1 FAMS @F3@',
+        '0 @I8@ INDI', '1 NAME SibChildA /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @I9@ INDI', '1 NAME SibChildB /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @I10@ INDI', '1 NAME SisterB /Person/', '1 SEX F', '1 FAMC @F0@', '1 FAMS @F4@',
+        '0 @I11@ INDI', '1 NAME SibHusbB /Partner/', '1 SEX M', '1 FAMS @F4@',
+        '0 @I12@ INDI', '1 NAME SibChildC /Person/', '1 SEX F', '1 FAMC @F4@',
+        '0 @F0@ FAM', '1 HUSB @I4@', '1 WIFE @I5@', '1 CHIL @I1@', '1 CHIL @I6@', '1 CHIL @I10@',
+        '0 @F1@ FAM', '1 HUSB @I1@', '1 WIFE @I2@',
+        '0 @F2@ FAM', '1 HUSB @I1@', '1 WIFE @I3@',
+        '0 @F3@ FAM', '1 HUSB @I7@', '1 WIFE @I6@', '1 CHIL @I8@', '1 CHIL @I9@',
+        '0 @F4@ FAM', '1 HUSB @I11@', '1 WIFE @I10@', '1 CHIL @I12@',
+        '0 TRLR',
+    ].join('\n');
+}
+
+// Mock reproducing conditions from a real GEDCOM file with a male root and siblings with children.
+// Family structure: Root (M) with two childless wives.
+// Parents: Father (M) + Mother (F).
+// Siblings: SisterA (F, married SibHusbA, children SibChildA + SibChildB),
+//           SisterB (F, married SibHusbB, children SibChildC + SibChildD + SibChildE),
+//           BrotherSib (M, married SibWife, one child SibChildF).
+// Used to verify centering of couples above their children under horizontal in-law layout.
+// Mock for hide_childless_inlaws and hide_non_pedigree_family tests (05.26–05.28).
+// Root (M) marries SpouseA and SpouseB (both childless in-laws).
+// Root's sibling SibA marries SibSpouse (also a childless in-law).
+// Root's parents are AncDad and AncMom.
+function getHcilHnpfGedcom() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME Root /Person/', '1 SEX M', '1 FAMS @F1@', '1 FAMS @F2@', '1 FAMC @F0@',
+        '0 @I2@ INDI', '1 NAME SpouseA /Partner/', '1 SEX F', '1 FAMS @F1@',
+        '0 @I3@ INDI', '1 NAME SpouseB /Partner/', '1 SEX F', '1 FAMS @F2@',
+        '0 @I4@ INDI', '1 NAME AncDad /Ancestor/', '1 SEX M', '1 FAMS @F0@',
+        '0 @I5@ INDI', '1 NAME AncMom /Ancestor/', '1 SEX F', '1 FAMS @F0@',
+        '0 @I6@ INDI', '1 NAME SibA /Person/', '1 SEX M', '1 FAMC @F0@', '1 FAMS @F3@',
+        '0 @I7@ INDI', '1 NAME SibSpouse /Partner/', '1 SEX F', '1 FAMS @F3@',
+        '0 @F0@ FAM', '1 HUSB @I4@', '1 WIFE @I5@', '1 CHIL @I1@', '1 CHIL @I6@',
+        '0 @F1@ FAM', '1 HUSB @I1@', '1 WIFE @I2@',
+        '0 @F2@ FAM', '1 HUSB @I1@', '1 WIFE @I3@',
+        '0 @F3@ FAM', '1 HUSB @I6@', '1 WIFE @I7@',
+        '0 TRLR',
+    ].join('\n');
+}
+
+// Mock for endogamy (shared-ancestor) tests (05.40–05.41).
+// Root's paternal grandfather (PatGF) and maternal grandmother (MatGM) are siblings:
+// both are children of SharedGF+SharedGM. With gen_up=3, SharedGF and SharedGM appear
+// once in the tree (as PatGF's parents); MatGM receives a duplicate pedigree link.
+function getEndogamyMock() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME Root /Person/', '1 SEX M', '1 FAMC @F0@',
+        '0 @I2@ INDI', '1 NAME Father /Ancestor/', '1 SEX M', '1 FAMS @F0@', '1 FAMC @F1@',
+        '0 @I3@ INDI', '1 NAME Mother /Ancestor/', '1 SEX F', '1 FAMS @F0@', '1 FAMC @F2@',
+        '0 @I4@ INDI', '1 NAME PatGF /Ancestor/', '1 SEX M', '1 FAMS @F1@', '1 FAMC @F3@',
+        '0 @I5@ INDI', '1 NAME PatGM /Ancestor/', '1 SEX F', '1 FAMS @F1@',
+        '0 @I6@ INDI', '1 NAME MatGF /Ancestor/', '1 SEX M', '1 FAMS @F2@',
+        '0 @I7@ INDI', '1 NAME MatGM /Ancestor/', '1 SEX F', '1 FAMS @F2@', '1 FAMC @F3@',
+        '0 @I8@ INDI', '1 NAME SharedGF /Ancestor/', '1 SEX M', '1 FAMS @F3@',
+        '0 @I9@ INDI', '1 NAME SharedGM /Ancestor/', '1 SEX F', '1 FAMS @F3@',
+        '0 @F0@ FAM', '1 HUSB @I2@', '1 WIFE @I3@', '1 CHIL @I1@',
+        '0 @F1@ FAM', '1 HUSB @I4@', '1 WIFE @I5@', '1 CHIL @I2@',
+        '0 @F2@ FAM', '1 HUSB @I6@', '1 WIFE @I7@', '1 CHIL @I3@',
+        '0 @F3@ FAM', '1 HUSB @I8@', '1 WIFE @I9@', '1 CHIL @I4@', '1 CHIL @I7@',
+        '0 TRLR',
+    ].join('\n');
+}
+
+// Mock for inlaw-over-relative priority test (05.42).
+// Root has spouse (Inlaw) who is also a child of an ancestor (AncMom) via a second family.
+// Inlaw and their child (InlawChild) should appear exactly once as Root's inlaw descendants,
+// and not appear as relatives under AncMom's second family branch.
+function getInlawPriorityMock() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME Root /Person/', '1 SEX M', '1 FAMS @F0@', '1 FAMC @F1@',
+        '0 @I2@ INDI', '1 NAME Inlaw /Partner/', '1 SEX F', '1 FAMS @F0@', '1 FAMC @F5@',
+        '0 @I3@ INDI', '1 NAME InlawChild /Person/', '1 SEX M', '1 FAMC @F0@',
+        '0 @I4@ INDI', '1 NAME Father /Ancestor/', '1 SEX M', '1 FAMS @F1@', '1 FAMC @F2@',
+        '0 @I5@ INDI', '1 NAME Mother /Ancestor/', '1 SEX F', '1 FAMS @F1@',
+        '0 @I6@ INDI', '1 NAME GrandFather /Ancestor/', '1 SEX M', '1 FAMS @F2@', '1 FAMC @F3@',
+        '0 @I7@ INDI', '1 NAME GrandMother /Ancestor/', '1 SEX F', '1 FAMS @F2@',
+        '0 @I8@ INDI', '1 NAME GreatGF /Ancestor/', '1 SEX M', '1 FAMS @F3@',
+        '0 @I9@ INDI', '1 NAME AncMom /Ancestor/', '1 SEX F', '1 FAMS @F3@', '1 FAMS @F5@',
+        '0 @I10@ INDI', '1 NAME AncMomInlaw /Partner/', '1 SEX M', '1 FAMS @F5@',
+        '0 @F0@ FAM', '1 HUSB @I1@', '1 WIFE @I2@', '1 CHIL @I3@',
+        '0 @F1@ FAM', '1 HUSB @I4@', '1 WIFE @I5@', '1 CHIL @I1@',
+        '0 @F2@ FAM', '1 HUSB @I6@', '1 WIFE @I7@', '1 CHIL @I4@',
+        '0 @F3@ FAM', '1 HUSB @I8@', '1 WIFE @I9@', '1 CHIL @I6@',
+        '0 @F5@ FAM', '1 HUSB @I10@', '1 WIFE @I9@', '1 CHIL @I2@',
+        '0 TRLR',
+    ].join('\n');
+}
+
+// Mock for stackable-but-released ancestor siblings test (05.43).
+// Root (F), Gen Up=2, Gen Down=0, max_stack_size=3, hide_childless_inlaws=true.
+// PatGF's children: Father (pedigree/excluded), AncSib (1 spouse with 13 children),
+// SibA, SibB, SibC (no spouses → eligible for stacking).
+// AncSib's spouse has 13 children which group into 5 stacking columns (sizes [2,3,3,3,2]).
+// Each group contributes one child to sub-level 2 at x=160, 264, 368, 472, 576, making
+// the rightmost sub-level 2 position equal to 576. When SibA/B/C are stacked, SibC
+// (at sub=2) gets placed at 576+104=680. In the unstacked trial, AncSib stays at
+// x=368 (centered over spouse + 13 children), so SibC lands at 368+3*104=680 —
+// identical. Equal max_x means the release trial is accepted: SibA/B/C are not stacked.
+function getNoStackMock() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME Root /Person/', '1 SEX F', '1 FAMC @F0@',
+        '0 @I2@ INDI', '1 NAME Father /Ancestor/', '1 SEX M', '1 FAMS @F0@', '1 FAMC @F1@', '1 BIRT', '2 DATE 1890',
+        '0 @I3@ INDI', '1 NAME Mother /Ancestor/', '1 SEX F', '1 FAMS @F0@',
+        '0 @I4@ INDI', '1 NAME PatGF /Ancestor/', '1 SEX M', '1 FAMS @F1@',
+        '0 @I5@ INDI', '1 NAME PatGM /Ancestor/', '1 SEX F', '1 FAMS @F1@',
+        '0 @I6@ INDI', '1 NAME AncSib /Person/', '1 SEX M', '1 FAMC @F1@', '1 FAMS @F3@', '1 BIRT', '2 DATE 1850',
+        '0 @I7@ INDI', '1 NAME SibA /Person/', '1 SEX M', '1 FAMC @F1@', '1 BIRT', '2 DATE 1855',
+        '0 @I8@ INDI', '1 NAME SibB /Person/', '1 SEX F', '1 FAMC @F1@', '1 BIRT', '2 DATE 1860',
+        '0 @I9@ INDI', '1 NAME SibC /Person/', '1 SEX F', '1 FAMC @F1@', '1 BIRT', '2 DATE 1865',
+        '0 @I10@ INDI', '1 NAME SibSpouse /Partner/', '1 SEX F', '1 FAMS @F3@',
+        '0 @I11@ INDI', '1 NAME SibChild1 /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @I12@ INDI', '1 NAME SibChild2 /Person/', '1 SEX F', '1 FAMC @F3@',
+        '0 @I13@ INDI', '1 NAME SibChild3 /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @I14@ INDI', '1 NAME SibChild4 /Person/', '1 SEX F', '1 FAMC @F3@',
+        '0 @I15@ INDI', '1 NAME SibChild5 /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @I16@ INDI', '1 NAME SibChild6 /Person/', '1 SEX F', '1 FAMC @F3@',
+        '0 @I17@ INDI', '1 NAME SibChild7 /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @I18@ INDI', '1 NAME SibChild8 /Person/', '1 SEX F', '1 FAMC @F3@',
+        '0 @I19@ INDI', '1 NAME SibChild9 /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @I20@ INDI', '1 NAME SibChild10 /Person/', '1 SEX F', '1 FAMC @F3@',
+        '0 @I21@ INDI', '1 NAME SibChild11 /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @I22@ INDI', '1 NAME SibChild12 /Person/', '1 SEX F', '1 FAMC @F3@',
+        '0 @I23@ INDI', '1 NAME SibChild13 /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @F0@ FAM', '1 HUSB @I2@', '1 WIFE @I3@', '1 CHIL @I1@',
+        '0 @F1@ FAM', '1 HUSB @I4@', '1 WIFE @I5@', '1 CHIL @I2@', '1 CHIL @I6@', '1 CHIL @I7@', '1 CHIL @I8@', '1 CHIL @I9@',
+        '0 @F3@ FAM', '1 HUSB @I6@', '1 WIFE @I10@', '1 CHIL @I11@', '1 CHIL @I12@', '1 CHIL @I13@', '1 CHIL @I14@', '1 CHIL @I15@', '1 CHIL @I16@', '1 CHIL @I17@', '1 CHIL @I18@', '1 CHIL @I19@', '1 CHIL @I20@', '1 CHIL @I21@', '1 CHIL @I22@', '1 CHIL @I23@',
+        '0 TRLR',
+    ].join('\n');
+}
+
+// Mock for the in-law child centered below the in-law parent test (05.34).
+// Male ancestor (Father) has a second wife (StepMom) whose only child is ChildA.
+// In vertical_inlaws=true mode, ChildA is positioned directly below StepMom (same x).
+function getInlawChildMock() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME Root /Person/', '1 SEX M', '1 FAMC @F0@',
+        '0 @I2@ INDI', '1 NAME Father /Ancestor/', '1 SEX M', '1 FAMS @F0@', '1 FAMS @F1@',
+        '0 @I3@ INDI', '1 NAME Mother /Ancestor/', '1 SEX F', '1 FAMS @F0@',
+        '0 @I4@ INDI', '1 NAME StepMom /Partner/', '1 SEX F', '1 FAMS @F1@',
+        '0 @I5@ INDI', '1 NAME ChildA /Person/', '1 SEX M', '1 FAMC @F1@',
+        '0 @F0@ FAM', '1 HUSB @I2@', '1 WIFE @I3@', '1 CHIL @I1@',
+        '0 @F1@ FAM', '1 HUSB @I2@', '1 WIFE @I4@', '1 CHIL @I5@',
+        '0 TRLR',
+    ].join('\n');
+}
+
+// Mock for ChildB centered between ChildA and ChildC (05.35).
+// RootF (female root) and RootSpouse have three children: ChildA, ChildB, ChildC.
+// ChildA and ChildC each have a single-child family chain 3 levels deep; ChildB has no family.
+// Because each branch is a single column wide, ChildB.x + bw/2 == center(ChildA.x, ChildC.x).
+function getMiddleSibMock() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME RootF /Root/', '1 SEX F', '1 FAMS @F0@',
+        '0 @I2@ INDI', '1 NAME RootSpouse /Partner/', '1 SEX M', '1 FAMS @F0@',
+        '0 @I3@ INDI', '1 NAME ChildA /Person/', '1 SEX F', '1 FAMC @F0@', '1 FAMS @F1@',
+        '0 @I4@ INDI', '1 NAME ChildB /Person/', '1 SEX M', '1 FAMC @F0@',
+        '0 @I5@ INDI', '1 NAME ChildC /Person/', '1 SEX F', '1 FAMC @F0@', '1 FAMS @F2@',
+        '0 @I6@ INDI', '1 NAME ChildASpouse /Partner/', '1 SEX M', '1 FAMS @F1@',
+        '0 @I7@ INDI', '1 NAME ChildAChild /Person/', '1 SEX M', '1 FAMC @F1@', '1 FAMS @F3@',
+        '0 @I8@ INDI', '1 NAME ChildAChildSpouse /Partner/', '1 SEX F', '1 FAMS @F3@',
+        '0 @I9@ INDI', '1 NAME ChildAGC /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @I10@ INDI', '1 NAME ChildCSpouse /Partner/', '1 SEX M', '1 FAMS @F2@',
+        '0 @I11@ INDI', '1 NAME ChildCChild /Person/', '1 SEX F', '1 FAMC @F2@', '1 FAMS @F4@',
+        '0 @I12@ INDI', '1 NAME ChildCChildSpouse /Partner/', '1 SEX M', '1 FAMS @F4@',
+        '0 @I13@ INDI', '1 NAME ChildCGC /Person/', '1 SEX F', '1 FAMC @F4@',
+        '0 @F0@ FAM', '1 HUSB @I2@', '1 WIFE @I1@', '1 CHIL @I3@', '1 CHIL @I4@', '1 CHIL @I5@',
+        '0 @F1@ FAM', '1 HUSB @I6@', '1 WIFE @I3@', '1 CHIL @I7@',
+        '0 @F2@ FAM', '1 HUSB @I10@', '1 WIFE @I5@', '1 CHIL @I11@',
+        '0 @F3@ FAM', '1 HUSB @I7@', '1 WIFE @I8@', '1 CHIL @I9@',
+        '0 @F4@ FAM', '1 HUSB @I12@', '1 WIFE @I11@', '1 CHIL @I13@',
+        '0 TRLR',
+    ].join('\n');
+}
+
+// Mock for gen_up=2 horizontal in-law positioning tests (05.29–05.33).
+// Root (M) has parents AncDad+AncMom. AncDad's parents are PatGF+PatGM (pedigree grandparent level).
+// PatGF also has a second wife InlawWife2 whose child is MarineChild. MarineChild's wife is MarineSpouse
+// (placed to the right of MarineChild at sub-level 1 of the grandparent level).
+// PatGM also has a second family with AncInlaw (inlaw), producing InlawChild (relative).
+// AncMom's parents are MatGF+MatGM. AncMom has siblings SibA and SibB.
+// SibA married SibASpouse; their child SibAChild married SibAChildSpouse, producing GCLeft and GCRight
+// (placed at sub-level 2 of the parent level, one level below Root's generation).
+function getGenUp2Gedcom() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME Root /Person/', '1 SEX M', '1 FAMC @F0@', '1 FAMS @F10@',
+        '0 @I2@ INDI', '1 NAME RootWife /Partner/', '1 SEX F', '1 FAMS @F10@',
+        '0 @I3@ INDI', '1 NAME AncDad /Ancestor/', '1 SEX M', '1 FAMS @F0@', '1 FAMC @F1@',
+        '0 @I4@ INDI', '1 NAME AncMom /Ancestor/', '1 SEX F', '1 FAMS @F0@', '1 FAMC @F2@',
+        '0 @I5@ INDI', '1 NAME PatGF /Ancestor/', '1 SEX M', '1 FAMS @F1@', '1 FAMS @F3@',
+        '0 @I6@ INDI', '1 NAME PatGM /Ancestor/', '1 SEX F', '1 FAMS @F1@', '1 FAMS @F4@',
+        '0 @I7@ INDI', '1 NAME InlawWife2 /Partner/', '1 SEX F', '1 FAMS @F3@',
+        '0 @I8@ INDI', '1 NAME MarineChild /Person/', '1 SEX M', '1 FAMC @F3@', '1 FAMS @F7@',
+        '0 @I9@ INDI', '1 NAME MarineSpouse /Partner/', '1 SEX F', '1 FAMS @F7@',
+        '0 @I10@ INDI', '1 NAME MatGF /Ancestor/', '1 SEX M', '1 FAMS @F2@',
+        '0 @I11@ INDI', '1 NAME MatGM /Ancestor/', '1 SEX F', '1 FAMS @F2@',
+        '0 @I12@ INDI', '1 NAME SibA /Person/', '1 SEX F', '1 FAMC @F2@', '1 FAMS @F5@',
+        '0 @I13@ INDI', '1 NAME SibASpouse /Partner/', '1 SEX M', '1 FAMS @F5@',
+        '0 @I14@ INDI', '1 NAME SibAChild /Person/', '1 SEX M', '1 FAMC @F5@', '1 FAMS @F6@',
+        '0 @I15@ INDI', '1 NAME SibAChildSpouse /Partner/', '1 SEX F', '1 FAMS @F6@',
+        '0 @I16@ INDI', '1 NAME GCLeft /Person/', '1 SEX M', '1 FAMC @F6@',
+        '0 @I17@ INDI', '1 NAME GCRight /Person/', '1 SEX F', '1 FAMC @F6@',
+        '0 @I18@ INDI', '1 NAME SibB /Person/', '1 SEX M', '1 FAMC @F2@',
+        '0 @I19@ INDI', '1 NAME AncInlaw /Partner/', '1 SEX M', '1 FAMS @F4@',
+        '0 @I20@ INDI', '1 NAME InlawChild /Person/', '1 SEX F', '1 FAMC @F4@',
+        '0 @F0@ FAM', '1 HUSB @I3@', '1 WIFE @I4@', '1 CHIL @I1@',
+        '0 @F1@ FAM', '1 HUSB @I5@', '1 WIFE @I6@', '1 CHIL @I3@',
+        '0 @F2@ FAM', '1 HUSB @I10@', '1 WIFE @I11@', '1 CHIL @I4@', '1 CHIL @I12@', '1 CHIL @I18@',
+        '0 @F3@ FAM', '1 HUSB @I5@', '1 WIFE @I7@', '1 CHIL @I8@',
+        '0 @F4@ FAM', '1 HUSB @I19@', '1 WIFE @I6@', '1 CHIL @I20@',
+        '0 @F5@ FAM', '1 HUSB @I13@', '1 WIFE @I12@', '1 CHIL @I14@',
+        '0 @F6@ FAM', '1 HUSB @I14@', '1 WIFE @I15@', '1 CHIL @I16@', '1 CHIL @I17@',
+        '0 @F7@ FAM', '1 HUSB @I8@', '1 WIFE @I9@',
+        '0 @F10@ FAM', '1 HUSB @I1@', '1 WIFE @I2@',
+        '0 TRLR',
+    ].join('\n');
+}
+
+function getMaleRootCenteringGedcom() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME Root /Person/', '1 SEX M', '1 FAMC @F0@', '1 FAMS @F1@', '1 FAMS @F2@',
+        '0 @I2@ INDI', '1 NAME WifeA /Partner/', '1 SEX F', '1 FAMS @F1@',
+        '0 @I3@ INDI', '1 NAME WifeB /Partner/', '1 SEX F', '1 FAMS @F2@',
+        '0 @I4@ INDI', '1 NAME Father /Ancestor/', '1 SEX M', '1 FAMS @F0@',
+        '0 @I5@ INDI', '1 NAME Mother /Ancestor/', '1 SEX F', '1 FAMS @F0@',
+        '0 @I6@ INDI', '1 NAME SisterA /Person/', '1 SEX F', '1 FAMC @F0@', '1 FAMS @F3@',
+        '0 @I7@ INDI', '1 NAME SibHusbA /Partner/', '1 SEX M', '1 FAMS @F3@',
+        '0 @I8@ INDI', '1 NAME SibChildA /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @I9@ INDI', '1 NAME SibChildB /Person/', '1 SEX M', '1 FAMC @F3@',
+        '0 @I10@ INDI', '1 NAME SisterB /Person/', '1 SEX F', '1 FAMC @F0@', '1 FAMS @F4@',
+        '0 @I11@ INDI', '1 NAME SibHusbB /Partner/', '1 SEX M', '1 FAMS @F4@',
+        '0 @I12@ INDI', '1 NAME SibChildC /Person/', '1 SEX M', '1 FAMC @F4@',
+        '0 @I13@ INDI', '1 NAME SibChildD /Person/', '1 SEX F', '1 FAMC @F4@',
+        '0 @I14@ INDI', '1 NAME SibChildE /Person/', '1 SEX M', '1 FAMC @F4@',
+        '0 @I15@ INDI', '1 NAME BrotherSib /Person/', '1 SEX M', '1 FAMC @F0@', '1 FAMS @F5@',
+        '0 @I16@ INDI', '1 NAME SibWife /Partner/', '1 SEX F', '1 FAMS @F5@',
+        '0 @I17@ INDI', '1 NAME SibChildF /Person/', '1 SEX F', '1 FAMC @F5@',
+        '0 @F0@ FAM', '1 HUSB @I4@', '1 WIFE @I5@', '1 CHIL @I1@', '1 CHIL @I6@', '1 CHIL @I10@', '1 CHIL @I15@',
+        '0 @F1@ FAM', '1 HUSB @I1@', '1 WIFE @I2@',
+        '0 @F2@ FAM', '1 HUSB @I1@', '1 WIFE @I3@',
+        '0 @F3@ FAM', '1 HUSB @I7@', '1 WIFE @I6@', '1 CHIL @I8@', '1 CHIL @I9@',
+        '0 @F4@ FAM', '1 HUSB @I11@', '1 WIFE @I10@', '1 CHIL @I12@', '1 CHIL @I13@', '1 CHIL @I14@',
+        '0 @F5@ FAM', '1 HUSB @I15@', '1 WIFE @I16@', '1 CHIL @I17@',
+        '0 TRLR',
+    ].join('\n');
+}
+
+function buildAndPositionTree(context, rootId) {
+    const root = context.window.individuals.find(person => person.id === rootId);
+    const rootNode = context.buildTree(root);
+    const rows = context.positionTree(rootNode);
+    context.normalizeTreeX(rows);
+    context.setHeights(rows);
+    return rootNode;
+}
+
+function collectAllNodes(rootNode) {
+    const seen = new Set();
+    const nodes = [];
+    function walk(n) {
+        if (!n || seen.has(n)) return;
+        seen.add(n);
+        nodes.push(n);
+        (n.spouse_nodes || []).forEach(walk);
+        (n.children_nodes || []).forEach(walk);
+        walk(n.father_node);
+        walk(n.mother_node);
+    }
+    walk(rootNode);
+    return nodes;
+}
+
 describe('integration test cases', () => {
     it('05.01 parses GEDCOM, selects root, and creates a drawable tree', async () => {
         const dom = new JSDOM('<div id="family-tree-div"></div>');
@@ -759,5 +1088,867 @@ describe('integration test cases', () => {
 
         expect(getFatherInlawIds(false)).toEqual(['@I4@']);
         expect(getFatherInlawIds(true)).toEqual([]);
+    });
+
+    it('05.12 horizontal in-law male spouse is positioned to the left of female root', () => {
+        const parsed = createPipelineContext().parseGedcomData(getFemaleRootHorizontalInlawGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+
+        // The root is female, so the positioned copy lives in father's children_nodes.
+        // Male in-law (InlawSpouse) is accessible via that copy's spouse_nodes.
+        const rootRelativeNode = rootNode.father_node.children_nodes.find(n => n.individual.id === '@I1@');
+        expect(rootRelativeNode, 'positioned root node should exist under father').toBeDefined();
+
+        const jonNode = rootRelativeNode.spouse_nodes.find(n => n.individual.id === '@I2@');
+        expect(jonNode, 'male in-law should be in spouse_nodes').toBeDefined();
+
+        expect(jonNode.x).toBeLessThan(rootRelativeNode.x);
+    });
+
+    it('05.13 horizontal in-law female spouses are positioned to the right of male root', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootHorizontalInlawGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+
+        // The root is male; his positioned copy lives in father's children_nodes.
+        // Female in-laws (WifeA, WifeB) are in that copy's spouse_nodes.
+        const rootRelativeNode = rootNode.father_node.children_nodes.find(n => n.individual.id === '@I1@');
+        expect(rootRelativeNode, 'positioned root node should exist under father').toBeDefined();
+
+        const femaleInlaws = rootRelativeNode.spouse_nodes.filter(n => n.individual.gender === 'F');
+        expect(femaleInlaws.length).toBeGreaterThanOrEqual(2);
+
+        femaleInlaws.forEach(spouseNode => {
+            expect(spouseNode.x).toBeGreaterThan(rootRelativeNode.x);
+        });
+    });
+
+    it('05.14 horizontal in-law female spouses of male root are positioned to the left of male ancestors', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootHorizontalInlawGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+
+        const rootRelativeNode = rootNode.father_node.children_nodes.find(n => n.individual.id === '@I1@');
+        expect(rootRelativeNode, 'positioned root node should exist under father').toBeDefined();
+
+        const fatherNode = rootNode.father_node;
+        expect(fatherNode.individual.gender).toBe('M');
+
+        const femaleInlaws = rootRelativeNode.spouse_nodes.filter(n => n.individual.gender === 'F');
+        expect(femaleInlaws.length).toBeGreaterThanOrEqual(2);
+
+        femaleInlaws.forEach(spouseNode => {
+            expect(spouseNode.x).toBeLessThan(fatherNode.x);
+        });
+    });
+
+    it('05.15 horizontal in-law male spouse and female sibling are centered above their two children', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const sisterA = find('@I6@');
+        const sibHusbA = find('@I7@');
+        const sibChildA = find('@I8@');
+        const sibChildB = find('@I9@');
+
+        expect(sisterA, 'SisterA should be in tree').toBeDefined();
+        expect(sibHusbA, 'SibHusbA should be in tree').toBeDefined();
+        expect(sibChildA, 'SibChildA should be in tree').toBeDefined();
+        expect(sibChildB, 'SibChildB should be in tree').toBeDefined();
+
+        const boxWidth = context.window.box_width;
+        const coupleCenter = (Math.min(sibHusbA.x, sisterA.x) + Math.max(sibHusbA.x, sisterA.x) + boxWidth) / 2;
+        const childrenCenter = (Math.min(sibChildA.x, sibChildB.x) + Math.max(sibChildA.x, sibChildB.x) + boxWidth) / 2;
+
+        expect(coupleCenter).toBe(childrenCenter);
+    });
+
+    it('05.16 horizontal in-law male spouse and female sibling are centered above their three children', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const sisterB = find('@I10@');
+        const sibHusbB = find('@I11@');
+        const sibChildC = find('@I12@');
+        const sibChildD = find('@I13@');
+        const sibChildE = find('@I14@');
+
+        expect(sisterB, 'SisterB should be in tree').toBeDefined();
+        expect(sibHusbB, 'SibHusbB should be in tree').toBeDefined();
+        expect(sibChildC, 'SibChildC should be in tree').toBeDefined();
+        expect(sibChildD, 'SibChildD should be in tree').toBeDefined();
+        expect(sibChildE, 'SibChildE should be in tree').toBeDefined();
+
+        const boxWidth = context.window.box_width;
+        const childXs = [sibChildC.x, sibChildD.x, sibChildE.x];
+        const coupleCenter = (Math.min(sibHusbB.x, sisterB.x) + Math.max(sibHusbB.x, sisterB.x) + boxWidth) / 2;
+        const childrenCenter = (Math.min(...childXs) + Math.max(...childXs) + boxWidth) / 2;
+
+        expect(coupleCenter).toBe(childrenCenter);
+    });
+
+    it('05.17 horizontal in-law female spouse and male sibling are centered above their one child', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const brotherSib = find('@I15@');
+        const sibWife = find('@I16@');
+        const sibChildF = find('@I17@');
+
+        expect(brotherSib, 'BrotherSib should be in tree').toBeDefined();
+        expect(sibWife, 'SibWife should be in tree').toBeDefined();
+        expect(sibChildF, 'SibChildF should be in tree').toBeDefined();
+
+        const boxWidth = context.window.box_width;
+        const coupleCenter = (Math.min(brotherSib.x, sibWife.x) + Math.max(brotherSib.x, sibWife.x) + boxWidth) / 2;
+        const childCenter = sibChildF.x + boxWidth / 2;
+
+        expect(coupleCenter).toBe(childCenter);
+    });
+
+    it('05.18 ancestor couple is centered above all of their children', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const father = find('@I4@');
+        const mother = find('@I5@');
+        // The root's positioned copy lives under the father's children_nodes (type='relative')
+        const rootCopy = rootNode.father_node.children_nodes.find(n => n.individual.id === '@I1@');
+        const sisterA = find('@I6@');
+        const sisterB = find('@I10@');
+        const brotherSib2 = find('@I15@');
+
+        [father, mother, rootCopy, sisterA, sisterB, brotherSib2].forEach(n => {
+            expect(n, 'expected node should be in tree').toBeDefined();
+        });
+
+        const boxWidth = context.window.box_width;
+        const coupleCenter = (Math.min(father.x, mother.x) + Math.max(father.x, mother.x) + boxWidth) / 2;
+        const childXs = [rootCopy, sisterA, sisterB, brotherSib2].map(n => n.x);
+        const childrenCenter = (Math.min(...childXs) + Math.max(...childXs) + boxWidth) / 2;
+
+        expect(coupleCenter).toBe(childrenCenter);
+    });
+
+    it('05.20 vertical in-law root is centered above their spouses', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootCopy = rootNode.father_node.children_nodes.find(n => n.individual.id === '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const wifeA = nodes.find(n => n.individual.id === '@I2@');
+        const wifeB = nodes.find(n => n.individual.id === '@I3@');
+
+        expect(rootCopy, 'rootCopy should be in tree').toBeDefined();
+        expect(wifeA, 'WifeA should be in tree').toBeDefined();
+        expect(wifeB, 'WifeB should be in tree').toBeDefined();
+
+        const boxWidth = context.window.box_width;
+        const rootCenter = rootCopy.x + boxWidth / 2;
+        const spousesCenter = (Math.min(wifeA.x, wifeB.x) + Math.max(wifeA.x, wifeB.x) + boxWidth) / 2;
+        expect(rootCenter).toBe(spousesCenter);
+    });
+
+    it('05.21 vertical in-law siblings are each centered above their own spouse', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const sisterA = find('@I6@');
+        const sibHusbA = find('@I7@');
+        const sisterB = find('@I10@');
+        const sibHusbB = find('@I11@');
+        const brotherSib = find('@I15@');
+        const sibWife = find('@I16@');
+
+        [sisterA, sibHusbA, sisterB, sibHusbB, brotherSib, sibWife].forEach(n => {
+            expect(n, 'expected node should be in tree').toBeDefined();
+        });
+
+        const boxWidth = context.window.box_width;
+        const centerX = n => n.x + boxWidth / 2;
+        expect(centerX(sisterA)).toBe(centerX(sibHusbA));
+        expect(centerX(sisterB)).toBe(centerX(sibHusbB));
+        expect(centerX(brotherSib)).toBe(centerX(sibWife));
+    });
+
+    it('05.22 vertical in-law sibling spouses are centered above their children', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const sibHusbA = find('@I7@');
+        const sibChildA = find('@I8@');
+        const sibChildB = find('@I9@');
+        const sibHusbB = find('@I11@');
+        const sibChildC = find('@I12@');
+        const sibChildD = find('@I13@');
+        const sibChildE = find('@I14@');
+        const sibWife = find('@I16@');
+        const sibChildF = find('@I17@');
+
+        [sibHusbA, sibChildA, sibChildB, sibHusbB, sibChildC, sibChildD, sibChildE, sibWife, sibChildF].forEach(n => {
+            expect(n, 'expected node should be in tree').toBeDefined();
+        });
+
+        const boxWidth = context.window.box_width;
+        const centerX = n => n.x + boxWidth / 2;
+        const childrenCenter = (...children) => {
+            const xs = children.map(c => c.x);
+            return (Math.min(...xs) + Math.max(...xs) + boxWidth) / 2;
+        };
+
+        expect(centerX(sibHusbA)).toBe(childrenCenter(sibChildA, sibChildB));
+        expect(centerX(sibHusbB)).toBe(childrenCenter(sibChildC, sibChildD, sibChildE));
+        expect(centerX(sibWife)).toBe(centerX(sibChildF));
+    });
+
+    it('05.23 vertical in-law children of a couple are in a single stack when count is within max_stack_size', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+        context.window.max_stack_size = 2;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const sibChildA = find('@I8@');
+        const sibChildB = find('@I9@');
+
+        expect(sibChildA, 'SibChildA should be in tree').toBeDefined();
+        expect(sibChildB, 'SibChildB should be in tree').toBeDefined();
+
+        // Two children fits within max_stack_size=2: they share the same x (single stack column)
+        expect(sibChildA.x).toBe(sibChildB.x);
+    });
+
+    it('05.24 vertical in-law children exceeding max_stack_size are split into a stack of two and a stack of one', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+        context.window.max_stack_size = 2;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const sibChildC = find('@I12@');
+        const sibChildD = find('@I13@');
+        const sibChildE = find('@I14@');
+
+        expect(sibChildC, 'SibChildC should be in tree').toBeDefined();
+        expect(sibChildD, 'SibChildD should be in tree').toBeDefined();
+        expect(sibChildE, 'SibChildE should be in tree').toBeDefined();
+
+        // Three children with max_stack_size=2: two columns → exactly two distinct x values
+        const xValues = new Set([sibChildC.x, sibChildD.x, sibChildE.x]);
+        expect(xValues.size).toBe(2);
+    });
+
+    it('05.25 vertical in-law childless spouses of root are stacked into a single column', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+        context.window.max_stack_size = 2;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const wifeA = nodes.find(n => n.individual.id === '@I2@');
+        const wifeB = nodes.find(n => n.individual.id === '@I3@');
+
+        expect(wifeA, 'WifeA should be in tree').toBeDefined();
+        expect(wifeB, 'WifeB should be in tree').toBeDefined();
+
+        // Both childless spouses are stacked: they share the same x (single column)
+        expect(wifeA.x).toBe(wifeB.x);
+    });
+
+    it('05.26 hide_childless_inlaws removes all childless in-law spouses from the tree', () => {
+        const parsed = createPipelineContext().parseGedcomData(getHcilHnpfGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+        context.window.hide_childless_inlaws = true;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const ids = nodes.filter(n => n.individual).map(n => n.individual.id);
+
+        expect(ids).not.toContain('@I2@'); // Melissa
+        expect(ids).not.toContain('@I3@'); // Rebecca
+        expect(ids).not.toContain('@I7@'); // Jessica
+    });
+
+    it('05.27 hide_childless_inlaws and hide_non_pedigree_family with gen_down=0 leaves only root and direct ancestors', () => {
+        const parsed = createPipelineContext().parseGedcomData(getHcilHnpfGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 1;
+        context.window.generations_down = 0;
+        context.window.hide_childless_inlaws = true;
+        context.window.hide_non_pedigree_family = true;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const uniqueIds = new Set(nodes.filter(n => n.individual).map(n => n.individual.id));
+
+        expect(uniqueIds.size).toBe(3);
+        expect(uniqueIds.has('@I1@')).toBe(true); // Root
+        expect(uniqueIds.has('@I4@')).toBe(true); // AncDad
+        expect(uniqueIds.has('@I5@')).toBe(true); // AncMom
+    });
+
+    it('05.28 hide_non_pedigree_family with gen_down=0 excludes siblings but keeps root in-law spouses', () => {
+        const parsed = createPipelineContext().parseGedcomData(getHcilHnpfGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 1;
+        context.window.generations_down = 0;
+        context.window.hide_childless_inlaws = false;
+        context.window.hide_non_pedigree_family = true;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const uniqueIds = new Set(nodes.filter(n => n.individual).map(n => n.individual.id));
+
+        expect(uniqueIds.size).toBe(5);
+        expect(uniqueIds.has('@I1@')).toBe(true); // Root
+        expect(uniqueIds.has('@I2@')).toBe(true); // SpouseA
+        expect(uniqueIds.has('@I3@')).toBe(true); // SpouseB
+        expect(uniqueIds.has('@I4@')).toBe(true); // AncDad
+        expect(uniqueIds.has('@I5@')).toBe(true); // AncMom
+        expect(uniqueIds.has('@I6@')).toBe(false); // SibA excluded
+        expect(uniqueIds.has('@I7@')).toBe(false); // SibSpouse excluded
+    });
+
+    it('05.29 in-law subtree to the left of the ancestor connector is separated by 1.5 * h_spacing', () => {
+        // Tests the positioning constraint: the rightmost edge of an in-law subtree hanging off a male
+        // ancestor's secondary family must stay at least h_spacing to the left of the connector circle
+        // between the ancestor and his pedigree spouse. The connector is at ancestor.x + box_width + h_spacing/2.
+        // In practice the gap equals exactly 1.5 * h_spacing.
+        const parsed = createPipelineContext().parseGedcomData(getGenUp2Gedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 2;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const patGF = find('@I5@');           // PatGF: male pedigree ancestor
+        const marineSpouse = find('@I9@');    // MarineSpouse: rightmost node in the left-side inlaw subtree
+
+        expect(patGF, 'PatGF should be in tree').toBeDefined();
+        expect(marineSpouse, 'MarineSpouse should be in tree').toBeDefined();
+
+        const bw = context.window.box_width;
+        const hs = context.window.h_spacing;
+        const connectorX = patGF.x + bw + hs / 2;
+        const marineSpouseRightEdge = marineSpouse.x + bw;
+
+        expect(connectorX - marineSpouseRightEdge).toBe(1.5 * hs);
+    });
+
+    it('05.30 siblings of the female pedigree ancestor are positioned to her right', () => {
+        const parsed = createPipelineContext().parseGedcomData(getGenUp2Gedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 2;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const ancMom = find('@I4@');      // AncMom: female pedigree ancestor
+        const sibA = find('@I12@');       // SibA: AncMom's sibling
+        const sibB = find('@I18@');       // SibB: AncMom's other sibling
+
+        expect(ancMom, 'AncMom should be in tree').toBeDefined();
+        expect(sibA, 'SibA should be in tree').toBeDefined();
+        expect(sibB, 'SibB should be in tree').toBeDefined();
+
+        expect(sibA.x).toBeGreaterThan(ancMom.x);
+        expect(sibB.x).toBeGreaterThan(ancMom.x);
+    });
+
+    it('05.31 grandchildren of a sibling of the female ancestor are positioned one level_spacing + v_spacing above the root generation', () => {
+        // The bottom edge of the deepest relatives hanging off the parent level is exactly
+        // level_spacing + v_spacing above the top of the root generation row.
+        // (Note: test-examples.md lists 2 * v_spacing, but the computed gap is v_spacing.)
+        const parsed = createPipelineContext().parseGedcomData(getGenUp2Gedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 2;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const gcLeft = find('@I16@');     // GCLeft: grandchild of AncMom's sibling
+        const rootRel = rootNode.father_node.children_nodes.find(n => n.individual.id === '@I1@');
+
+        expect(gcLeft, 'GCLeft should be in tree').toBeDefined();
+        expect(rootRel, 'Root relative copy should be in tree').toBeDefined();
+
+        const bh = context.window.box_height;
+        const ls = context.window.level_spacing;
+        const vs = context.window.v_spacing;
+
+        expect(rootRel.y - (gcLeft.y + bh)).toBe(ls + vs);
+    });
+
+    it('05.32 the in-law husband of a female ancestor is h_spacing to her right', () => {
+        const parsed = createPipelineContext().parseGedcomData(getGenUp2Gedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 2;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const patGM = find('@I6@');        // PatGM: female pedigree ancestor
+        const ancInlaw = find('@I19@');     // AncInlaw: inlaw husband in PatGM's second family
+
+        expect(patGM, 'PatGM should be in tree').toBeDefined();
+        expect(ancInlaw, 'AncInlaw should be in tree').toBeDefined();
+
+        const bw = context.window.box_width;
+        const hs = context.window.h_spacing;
+        expect(ancInlaw.x - (patGM.x + bw)).toBe(hs);
+    });
+
+    it('05.33 child of a female ancestor and her in-law husband is centered below the two parents', () => {
+        const parsed = createPipelineContext().parseGedcomData(getGenUp2Gedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 2;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const patGM = find('@I6@');        // PatGM: female pedigree ancestor
+        const ancInlaw = find('@I19@');     // AncInlaw: inlaw husband
+        const inlawChild = find('@I20@');   // InlawChild: child of PatGM and AncInlaw
+
+        expect(patGM, 'PatGM should be in tree').toBeDefined();
+        expect(ancInlaw, 'AncInlaw should be in tree').toBeDefined();
+        expect(inlawChild, 'InlawChild should be in tree').toBeDefined();
+
+        const bw = context.window.box_width;
+        const parentCenter = (Math.min(patGM.x, ancInlaw.x) + Math.max(patGM.x, ancInlaw.x) + bw) / 2;
+        const childCenter = inlawChild.x + bw / 2;
+        expect(childCenter).toBe(parentCenter);
+    });
+
+    it('05.34 vertical in-law child of ancestor is centered below the in-law parent', () => {
+        const parsed = createPipelineContext().parseGedcomData(getInlawChildMock());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const stepMom = find('@I4@'); // StepMom: inlaw wife of Father
+        const childA = find('@I5@');  // ChildA: only child of Father+StepMom
+
+        expect(stepMom, 'StepMom should be in tree').toBeDefined();
+        expect(childA, 'ChildA should be in tree').toBeDefined();
+
+        // ChildA (sole child) is directly below StepMom — same center x
+        expect(childA.x).toBe(stepMom.x);
+    });
+
+    it('05.35 sibling with no family is centered between the two flanking siblings with families', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMiddleSibMock());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 0;
+        context.window.generations_down = 3;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const childA = find('@I3@'); // ChildA: left sibling with family
+        const childB = find('@I4@'); // ChildB: middle sibling with no family
+        const childC = find('@I5@'); // ChildC: right sibling with family
+
+        expect(childA, 'ChildA should be in tree').toBeDefined();
+        expect(childB, 'ChildB should be in tree').toBeDefined();
+        expect(childC, 'ChildC should be in tree').toBeDefined();
+
+        const bw = context.window.box_width;
+        const flanksCenter = (Math.min(childA.x, childC.x) + Math.max(childA.x, childC.x) + bw) / 2;
+        expect(childB.x + bw / 2).toBe(flanksCenter);
+    });
+
+    it('05.36 all nodes are separated horizontally by at least h_spacing', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+
+        const bw = context.window.box_width;
+        const bh = context.window.box_height;
+        const hs = context.window.h_spacing;
+
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                const a = nodes[i], b = nodes[j];
+                if (Math.abs(a.y - b.y) < bh) {
+                    expect(Math.abs(a.x - b.x),
+                        `nodes ${a.individual?.id} and ${b.individual?.id} share a row but are too close horizontally`
+                    ).toBeGreaterThanOrEqual(bw + hs);
+                }
+            }
+        }
+    });
+
+    it('05.37 all nodes are separated vertically by at least v_spacing', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+
+        const bw = context.window.box_width;
+        const bh = context.window.box_height;
+        const vs = context.window.v_spacing;
+
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                const a = nodes[i], b = nodes[j];
+                if (Math.abs(a.x - b.x) < bw) {
+                    expect(Math.abs(a.y - b.y),
+                        `nodes ${a.individual?.id} and ${b.individual?.id} share a column but are too close vertically`
+                    ).toBeGreaterThanOrEqual(bh + vs);
+                }
+            }
+        }
+    });
+
+    it('05.38 all nodes are separated horizontally by at least h_spacing (vertical in-laws)', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+
+        const bw = context.window.box_width;
+        const bh = context.window.box_height;
+        const hs = context.window.h_spacing;
+
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                const a = nodes[i], b = nodes[j];
+                if (Math.abs(a.y - b.y) < bh) {
+                    expect(Math.abs(a.x - b.x),
+                        `nodes ${a.individual?.id} and ${b.individual?.id} share a row but are too close horizontally`
+                    ).toBeGreaterThanOrEqual(bw + hs);
+                }
+            }
+        }
+    });
+
+    it('05.39 all nodes are separated vertically by at least v_spacing (vertical in-laws)', () => {
+        const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 1;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+
+        const bw = context.window.box_width;
+        const bh = context.window.box_height;
+        const vs = context.window.v_spacing;
+
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                const a = nodes[i], b = nodes[j];
+                if (Math.abs(a.x - b.x) < bw) {
+                    expect(Math.abs(a.y - b.y),
+                        `nodes ${a.individual?.id} and ${b.individual?.id} share a column but are too close vertically`
+                    ).toBeGreaterThanOrEqual(bh + vs);
+                }
+            }
+        }
+    });
+
+    it('05.40 shared great-grandparents of two ancestor lines appear exactly once and are linked to the first ancestor', () => {
+        const parsed = createPipelineContext().parseGedcomData(getEndogamyMock());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 3;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual && n.individual.id === id);
+
+        const patGF = find('@I4@');   // PatGF: first ancestor whose path reaches SharedGF+SharedGM
+        const sharedGF = find('@I8@'); // SharedGF: shared great-grandparent
+        const sharedGM = find('@I9@'); // SharedGM: shared great-grandparent
+
+        // SharedGF and SharedGM must each appear exactly once (not duplicated)
+        expect(nodes.filter(n => n.individual && n.individual.id === '@I8@').length).toBe(1);
+        expect(nodes.filter(n => n.individual && n.individual.id === '@I9@').length).toBe(1);
+
+        // pedigree_child_node points to PatGF (the first ancestor to reach them)
+        expect(sharedGF.individual.pedigree_child_node).toBe(patGF);
+        expect(sharedGM.individual.pedigree_child_node).toBe(patGF);
+    });
+
+    it('05.41 shared great-grandparents have a duplicate pedigree link to the second ancestor', () => {
+        const parsed = createPipelineContext().parseGedcomData(getEndogamyMock());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = false;
+        context.window.generations_up = 3;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual && n.individual.id === id);
+
+        const matGM = find('@I7@');    // MatGM: second ancestor whose path reaches SharedGF+SharedGM
+        const sharedGF = find('@I8@'); // SharedGF: shared great-grandparent
+        const sharedGM = find('@I9@'); // SharedGM: shared great-grandparent
+
+        // duplicate_pedigree_child_node points to MatGM (triggers the dashed link in draw_tree)
+        expect(sharedGF.individual.duplicate_pedigree_child_node).toBe(matGM);
+        expect(sharedGM.individual.duplicate_pedigree_child_node).toBe(matGM);
+    });
+
+    it('05.42 root inlaw spouse and their descendants are not duplicated as relatives under an ancestor', () => {
+        const parsed = createPipelineContext().parseGedcomData(getInlawPriorityMock());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 3;
+        context.window.generations_down = 1;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+
+        // Inlaw (@I2@) and InlawChild (@I3@) must each appear exactly once
+        expect(nodes.filter(n => n.individual && n.individual.id === '@I2@').length,
+            'Inlaw should appear exactly once').toBe(1);
+        expect(nodes.filter(n => n.individual && n.individual.id === '@I3@').length,
+            'InlawChild should appear exactly once').toBe(1);
+
+        // Inlaw should be type 'inlaw' (Root's spouse) not 'relative' (AncMom's descendant)
+        const inlaw = nodes.find(n => n.individual && n.individual.id === '@I2@');
+        expect(inlaw.type, 'Inlaw should be Root\'s inlaw spouse, not a relative').toBe('inlaw');
+
+        // AncMomInlaw (@I10@) should have no children in the tree (Inlaw detached from that branch)
+        const ancMomInlaw = nodes.find(n => n.individual && n.individual.id === '@I10@');
+        expect(ancMomInlaw.children_nodes.length,
+            'AncMomInlaw should have no children (Inlaw was re-homed under Root)').toBe(0);
+    });
+
+    it('05.43 ancestor stackable siblings are not stacked when they fit into existing horizontal space', () => {
+        const parsed = createPipelineContext().parseGedcomData(getNoStackMock());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.hide_childless_inlaws = true;
+        context.window.generations_up = 2;
+        context.window.generations_down = 0;
+        context.window.max_stack_size = 3;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+
+        const sibA = nodes.find(n => n.individual && n.individual.id === '@I7@');
+        const sibB = nodes.find(n => n.individual && n.individual.id === '@I8@');
+        const sibC = nodes.find(n => n.individual && n.individual.id === '@I9@');
+
+        expect(sibA, 'SibA should be in tree').toBeDefined();
+        expect(sibB, 'SibB should be in tree').toBeDefined();
+        expect(sibC, 'SibC should be in tree').toBeDefined();
+
+        // Although SibA/B/C are initially eligible for stacking (no spouses, max_stack_size=3),
+        // AncSib's inlaw subtree fills the ancestor-generation sub-levels, making the stacked
+        // column as wide as the unstacked row. The release trial is accepted and none are stacked.
+        expect(sibA.stacked, 'SibA should not be stacked').toBe(false);
+        expect(sibB.stacked, 'SibB should not be stacked').toBe(false);
+        expect(sibC.stacked, 'SibC should not be stacked').toBe(false);
     });
 });

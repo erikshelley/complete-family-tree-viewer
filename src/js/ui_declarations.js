@@ -6,6 +6,9 @@ const save_filename_input = document.getElementById('save-filename-input');
 const save_modal = document.getElementById('save-modal');
 const save_modal_ok_button = document.getElementById('save-modal-ok-button');
 const save_modal_cancel_button = document.getElementById('save-modal-cancel-button');
+const open_online_button = document.getElementById('open-online-button');
+const online_gedcom_modal = document.getElementById('online-gedcom-modal');
+const online_gedcom_cancel_button = document.getElementById('online-gedcom-cancel-button');
 
 const leftColumnWrapper = document.querySelector('.left-column-wrapper');
 const leftCol = document.querySelector('.left-column');
@@ -61,7 +64,6 @@ window.vertical_inlaws; window.default_vertical_inlaws;
 window.show_names; window.default_show_names;
 window.show_years; window.default_show_years;
 window.show_places; window.default_show_places;
-window.show_tooltips; window.default_show_tooltips;
 
 window.node_border_width; window.default_node_border_width;
 window.border_highlight_percent; window.default_border_highlight_percent;
@@ -251,8 +253,6 @@ const elements = [
     { id: 'node-rounding-range',                 type: 'range',    default: 25,    min: 0, max: 100, variable: 'node_rounding' },
     { id: 'link-rounding-number',                type: 'number',   default: 25,    min: 0, max: 100, variable: 'link_rounding' },
     { id: 'link-rounding-range',                 type: 'range',    default: 25,    min: 0, max: 100, variable: 'link_rounding' },
-
-    //{ id: 'show-tooltips-checkbox',         type: 'checkbox', default: false, variable: 'show_tooltips' },
 ];
 
 const none_links = [

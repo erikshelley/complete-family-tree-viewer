@@ -90,6 +90,38 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 05.09 | Siblings/children are positioned left-to-right in birth-year order with no-year nodes rightmost |
 |  Automated  | 05.10 | Hide Non-Pedigree Family excludes root/ancestor sibling branches from the built tree |
 |  Automated  | 05.11 | Hide Non-Pedigree Family excludes ancestor in-law spouse branches from the built tree |
+|  Automated  | 05.12 | Horizontal in-law male spouse is positioned to the left of a female root |
+|  Automated  | 05.13 | Horizontal in-law female spouses are positioned to the right of a male root |
+|  Automated  | 05.14 | Horizontal in-law female spouses of a male root are positioned to the left of male ancestors |
+|  Automated  | 05.15 | Horizontal in-law male spouse and female sibling are centered above their two children |
+|  Automated  | 05.16 | Horizontal in-law male spouse and female sibling are centered above their three children |
+|  Automated  | 05.17 | Horizontal in-law female spouse and male sibling are centered above their one child |
+|  Automated  | 05.18 | Ancestor couple is centered above all of their children |
+|  Automated  | 05.19 | drawCircles places a circle at the midpoint between a male and female ancestor |
+|  Automated  | 05.20 | Vertical in-law root is centered above their spouses |
+|  Automated  | 05.21 | Vertical in-law siblings are each centered above their own spouse |
+|  Automated  | 05.22 | Vertical in-law sibling spouses are centered above their children |
+|  Automated  | 05.23 | Vertical in-law children of a couple are in a single stack when count is within max_stack_size |
+|  Automated  | 05.24 | Vertical in-law children exceeding max_stack_size are split into a stack of two and a stack of one |
+|  Automated  | 05.25 | Vertical in-law childless spouses of root are stacked into a single column |
+|  Automated  | 05.26 | hide_childless_inlaws removes all childless in-law spouses from the tree |
+|  Automated  | 05.27 | hide_childless_inlaws and hide_non_pedigree_family with gen_down=0 leaves only root and direct ancestors |
+|  Automated  | 05.28 | hide_non_pedigree_family with gen_down=0 excludes siblings but keeps root in-law spouses |
+|  Automated  | 05.29 | In-law subtree to the left of the ancestor connector is separated by 1.5 * h_spacing |
+|  Automated  | 05.30 | Siblings of the female pedigree ancestor are positioned to her right |
+|  Automated  | 05.31 | Grandchildren of a sibling of the female ancestor are positioned level_spacing + v_spacing above the root generation |
+|  Automated  | 05.32 | The in-law husband of a female ancestor is h_spacing to her right |
+|  Automated  | 05.33 | Child of a female ancestor and her in-law husband is centered below the two parents |
+|  Automated  | 05.34 | Vertical in-law child of ancestor is centered below the in-law parent |
+|  Automated  | 05.35 | Sibling with no family is centered between the two flanking siblings with families |
+|  Automated  | 05.36 | All nodes are separated horizontally by at least h_spacing |
+|  Automated  | 05.37 | All nodes are separated vertically by at least v_spacing |
+|  Automated  | 05.38 | All nodes are separated horizontally by at least h_spacing (vertical in-laws) |
+|  Automated  | 05.39 | All nodes are separated vertically by at least v_spacing (vertical in-laws) |
+|  Automated  | 05.40 | Shared great-grandparents of two ancestor lines appear exactly once and are linked to the first ancestor |
+|  Automated  | 05.41 | Shared great-grandparents have a duplicate pedigree link to the second ancestor |
+|  Automated  | 05.42 | Root inlaw spouse and their descendants are not duplicated as relatives under an ancestor |
+|  Automated  | 05.43 | Ancestor stackable siblings are not stacked when they fit into existing horizontal space |
 
 ## 06 UI Behavior Test Cases
 |    Status   |  ID   | Test Description |
@@ -111,8 +143,21 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 06.15 | Keyboard shortcuts (Esc, +/-, arrow keys) trigger zoom reset/zoom and pan actions |
 |  Automated  | 06.16 | Window resize triggers options visibility update, body scaling, and redraw |
 |  Automated  | 06.17 | Save modal OK with empty filename shows error message and does not save |
+|  Automated  | 06.18 | selectGedcomFile renders file name as text node in status bar |
+|  Automated  | 06.19 | decodeGedcomArrayBuffer decodes ANSI-declared bytes for Norse characters |
+|  Automated  | 06.20 | decodeGedcomArrayBuffer preserves UTF-8 multibyte characters |
 |  Automated  | 06.21 | Hide Non-Pedigree Family checkbox updates state and triggers redraw |
 |  Automated  | 06.22 | All checkbox labels use the pointer cursor |
+|  Automated  | 06.22 | Open online GEDCOM button click invokes openOnlineGedcomModal |
+|  Automated  | 06.23 | Online GEDCOM cancel button hides modal |
+|  Automated  | 06.24 | Online GEDCOM modal Escape key hides modal |
+|  Automated  | 06.25 | Clicking a list item in the online GEDCOM modal calls loadGedcomFromUrl |
+|  Automated  | 06.26 | Clicking a disabled list item does not call loadGedcomFromUrl |
+|  Automated  | 06.27 | openOnlineGedcomModal shows modal and re-enables all items |
+|  Automated  | 06.28 | loadGedcomFromUrl on success parses GEDCOM and updates file-name span |
+|  Automated  | 06.29 | loadGedcomFromUrl on HTTP error shows error in status div |
+|  Automated  | 06.30 | loadGedcomFromUrl on network failure shows error in status div |
+|  Automated  | 06.31 | loadGedcomFromUrl on invalid GEDCOM shows error and re-enables items |
 
 ## 07 Export Test Cases
 |    Status   |  ID   | Test Description |
@@ -167,6 +212,31 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 11.14 | fitTextInBox wraps long unbroken names to multiple lines when vertical space allows |
 |  Automated  | 11.15 | fitTextInBox fallback returns wrapped min-size lines when height is too constrained for a full fit |
 |  Automated  | 11.16 | drawText wraps a long multi-part name before years when places are hidden |
+|  Automated  | 11.17 | drawText uses a shared SVG filter for text shadows |
+
+## 12 Content Display (draw_tree)
+|    Status   |  ID   | Test Description |
+| ----------- | ----- | ---------------- |
+|  Automated  | 12.01 | drawText shows name only when show_years and show_places are both false |
+|  Automated  | 12.02 | drawText shows name and dates but no places when show_places is false |
+|  Automated  | 12.03 | drawText shows name and places but no standalone date line when show_years is false |
+|  Automated  | 12.04 | drawText shows name, dates embedded in places when both show_years and show_places are true |
+|  Automated  | 12.05 | drawText shows name and dates but no places when show_places is false (variant) |
+
+## 13 Node Styling (draw_tree)
+|    Status   |  ID   | Test Description |
+| ----------- | ----- | ---------------- |
+|  Automated  | 13.01 | Nodes at the root-sibling generation have hue equal to root_hue |
+|  Automated  | 13.02 | Non-in-law nodes have chroma equal to node_saturation |
+|  Automated  | 13.03 | In-law nodes have chroma 0 regardless of node_saturation |
+|  Automated  | 13.04 | Links drawn to in-law spouses have no saturation (chroma 0) |
+|  Automated  | 13.05 | Links drawn from an ancestor to non-in-law children have saturation equal to node_saturation |
+|  Automated  | 13.06 | Nieces and nephews have a hue 60 less than the root-sibling generation hue |
+|  Automated  | 13.07 | Step-siblings have the same hue as the root-sibling generation |
+|  Automated  | 13.08 | Parents have a hue 60 more than the root-sibling generation hue |
+|  Automated  | 13.09 | Links drawn to in-law spouses have stroke-dasharray equal to link_width,link_width |
+|  Automated  | 13.10 | Nieces and nephews hue wraps to 300 when root_hue is 0 (no negative hues) |
+|  Automated  | 13.11 | Parents hue wraps to 0 when root_hue is 300 (no hues >= 360) |
 
 ## Coverage Tracking
 Mark each case as one of:

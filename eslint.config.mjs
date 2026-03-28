@@ -41,7 +41,7 @@ export default [
         rules: {
             "no-unused-vars": ["warn", {
                 "args": "none",
-                "varsIgnorePattern": "^(validateGedcom|parseGedcomData|createFamilyTree|calculateMaxGenUp|calculateMaxGenDown|positionTree|setHeights|getMaximumDimensions|drawTree|expandAllStylingSections|collapseAllStylingSections|toggleOptions|updateOptionsVisibility|zoomToFit|zoomToFitHorizontal|zoomToFitVertical|scaleBodyForSmallScreens|updateMaxLinksState|selectGedcomFile|filterIndividuals|usePresetStyle|openSaveModal|saveSVG|savePNG|updateRangeThumbs|requestFamilyTreeUpdate|populateIndividualSelect)$"
+                "varsIgnorePattern": "^(validateGedcom|parseGedcomData|createFamilyTree|calculateMaxGenUp|calculateMaxGenDown|positionTree|setHeights|getMaximumDimensions|drawTree|expandAllStylingSections|collapseAllStylingSections|toggleOptions|updateOptionsVisibility|zoomToFit|zoomToFitHorizontal|zoomToFitVertical|scaleBodyForSmallScreens|updateMaxLinksState|selectGedcomFile|filterIndividuals|usePresetStyle|openSaveModal|saveSVG|savePNG|updateRangeThumbs|requestFamilyTreeUpdate|populateIndividualSelect|openOnlineGedcomModal|loadGedcomFromUrl)$"
             }],
             "no-undef": "warn",
             "no-redeclare": ["warn", { "builtinGlobals": false }],

@@ -181,6 +181,7 @@ The icons are from icons8 > [liquid glass](https://icons8.com/icons/all--style-l
 - ![](src/png/icons8-menu-48.png) <a target="_blank" href="https://icons8.com/icon/0mAtpPoNoAEd/menu">Menu</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
 - ![](readme/icons8-help-48.png) <a target="_blank" href="https://icons8.com/icon/osnYseY0Xola/help">Help</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
 - ![](readme/icons8-browse-folder-48.png) <a target="_blank" href="https://icons8.com/icon/lSqvuA59KBiX/browse-folder">Browse Folder</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+- ![](readme/icons8-cloud-folder-48.png) <a target="_blank" href="https://icons8.com/icon/kd6S8UCs78vy/cloud-folder">Cloud Folder</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
 - ![](readme/icons8-top-48.png) <a target="_blank" href="https://icons8.com/icon/Kxg3ddPq2XL6/upward-arrow">Top</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
 - ![](src/png/icons8-expand-48.png) <a target="_blank" href="https://icons8.com/icon/1jinb9WZokXK/expand">Expand</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
 - ![](src/png/icons8-collapse-48.png) <a target="_blank" href="https://icons8.com/icon/oXQVibFkysZg/collapse">Collapse</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>

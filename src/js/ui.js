@@ -253,6 +253,66 @@ function selectGedcomFile(file) {
 }
 
 
+function openOnlineGedcomModal() {
+    const modal = document.getElementById('online-gedcom-modal');
+    if (!modal) return;
+    const status = document.getElementById('online-gedcom-status');
+    if (status) { status.textContent = ''; status.style.display = 'none'; }
+    const items = modal.querySelectorAll('.online-gedcom-item');
+    items.forEach(btn => { btn.disabled = false; });
+    modal.style.display = 'flex';
+}
+
+
+function loadGedcomFromUrl(url, display_name) {
+    const modal = document.getElementById('online-gedcom-modal');
+    const status = document.getElementById('online-gedcom-status');
+    const items = modal ? modal.querySelectorAll('.online-gedcom-item') : [];
+
+    if (status) { status.textContent = 'Loading\u2026'; status.style.display = 'block'; status.style.color = '#aaa'; }
+    items.forEach(btn => { btn.disabled = true; });
+
+    const file_name = display_name.replace(/\+/g, ' ');
+
+    return fetch(url)
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.arrayBuffer();
+        })
+        .then(function(buffer) {
+            const decoded = decodeGedcomArrayBuffer(buffer);
+            window.gedcom_content = decoded.content;
+            const is_valid_gedcom = validateGedcom(window.gedcom_content);
+
+            if (is_valid_gedcom) {
+                if (modal) modal.style.display = 'none';
+                file_name_span.textContent = file_name;
+
+                const parsed_data = parseGedcomData(window.gedcom_content);
+                window.individuals = parsed_data.individuals;
+                window.families = parsed_data.families;
+
+                individual_filter.value = '';
+                window.individual_filter_value = '';
+
+                populateIndividualSelect(window.individuals);
+                renderLoadedGedcomStatus(file_name, window.individuals.length, window.families.length);
+
+                family_tree_div.innerHTML = '<p style="color: hsl(120, 25%, 50%);">Valid GEDCOM file loaded!</p><p>Select a root person to view their tree.</p>';
+            } else {
+                if (status) { status.textContent = 'The file does not appear to be a valid GEDCOM file.'; status.style.display = 'block'; status.style.color = '#f88'; }
+                items.forEach(btn => { btn.disabled = false; });
+            }
+        })
+        .catch(function(err) {
+            if (status) { status.textContent = `Failed to load file: ${err.message}`; status.style.display = 'block'; status.style.color = '#f88'; }
+            items.forEach(btn => { btn.disabled = false; });
+        });
+}
+
+
 function filterIndividuals(filter) {
     window.individual_filter_value = filter.toLowerCase();
     if (filter_timeout) clearTimeout(filter_timeout);

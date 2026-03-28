@@ -3,13 +3,15 @@
     individual_filter, color_picker, optionsMenu, file_input, individual_select,
     preset_select, save_tree_button, save_modal_cancel_button, save_modal,
     resize_tree_button, resize_tree_horizontal_button, resize_tree_vertical_button,
-    expand_styling_button, collapse_styling_button */
+    expand_styling_button, collapse_styling_button,
+    open_online_button, online_gedcom_modal, online_gedcom_cancel_button */
 /* global requestFamilyTreeUpdate, updateRangeThumbs, populateIndividualSelect,
     savePNG, saveSVG, expandAllStylingSections, collapseAllStylingSections,
     toggleOptions, selectGedcomFile, filterIndividuals, usePresetStyle,
     openSaveModal, zoomToFit, zoomToFitHorizontal, zoomToFitVertical,
     scaleBodyForSmallScreens, updateOptionsVisibility, updateMaxLinksState,
-    calculateMaxGenUp, calculateMaxGenDown */
+    calculateMaxGenUp, calculateMaxGenDown,
+    openOnlineGedcomModal, loadGedcomFromUrl */
 
 function getNumberInputLabel(input) {
     if (!input || !input.id) return 'value';
@@ -204,6 +206,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     optionsMenu.addEventListener('click', function() { toggleOptions(); });
     file_input.addEventListener('change', function(event) { selectGedcomFile(event.target.files[0]); });
+    open_online_button.addEventListener('click', function() { openOnlineGedcomModal(); });
+    online_gedcom_cancel_button.addEventListener('click', function() { online_gedcom_modal.style.display = 'none'; });
+    online_gedcom_modal.addEventListener('click', function(event) {
+        const btn = event.target.closest('.online-gedcom-item');
+        if (btn && !btn.disabled) {
+            loadGedcomFromUrl(btn.dataset.url, btn.dataset.name);
+        }
+    });
+    online_gedcom_modal.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            online_gedcom_modal.style.display = 'none';
+        }
+    });
     individual_filter.addEventListener('input', function(event) { filterIndividuals(event.target.value); });
     individual_select.addEventListener('change', function(event) { requestFamilyTreeUpdate(); });
     preset_select.addEventListener('change', function(event) { usePresetStyle(event.target.value); });

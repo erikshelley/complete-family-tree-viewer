@@ -7,16 +7,10 @@
 |    🟠    |   Bug   | TBD      | Issues when root has no gender? no spouse? Issue for non-root individuals? |
 |    🟡    |   Bug   | UI       | Narrow windows push Tree Viewer header below buttons |
 |    🟢    |   Bug   | Draw     | Slower rendering for very large trees seems to be due to the text - without text it is quick |
-|    🟠    | Feature | UI + Build | ✅ Option to hide siblings (and ancestor inlaws) - pedigree only tree |
 |    🟠    | Feature | Gedcom + UI | Open Gedcom from URL |
-|    🟡    | Feature | Draw | Click on node to make them the new root person - is this possible? |
+|    🟡    | Feature | Draw | Click on node to make them the new root person - is this possible |
 |    🟡    | Feature | UI + Build + Draw | After selecting root, create 2nd list of people to select from (or click on another person), highlight the path between them |
-|    🟡    | Feature | UI + Draw | Tooltips |
-|    🟢    | Feature | Build + Position | Option to not add Unknown Spouse nodes |
-|    🟢    | Feature | UI + Draw | Auto text size |
 |    🟢    | Feature | UI | Save and load settings |
-|    🟢    | Feature | UI + Build + Position | Allow end siblings/children to be moved into gaps to compress the tree - violate age order |
-|    🟢    | Feature | README | Explain hcl vs hsl - colors seem to shift depending on brightness (hue 0 doesn't look red at high brightness) |
 |    🟢    | Feature | Draw | Is there a way to make the root person easier to find |
 |    🟢    | Feature | Parse | Is it possible to show profile images from sites like Ancestry.com from what's in the Gedcom? |
 
@@ -26,6 +20,9 @@ FYI - text shadow effects the size of the text bounding box
 - Raise horizontal lines to some ancestors so horizontal line from other ancestor siblings can slide underneath (raise duplicates twice as much)
 - Demo branch that can load example Gedcoms available
 - Zoom icons - Zoom in - Zoom out
+- Tool tips
+- Option to not add Unknown Spouses
+- Auto text sizing
 - Hue direction
 - Distance between hues
 - Sort drop down
@@ -33,6 +30,7 @@ FYI - text shadow effects the size of the text bounding box
 - Are there any Gedcom fields I could use to indicate which people are my DNA matches? Highlight them and the paths to them from me.
 - Highlight immigrants
 - Highlight people with military service
+- Explain hcl vs hsl - colors seem to shift depending on brightness (hue 0 doesn't look red at high brightness) |
 
 ### Extra Thoughts
 - Sometimes siblings and spouses are spaced unevenly when some have children and some do not

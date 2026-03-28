@@ -13,6 +13,25 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-size@2"></script>
 </head>
 <body>
+    <div id="online-gedcom-modal" class="modal-bg" style="display:none;">
+        <div class="modal-content online-gedcom-modal-content">
+            <h3 class="modal-label">Open Online GEDCOM File</h3>
+            <ul id="online-gedcom-list">
+                <li><button class="online-gedcom-item" data-url="https://raw.githubusercontent.com/D-Jeffrey/gedcom-samples/main/famous%20family%20trees/politicians%2C%20writers%2C%20scientists%2C%20etc/Bach%2BFamily.ged" data-name="Bach+Family.ged">Bach Family</button></li>
+                <li><button class="online-gedcom-item" data-url="https://raw.githubusercontent.com/D-Jeffrey/gedcom-samples/main/famous%20family%20trees/fictional%20characters/Harry%2BPotter%2BFamily%2BTree.ged" data-name="Harry+Potter+Family+Tree.ged">Harry Potter Family Tree</button></li>
+                <li><button class="online-gedcom-item" data-url="https://raw.githubusercontent.com/D-Jeffrey/gedcom-samples/main/sample-kennedy/kennedy.ged" data-name="kennedy.ged">Kennedy Family</button></li>
+                <li><button class="online-gedcom-item" data-url="https://raw.githubusercontent.com/D-Jeffrey/gedcom-samples/main/famous%20family%20trees/fictional%20characters/Lord%2Bof%2Bthe%2BRings%2BFamily%2BTree.ged" data-name="Lord+of+the+Rings+Family+Tree.ged">Lord of the Rings Family Tree</button></li>
+                <li><button class="online-gedcom-item" data-url="https://raw.githubusercontent.com/D-Jeffrey/gedcom-samples/main/famous%20family%20trees/fictional%20characters/Simpsons%2BCartoon%2BFamily%2BTree.ged" data-name="Simpsons+Cartoon+Family+Tree.ged">Simpsons Cartoon Family Tree</button></li>
+                <li><button class="online-gedcom-item" data-url="https://github.com/D-Jeffrey/gedcom-samples/blob/main/pres/pres2020.ged" data-name="pres2020.ged">US Presidents</button></li>
+                <li><button class="online-gedcom-item" data-url="https://raw.githubusercontent.com/D-Jeffrey/gedcom-samples/main/washington/washington.ged" data-name="washington.ged">Washington Family</button></li>
+            </ul>
+            <div id="online-gedcom-status" style="display:none;"></div>
+            <div class="modal-buttons">
+                <button id="online-gedcom-cancel-button" class="modal-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <div id="save-modal" class="modal-bg" style="display:none;">
         <div class="modal-content">
             <label for="save-filename-input" class="modal-label">File name:</label>
@@ -50,9 +69,12 @@
             <div class="input-section">
                 <div class="file-input">
                     <label for="file-input-button">
-                        <img class="icon-button-left" src="src/png/icons8-browse-folder-48-gold.png" alt="Open GEDCOM File" title="Open GEDCOM File">
-                        <span id="file-name">Select GEDCOM file...</span>
+                        <img class="icon-button-left" src="src/png/icons8-browse-folder-48-gold.png" alt="Open Local GEDCOM File" title="Open Local GEDCOM File">
                     </label>
+                    <button id="open-online-button" class="icon-button-bare" type="button" aria-label="Open Online GEDCOM File" title="Open Online GEDCOM File">
+                        <img class="icon-button-left" src="src/png/icons8-cloud-folder-48-gold.png" alt="Open Online GEDCOM File">
+                    </button>
+                    <span id="file-name">Select GEDCOM file...</span>
                     <input type="file" id="file-input-button" accept=".ged,.gedcom">
                 </div>
                 <div class="filter-container">
@@ -99,14 +121,9 @@
                     <input type="checkbox" id="show-places-checkbox">
                     <label for="show-places-checkbox">Show Places of Birth / Death</label>
                 </p>
-                <!--<p>
-                    <input type="checkbox" id="pedigree-only">
-                    <label for="pedigree-only">Show Pedigree Only</label>
-                </p>-->
             </div>
 
             <div class="section-header">
-                <!--<button id="reset-styling-button" type="button">Reset</button>-->
                 <a href="#"><img id="expand-styling-button" class="icon-button" src="src/png/icons8-expand-48.png" alt="Expand All Sections" title="Expand All Sections"></a>
                 <a href="#"><img id="collapse-styling-button" class="icon-button" src="src/png/icons8-collapse-48.png" alt="Collapse All Sections" title="Collapse All Sections" style="display:none;"></a>
                 <h2>Tree Styling</h2>
@@ -188,11 +205,6 @@
                         <label for="text-align-select">Vertical Text Alignment</label>
                     </p>
                 </details>
-
-                <!--<p>
-                    <input type="checkbox" id="show-tooltips-checkbox">
-                    <label for="show-tooltips-checkbox">Show Tool Tips</label>
-                </p>-->
 
                 <details closed><summary>Color</summary>
                     <p>

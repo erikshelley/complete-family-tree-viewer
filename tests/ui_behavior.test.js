@@ -67,6 +67,9 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
         color_picker: dom.window.document.getElementById('color-picker') || { value: '#000000', addEventListener: () => {} },
         optionsMenu: dom.window.document.getElementById('options-menu-button') || { addEventListener: () => {}, style: {} },
         file_input: dom.window.document.getElementById('file-input-button') || { addEventListener: () => {} },
+        open_online_button: dom.window.document.getElementById('open-online-button') || { addEventListener: () => {} },
+        online_gedcom_modal: dom.window.document.getElementById('online-gedcom-modal') || { addEventListener: () => {}, style: {} },
+        online_gedcom_cancel_button: dom.window.document.getElementById('online-gedcom-cancel-button') || { addEventListener: () => {} },
         individual_select: dom.window.document.getElementById('individual-select') || { addEventListener: () => {}, innerHTML: '' },
         preset_select: dom.window.document.getElementById('preset-select') || { addEventListener: () => {}, value: '' },
         save_tree_button: dom.window.document.getElementById('save-tree-button') || { addEventListener: () => {} },
@@ -111,6 +114,8 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
             filterIndividuals: () => {},
             usePresetStyle: () => {},
             openSaveModal: () => {},
+            openOnlineGedcomModal: () => {},
+            loadGedcomFromUrl: () => {},
             zoomToFit: () => {},
             zoomToFitHorizontal: () => {},
             zoomToFitVertical: () => {},
@@ -585,5 +590,191 @@ describe('ui behavior cases', () => {
 
         expect(context.window.hide_non_pedigree_family).toBe(true);
         expect(redraws).toBe(1);
+    });
+
+    it('06.22 open-online-button click invokes openOnlineGedcomModal', () => {
+        let calls = 0;
+        const { dom } = loadUiEventsContextWithDom(`
+            <button id="open-online-button"></button>
+            <div id="online-gedcom-modal" style="display:none;"></div>
+            <button id="online-gedcom-cancel-button"></button>
+        `, {
+            globalOverrides: {
+                openOnlineGedcomModal: () => { calls += 1; },
+            },
+        });
+
+        dom.window.document.getElementById('open-online-button').click();
+
+        expect(calls).toBe(1);
+    });
+
+    it('06.23 online gedcom cancel button hides modal', () => {
+        const { dom } = loadUiEventsContextWithDom(`
+            <button id="open-online-button"></button>
+            <div id="online-gedcom-modal" style="display:flex;"></div>
+            <button id="online-gedcom-cancel-button"></button>
+        `);
+
+        const modal = dom.window.document.getElementById('online-gedcom-modal');
+        dom.window.document.getElementById('online-gedcom-cancel-button').click();
+
+        expect(modal.style.display).toBe('none');
+    });
+
+    it('06.24 online gedcom modal Escape key hides modal', () => {
+        const { dom } = loadUiEventsContextWithDom(`
+            <button id="open-online-button"></button>
+            <div id="online-gedcom-modal" style="display:flex;"></div>
+            <button id="online-gedcom-cancel-button"></button>
+        `);
+
+        const modal = dom.window.document.getElementById('online-gedcom-modal');
+        modal.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+        expect(modal.style.display).toBe('none');
+    });
+
+    it('06.25 clicking a list item in the modal calls loadGedcomFromUrl with url and name', () => {
+        const calls = [];
+        const { dom } = loadUiEventsContextWithDom(`
+            <button id="open-online-button"></button>
+            <div id="online-gedcom-modal" style="display:flex;">
+                <button class="online-gedcom-item" data-url="https://example.com/test.ged" data-name="Test+Family.ged">Test Family</button>
+            </div>
+            <button id="online-gedcom-cancel-button"></button>
+        `, {
+            globalOverrides: {
+                loadGedcomFromUrl: (url, name) => { calls.push({ url, name }); },
+            },
+        });
+
+        dom.window.document.querySelector('.online-gedcom-item').click();
+
+        expect(calls).toEqual([{ url: 'https://example.com/test.ged', name: 'Test+Family.ged' }]);
+    });
+
+    it('06.26 clicking a disabled list item does not call loadGedcomFromUrl', () => {
+        const calls = [];
+        const { dom } = loadUiEventsContextWithDom(`
+            <button id="open-online-button"></button>
+            <div id="online-gedcom-modal" style="display:flex;">
+                <button class="online-gedcom-item" data-url="https://example.com/test.ged" data-name="Test+Family.ged" disabled>Test Family</button>
+            </div>
+            <button id="online-gedcom-cancel-button"></button>
+        `, {
+            globalOverrides: {
+                loadGedcomFromUrl: (url, name) => { calls.push({ url, name }); },
+            },
+        });
+
+        dom.window.document.querySelector('.online-gedcom-item').click();
+
+        expect(calls).toHaveLength(0);
+    });
+
+    it('06.27 openOnlineGedcomModal shows modal and re-enables all items', () => {
+        const { context, dom } = loadUiContextWithDom(`
+            <div id="online-gedcom-modal" style="display:none;">
+                <button class="online-gedcom-item" disabled></button>
+                <button class="online-gedcom-item" disabled></button>
+            </div>
+            <div id="online-gedcom-status" style="display:block;">Previous error</div>
+        `);
+
+        context.openOnlineGedcomModal();
+
+        const modal = dom.window.document.getElementById('online-gedcom-modal');
+        expect(modal.style.display).toBe('flex');
+        const status = dom.window.document.getElementById('online-gedcom-status');
+        expect(status.style.display).toBe('none');
+        const items = dom.window.document.querySelectorAll('.online-gedcom-item');
+        items.forEach(btn => expect(btn.disabled).toBe(false));
+    });
+
+    it('06.28 loadGedcomFromUrl on success parses GEDCOM and updates file-name span', async () => {
+        const { context, dom } = loadUiContextWithDom(`
+            <div id="family-tree-div"></div>
+            <input id="individual-filter-text" />
+            <select id="individual-select"></select>
+            <div id="status-bar-div"></div>
+            <div id="online-gedcom-modal" style="display:flex;">
+                <div id="online-gedcom-status"></div>
+                <button class="online-gedcom-item"></button>
+            </div>
+        `);
+
+        const gedcomText = '0 HEAD\n1 CHAR UTF-8\n0 @I1@ INDI\n1 NAME John /Doe/\n0 TRLR\n';
+        const buffer = new TextEncoder().encode(gedcomText).buffer;
+        context.fetch = () => Promise.resolve({ ok: true, arrayBuffer: () => Promise.resolve(buffer) });
+        context.validateGedcom = () => true;
+        context.parseGedcomData = () => ({ individuals: [{ id: '@I1@' }], families: [] });
+        context.populateIndividualSelect = () => {};
+        context.file_name_span = { textContent: '' };
+        context.individual_filter = dom.window.document.getElementById('individual-filter-text');
+        context.family_tree_div = dom.window.document.getElementById('family-tree-div');
+
+        await context.loadGedcomFromUrl('https://example.com/Lincoln+Family.ged', 'Lincoln+Family.ged');
+
+        expect(context.file_name_span.textContent).toBe('Lincoln Family.ged');
+        const modal = dom.window.document.getElementById('online-gedcom-modal');
+        expect(modal.style.display).toBe('none');
+    });
+
+    it('06.29 loadGedcomFromUrl on HTTP error shows error in status div', async () => {
+        const { context, dom } = loadUiContextWithDom(`
+            <div id="online-gedcom-modal" style="display:flex;">
+                <div id="online-gedcom-status"></div>
+                <button class="online-gedcom-item"></button>
+            </div>
+        `);
+
+        context.fetch = () => Promise.resolve({ ok: false, status: 404 });
+
+        await context.loadGedcomFromUrl('https://example.com/notfound.ged', 'notfound.ged');
+
+        const status = dom.window.document.getElementById('online-gedcom-status');
+        expect(status.style.display).toBe('block');
+        expect(status.textContent).toMatch(/HTTP 404/);
+    });
+
+    it('06.30 loadGedcomFromUrl on network failure shows error in status div', async () => {
+        const { context, dom } = loadUiContextWithDom(`
+            <div id="online-gedcom-modal" style="display:flex;">
+                <div id="online-gedcom-status"></div>
+                <button class="online-gedcom-item"></button>
+            </div>
+        `);
+
+        context.fetch = () => Promise.reject(new Error('Network error'));
+
+        await context.loadGedcomFromUrl('https://example.com/broken.ged', 'broken.ged');
+
+        const status = dom.window.document.getElementById('online-gedcom-status');
+        expect(status.style.display).toBe('block');
+        expect(status.textContent).toMatch(/Network error/);
+    });
+
+    it('06.31 loadGedcomFromUrl on invalid GEDCOM shows error and re-enables items', async () => {
+        const { context, dom } = loadUiContextWithDom(`
+            <div id="online-gedcom-modal" style="display:flex;">
+                <div id="online-gedcom-status"></div>
+                <button class="online-gedcom-item"></button>
+            </div>
+        `);
+
+        const buffer = new TextEncoder().encode('NOT A GEDCOM FILE').buffer;
+        context.fetch = () => Promise.resolve({ ok: true, arrayBuffer: () => Promise.resolve(buffer) });
+        context.validateGedcom = () => false;
+
+        await context.loadGedcomFromUrl('https://example.com/bad.ged', 'bad.ged');
+
+        const status = dom.window.document.getElementById('online-gedcom-status');
+        expect(status.style.display).toBe('block');
+        expect(status.textContent).toMatch(/valid GEDCOM/);
+        const modal = dom.window.document.getElementById('online-gedcom-modal');
+        expect(modal.style.display).toBe('flex');
+        const item = dom.window.document.querySelector('.online-gedcom-item');
+        expect(item.disabled).toBe(false);
     });
 });

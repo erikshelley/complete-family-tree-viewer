@@ -605,4 +605,522 @@ describe('draw tree styling outcomes', () => {
         expect(dropShadow.getAttribute('dy')).toBe('1');
         expect(dropShadow.getAttribute('stdDeviation')).toBe('1');
     });
+
+    it('05.19 drawCircles places a circle at the midpoint between a male and female ancestor', () => {
+        const circlesCaptured = [];
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                box_width: 80,
+                box_height: 40,
+                h_spacing: 24,
+                vertical_inlaws: false,
+                link_width: 2,
+                node_saturation: 20,
+                node_brightness: 30,
+                root_hue: 180,
+                link_highlight_percent: 100,
+                pedigree_highlight_percent: 100,
+            },
+        });
+
+        context.drawCircle = (_svg, _color, center, _radius) => {
+            circlesCaptured.push({ x: center.x, y: center.y });
+        };
+
+        // root_node is referenced by getNodeHCL when pedigree_child_node is null
+        context.window.root_node = { generation: 1, type: 'relative', individual: { is_root: true, is_descendant: false } };
+
+        const child = {
+            type: 'relative',
+            generation: 1,
+            x: 240, y: 120,
+            stacked: false, stack_top: false,
+            spouse_nodes: [], children_nodes: [],
+            individual: { name: 'Child', gender: 'M', is_root: true, is_descendant: false },
+        };
+
+        const father = {
+            type: 'ancestor',
+            generation: 2,
+            x: 160, y: 0,
+            stacked: false, stack_top: false,
+            children_nodes: [child],
+            spouse_nodes: [],
+            individual: { name: 'Father', gender: 'M', is_root: false, is_descendant: false, pedigree_child_node: null },
+        };
+
+        const mother = {
+            type: 'ancestor',
+            generation: 2,
+            x: 264, y: 0,
+            stacked: false, stack_top: false,
+            children_nodes: [],
+            spouse_nodes: [father],
+            individual: { name: 'Mother', gender: 'F', is_root: false, is_descendant: false },
+        };
+
+        father.spouse_nodes = [mother];
+
+        const rows = [[[ father, mother, child ]]];
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+        context.drawCircles(new SvgSelection(svg), rows);
+
+        // Circle should be at x = father.x + box_width + h_spacing/2
+        const expectedX = father.x + context.window.box_width + context.window.h_spacing / 2;
+        const expectedY = father.y + context.window.box_height / 2;
+        const ancestorCircle = circlesCaptured.find(c => c.x === expectedX && c.y === expectedY);
+        expect(ancestorCircle, 'circle should exist between ancestor pair').toBeDefined();
+    });
+
+    it('12.01 drawText renders the name but no dates or places when show_years and show_places are both false', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                show_names: true,
+                show_years: false,
+                show_places: false,
+                text_shadow: false,
+            },
+        });
+
+        dom.window.SVGElement.prototype.getBBox = function () {
+            return { width: 60, height: 20 };
+        };
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        context.drawText(new SvgSelection(svg).append('g'), {
+            type: 'relative', generation: 0,
+            individual: {
+                name: 'Root Person', birth: '1980', death: '2024',
+                birth_place: 'Oslo', death_place: 'Bergen',
+                is_root: false, is_descendant: false,
+            },
+        });
+
+        const allText = Array.from(svg.querySelectorAll('tspan')).map(t => t.textContent).join(' ');
+        expect(allText).toMatch(/Root|Person/);
+        expect(allText).not.toContain('1980');
+        expect(allText).not.toContain('2024');
+        expect(allText).not.toContain('Oslo');
+        expect(allText).not.toContain('Bergen');
+    });
+
+    it('12.02 drawText renders the name and dates but no places when show_places is false', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                show_names: true,
+                show_years: true,
+                show_places: false,
+                text_shadow: false,
+            },
+        });
+
+        dom.window.SVGElement.prototype.getBBox = function () {
+            return { width: 60, height: 30 };
+        };
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        context.drawText(new SvgSelection(svg).append('g'), {
+            type: 'relative', generation: 0,
+            individual: {
+                name: 'Root Person', birth: '1980', death: '2024',
+                birth_place: 'Oslo', death_place: 'Bergen',
+                is_root: false, is_descendant: false,
+            },
+        });
+
+        const tspanTexts = Array.from(svg.querySelectorAll('tspan')).map(t => t.textContent);
+        const allText = tspanTexts.join(' ');
+        expect(allText).toMatch(/Root|Person/);
+        expect(tspanTexts.some(t => t.includes('1980') && t.includes('2024'))).toBe(true);
+        expect(allText).not.toContain('Oslo');
+        expect(allText).not.toContain('Bergen');
+        expect(allText).not.toContain('B:');
+        expect(allText).not.toContain('D:');
+    });
+
+    it('12.03 drawText renders the name and places but no year-only line when show_years is false', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                show_names: true,
+                show_years: false,
+                show_places: true,
+                text_shadow: false,
+            },
+        });
+
+        dom.window.SVGElement.prototype.getBBox = function () {
+            return { width: 70, height: 40 };
+        };
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        context.drawText(new SvgSelection(svg).append('g'), {
+            type: 'relative', generation: 0,
+            individual: {
+                name: 'Root Person', birth: '1980', death: '2024',
+                birth_place: 'Oslo', death_place: 'Bergen',
+                is_root: false, is_descendant: false,
+            },
+        });
+
+        const tspanTexts = Array.from(svg.querySelectorAll('tspan')).map(t => t.textContent);
+        const allText = tspanTexts.join(' ');
+        expect(allText).toMatch(/Root|Person/);
+        expect(tspanTexts.some(t => t.includes('Oslo'))).toBe(true);
+        expect(tspanTexts.some(t => t.includes('Bergen'))).toBe(true);
+        // No standalone year line (no "1980-2024"), years only appear embedded in place lines when show_years=false
+        expect(tspanTexts.some(t => t === '1980-2024')).toBe(false);
+    });
+
+    it('12.04 drawText renders the name and dates and places when all show flags are true', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                show_names: true,
+                show_years: true,
+                show_places: true,
+                text_shadow: false,
+            },
+        });
+
+        dom.window.SVGElement.prototype.getBBox = function () {
+            return { width: 70, height: 50 };
+        };
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        context.drawText(new SvgSelection(svg).append('g'), {
+            type: 'relative', generation: 0,
+            individual: {
+                name: 'Root Person', birth: '1980', death: '2024',
+                birth_place: 'Oslo', death_place: 'Bergen',
+                is_root: false, is_descendant: false,
+            },
+        });
+
+        const tspanTexts = Array.from(svg.querySelectorAll('tspan')).map(t => t.textContent);
+        const allText = tspanTexts.join(' ');
+        expect(allText).toMatch(/Root|Person/);
+        expect(tspanTexts.some(t => t.includes('Oslo') && t.includes('1980'))).toBe(true);
+        expect(tspanTexts.some(t => t.includes('Bergen') && t.includes('2024'))).toBe(true);
+    });
+
+    it('12.05 drawText renders the name and dates but no places when show_places is false (variant)', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                show_names: true,
+                show_years: true,
+                show_places: false,
+                text_shadow: false,
+            },
+        });
+
+        dom.window.SVGElement.prototype.getBBox = function () {
+            return { width: 60, height: 30 };
+        };
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        context.drawText(new SvgSelection(svg).append('g'), {
+            type: 'relative', generation: 0,
+            individual: {
+                name: 'Root Person', birth: '1960', death: '2010',
+                birth_place: 'Paris', death_place: 'Lyon',
+                is_root: false, is_descendant: false,
+            },
+        });
+
+        const tspanTexts = Array.from(svg.querySelectorAll('tspan')).map(t => t.textContent);
+        const allText = tspanTexts.join(' ');
+        expect(allText).toMatch(/Root|Person/);
+        expect(tspanTexts.some(t => t.includes('1960') && t.includes('2010'))).toBe(true);
+        expect(allText).not.toContain('Paris');
+        expect(allText).not.toContain('Lyon');
+    });
+
+    it('13.01 nodes at the root-sibling generation have hue equal to root_hue', () => {
+        const { context } = loadDrawTreeContext({
+            windowOverrides: {
+                root_hue: 180,
+                node_saturation: 20,
+                node_brightness: 30,
+                generations_down: 1,
+                max_gen_up: 1,
+                max_gen_down: 1,
+            },
+        });
+
+        // hue = ((generation - generations_down) * hue_spacing + root_hue + 360) % 360
+        // for generation=1, generations_down=1 → (0) * hue_spacing + 180 = 180
+        const siblingNode = { generation: 1, type: 'relative' };
+        const [hue] = context.getNodeHCL(siblingNode);
+        expect(hue).toBe(180);
+    });
+
+    it('13.02 non-in-law nodes have chroma equal to node_saturation', () => {
+        const { context } = loadDrawTreeContext({
+            windowOverrides: {
+                root_hue: 180,
+                node_saturation: 20,
+                node_brightness: 30,
+            },
+        });
+
+        for (const type of ['relative', 'root', 'ancestor']) {
+            const node = { generation: 1, type };
+            const [, chroma] = context.getNodeHCL(node);
+            expect(chroma).toBe(20);
+        }
+    });
+
+    it('13.03 in-law nodes have chroma 0 regardless of node_saturation', () => {
+        const { context } = loadDrawTreeContext({
+            windowOverrides: {
+                root_hue: 180,
+                node_saturation: 20,
+                node_brightness: 30,
+            },
+        });
+
+        const inlawNode = { generation: 1, type: 'inlaw' };
+        const [, chroma] = context.getNodeHCL(inlawNode);
+        expect(chroma).toBe(0);
+    });
+
+    it('13.04 links drawn between a relative and their in-law spouse have no saturation', () => {
+        const inlawLinks = [];
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                root_hue: 180,
+                node_saturation: 20,
+                node_brightness: 30,
+                vertical_inlaws: true,
+                link_highlight_percent: 100,
+                inlaw_link_highlight_percent: 100,
+                pedigree_highlight_percent: 100,
+            },
+            d3Overrides: {
+                hcl: (h, c, l) => ({ h, c, l }),
+            },
+        });
+
+        context.drawLink = (_svg, color, _p1, _p2, special) => {
+            if (special && special.includes('inlaw')) inlawLinks.push(color);
+        };
+
+        const relative = {
+            type: 'relative', generation: 1, x: 200, y: 100,
+            stacked: false, stack_top: false,
+            spouse_nodes: [], children_nodes: [],
+            individual: { name: 'Relative', gender: 'F', is_root: false, is_descendant: false },
+        };
+        const inlaw = {
+            type: 'inlaw', generation: 1, x: 200, y: 200,
+            stacked: true, stack_top: true,
+            spouse_nodes: [relative], children_nodes: [],
+            individual: { name: 'Inlaw', gender: 'M', is_root: false, is_descendant: false },
+        };
+        relative.spouse_nodes = [inlaw];
+
+        const rows = [[[ relative, inlaw ]]];
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        context.drawNonBoldLinks(new SvgSelection(svg), rows);
+
+        expect(inlawLinks.length).toBeGreaterThanOrEqual(1);
+        inlawLinks.forEach(color => {
+            expect(color.c).toBe(0);
+        });
+    });
+
+    it('13.05 links drawn from an ancestor to non-in-law children have saturation equal to node_saturation', () => {
+        const childLinks = [];
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                root_hue: 180,
+                node_saturation: 20,
+                node_brightness: 30,
+                vertical_inlaws: true,
+                link_highlight_percent: 100,
+                inlaw_link_highlight_percent: 100,
+                pedigree_highlight_percent: 100,
+            },
+            d3Overrides: {
+                hcl: (h, c, l) => ({ h, c, l }),
+            },
+        });
+
+        context.drawLink = (_svg, color, _p1, _p2, special) => {
+            if (!special || !special.includes('inlaw')) childLinks.push(color);
+        };
+
+        const child = {
+            type: 'relative', generation: 0, x: 200, y: 200,
+            stacked: false, stack_top: false,
+            spouse_nodes: [], children_nodes: [],
+            individual: { name: 'Child', gender: 'M', is_root: false, is_descendant: false },
+        };
+        const father = {
+            type: 'ancestor', generation: 1, x: 200, y: 100,
+            stacked: false, stack_top: false,
+            children_nodes: [child], spouse_nodes: [],
+            individual: {
+                name: 'Father', gender: 'M', is_root: false, is_descendant: false,
+                pedigree_child_node: null, duplicate_pedigree_child_node: null,
+            },
+        };
+
+        const rows = [[[ father, child ]]];
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        context.drawNonBoldLinks(new SvgSelection(svg), rows);
+
+        expect(childLinks.length).toBeGreaterThanOrEqual(1);
+        childLinks.forEach(color => {
+            expect(color.c).toBe(20);
+        });
+    });
+
+    it('13.06 nieces and nephews have a hue 60 less than the root-sibling generation hue', () => {
+        const { context } = loadDrawTreeContext({
+            windowOverrides: {
+                root_hue: 180,
+                node_saturation: 20,
+                node_brightness: 30,
+                generations_down: 1,
+                max_gen_up: 1,
+                max_gen_down: 1,
+            },
+        });
+
+        // hue = (generation - generations_down) * 60 + root_hue
+        // sibling generation=1: hue = (1-1)*60+180 = 180
+        // nieces/nephews generation=0: hue = (0-1)*60+180 = 120
+        const siblingNode = { generation: 1, type: 'relative' };
+        const niecesNode = { generation: 0, type: 'relative' };
+        const [siblingHue] = context.getNodeHCL(siblingNode);
+        const [niecesHue] = context.getNodeHCL(niecesNode);
+        expect(siblingHue - niecesHue).toBe(60);
+    });
+
+    it('13.07 step-siblings have the same hue as the root-sibling generation', () => {
+        const { context } = loadDrawTreeContext({
+            windowOverrides: {
+                root_hue: 180,
+                node_saturation: 20,
+                node_brightness: 30,
+                generations_down: 1,
+                max_gen_up: 1,
+                max_gen_down: 1,
+            },
+        });
+
+        // Both siblings and step-siblings sit at generation=1
+        const siblingNode = { generation: 1, type: 'relative' };
+        const stepSiblingNode = { generation: 1, type: 'relative' };
+        const [siblingHue] = context.getNodeHCL(siblingNode);
+        const [stepSiblingHue] = context.getNodeHCL(stepSiblingNode);
+        expect(stepSiblingHue).toBe(siblingHue);
+    });
+
+    it('13.08 parents have a hue 60 more than the root-sibling generation hue', () => {
+        const { context } = loadDrawTreeContext({
+            windowOverrides: {
+                root_hue: 180,
+                node_saturation: 20,
+                node_brightness: 30,
+                generations_down: 1,
+                max_gen_up: 1,
+                max_gen_down: 1,
+            },
+        });
+
+        // sibling generation=1: hue = 180
+        // parent generation=2: hue = (2-1)*60+180 = 240
+        const siblingNode = { generation: 1, type: 'relative' };
+        const parentNode = { generation: 2, type: 'ancestor' };
+        const [siblingHue] = context.getNodeHCL(siblingNode);
+        const [parentHue] = context.getNodeHCL(parentNode);
+        expect(parentHue - siblingHue).toBe(60);
+    });
+
+    it('13.10 nieces and nephews hue wraps to 300 when root_hue is 0 (no negative hues)', () => {
+        const { context } = loadDrawTreeContext({
+            windowOverrides: {
+                root_hue: 0,
+                node_saturation: 20,
+                node_brightness: 30,
+                generations_down: 1,
+                max_gen_up: 1,
+                max_gen_down: 1,
+            },
+        });
+
+        // sibling generation=1: hue = (1-1)*60 + 0 = 0
+        // nieces/nephews generation=0: hue = (0-1)*60 + 0 + 360) % 360 = 300
+        const niecesNode = { generation: 0, type: 'relative' };
+        const [niecesHue] = context.getNodeHCL(niecesNode);
+        expect(niecesHue).toBe(300);
+    });
+
+    it('13.11 parents hue wraps to 0 when root_hue is 300 (no hues >= 360)', () => {
+        const { context } = loadDrawTreeContext({
+            windowOverrides: {
+                root_hue: 300,
+                node_saturation: 20,
+                node_brightness: 30,
+                generations_down: 1,
+                max_gen_up: 1,
+                max_gen_down: 1,
+            },
+        });
+
+        // sibling generation=1: hue = (1-1)*60 + 300 = 300
+        // parent generation=2: hue = ((2-1)*60 + 300 + 360) % 360 = 720 % 360 = 0
+        const parentNode = { generation: 2, type: 'ancestor' };
+        const [parentHue] = context.getNodeHCL(parentNode);
+        expect(parentHue).toBe(0);
+    });
+
+    it('13.09 links drawn to in-law spouses have stroke-dasharray equal to link_width,link_width', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                root_hue: 180,
+                node_saturation: 20,
+                node_brightness: 30,
+                vertical_inlaws: true,
+                link_highlight_percent: 100,
+                inlaw_link_highlight_percent: 100,
+                pedigree_highlight_percent: 100,
+            },
+            d3Overrides: {
+                hcl: (h, c, l) => `hcl(${h},${c},${l})`,
+            },
+        });
+
+        const relative = {
+            type: 'relative', generation: 1, x: 200, y: 100,
+            stacked: false, stack_top: false,
+            spouse_nodes: [], children_nodes: [],
+            individual: { name: 'Relative', gender: 'F', is_root: false, is_descendant: false },
+        };
+        const inlaw = {
+            type: 'inlaw', generation: 1, x: 200, y: 200,
+            stacked: true, stack_top: true,
+            spouse_nodes: [relative], children_nodes: [],
+            individual: { name: 'Inlaw', gender: 'M', is_root: false, is_descendant: false },
+        };
+        relative.spouse_nodes = [inlaw];
+
+        const rows = [[[ relative, inlaw ]]];
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        context.drawNonBoldLinks(new SvgSelection(svg), rows);
+
+        const paths = Array.from(svg.querySelectorAll('path'));
+        const dashedPaths = paths.filter(p => {
+            const dash = p.getAttribute('stroke-dasharray');
+            return dash !== null && dash !== 'none';
+        });
+
+        const linkWidth = context.window.link_width;
+        expect(dashedPaths.length).toBeGreaterThanOrEqual(1);
+        dashedPaths.forEach(p => {
+            expect(p.getAttribute('stroke-dasharray')).toBe(`${linkWidth},${linkWidth}`);
+        });
+    });
 });

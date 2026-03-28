@@ -304,7 +304,6 @@ label[for="show-places-checkbox"],
 label[for="hide-childless-inlaws-checkbox"],
 label[for="text-shadow-checkbox"],
 label[for="transparent-bg-rect-checkbox"],
-label[for="show-tooltips-checkbox"],
 label[for="pedigree-only-checkbox"],
 label[for="color-picker"] {
     cursor: pointer;
@@ -370,6 +369,19 @@ input[type="color"]:focus {
 .icon-button {
     margin: 8px 0px 8px 8px;
     float: right;
+}
+
+.icon-button-bare {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.icon-button-bare .icon-button-left {
+    margin: 8px 8px 8px 0px;
 }
 
 #file-input-button {
@@ -462,4 +474,52 @@ input[type="color"]:focus {
     color: #fff;
     border: none;
     cursor: pointer;
+}
+
+.online-gedcom-modal-content {
+    min-width: 320px;
+    max-width: 500px;
+    align-items: stretch;
+}
+
+#online-gedcom-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px 0;
+    width: 100%;
+}
+
+#online-gedcom-list li {
+    width: 100%;
+}
+
+.online-gedcom-item {
+    display: block;
+    width: 100%;
+    background: #333;
+    border: 1px solid #555;
+    color: #eee;
+    padding: 8px 14px;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    font-size: 1em;
+    transition: background 0.15s;
+}
+
+.online-gedcom-item:hover:not(:disabled) {
+    background: #4a4a4a;
+}
+
+.online-gedcom-item:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+#online-gedcom-status {
+    color: #f88;
+    margin-bottom: 12px;
+    font-size: 0.95em;
+    text-align: center;
 }
