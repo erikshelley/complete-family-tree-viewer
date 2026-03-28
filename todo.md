@@ -2,17 +2,18 @@
 
 🔴🟠🟡🟢⚫  ✅ 
 
-| Priority |   Type  | Functions | Description |
-|:--------:|:-------:|:---------:| ----------- |
-|    🟠    |   Bug   | TBD      | Issues when root has no gender? no spouse? Issue for non-root individuals? |
-|    🟡    |   Bug   | UI       | Narrow windows push Tree Viewer header below buttons |
-|    🟢    |   Bug   | Draw     | Slower rendering for very large trees seems to be due to the text - without text it is quick |
-|    🟠    | Feature | Gedcom + UI | Open Gedcom from URL |
-|    🟡    | Feature | Draw | Click on node to make them the new root person - is this possible |
+| Priority |   Type  | Functions          | Description |
+|:--------:|:-------:|:---------------- -:| ----------- |
+|    🟠    |   Bug   | TBD               | ✅ Issues when root has no gender? no spouse? Issue for non-root individuals? |
+|    🔴    |   Bug   | Draw              | ✅ Auto box sizing no longer works |
+|    🟡    |   Bug   | Draw              | Auto box sizing sometimes seems to make errors |
+|    🟡    |   Bug   | UI                | Narrow windows push Tree Viewer header below buttons |
+|    🟢    |   Bug   | Draw              | Slower rendering for very large trees seems to be due to the text - without text it is quick |
+|    🟡    | Feature | Draw              | Click on node to make them the new root person - is this possible |
 |    🟡    | Feature | UI + Build + Draw | After selecting root, create 2nd list of people to select from (or click on another person), highlight the path between them |
-|    🟢    | Feature | UI | Save and load settings |
-|    🟢    | Feature | Draw | Is there a way to make the root person easier to find |
-|    🟢    | Feature | Parse | Is it possible to show profile images from sites like Ancestry.com from what's in the Gedcom? |
+|    🟢    | Feature | UI                | Save and load settings |
+|    🟢    | Feature | Draw              | Is there a way to make the root person easier to find |
+|    🟢    | Feature | Parse             | Is it possible to show profile images from sites like Ancestry.com from what's in the Gedcom? |
 
 FYI - text shadow effects the size of the text bounding box
 

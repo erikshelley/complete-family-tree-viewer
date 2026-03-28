@@ -87,7 +87,9 @@ main() {
     # Create GitHub release with the zip file as an asset
     gh release create "$1" "complete-family-tree-viewer-$1.zip" \
         --title "Version $VERSION" \
-        --notes "Version $VERSION release"
+        --generate-notes # Automatically generate release notes based on merged pull requests since the last release
+        #--notes "Version $VERSION release"
+
 }
 
 main "$@"

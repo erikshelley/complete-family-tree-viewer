@@ -650,7 +650,17 @@ function drawText(g, node) {
     const max_width = window.box_width;
     const max_height = window.box_height;
     if (bbox.width <= max_width && bbox.height <= max_height) window.max_text_size = Math.max(window.max_text_size, name_font_size);
-    window.auto_box_width = Math.max(window.auto_box_width, window.box_width * (bbox.width / max_width), 20);
+    const padding = window.box_padding || 0;
+    const preferred_secondary_size = Math.max(6, Math.round(main_font_size * 0.75));
+    let required_text_width = 0;
+    lines.forEach(line => {
+        const is_name = line.type === 'name';
+        const desired_fs = is_name ? main_font_size : preferred_secondary_size;
+        const fw = is_name && is_bold ? 'bold' : 'normal';
+        _measureCtx.font = `${fw} ${desired_fs}px Arial, sans-serif`;
+        required_text_width = Math.max(required_text_width, _measureCtx.measureText(line.text).width);
+    });
+    window.auto_box_width = Math.max(window.auto_box_width, required_text_width + 2 * padding, 20);
     window.auto_box_height = Math.max(window.auto_box_height, bbox.height, 20);
 
     alignTextVertically(text_element, bbox, lines.length);

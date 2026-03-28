@@ -1077,6 +1077,132 @@ describe('draw tree styling outcomes', () => {
         expect(parentHue).toBe(0);
     });
 
+    it('11.18 auto_box_width equals text width at desired font size plus padding when name fits without shrinking', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                box_width: 100,
+                box_height: 50,
+                box_padding: 5,
+                text_size: 12,
+                default_text_size: 12,
+                show_names: true,
+                show_years: false,
+                show_places: false,
+                text_shadow: false,
+                auto_box_width: 0,
+                auto_box_height: 0,
+                min_text_size: 12,
+                max_text_size: 6,
+            },
+        });
+
+        dom.window.SVGElement.prototype.getBBox = function () {
+            return { width: 30, height: 14, x: 0, y: 0 };
+        };
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        context.drawText(new SvgSelection(svg).append('g'), {
+            type: 'relative', generation: 0,
+            individual: {
+                name: 'Alice',
+                birth: '', death: '', birth_place: '', death_place: '',
+                is_root: false, is_descendant: false,
+            },
+        });
+
+        // "Alice" (5 chars) at 12px = 5 * 12 * 0.55 = 33, + 2 * padding(5) = 43
+        expect(context.window.auto_box_width).toBeCloseTo(43, 1);
+        expect(context.window.auto_box_width).toBeLessThan(context.window.box_width);
+    });
+
+    it('11.19 auto_box_width exceeds box_width when dates are wider than the box at the preferred secondary font size', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                box_width: 40,
+                box_height: 30,
+                box_padding: 0,
+                text_size: 12,
+                default_text_size: 12,
+                show_names: true,
+                show_years: true,
+                show_places: false,
+                text_shadow: false,
+                auto_box_width: 0,
+                auto_box_height: 0,
+                min_text_size: 12,
+                max_text_size: 6,
+            },
+        });
+
+        dom.window.SVGElement.prototype.getBBox = function () {
+            return { width: 35, height: 25, x: 0, y: 0 };
+        };
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        context.drawText(new SvgSelection(svg).append('g'), {
+            type: 'relative', generation: 0,
+            individual: {
+                name: 'Short',
+                birth: '1900', death: '1980', birth_place: '', death_place: '',
+                is_root: false, is_descendant: false,
+            },
+        });
+
+        // "1900-1980" (9 chars) at preferred secondary size 9px = 9 * 9 * 0.55 = 44.55 > box_width 40
+        // The secondary font is shrunk to 8px to fit, but auto_box_width is measured at the preferred 9px,
+        // so it reflects the width needed to avoid any font size reduction
+        expect(context.window.auto_box_width).toBeGreaterThan(context.window.box_width);
+        expect(context.window.auto_box_width).toBeCloseTo(44.55, 1);
+    });
+
+    it('11.20 auto_box_width accumulates the maximum across multiple drawText calls', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                box_width: 200,
+                box_height: 200,
+                box_padding: 0,
+                text_size: 12,
+                default_text_size: 12,
+                show_names: true,
+                show_years: false,
+                show_places: false,
+                text_shadow: false,
+                auto_box_width: 0,
+                auto_box_height: 0,
+                min_text_size: 12,
+                max_text_size: 6,
+            },
+        });
+
+        dom.window.SVGElement.prototype.getBBox = function () {
+            return { width: 50, height: 14, x: 0, y: 0 };
+        };
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+        function makeNode(name) {
+            return {
+                type: 'relative', generation: 0,
+                individual: { name, birth: '', death: '', birth_place: '', death_place: '', is_root: false, is_descendant: false },
+            };
+        }
+
+        context.drawText(new SvgSelection(svg).append('g'), makeNode('Alice'));
+        // "Alice" (5 chars) at 12px = 5 * 12 * 0.55 = 33
+        const afterShort = context.window.auto_box_width;
+        expect(afterShort).toBeCloseTo(33, 1);
+
+        context.drawText(new SvgSelection(svg).append('g'), makeNode('AlexandraWilhelmina'));
+        // "AlexandraWilhelmina" (19 chars) at 12px = 19 * 12 * 0.55 = 125.4
+        const afterLong = context.window.auto_box_width;
+        expect(afterLong).toBeCloseTo(125.4, 1);
+        expect(afterLong).toBeGreaterThan(afterShort);
+
+        context.drawText(new SvgSelection(svg).append('g'), makeNode('Al'));
+        // "Al" (2 chars) is narrower — auto_box_width stays at the prior maximum
+        expect(context.window.auto_box_width).toBeCloseTo(125.4, 1);
+    });
+
     it('13.09 links drawn to in-law spouses have stroke-dasharray equal to link_width,link_width', () => {
         const { context, dom } = loadDrawTreeContext({
             windowOverrides: {

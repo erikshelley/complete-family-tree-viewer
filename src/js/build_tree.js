@@ -11,6 +11,8 @@ async function createFamilyTree(selected_individual) {
     window.auto_box_width = 0;
     window.auto_box_height = 0;
 
+    resolveGenders(window.individuals, window.families);
+
     // Measure buildTree
     const tree_data = buildTree(selected_individual);
 
@@ -23,6 +25,44 @@ async function createFamilyTree(selected_individual) {
 
     // Measure drawTree
     await drawTree(tree_positions);
+}
+
+
+function resolveGenders(individuals, families) {
+    // Iteratively assign gender to people with no gender based on their spouses' genders.
+    // A person with a female spouse is assumed male (rules 1, 4); with only male spouses,
+    // assumed female (rule 2). Repeats until no further changes (handles chains).
+    let changed = true;
+    while (changed) {
+        changed = false;
+        individuals.forEach(person => {
+            if (person.gender) return;
+            let hasF = false, hasM = false;
+            person.fams.forEach(fam_id => {
+                const family = families.find(f => f.id === fam_id);
+                if (!family) return;
+                const spouse_id = family.husb === person.id ? family.wife : family.husb;
+                const spouse = individuals.find(i => i.id === spouse_id);
+                if (spouse?.gender === 'F') hasF = true;
+                if (spouse?.gender === 'M') hasM = true;
+            });
+            if (hasF) { person.gender = 'M'; changed = true; }
+            else if (hasM) { person.gender = 'F'; changed = true; }
+        });
+    }
+
+    // Assign gender to any remaining no-gender people using their family role position.
+    // When both spouses have no gender (rule 3), husb role → male, wife role → female.
+    individuals.forEach(person => {
+        if (person.gender) return;
+        for (const fam_id of person.fams) {
+            const family = families.find(f => f.id === fam_id);
+            if (!family) continue;
+            if (family.husb === person.id) { person.gender = 'M'; return; }
+            if (family.wife === person.id) { person.gender = 'F'; return; }
+        }
+        person.gender = 'M';
+    });
 }
 
 

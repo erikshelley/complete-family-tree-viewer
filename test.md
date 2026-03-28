@@ -44,6 +44,12 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 02.07 | calculateMaxGenUp returns correct ancestor depth |
 |  Automated  | 02.08 | calculateMaxGenDown returns correct descendant depth and avoids recursion loops |
 |  Automated  | 02.09 | buildTree(root) with no famc leaves father_node and mother_node unset |
+|  Automated  | 02.10 | resolveGenders assumes male when person has no gender and one female spouse |
+|  Automated  | 02.11 | resolveGenders assumes female when person has no gender and one male spouse |
+|  Automated  | 02.12 | resolveGenders assumes male for person and female for spouse when both have no gender |
+|  Automated  | 02.13 | resolveGenders assumes male when person has no gender and has both male and female spouses |
+|  Automated  | 02.14 | resolveGenders assumes all no-gender spouses are female when person is male |
+|  Automated  | 02.15 | resolveGenders assumes all no-gender spouses are male when person is female |
 
 ### 03 Positioning Helpers (position_tree)
 |    Status   |  ID   | Test Description |
@@ -216,6 +222,9 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 11.15 | fitTextInBox fallback returns wrapped min-size lines when height is too constrained for a full fit |
 |  Automated  | 11.16 | drawText wraps a long multi-part name before years when places are hidden |
 |  Automated  | 11.17 | drawText uses a shared SVG filter for text shadows |
+|  Automated  | 11.18 | auto_box_width equals text width at desired font size plus padding when name fits without shrinking |
+|  Automated  | 11.19 | auto_box_width exceeds box_width when dates are wider than the box at the preferred secondary font size |
+|  Automated  | 11.20 | auto_box_width accumulates the maximum across multiple drawText calls |
 
 ## 12 Content Display (draw_tree)
 |    Status   |  ID   | Test Description |

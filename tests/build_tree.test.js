@@ -273,3 +273,96 @@ describe('build tree utilities', () => {
         expect(withoutInlawBranch.father_node.spouse_nodes).toHaveLength(0);
     });
 });
+
+describe('resolveGenders', () => {
+    function makeContext() {
+        return loadBuildTreeContext();
+    }
+
+    it('assumes male when person has no gender and one female spouse', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Unknown Person', famc: null, fams: ['@F1@'], gender: '' },
+            { id: '@I2@', name: 'Female Spouse', famc: null, fams: ['@F1@'], gender: 'F' },
+        ];
+        const families = [{ id: '@F1@', husb: '@I1@', wife: '@I2@', chil: [] }];
+
+        makeContext().resolveGenders(individuals, families);
+
+        expect(individuals[0].gender).toBe('M');
+    });
+
+    it('assumes female when person has no gender and one male spouse', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Unknown Person', famc: null, fams: ['@F1@'], gender: '' },
+            { id: '@I2@', name: 'Male Spouse', famc: null, fams: ['@F1@'], gender: 'M' },
+        ];
+        const families = [{ id: '@F1@', husb: '@I2@', wife: '@I1@', chil: [] }];
+
+        makeContext().resolveGenders(individuals, families);
+
+        expect(individuals[0].gender).toBe('F');
+    });
+
+    it('assumes male for person and female for spouse when both have no gender', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Unknown Person', famc: null, fams: ['@F1@'], gender: '' },
+            { id: '@I2@', name: 'Unknown Spouse', famc: null, fams: ['@F1@'], gender: '' },
+        ];
+        const families = [{ id: '@F1@', husb: '@I1@', wife: '@I2@', chil: [] }];
+
+        makeContext().resolveGenders(individuals, families);
+
+        expect(individuals[0].gender).toBe('M');
+        expect(individuals[1].gender).toBe('F');
+    });
+
+    it('assumes male when person has no gender and has both male and female spouses', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Unknown Person', famc: null, fams: ['@F1@', '@F2@'], gender: '' },
+            { id: '@I2@', name: 'Male Spouse', famc: null, fams: ['@F1@'], gender: 'M' },
+            { id: '@I3@', name: 'Female Spouse', famc: null, fams: ['@F2@'], gender: 'F' },
+        ];
+        const families = [
+            { id: '@F1@', husb: '@I2@', wife: '@I1@', chil: [] },
+            { id: '@F2@', husb: '@I1@', wife: '@I3@', chil: [] },
+        ];
+
+        makeContext().resolveGenders(individuals, families);
+
+        expect(individuals[0].gender).toBe('M');
+    });
+
+    it('assumes all no-gender spouses are female when person is male', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Male Person', famc: null, fams: ['@F1@', '@F2@'], gender: 'M' },
+            { id: '@I2@', name: 'Unknown Spouse 1', famc: null, fams: ['@F1@'], gender: '' },
+            { id: '@I3@', name: 'Unknown Spouse 2', famc: null, fams: ['@F2@'], gender: '' },
+        ];
+        const families = [
+            { id: '@F1@', husb: '@I1@', wife: '@I2@', chil: [] },
+            { id: '@F2@', husb: '@I1@', wife: '@I3@', chil: [] },
+        ];
+
+        makeContext().resolveGenders(individuals, families);
+
+        expect(individuals[1].gender).toBe('F');
+        expect(individuals[2].gender).toBe('F');
+    });
+
+    it('assumes all no-gender spouses are male when person is female', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Female Person', famc: null, fams: ['@F1@', '@F2@'], gender: 'F' },
+            { id: '@I2@', name: 'Unknown Spouse 1', famc: null, fams: ['@F1@'], gender: '' },
+            { id: '@I3@', name: 'Unknown Spouse 2', famc: null, fams: ['@F2@'], gender: '' },
+        ];
+        const families = [
+            { id: '@F1@', husb: '@I2@', wife: '@I1@', chil: [] },
+            { id: '@F2@', husb: '@I3@', wife: '@I1@', chil: [] },
+        ];
+
+        makeContext().resolveGenders(individuals, families);
+
+        expect(individuals[1].gender).toBe('M');
+        expect(individuals[2].gender).toBe('M');
+    });
+});
