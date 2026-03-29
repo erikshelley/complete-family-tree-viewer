@@ -52,6 +52,7 @@ let update_timeout = null;
 window.individual_filter_value = '';
 window.connection_filter_value = '';
 window.connection_selected_id = null;
+window.connection_path_individual_ids = new Set();
 window.selected_individual = '';
 window.tree_rows = null;
 window.generations_up;
@@ -107,7 +108,7 @@ const style_presets = {
         // Color
         'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
-        'pedigree-highlight-percent': 100, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
+        'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
         // Rounding
         'node-rounding': 10, 'link-rounding': 10,
     },
@@ -121,7 +122,7 @@ const style_presets = {
         // Color
         'hue': 180, 'saturation': 20, 'node-brightness': 25, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
-        'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
+        'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
         // Rounding
         'node-rounding': 25, 'link-rounding': 25,
     },
@@ -135,7 +136,7 @@ const style_presets = {
         // Color
         'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
-        'pedigree-highlight-percent': 100, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
+        'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
         // Rounding
         'node-rounding': 25, 'link-rounding': 25,
     },
@@ -149,7 +150,7 @@ const style_presets = {
         // Color
         'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
-        'pedigree-highlight-percent': 100, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
+        'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
         // Rounding
         'node-rounding': 10, 'link-rounding': 25,
     },
@@ -163,7 +164,7 @@ const style_presets = {
         // Color
         'hue': 300, 'saturation': 20, 'node-brightness': 80, 'text-brightness': 40, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#ffffff',
         // Highlights
-        'pedigree-highlight-percent': 100, 'border-highlight-percent': 90, 'link-highlight-percent': 90, 'inlaw-link-highlight-percent': 90,
+        'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 90, 'link-highlight-percent': 90, 'inlaw-link-highlight-percent': 90,
         // Rounding
         'node-rounding': 25, 'link-rounding': 50,
     },
@@ -177,7 +178,7 @@ const style_presets = {
         // Color
         'hue': 180, 'saturation': 20, 'node-brightness': 25, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
-        'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
+        'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
         // Rounding
         'node-rounding': 0, 'link-rounding': 0,
     },
@@ -191,7 +192,7 @@ const style_presets = {
         // Color
         'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
-        'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
+        'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
         // Rounding
         'node-rounding': 50, 'link-rounding': 50,
     },

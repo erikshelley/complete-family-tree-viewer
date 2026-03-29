@@ -50,6 +50,14 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 02.13 | resolveGenders assumes male when person has no gender and has both male and female spouses |
 |  Automated  | 02.14 | resolveGenders assumes all no-gender spouses are female when person is male |
 |  Automated  | 02.15 | resolveGenders assumes all no-gender spouses are male when person is female |
+|  Automated  | 02.16 | computeRawConnectionPathIds returns empty set when root and target are the same individual |
+|  Automated  | 02.17 | computeRawConnectionPathIds returns empty set when target individual is not reachable |
+|  Automated  | 02.18 | computeRawConnectionPathIds returns path IDs through shared parent to a sibling |
+|  Automated  | 02.19 | computeRawConnectionPathIds returns path IDs through a child to a grandchild |
+|  Automated  | 02.20 | hide_non_pedigree_family with connection path keeps sibling on the connection path |
+|  Automated  | 02.21 | hide_non_pedigree_family without connection path still excludes sibling |
+|  Automated  | 02.22 | hide_non_pedigree_family with connection path keeps ancestor in-law spouse on the connection path |
+|  Automated  | 02.23 | hide_non_pedigree_family without connection path still excludes ancestor in-law spouse |
 
 ### 03 Positioning Helpers (position_tree)
 |    Status   |  ID   | Test Description |

@@ -1,3 +1,49 @@
+function computeRawConnectionPathIds(root_individual_id, target_id) {
+    if (!root_individual_id || !target_id || root_individual_id === target_id) return new Set();
+    const queue = [root_individual_id];
+    const visited = new Set([root_individual_id]);
+    const parent_map = new Map();
+    while (queue.length > 0) {
+        const current_id = queue.shift();
+        if (current_id === target_id) {
+            const path_ids = new Set();
+            let id = current_id;
+            while (id !== undefined) {
+                path_ids.add(id);
+                id = parent_map.get(id);
+            }
+            return path_ids;
+        }
+        const person = window.individuals.find(ind => ind.id === current_id);
+        if (!person) continue;
+        const neighbors = [];
+        if (person.famc) {
+            const fam = window.families.find(f => f.id === person.famc);
+            if (fam) {
+                if (fam.husb) neighbors.push(fam.husb);
+                if (fam.wife) neighbors.push(fam.wife);
+            }
+        }
+        for (const fam_id of (person.fams || [])) {
+            const fam = window.families.find(f => f.id === fam_id);
+            if (!fam) continue;
+            const spouse_id = fam.husb === current_id ? fam.wife : fam.husb;
+            if (spouse_id) neighbors.push(spouse_id);
+            for (const child_id of fam.chil) {
+                neighbors.push(child_id);
+            }
+        }
+        for (const nid of neighbors) {
+            if (nid && !visited.has(nid)) {
+                visited.add(nid);
+                parent_map.set(nid, current_id);
+                queue.push(nid);
+            }
+        }
+    }
+    return new Set();
+}
+
 async function createFamilyTree(selected_individual) {
     // Clear previous content
     const family_tree_div = document.getElementById('family-tree-div');
@@ -12,6 +58,10 @@ async function createFamilyTree(selected_individual) {
     window.auto_box_height = 0;
 
     resolveGenders(window.individuals, window.families);
+
+    window.connection_path_individual_ids = (window.highlight_type === 'connection' && window.connection_selected_id)
+        ? computeRawConnectionPathIds(selected_individual.id, window.connection_selected_id)
+        : new Set();
 
     // Measure buildTree
     const tree_data = buildTree(selected_individual);
@@ -29,6 +79,9 @@ async function createFamilyTree(selected_individual) {
 
 
 function resolveGenders(individuals, families) {
+    // Normalize any gender that is not M or F to empty string so it is treated as missing.
+    individuals.forEach(person => { if (person.gender !== 'M' && person.gender !== 'F') person.gender = ''; });
+
     // Iteratively assign gender to people with no gender based on their spouses' genders.
     // A person with a female spouse is assumed male (rules 1, 4); with only male spouses,
     // assumed female (rule 2). Repeats until no further changes (handles chains).
@@ -218,7 +271,7 @@ function addPedigreeChildren(node, fam_id, anchor_gen) {
                 const pedigree_child_id = node.individual.pedigree_child_node
                     ? node.individual.pedigree_child_node.individual.id
                     : (window.root_node ? window.root_node.individual.id : null);
-                return child_id === pedigree_child_id;
+                return child_id === pedigree_child_id || (window.connection_path_individual_ids && window.connection_path_individual_ids.has(child_id));
             }
 
             return !node.individual.pedigree_child_node || child_id !== node.individual.pedigree_child_node.individual.id;
@@ -264,7 +317,11 @@ function addSpousesAndRelatives(node, anchor_gen) {
         if (node.individual.pedigree_family && node.individual.pedigree_family.id === fam_id) {
             addPedigreeChildren(node, fam_id, anchor_gen);
         } else {
-            if (window.hide_non_pedigree_family && (node.type === 'ancestor')) return;
+            if (window.hide_non_pedigree_family && (node.type === 'ancestor')) {
+                const fam = window.families.find(f => f.id === fam_id);
+                const spouse_id = fam && (fam.husb === node.individual.id ? fam.wife : fam.husb);
+                if (!spouse_id || !window.connection_path_individual_ids || !window.connection_path_individual_ids.has(spouse_id)) return;
+            }
             addInlawSpouse(node, fam_id, anchor_gen);
         }
     });

@@ -365,4 +365,200 @@ describe('resolveGenders', () => {
         expect(individuals[1].gender).toBe('M');
         expect(individuals[2].gender).toBe('M');
     });
+
+    it('treats non-M/F gender (e.g. U) the same as missing gender and infers from spouse', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Unknown Gender Person', famc: null, fams: ['@F1@'], gender: 'U' },
+            { id: '@I2@', name: 'Female Spouse', famc: null, fams: ['@F1@'], gender: 'F' },
+        ];
+        const families = [{ id: '@F1@', husb: '@I1@', wife: '@I2@', chil: [] }];
+
+        makeContext().resolveGenders(individuals, families);
+
+        expect(individuals[0].gender).toBe('M');
+    });
+});
+
+describe('computeRawConnectionPathIds', () => {
+    function makeConnectionContext(individuals, families) {
+        return loadBuildTreeContext({ individuals, families });
+    }
+
+    it('02.16 returns empty set when root and target are the same individual', () => {
+        const context = makeConnectionContext(
+            [{ id: '@I1@', name: 'Root', famc: null, fams: [], gender: 'M' }],
+            []
+        );
+        const result = context.computeRawConnectionPathIds('@I1@', '@I1@');
+        expect(result.size).toBe(0);
+    });
+
+    it('02.17 returns empty set when target individual is not reachable', () => {
+        const context = makeConnectionContext(
+            [
+                { id: '@I1@', name: 'Root', famc: null, fams: [], gender: 'M' },
+                { id: '@I2@', name: 'Unrelated', famc: null, fams: [], gender: 'F' },
+            ],
+            []
+        );
+        const result = context.computeRawConnectionPathIds('@I1@', '@I2@');
+        expect(result.size).toBe(0);
+    });
+
+    it('02.18 returns path IDs through shared parent to a sibling', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Root', famc: '@F0@', fams: [], gender: 'M' },
+            { id: '@I2@', name: 'Sibling', famc: '@F0@', fams: [], gender: 'F' },
+            { id: '@I3@', name: 'Father', famc: null, fams: ['@F0@'], gender: 'M' },
+            { id: '@I4@', name: 'Mother', famc: null, fams: ['@F0@'], gender: 'F' },
+        ];
+        const families = [
+            { id: '@F0@', husb: '@I3@', wife: '@I4@', chil: ['@I1@', '@I2@'] },
+        ];
+        const context = makeConnectionContext(individuals, families);
+        const result = context.computeRawConnectionPathIds('@I1@', '@I2@');
+        expect(result.has('@I1@')).toBe(true);
+        expect(result.has('@I2@')).toBe(true);
+        expect(result.has('@I3@')).toBe(true);  // path goes through father (husb reached before wife)
+        expect(result.has('@I4@')).toBe(false); // mother is not on the shortest path
+        expect(result.size).toBe(3);
+    });
+
+    it('02.19 returns path IDs through a child to a grandchild', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Root', famc: null, fams: ['@F0@'], gender: 'M' },
+            { id: '@I2@', name: 'Spouse', famc: null, fams: ['@F0@'], gender: 'F' },
+            { id: '@I3@', name: 'Child', famc: '@F0@', fams: ['@F1@'], gender: 'M' },
+            { id: '@I4@', name: 'Child Spouse', famc: null, fams: ['@F1@'], gender: 'F' },
+            { id: '@I5@', name: 'Grandchild', famc: '@F1@', fams: [], gender: 'F' },
+        ];
+        const families = [
+            { id: '@F0@', husb: '@I1@', wife: '@I2@', chil: ['@I3@'] },
+            { id: '@F1@', husb: '@I3@', wife: '@I4@', chil: ['@I5@'] },
+        ];
+        const context = makeConnectionContext(individuals, families);
+        const result = context.computeRawConnectionPathIds('@I1@', '@I5@');
+        expect(result.has('@I1@')).toBe(true);
+        expect(result.has('@I3@')).toBe(true);
+        expect(result.has('@I5@')).toBe(true);
+        expect(result.has('@I2@')).toBe(false); // spouse not on path
+        expect(result.has('@I4@')).toBe(false); // child spouse not on path
+        expect(result.size).toBe(3);
+    });
+
+    it('02.20 hide_non_pedigree_family with connection path keeps sibling on the connection path', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Root', famc: '@F0@', fams: [], gender: 'M' },
+            { id: '@I2@', name: 'Sibling', famc: '@F0@', fams: [], gender: 'F' },
+            { id: '@I3@', name: 'Father', famc: null, fams: ['@F0@'], gender: 'M' },
+            { id: '@I4@', name: 'Mother', famc: null, fams: ['@F0@'], gender: 'F' },
+        ];
+        const families = [
+            { id: '@F0@', husb: '@I3@', wife: '@I4@', chil: ['@I1@', '@I2@'] },
+        ];
+        const context = loadBuildTreeContext({
+            individuals: structuredClone(individuals),
+            families: structuredClone(families),
+            generations_up: 1,
+            generations_down: 1,
+            hide_childless_inlaws: false,
+            hide_non_pedigree_family: true,
+            pedigree_only: false,
+            max_gen_up: 0,
+            max_gen_down: 0,
+            connection_path_individual_ids: new Set(['@I2@']),
+        });
+
+        const rootNode = context.buildTree(context.window.individuals.find(p => p.id === '@I1@'));
+        const childIds = rootNode.father_node.children_nodes.map(n => n.individual.id);
+        expect(childIds).toContain('@I1@');
+        expect(childIds).toContain('@I2@');
+    });
+
+    it('02.21 hide_non_pedigree_family without connection path still excludes sibling', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Root', famc: '@F0@', fams: [], gender: 'M' },
+            { id: '@I2@', name: 'Sibling', famc: '@F0@', fams: [], gender: 'F' },
+            { id: '@I3@', name: 'Father', famc: null, fams: ['@F0@'], gender: 'M' },
+            { id: '@I4@', name: 'Mother', famc: null, fams: ['@F0@'], gender: 'F' },
+        ];
+        const families = [
+            { id: '@F0@', husb: '@I3@', wife: '@I4@', chil: ['@I1@', '@I2@'] },
+        ];
+        const context = loadBuildTreeContext({
+            individuals: structuredClone(individuals),
+            families: structuredClone(families),
+            generations_up: 1,
+            generations_down: 1,
+            hide_childless_inlaws: false,
+            hide_non_pedigree_family: true,
+            pedigree_only: false,
+            max_gen_up: 0,
+            max_gen_down: 0,
+            connection_path_individual_ids: new Set(),
+        });
+
+        const rootNode = context.buildTree(context.window.individuals.find(p => p.id === '@I1@'));
+        const childIds = rootNode.father_node.children_nodes.map(n => n.individual.id);
+        expect(childIds).not.toContain('@I2@');
+        expect(childIds).toContain('@I1@');
+    });
+
+    it('02.22 hide_non_pedigree_family with connection path keeps ancestor in-law spouse on the connection path', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Root', famc: '@F0@', fams: [], gender: 'M' },
+            { id: '@I2@', name: 'Father', famc: null, fams: ['@F0@', '@F1@'], gender: 'M' },
+            { id: '@I3@', name: 'Mother', famc: null, fams: ['@F0@'], gender: 'F' },
+            { id: '@I4@', name: 'Inlaw Spouse', famc: null, fams: ['@F1@'], gender: 'F' },
+            { id: '@I5@', name: 'Inlaw Child', famc: '@F1@', fams: [], gender: 'M' },
+        ];
+        const families = [
+            { id: '@F0@', husb: '@I2@', wife: '@I3@', chil: ['@I1@'] },
+            { id: '@F1@', husb: '@I2@', wife: '@I4@', chil: ['@I5@'] },
+        ];
+        const context = loadBuildTreeContext({
+            individuals: structuredClone(individuals),
+            families: structuredClone(families),
+            generations_up: 1,
+            generations_down: 1,
+            hide_childless_inlaws: false,
+            hide_non_pedigree_family: true,
+            pedigree_only: false,
+            max_gen_up: 0,
+            max_gen_down: 0,
+            connection_path_individual_ids: new Set(['@I4@']),
+        });
+
+        const rootNode = context.buildTree(context.window.individuals.find(p => p.id === '@I1@'));
+        expect(rootNode.father_node.spouse_nodes.map(n => n.individual.id)).toContain('@I4@');
+    });
+
+    it('02.23 hide_non_pedigree_family without connection path still excludes ancestor in-law spouse', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Root', famc: '@F0@', fams: [], gender: 'M' },
+            { id: '@I2@', name: 'Father', famc: null, fams: ['@F0@', '@F1@'], gender: 'M' },
+            { id: '@I3@', name: 'Mother', famc: null, fams: ['@F0@'], gender: 'F' },
+            { id: '@I4@', name: 'Inlaw Spouse', famc: null, fams: ['@F1@'], gender: 'F' },
+            { id: '@I5@', name: 'Inlaw Child', famc: '@F1@', fams: [], gender: 'M' },
+        ];
+        const families = [
+            { id: '@F0@', husb: '@I2@', wife: '@I3@', chil: ['@I1@'] },
+            { id: '@F1@', husb: '@I2@', wife: '@I4@', chil: ['@I5@'] },
+        ];
+        const context = loadBuildTreeContext({
+            individuals: structuredClone(individuals),
+            families: structuredClone(families),
+            generations_up: 1,
+            generations_down: 1,
+            hide_childless_inlaws: false,
+            hide_non_pedigree_family: true,
+            pedigree_only: false,
+            max_gen_up: 0,
+            max_gen_down: 0,
+            connection_path_individual_ids: new Set(),
+        });
+
+        const rootNode = context.buildTree(context.window.individuals.find(p => p.id === '@I1@'));
+        expect(rootNode.father_node.spouse_nodes).toHaveLength(0);
+    });
 });

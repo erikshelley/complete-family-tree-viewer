@@ -419,10 +419,10 @@
 0 @I105@ INDI
 1 NAME Joseph Patrick /Kennedy/
 2 GIVN Joseph, Patrick
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 OBJE
-2 TITL Joseph KENNEDY
+2 TITL Joseph Kennedy
 2 FILE photos/Joseph_Patrick_Kennedy.jpg
 3 FORM jpg
 2 NOTE
@@ -491,10 +491,10 @@
 0 @I66@ INDI
 1 NAME Rose Elizabeth /Fitzgerald/
 2 GIVN Rose, Elizabeth
-2 SURN FITZGERALD
+2 SURN Fitzgerald
 1 SEX F
 1 OBJE
-2 TITL Rose KENNEDY et son fils John
+2 TITL Rose Kennedy et son fils John
 2 FILE photos/Rose-kennedy.jpg
 3 FORM jpg
 2 NOTE
@@ -527,7 +527,7 @@
 0 @I91@ INDI
 1 NAME Joseph Patrick /Kennedy/ Jr.
 2 GIVN Joseph, Patrick
-2 SURN KENNEDY
+2 SURN Kennedy
 2 NSFX Jr.
 1 SEX M
 1 SOUR @S2@
@@ -563,12 +563,12 @@
 2 CONT top-secret and dangerous mission without learning any of the details.
 2 CONT Half an hour after take-off his plane exploded in mid-air.
 0 @I104@ INDI
-1 NAME John Fitzgerald /KENNEDY/
+1 NAME John Fitzgerald /Kennedy/
 2 GIVN John, Fitzgerald
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 OBJE
-2 TITL John Fitzgerald KENNEDY
+2 TITL John Fitzgerald Kennedy
 2 FILE photos/John-kennedy.jpg
 3 FORM jpg
 2 NOTE
@@ -593,7 +593,7 @@
 2 SOUR @S9@
 3 QUAY 2
 2 OBJE
-3 TITL Consequences of the assassination of John KENNEDY
+3 TITL Consequences of the assassination of John Kennedy
 3 FILE documents/Herald-Tribune.jpg
 4 FORM jpg
 3 NOTE
@@ -636,18 +636,34 @@
 0 @I127@ INDI
 1 NAME Rosemary (Rose Marie) /Kennedy/
 2 GIVN Rosemary, (Rose, Marie)
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
-2 DATE 8 FEB 2021
-3 TIME 20:09:51
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
 1 BIRT
-2 DATE 20 FEB 1920
+2 DATE 13 SEP 1918
 2 PLAC Brookline, , Norfolk County, MA, USA
 3 MAP
 4 LATI N42.33176
 4 LONG W71.12116
+1 DEAT
+2 DATE 7 JAN 2005
+2 PLAC Fort Atkinson, , Jefferson County, WI, USA
+3 MAP
+4 LATI N42.92836
+4 LONG W88.83706
+2 SOUR @S86@
+3 QUAY 2
+1 BURI
+2 DATE AFT 7 JAN 2005
+2 PLAC Brookline, , Norfolk County, MA, USA
+3 MAP
+4 LATI N42.33176
+4 LONG W71.12116
+2 SOUR @S86@
+3 QUAY 2
 1 RESI
 2 PLAC Jefferson, , Jefferson County, WI, USA
 3 MAP
@@ -655,12 +671,12 @@
 4 LONG W88.80733
 2 SOUR @S19@
 3 QUAY 2
-1 REFN KENNRM20
+1 REFN KENNRM18
 1 FAMC @F0@
 0 @I107@ INDI
 1 NAME Kathleen "Kick" /Kennedy/
 2 GIVN Kathleen, "Kick"
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -710,7 +726,7 @@
 0 @I99@ INDI
 1 NAME Eunice Mary /Kennedy/
 2 GIVN Eunice, Mary
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -731,13 +747,29 @@
 4 LONG W77.03637
 2 SOUR @S22@
 3 QUAY 1
+1 DEAT
+2 DATE 11 AUG 2009
+2 PLAC Hyannis, , Barnstable County, MA, USA
+3 MAP
+4 LATI N41.65288
+4 LONG W70.28302
+2 SOUR @S87@
+3 QUAY 2
+1 BURI
+2 DATE AFT 11 AUG 2009
+2 PLAC Centerville, , Barnstable County, MA, USA
+3 MAP
+4 LATI N41.64872
+4 LONG W70.34808
+2 SOUR @S87@
+3 QUAY 2
 1 REFN KENNEM21
 1 FAMC @F0@
 1 FAMS @F1@
 0 @I177@ INDI
 1 NAME Robert Sargent /Shriver/ Jr.
 2 GIVN Robert, Sargent
-2 SURN SHRIVER
+2 SURN Shriver
 2 NSFX Jr.
 1 SEX M
 1 SOUR @S2@
@@ -758,10 +790,26 @@
 1 OCCU Politics
 1 REFN SHRIRS15
 1 FAMS @F1@
+1 DEAT
+2 DATE 18 JAN 2011
+2 PLAC Bethesda, , Montgomery County, MD, USA
+3 MAP
+4 LATI N38.98067
+4 LONG W77.10026
+2 SOUR @S91@
+3 QUAY 2
+1 BURI
+2 DATE AFT 18 JAN 2011
+2 PLAC Centerville, , Barnstable County, MA, USA
+3 MAP
+4 LATI N41.64872
+4 LONG W70.34808
+2 SOUR @S91@
+3 QUAY 2
 0 @I119@ INDI
 1 NAME Patricia /Kennedy/
 2 GIVN Patricia
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -774,6 +822,22 @@
 4 LATI N42.33176
 4 LONG W71.12116
 2 SOUR @S24@
+3 QUAY 2
+1 DEAT
+2 DATE 17 SEP 2006
+2 PLAC Manhattan, , New York County, NY, USA
+3 MAP
+4 LATI N40.78343
+4 LONG W73.96625
+2 SOUR @S88@
+3 QUAY 2
+1 BURI
+2 DATE AFT 17 SEP 2006
+2 PLAC Southampton, , Suffolk County, NY, USA
+3 MAP
+4 LATI N40.88427
+4 LONG W72.38987
+2 SOUR @S88@
 3 QUAY 2
 1 RESI
 2 PLAC New York City, , , NY, USA
@@ -788,7 +852,7 @@
 0 @I129@ INDI
 1 NAME Peter /Lawford/
 2 GIVN Peter
-2 SURN LAWFORD
+2 SURN Lawford
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -812,7 +876,7 @@
 0 @I125@ INDI
 1 NAME Robert Francis /Kennedy/
 2 GIVN Robert, Francis
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -869,7 +933,7 @@
 0 @I101@ INDI
 1 NAME Jean Ann /Kennedy/
 2 GIVN Jean, Ann
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -883,13 +947,21 @@
 4 LONG W71.05977
 2 SOUR @S26@
 3 QUAY 2
+1 DEAT
+2 DATE 17 JUN 2020
+2 PLAC Manhattan, , New York County, NY, USA
+3 MAP
+4 LATI N40.78343
+4 LONG W73.96625
+2 SOUR @S89@
+3 QUAY 2
 1 REFN KENNJA28
 1 FAMC @F0@
 1 FAMS @F6@
 0 @I98@ INDI
 1 NAME Edward Moore /Kennedy/
 2 GIVN Edward, Moore
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -913,6 +985,23 @@
 1 REFN KENNEM32
 1 FAMC @F0@
 1 FAMS @F7@
+1 FAMS @F78@
+1 DEAT
+2 DATE 25 AUG 2009
+2 PLAC Hyannis Port, , Barnstable County, MA, USA
+3 MAP
+4 LATI N41.65289
+4 LONG W70.28280
+2 SOUR @S90@
+3 QUAY 2
+1 BURI
+2 DATE 29 AUG 2009
+2 PLAC Arlington, 22209, Arlington County, VA, USA
+3 MAP
+4 LATI N38.88101
+4 LONG W77.10428
+2 SOUR @S8@
+3 QUAY 2
 1 NOTE Edward M. Kennedy is the only surviving Kennedy brother.  Following
 2 CONT family tradition, he graduated from Harvard University.  After
 2 CONT receiving a law degree from the University of Virginia, he worked on
@@ -928,7 +1017,7 @@
 0 @I13@ INDI
 1 NAME Virginia Joan /Bennett/
 2 GIVN Virginia, Joan
-2 SURN BENNETT
+2 SURN Bennett
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -940,13 +1029,21 @@
 3 MAP
 4 LATI N40.90056
 4 LONG W73.90639
+1 DEAT
+2 DATE 8 OCT 2025
+2 PLAC Boston, , Suffolk County, MA, USA
+3 MAP
+4 LATI N42.35843
+4 LONG W71.05977
+2 SOUR @S93@
+3 QUAY 2
 1 REFN BENNVJ36
 1 FAMS @F7@
 1 FAMC @F67@
 0 @I128@ INDI
 1 NAME Christopher Kennedy /Lawford/
 2 GIVN Christopher, Kennedy
-2 SURN LAWFORD
+2 SURN Lawford
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -962,11 +1059,16 @@
 1 REFN LAWFCK55
 1 FAMC @F2@
 1 FAMS @F3@
+1 DEAT
+2 DATE 4 SEP 2018
+2 PLAC Vancouver, , , BC, Canada
+2 SOUR @S98@
+3 QUAY 2
 1 NOTE Disowned by parents in 1961.
 0 @I131@ INDI
 1 NAME Sydney Maleia /Lawford/
 2 GIVN Sydney, Maleia
-2 SURN LAWFORD
+2 SURN Lawford
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -989,7 +1091,7 @@
 0 @I132@ INDI
 1 NAME Victoria Francis /Lawford/
 2 GIVN Victoria, Francis
-2 SURN LAWFORD
+2 SURN Lawford
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1007,7 +1109,7 @@
 0 @I130@ INDI
 1 NAME Robin Elizabeth /Lawford/
 2 GIVN Robin, Elizabeth
-2 SURN LAWFORD
+2 SURN Lawford
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1024,7 +1126,7 @@
 0 @I163@ INDI
 1 NAME Jean Edith /Olsson/
 2 GIVN Jean, Edith
-2 SURN OLSSON
+2 SURN Olsson
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1041,7 +1143,7 @@
 0 @I151@ INDI
 1 NAME James Peter /McKelvey/
 2 GIVN James, Peter
-2 SURN MCKELVEY
+2 SURN McKelvey
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1058,7 +1160,7 @@
 0 @I176@ INDI
 1 NAME Robert Sargent /Shriver/ III
 2 GIVN Robert, Sargent
-2 SURN SHRIVER
+2 SURN Shriver
 2 NSFX III
 1 SEX M
 1 SOUR @S2@
@@ -1076,7 +1178,7 @@
 0 @I179@ INDI
 1 NAME Maria Owings /Shriver/
 2 GIVN Maria, Owings
-2 SURN SHRIVER
+2 SURN Shriver
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1100,7 +1202,7 @@
 0 @I181@ INDI
 1 NAME Timothy Perry /Shriver/
 2 GIVN Timothy, Perry
-2 SURN SHRIVER
+2 SURN Shriver
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1118,7 +1220,7 @@
 0 @I180@ INDI
 1 NAME Mark Kennedy /Shriver/
 2 GIVN Mark, Kennedy
-2 SURN SHRIVER
+2 SURN Shriver
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1135,7 +1237,7 @@
 0 @I178@ INDI
 1 NAME Anthony Paul /Shriver/
 2 GIVN Anthony, Paul
-2 SURN SHRIVER
+2 SURN Shriver
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1150,23 +1252,27 @@
 1 REFN SHRIAP65
 1 FAMC @F1@
 0 @I182@ INDI
-1 NAME Arnold /Shwarzenegger/
-2 GIVN Arnold
-2 SURN SHWARZENEGGER
+1 NAME Arnold Alois /Schwarzenegger/
+2 GIVN Arnold, Alois
+2 SURN Schwarzenegger
 1 SEX M
 1 SOUR @S27@
 1 CHAN
-2 DATE 8 FEB 2021
-3 TIME 20:09:51
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
 1 BIRT
-2 DATE ABT 1955
-1 OCCU Actor
-1 REFN SHWAAR55
+2 DATE 30 JUL 1947
+2 PLAC Thal, , Styria, , Austria
+3 MAP
+4 LATI N47.08333
+4 LONG E15.31667
+1 OCCU Actor, Governor
+1 REFN SCHWAA47
 1 FAMS @F5@
 0 @I194@ INDI
 1 NAME Stephen Edward /Smith/
 2 GIVN Stephen, Edward
-2 SURN SMITH
+2 SURN Smith
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1174,16 +1280,24 @@
 3 TIME 20:09:51
 1 BIRT
 2 DATE 24 SEP 1927
-2 PLAC Brooklyn, , Kings County, NY, USA
+2 PLAC Bayport, , Suffolk County, NY, USA
 3 MAP
-4 LATI N40.6501
-4 LONG W73.94958
+4 LATI N40.72204
+4 LONG W73.05413
+1 DEAT
+2 DATE 19 AUG 1990
+2 PLAC Manhattan, , New York County, NY, USA
+3 MAP
+4 LATI N40.78343
+4 LONG W73.96625
+2 SOUR @S92@
+3 QUAY 2
 1 REFN SMITSE27
 1 FAMS @F6@
 0 @I191@ INDI
 1 NAME Stephen Edward /Smith/ Jr.
 2 GIVN Stephen, Edward
-2 SURN SMITH
+2 SURN Smith
 2 NSFX Jr.
 1 SEX M
 1 SOUR @S2@
@@ -1197,7 +1311,7 @@
 0 @I195@ INDI
 1 NAME William Kennedy /Smith/
 2 GIVN William, Kennedy
-2 SURN SMITH
+2 SURN Smith
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1211,10 +1325,11 @@
 4 LONG W71.05977
 1 REFN SMITWK60
 1 FAMC @F6@
+1 FAMS @F85@
 0 @I192@ INDI
 1 NAME Amanda Mary /Smith/
 2 GIVN Amanda, Mary
-2 SURN SMITH
+2 SURN Smith
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1227,7 +1342,7 @@
 0 @I193@ INDI
 1 NAME Kym Marie /Smith/
 2 GIVN Kym, Marie
-2 SURN SMITH
+2 SURN Smith
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1241,7 +1356,7 @@
 0 @I106@ INDI
 1 NAME Kara Ann /Kennedy/
 2 GIVN Kara, Ann
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1255,10 +1370,27 @@
 4 LONG W73.83208
 1 REFN KENNKA60
 1 FAMC @F7@
+1 FAMS @F79@
+1 DEAT
+2 DATE 16 SEP 2011
+2 PLAC Washington, , , DC, USA
+3 MAP
+4 LATI N38.89511
+4 LONG W77.03637
+2 SOUR @S95@
+3 QUAY 2
+1 BURI
+2 DATE AFT 16 SEP 2011
+2 PLAC Brookline, , Norfolk County, MA, USA
+3 MAP
+4 LATI N42.33176
+4 LONG W71.12116
+2 SOUR @S95@
+3 QUAY 2
 0 @I89@ INDI
 1 NAME Edward Moore /Kennedy/ Jr.
 2 GIVN Edward, Moore
-2 SURN KENNEDY
+2 SURN Kennedy
 2 NSFX Jr.
 1 SEX M
 1 SOUR @S2@
@@ -1278,10 +1410,11 @@
 4 LONG W71.05977
 1 REFN KENNEM61
 1 FAMC @F7@
+1 FAMS @F81@
 0 @I124@ INDI
 1 NAME Patrick Joseph /Kennedy/
 2 GIVN Patrick, Joseph
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1296,10 +1429,11 @@
 1 OCCU student
 1 REFN KENNPJ67
 1 FAMC @F7@
+1 FAMS @F82@
 0 @I22@ INDI
 1 NAME Jacqueline Lee /Bouvier/
 2 GIVN Jacqueline, Lee
-2 SURN BOUVIER
+2 SURN Bouvier
 1 SEX F
 1 OBJE
 2 TITL Jacqueline BOUVIER
@@ -1308,8 +1442,8 @@
 2 NOTE
 1 SOUR @S2@
 1 CHAN
-2 DATE 8 FEB 2021
-3 TIME 20:09:50
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
 1 BIRT
 2 DATE 28 JUL 1929
 2 PLAC Southampton, , Long Island, NY, USA
@@ -1318,6 +1452,14 @@
 4 LONG W72.44306
 2 SOUR @S28@
 3 QUAY 1
+1 DEAT
+2 DATE 19 MAY 1994
+2 PLAC New York City, , , NY, USA
+3 MAP
+4 LATI N40.71427
+4 LONG W74.00597
+2 SOUR @S81@
+3 QUAY 2
 1 OCCU Editor
 1 REFN BOUVJL29
 1 FAMS @F8@
@@ -1326,10 +1468,10 @@
 0 @I94@ INDI
 1 NAME Caroline Bouvier /Kennedy/
 2 GIVN Caroline, Bouvier
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 OBJE
-2 TITL Caroline KENNEDY
+2 TITL Caroline Kennedy
 2 FILE photos/caroline_kennedy.jpg
 3 FORM jpg
 2 NOTE
@@ -1361,18 +1503,18 @@
 0 @I90@ INDI
 1 NAME John Fitzgerald /Kennedy/ Jr.
 2 GIVN John, Fitzgerald
-2 SURN KENNEDY
+2 SURN Kennedy
 2 NSFX Jr.
 1 SEX M
 1 OBJE
-2 TITL John Fitzgerald KENNEDY Junior
+2 TITL John Fitzgerald Kennedy Junior
 2 FILE photos/john-f.-kennedy-jr.jpg
 3 FORM jpg
 2 NOTE
 1 SOUR @S2@
 1 CHAN
-2 DATE 8 FEB 2021
-3 TIME 20:09:50
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
 1 BIRT
 2 DATE 25 NOV 1960
 2 PLAC Washington, , , DC, USA
@@ -1387,6 +1529,16 @@
 3 MAP
 4 LATI N41.41678
 4 LONG W70.61614
+2 SOUR @S82@
+3 QUAY 2
+1 BURI
+2 DATE 22 JUL 1999
+2 PLAC Atlantic Ocean, near Martha's Vineyard, , MA, USA
+3 MAP
+4 LATI N41.41678
+4 LONG W70.61614
+2 SOUR @S82@
+3 QUAY 2
 1 RESI
 2 PLAC New York City, , , NY, USA
 3 MAP
@@ -1394,6 +1546,7 @@
 4 LONG W74.00597
 1 REFN KENNJF60
 1 DESI MEDIUM
+1 FAMS @F75@
 1 FAMC @F8@
 1 NOTE John Fitzgerald Kennedy, Jr. was born to a newly elected President of
 2 CONT the United States as an entire country waited in anticipation.  The
@@ -1408,18 +1561,18 @@
 0 @I122@ INDI
 1 NAME Patrick Bouvier /Kennedy/
 2 GIVN Patrick, Bouvier
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
-2 DATE 8 FEB 2021
-3 TIME 20:09:51
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
 1 BIRT
 2 DATE 7 AUG 1963
-2 PLAC Falmouth, , Barnstable County, MA, USA
+2 PLAC Bourne, , Barnstable County, MA, USA
 3 MAP
-4 LATI N41.5515
-4 LONG W70.61475
+4 LATI N41.71953
+4 LONG W70.55948
 1 DEAT
 2 DATE 9 AUG 1963
 2 PLAC Boston, , Suffolk County, MA, USA
@@ -1427,16 +1580,19 @@
 4 LATI N42.35843
 4 LONG W71.05977
 1 BURI
-2 PLAC Brookline, , Norfolk County, MA, USA
+2 DATE 5 DEC 1963
+2 PLAC Arlington, 22209, Arlington County, VA, USA
 3 MAP
-4 LATI N42.33176
-4 LONG W71.12116
+4 LATI N38.88101
+4 LONG W77.10428
+2 SOUR @S8@
+3 QUAY 2
 1 REFN KENNPB63
 1 FAMC @F8@
 0 @I185@ INDI
 1 NAME Ethel /Skakel/
 2 GIVN Ethel
-2 SURN SKAKEL
+2 SURN Skakel
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1459,7 +1615,7 @@
 0 @I108@ INDI
 1 NAME Kathleen Hartington /Kennedy/
 2 GIVN Kathleen, Hartington
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1490,7 +1646,7 @@
 0 @I86@ INDI
 1 NAME Joseph Patrick /Kennedy/ II
 2 GIVN Joseph, Patrick
-2 SURN KENNEDY
+2 SURN Kennedy
 2 NSFX II
 1 SEX M
 1 SOUR @S2@
@@ -1507,10 +1663,11 @@
 1 REFN KENNJP52
 1 FAMC @F9@
 1 FAMS @F11@
+1 FAMS @F88@
 0 @I93@ INDI
 1 NAME Robert Francis /Kennedy/ Jr.
 2 GIVN Robert, Francis
-2 SURN KENNEDY
+2 SURN Kennedy
 2 NSFX Jr.
 1 SEX M
 1 SOUR @S2@
@@ -1527,10 +1684,12 @@
 1 REFN KENNRF54
 1 FAMC @F9@
 1 FAMS @F12@
+1 FAMS @F86@
+1 FAMS @F87@
 0 @I96@ INDI
 1 NAME David Anthony /Kennedy/
 2 GIVN David, Anthony
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1568,7 +1727,7 @@
 0 @I112@ INDI
 1 NAME Mary Courtney /Kennedy/
 2 GIVN Mary, Courtney
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1585,13 +1744,14 @@
 1 REFN KENNMC56
 1 FAMC @F9@
 1 FAMS @F13@
+1 FAMS @F89@
 1 NOTE Mary Courtney Kennedy Ruhe has been active in many youth projects.  It
 2 CONT was through her work at the Childrens Television Network that she met
 2 CONT her husband Jeffrey Ruhe, a sports producer.
 0 @I118@ INDI
 1 NAME Michael LeMoyne /Kennedy/
 2 GIVN Michael, LeMoyne
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1607,6 +1767,22 @@
 1 REFN KENNML58
 1 FAMC @F9@
 1 FAMS @F14@
+1 DEAT
+2 DATE 31 DEC 1997
+2 PLAC Aspen, , Pitkin County, CO, USA
+3 MAP
+4 LATI N39.18611
+4 LONG W106.81839
+2 SOUR @S96@
+3 QUAY 2
+1 BURI
+2 DATE 3 JAN 1998
+2 PLAC Brookline, , Norfolk County, MA, USA
+3 MAP
+4 LATI N42.33176
+4 LONG W71.12116
+2 SOUR @S96@
+3 QUAY 2
 1 NOTE Michael LeMoyne Kennedy is currently Vice-President of his brother
 2 CONT Joe's Citizens Energy Corporation and is doing fund-raising for his
 2 CONT campaign.  His wife Victoria's father is the well known sportscaster
@@ -1615,7 +1791,7 @@
 0 @I113@ INDI
 1 NAME Mary Kerry /Kennedy/
 2 GIVN Mary, Kerry
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1629,10 +1805,11 @@
 4 LONG W77.03637
 1 REFN KENNMK59
 1 FAMC @F9@
+1 FAMS @F80@
 0 @I95@ INDI
 1 NAME Christopher George /Kennedy/
 2 GIVN Christopher, George
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1646,10 +1823,11 @@
 4 LONG W71.05977
 1 REFN KENNCG63
 1 FAMC @F9@
+1 FAMS @F90@
 0 @I116@ INDI
 1 NAME Matthew Maxwell Taylor /Kennedy/
 2 GIVN Matthew, Maxwell, Taylor
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1666,7 +1844,7 @@
 0 @I97@ INDI
 1 NAME Douglas Harriman /Kennedy/
 2 GIVN Douglas, Harriman
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1684,7 +1862,7 @@
 0 @I126@ INDI
 1 NAME Rory Elizabeth Katherine /Kennedy/
 2 GIVN Rory, Elizabeth, Katherine
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1698,10 +1876,11 @@
 4 LONG W77.03637
 1 REFN KENNRE68
 1 FAMC @F9@
+1 FAMS @F83@
 0 @I198@ INDI
 1 NAME David Lee /Townsend/
 2 GIVN David, Lee
-2 SURN TOWNSEND
+2 SURN Townsend
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1718,7 +1897,7 @@
 0 @I200@ INDI
 1 NAME Meaghan Anne Kennedy /Townsend/
 2 GIVN Meaghan, Anne, Kennedy
-2 SURN TOWNSEND
+2 SURN Townsend
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1735,7 +1914,7 @@
 0 @I199@ INDI
 1 NAME Maeve Fahey Kennedy /Townsend/
 2 GIVN Maeve, Fahey, Kennedy
-2 SURN TOWNSEND
+2 SURN Townsend
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1749,10 +1928,19 @@
 4 LONG W72.92816
 1 REFN TOWNMF79
 1 FAMC @F10@
+1 FAMS @F84@
+1 DEAT
+2 DATE 2 APR 2020
+2 PLAC Chesapeake Bay, , , MD, USA
+3 MAP
+4 LATI N38.66680
+4 LONG W76.48490
+2 SOUR @S97@
+3 QUAY 2
 0 @I201@ INDI
 1 NAME Rose Katherine Kennedy /Townsend/
 2 GIVN Rose, Katherine, Kennedy
-2 SURN TOWNSEND
+2 SURN Townsend
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1769,7 +1957,7 @@
 0 @I168@ INDI
 1 NAME Sheila Brewster /Rauch/
 2 GIVN Sheila, Brewster
-2 SURN RAUCH
+2 SURN Rauch
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1786,7 +1974,7 @@
 0 @I117@ INDI
 1 NAME Matthew Rauch /Kennedy/
 2 GIVN Matthew, Rauch
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1803,7 +1991,7 @@
 0 @I87@ INDI
 1 NAME Joseph Patrick /Kennedy/ III
 2 GIVN Joseph, Patrick
-2 SURN KENNEDY
+2 SURN Kennedy
 2 NSFX III
 1 SEX M
 1 SOUR @S2@
@@ -1821,7 +2009,7 @@
 0 @I15@ INDI
 1 NAME Emily Ruth /Black/
 2 GIVN Emily, Ruth
-2 SURN BLACK
+2 SURN Black
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1838,7 +2026,7 @@
 0 @I88@ INDI
 1 NAME Robert Francis /Kennedy/ III
 2 GIVN Robert, Francis
-2 SURN KENNEDY
+2 SURN Kennedy
 2 NSFX III
 1 SEX M
 1 SOUR @S2@
@@ -1856,7 +2044,7 @@
 0 @I171@ INDI
 1 NAME Jeffrey Robert /Ruhe/
 2 GIVN Jeffrey, Robert
-2 SURN RUHE
+2 SURN Ruhe
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1873,7 +2061,7 @@
 0 @I69@ INDI
 1 NAME Victoria Denise /Gifford/
 2 GIVN Victoria, Denise
-2 SURN GIFFORD
+2 SURN Gifford
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -1888,9 +2076,9 @@
 1 REFN GIFFVD57
 1 FAMS @F14@
 0 @I92@ INDI
-1 NAME Michael LeMoyne /KENNEDY/ Jr.
+1 NAME Michael LeMoyne /Kennedy/ Jr.
 2 GIVN Michael, LeMoyne
-2 SURN KENNEDY
+2 SURN Kennedy
 2 NSFX Jr.
 1 SEX M
 1 SOUR @S2@
@@ -1908,7 +2096,7 @@
 0 @I109@ INDI
 1 NAME Kyle Frances /Kennedy/
 2 GIVN Kyle, Frances
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1925,7 +2113,7 @@
 0 @I120@ INDI
 1 NAME Patrick /Kennedy/
 2 GIVN Patrick
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -1957,7 +2145,7 @@
 0 @I121@ INDI
 1 NAME Patrick /Kennedy/
 2 GIVN Patrick
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2019,7 +2207,7 @@
 0 @I160@ INDI
 1 NAME Richard /Murphy/
 2 GIVN Richard
-2 SURN MURPHY
+2 SURN Murphy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2043,7 +2231,7 @@
 0 @I158@ INDI
 1 NAME Bridget /Murphy/
 2 GIVN Bridget
-2 SURN MURPHY
+2 SURN Murphy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -2085,7 +2273,7 @@
 0 @I114@ INDI
 1 NAME Mary L. /Kennedy/
 2 GIVN Mary, L.
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -2130,7 +2318,7 @@
 0 @I102@ INDI
 1 NAME Joanna L. /Kennedy/
 2 GIVN Joanna, L.
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -2174,7 +2362,7 @@
 0 @I103@ INDI
 1 NAME John /Kennedy/
 2 GIVN John
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2216,7 +2404,7 @@
 0 @I111@ INDI
 1 NAME Margaret M. /Kennedy/
 2 GIVN Margaret, M.
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -2259,7 +2447,7 @@
 0 @I123@ INDI
 1 NAME Patrick Joseph /Kennedy/
 2 GIVN Patrick, Joseph
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2308,7 +2496,7 @@
 0 @I85@ INDI
 1 NAME Philip /Kane/
 2 GIVN Philip
-2 SURN KANE
+2 SURN Kane
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2322,7 +2510,7 @@
 0 @I159@ INDI
 1 NAME Margaret /Murphy/
 2 GIVN Margaret
-2 SURN MURPHY
+2 SURN Murphy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -2336,7 +2524,7 @@
 0 @I83@ INDI
 1 NAME Lawrence M. /Kane/
 2 GIVN Lawrence, M.
-2 SURN KANE
+2 SURN Kane
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2372,7 +2560,7 @@
 0 @I82@ INDI
 1 NAME Joseph Lawrence /Kane/
 2 GIVN Joseph, Lawrence
-2 SURN KANE
+2 SURN Kane
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2402,7 +2590,7 @@
 0 @I84@ INDI
 1 NAME Mary Margaret /Kane/
 2 GIVN Mary, Margaret
-2 SURN KANE
+2 SURN Kane
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -2431,7 +2619,7 @@
 0 @I80@ INDI
 1 NAME George Philip /Kane/
 2 GIVN George, Philip
-2 SURN KANE
+2 SURN Kane
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2461,7 +2649,7 @@
 0 @I81@ INDI
 1 NAME Gertrude Margaret /Kane/
 2 GIVN Gertrude, Margaret
-2 SURN KANE
+2 SURN Kane
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -2491,7 +2679,7 @@
 0 @I156@ INDI
 1 NAME Charles Everett /Metcalf/
 2 GIVN Charles, Everett
-2 SURN METCALF
+2 SURN Metcalf
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2515,7 +2703,7 @@
 0 @I79@ INDI
 1 NAME Frederick /Kane/
 2 GIVN Frederick
-2 SURN KANE
+2 SURN Kane
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2543,7 +2731,7 @@
 0 @I146@ INDI
 1 NAME Humphrey Charles /Mahoney/
 2 GIVN Humphrey, Charles
-2 SURN MAHONEY
+2 SURN Mahoney
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2573,7 +2761,7 @@
 0 @I141@ INDI
 1 NAME Daniel /Mahoney/
 2 GIVN Daniel
-2 SURN MAHONEY
+2 SURN Mahoney
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2607,7 +2795,7 @@
 0 @I147@ INDI
 1 NAME Mary E. /Mahoney/
 2 GIVN Mary, E.
-2 SURN MAHONEY
+2 SURN Mahoney
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -2641,7 +2829,7 @@
 0 @I148@ INDI
 1 NAME William Henry /Mahoney/
 2 GIVN William, Henry
-2 SURN MAHONEY
+2 SURN Mahoney
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2670,7 +2858,7 @@
 0 @I142@ INDI
 1 NAME Frances Josephine /Mahoney/
 2 GIVN Frances, Josephine
-2 SURN MAHONEY
+2 SURN Mahoney
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -2700,7 +2888,7 @@
 0 @I204@ INDI
 1 NAME Louis Leo /Twomey/
 2 GIVN Louis, Leo
-2 SURN TWOMEY
+2 SURN Twomey
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2724,7 +2912,7 @@
 0 @I140@ INDI
 1 NAME Annie /Mahoney/
 2 GIVN Annie
-2 SURN MAHONEY
+2 SURN Mahoney
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -2759,7 +2947,7 @@
 0 @I145@ INDI
 1 NAME Henry Joseph /Mahoney/
 2 GIVN Henry, Joseph
-2 SURN MAHONEY
+2 SURN Mahoney
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2790,7 +2978,7 @@
 0 @I144@ INDI
 1 NAME Gertrude /Mahoney/
 2 GIVN Gertrude
-2 SURN MAHONEY
+2 SURN Mahoney
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -2819,7 +3007,7 @@
 0 @I143@ INDI
 1 NAME Frederick Louis /Mahoney/
 2 GIVN Frederick, Louis
-2 SURN MAHONEY
+2 SURN Mahoney
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2849,7 +3037,7 @@
 0 @I57@ INDI
 1 NAME Mary Elizabeth /Farley/
 2 GIVN Mary, Elizabeth
-2 SURN FARLEY
+2 SURN Farley
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -2872,7 +3060,7 @@
 0 @I41@ INDI
 1 NAME John Thomas /Caulfield/
 2 GIVN John, Thomas
-2 SURN CAULFIELD
+2 SURN Caulfield
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2902,7 +3090,7 @@
 0 @I42@ INDI
 1 NAME Mary Frances /Caulfield/
 2 GIVN Mary, Frances
-2 SURN CAULFIELD
+2 SURN Caulfield
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -2932,7 +3120,7 @@
 0 @I37@ INDI
 1 NAME Frederick /Caulfield/
 2 GIVN Frederick
-2 SURN CAULFIELD
+2 SURN Caulfield
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2950,7 +3138,7 @@
 0 @I34@ INDI
 1 NAME Edith M. /Caulfield/
 2 GIVN Edith, M.
-2 SURN CAULFIELD
+2 SURN Caulfield
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -2974,7 +3162,7 @@
 0 @I38@ INDI
 1 NAME Henry R. /Caulfield/
 2 GIVN Henry, R.
-2 SURN CAULFIELD
+2 SURN Caulfield
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -2997,7 +3185,7 @@
 0 @I36@ INDI
 1 NAME Florence J. /Caulfield/
 2 GIVN Florence, J.
-2 SURN CAULFIELD
+2 SURN Caulfield
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3025,7 +3213,7 @@
 0 @I35@ INDI
 1 NAME Elsie G. /Caulfield/
 2 GIVN Elsie, G.
-2 SURN CAULFIELD
+2 SURN Caulfield
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3048,7 +3236,7 @@
 0 @I39@ INDI
 1 NAME Jeanette Dorothea /Caulfield/
 2 GIVN Jeanette, Dorothea
-2 SURN CAULFIELD
+2 SURN Caulfield
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3072,7 +3260,7 @@
 0 @I40@ INDI
 1 NAME John Theodore /Caulfield/
 2 GIVN John, Theodore
-2 SURN CAULFIELD
+2 SURN Caulfield
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -3096,7 +3284,7 @@
 0 @I52@ INDI
 1 NAME Alexander G. /Crawford/
 2 GIVN Alexander, G.
-2 SURN CRAWFORD
+2 SURN Crawford
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -3116,7 +3304,7 @@
 0 @I10@ INDI
 1 NAME Julius /Baker/
 2 GIVN Julius
-2 SURN BAKER
+2 SURN Baker
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -3140,7 +3328,7 @@
 0 @I60@ INDI
 1 NAME Frank William /Finkfelt/
 2 GIVN Frank, William
-2 SURN FINKFELT
+2 SURN Finkfelt
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -3163,7 +3351,7 @@
 0 @I9@ INDI
 1 NAME Hazel Elizabeth /Baker/
 2 GIVN Hazel, Elizabeth
-2 SURN BAKER
+2 SURN Baker
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3186,7 +3374,7 @@
 0 @I59@ INDI
 1 NAME Patrick /Field/
 2 GIVN Patrick
-2 SURN FIELD
+2 SURN Field
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -3197,7 +3385,7 @@
 0 @I175@ INDI
 1 NAME Mary /Sheehy/
 2 GIVN Mary
-2 SURN SHEEHY
+2 SURN Sheehy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3208,7 +3396,7 @@
 0 @I58@ INDI
 1 NAME Margaret M. /Field/
 2 GIVN Margaret, M.
-2 SURN FIELD
+2 SURN Field
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3228,7 +3416,7 @@
 0 @I77@ INDI
 1 NAME Michael /Hickey/
 2 GIVN Michael
-2 SURN HICKEY
+2 SURN Hickey
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -3240,7 +3428,7 @@
 0 @I74@ INDI
 1 NAME Catherine /Hassett/
 2 GIVN Catherine
-2 SURN HASSETT
+2 SURN Hassett
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3252,7 +3440,7 @@
 0 @I75@ INDI
 1 NAME James /Hickey/
 2 GIVN James
-2 SURN HICKEY
+2 SURN Hickey
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -3276,7 +3464,7 @@
 0 @I76@ INDI
 1 NAME Mary Augusta /Hickey/
 2 GIVN Mary, Augusta
-2 SURN HICKEY
+2 SURN Hickey
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3305,7 +3493,7 @@
 0 @I100@ INDI
 1 NAME Francis Benedict /Kennedy/
 2 GIVN Francis, Benedict
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -3339,7 +3527,7 @@
 0 @I115@ INDI
 1 NAME Mary Loretta /Kennedy/
 2 GIVN Mary, Loretta
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3369,7 +3557,7 @@
 0 @I110@ INDI
 1 NAME Margaret Louise /Kennedy/
 2 GIVN Margaret, Louise
-2 SURN KENNEDY
+2 SURN Kennedy
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3404,7 +3592,7 @@
 0 @I49@ INDI
 1 NAME Michael John /Connelly/
 2 GIVN Michael, John
-2 SURN CONNELLY
+2 SURN Connelly
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -3415,7 +3603,7 @@
 0 @I55@ INDI
 1 NAME Margaret Elizabeth /Driscoll/
 2 GIVN Margaret, Elizabeth
-2 SURN DRISCOLL
+2 SURN Driscoll
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3426,7 +3614,7 @@
 0 @I47@ INDI
 1 NAME George William /Connelly/
 2 GIVN George, William
-2 SURN CONNELLY
+2 SURN Connelly
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -3450,7 +3638,7 @@
 0 @I48@ INDI
 1 NAME Mary Louise /Connelly/
 2 GIVN Mary, Louise
-2 SURN CONNELLY
+2 SURN Connelly
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3468,7 +3656,7 @@
 0 @I150@ INDI
 1 NAME Matthew James /McCarthy/
 2 GIVN Matthew, James
-2 SURN MCCARTHY
+2 SURN McCarthy
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -3490,7 +3678,7 @@
 0 @I32@ INDI
 1 NAME Thomas Francis /Burke/
 2 GIVN Thomas, Francis
-2 SURN BURKE
+2 SURN Burke
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -3501,7 +3689,7 @@
 0 @I149@ INDI
 1 NAME Alicia Augusta /Mann/
 2 GIVN Alicia, Augusta
-2 SURN MANN
+2 SURN Mann
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3512,7 +3700,7 @@
 0 @I30@ INDI
 1 NAME Charles Joseph /Burke/
 2 GIVN Charles, Joseph
-2 SURN BURKE
+2 SURN Burke
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -3541,7 +3729,7 @@
 0 @I31@ INDI
 1 NAME Margaret Louise /Burke/
 2 GIVN Margaret, Louise
-2 SURN BURKE
+2 SURN Burke
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3564,7 +3752,7 @@
 0 @I29@ INDI
 1 NAME Charles Joseph /Burke/ Jr.
 2 GIVN Charles, Joseph
-2 SURN BURKE
+2 SURN Burke
 2 NSFX Jr.
 1 SEX M
 1 SOUR @S2@
@@ -3588,7 +3776,7 @@
 0 @I28@ INDI
 1 NAME Thomas Francis /Burke/ II
 2 GIVN Thomas, Francis
-2 SURN BURKE
+2 SURN Burke
 2 NSFX II
 1 SEX M
 1 SOUR @S2@
@@ -3612,7 +3800,7 @@
 0 @I54@ INDI
 1 NAME John Bernard /DeVine/
 2 GIVN John, Bernard
-2 SURN DEVINE
+2 SURN Devine
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -3634,7 +3822,7 @@
 0 @I46@ INDI
 1 NAME Claire /Colton/
 2 GIVN Claire
-2 SURN COLTON
+2 SURN Colton
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3656,7 +3844,7 @@
 0 @I157@ INDI
 1 NAME Gertrude Ann /Miller/
 2 GIVN Gertrude, Ann
-2 SURN MILLER
+2 SURN Miller
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -3678,7 +3866,7 @@
 0 @I65@ INDI
 1 NAME Michael /Fitzgerald/
 2 GIVN Michael
-2 SURN FITZGERALD
+2 SURN Fitzgerald
 1 SEX M
 1 SOUR @S13@
 1 CHAN
@@ -3691,7 +3879,7 @@
 0 @I208@ INDI
 1 NAME Thomas /Wilmouth/
 2 GIVN Thomas
-2 SURN WILMOUTH
+2 SURN Wilmouth
 1 SEX M
 1 SOUR @S56@
 1 CHAN
@@ -3716,7 +3904,7 @@
 0 @I207@ INDI
 1 NAME Ellen /Wilmouth/
 2 GIVN Ellen
-2 SURN WILMOUTH
+2 SURN Wilmouth
 1 SEX F
 1 SOUR @S56@
 1 CHAN
@@ -3737,7 +3925,7 @@
 0 @I67@ INDI
 1 NAME Thomas /Fitzgerald/
 2 GIVN Thomas
-2 SURN FITZGERALD
+2 SURN Fitzgerald
 1 SEX M
 1 SOUR @S13@
 1 CHAN
@@ -3755,7 +3943,7 @@
 0 @I50@ INDI
 1 NAME Philip /Cox/
 2 GIVN Philip
-2 SURN COX
+2 SURN Cox
 1 SEX M
 1 SOUR @S56@
 1 CHAN
@@ -3778,7 +3966,7 @@
 0 @I51@ INDI
 1 NAME Rosanna /Cox/
 2 GIVN Rosanna
-2 SURN COX
+2 SURN Cox
 1 SEX F
 1 SOUR @S13@
 1 CHAN
@@ -3810,7 +3998,7 @@
 0 @I63@ INDI
 1 NAME John Francis "Honey Fitz" /Fitzgerald/
 2 GIVN John, Francis, "Honey, Fitz"
-2 SURN FITZGERALD
+2 SURN Fitzgerald
 1 SEX M
 1 SOUR @S13@
 1 CHAN
@@ -3855,7 +4043,7 @@
 0 @I71@ INDI
 1 NAME John /Hannon/
 2 GIVN John
-2 SURN HANNON
+2 SURN Hannon
 1 SEX M
 1 SOUR @S56@
 1 CHAN
@@ -3866,7 +4054,7 @@
 0 @I161@ INDI
 1 NAME Ellen /Noonan/
 2 GIVN Ellen
-2 SURN NOONAN
+2 SURN Noonan
 1 SEX F
 1 SOUR @S56@
 1 CHAN
@@ -3885,7 +4073,7 @@
 0 @I73@ INDI
 1 NAME Michael /Hannon/
 2 GIVN Michael
-2 SURN HANNON
+2 SURN Hannon
 1 SEX M
 1 SOUR @S56@
 1 CHAN
@@ -3907,7 +4095,7 @@
 0 @I64@ INDI
 1 NAME Mary Ann /Fitzgerald/
 2 GIVN Mary, Ann
-2 SURN FITZGERALD
+2 SURN Fitzgerald
 1 SEX F
 1 SOUR @S13@
 1 CHAN
@@ -3922,7 +4110,7 @@
 0 @I72@ INDI
 1 NAME Mary Josephine /Hannon/
 2 GIVN Mary, Josephine
-2 SURN HANNON
+2 SURN Hannon
 1 SEX F
 1 SOUR @S13@
 1 CHAN
@@ -3958,7 +4146,7 @@
 0 @I21@ INDI
 1 NAME George /Bouvier/
 2 GIVN George
-2 SURN BOUVIER
+2 SURN Bouvier
 1 SEX M
 1 SOUR @S3@
 1 CHAN
@@ -3969,7 +4157,7 @@
 0 @I20@ INDI
 1 NAME Francois /Bouvier/
 2 GIVN Francois
-2 SURN BOUVIER
+2 SURN Bouvier
 1 SEX M
 1 SOUR @S3@
 1 CHAN
@@ -3985,7 +4173,7 @@
 0 @I169@ INDI
 1 NAME Benoite /Repelin/
 2 GIVN Benoite
-2 SURN REPELIN
+2 SURN Repelin
 1 SEX F
 1 SOUR @S3@
 1 CHAN
@@ -3997,7 +4185,7 @@
 0 @I19@ INDI
 1 NAME Eustache /Bouvier/
 2 GIVN Eustache
-2 SURN BOUVIER
+2 SURN Bouvier
 1 SEX M
 1 SOUR @S3@
 1 CHAN
@@ -4017,7 +4205,7 @@
 0 @I153@ INDI
 1 NAME Melkior /Mercier/
 2 GIVN Melkior
-2 SURN MERCIER
+2 SURN Mercier
 1 SEX M
 1 SOUR @S3@
 1 CHAN
@@ -4029,7 +4217,7 @@
 0 @I152@ INDI
 1 NAME Joseph /Mercier/
 2 GIVN Joseph
-2 SURN MERCIER
+2 SURN Mercier
 1 SEX M
 1 SOUR @S3@
 1 CHAN
@@ -4044,7 +4232,7 @@
 0 @I203@ INDI
 1 NAME Jean /Trintignant/
 2 GIVN Jean
-2 SURN TRINTIGNANT
+2 SURN Trintignant
 1 SEX M
 1 SOUR @S3@
 1 CHAN
@@ -4056,7 +4244,7 @@
 0 @I165@ INDI
 1 NAME Therese /Paulin/
 2 GIVN Therese
-2 SURN PAULIN
+2 SURN Paulin
 1 SEX F
 1 SOUR @S3@
 1 CHAN
@@ -4068,7 +4256,7 @@
 0 @I202@ INDI
 1 NAME Anne /Trintignant/
 2 GIVN Anne
-2 SURN TRINTIGNANT
+2 SURN Trintignant
 1 SEX F
 1 SOUR @S3@
 1 CHAN
@@ -4081,7 +4269,7 @@
 0 @I154@ INDI
 1 NAME Therese /Mercier/
 2 GIVN Therese
-2 SURN MERCIER
+2 SURN Mercier
 1 SEX F
 1 SOUR @S3@
 1 CHAN
@@ -4097,7 +4285,7 @@
 0 @I25@ INDI
 1 NAME Michel /Bouvier/
 2 GIVN Michel
-2 SURN BOUVIER
+2 SURN Bouvier
 1 SEX M
 1 SOUR @S3@
 1 CHAN
@@ -4120,7 +4308,7 @@
 0 @I138@ INDI
 1 NAME William Alexander /Lindsay/
 2 GIVN William, Alexander
-2 SURN LINDSAY
+2 SURN Lindsay
 1 SEX M
 1 SOUR @S3@
 1 CHAN
@@ -4132,7 +4320,7 @@
 0 @I45@ INDI
 1 NAME Elizabeth /Clifford/
 2 GIVN Elizabeth
-2 SURN CLIFFORD
+2 SURN Clifford
 1 SEX F
 1 SOUR @S3@
 1 CHAN
@@ -4144,7 +4332,7 @@
 0 @I137@ INDI
 1 NAME Elizabeth Clifford /Lindsay/
 2 GIVN Elizabeth, Clifford
-2 SURN LINDSAY
+2 SURN Lindsay
 1 SEX F
 1 SOUR @S3@
 1 CHAN
@@ -4157,7 +4345,7 @@
 0 @I205@ INDI
 1 NAME John /Vernou/
 2 GIVN John
-2 SURN VERNOU
+2 SURN Vernou
 1 SEX M
 1 SOUR @S3@
 1 CHAN
@@ -4169,7 +4357,7 @@
 0 @I206@ INDI
 1 NAME Louise C. /Vernou/
 2 GIVN Louise, C.
-2 SURN VERNOU
+2 SURN Vernou
 1 SEX F
 1 SOUR @S3@
 1 CHAN
@@ -4182,7 +4370,7 @@
 0 @I23@ INDI
 1 NAME John Vernou /Bouvier/
 2 GIVN John, Vernou
-2 SURN BOUVIER
+2 SURN Bouvier
 1 SEX M
 1 SOUR @S3@
 1 CHAN
@@ -4198,7 +4386,7 @@
 0 @I56@ INDI
 1 NAME Caroline Maslin /Ewing/
 2 GIVN Caroline, Maslin
-2 SURN EWING
+2 SURN Ewing
 1 SEX F
 1 SOUR @S3@
 1 CHAN
@@ -4210,7 +4398,7 @@
 0 @I17@ INDI
 1 NAME John Vernou /Bouvier/ Jr.
 2 GIVN John, Vernou
-2 SURN BOUVIER
+2 SURN Bouvier
 2 NSFX Jr.
 1 SEX M
 1 SOUR @S3@
@@ -4227,7 +4415,7 @@
 0 @I174@ INDI
 1 NAME William R. /Sergeant/
 2 GIVN William, R.
-2 SURN SERGEANT
+2 SURN Sergeant
 1 SEX M
 1 SOUR @S3@
 1 CHAN
@@ -4239,7 +4427,7 @@
 0 @I133@ INDI
 1 NAME Edith /Leaman/
 2 GIVN Edith
-2 SURN LEAMAN
+2 SURN Leaman
 1 SEX F
 1 SOUR @S3@
 1 CHAN
@@ -4251,7 +4439,7 @@
 0 @I173@ INDI
 1 NAME Maud Frances /Sergeant/
 2 GIVN Maud, Frances
-2 SURN SERGEANT
+2 SURN Sergeant
 1 SEX F
 1 SOUR @S3@
 1 CHAN
@@ -4265,7 +4453,7 @@
 0 @I16@ INDI
 1 NAME John Vernou /Bouvier/ III
 2 GIVN John, Vernou
-2 SURN BOUVIER
+2 SURN Bouvier
 2 NSFX III
 1 SEX M
 1 OBJE
@@ -4300,7 +4488,7 @@
 0 @I26@ INDI
 1 NAME William Sergeant (Bud) /Bouvier/
 2 GIVN William, Sergeant, (Bud)
-2 SURN BOUVIER
+2 SURN Bouvier
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -4326,7 +4514,7 @@
 0 @I197@ INDI
 1 NAME Emma Louise /Stone/
 2 GIVN Emma, Louise
-2 SURN STONE
+2 SURN Stone
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -4338,7 +4526,7 @@
 0 @I24@ INDI
 1 NAME Michel /Bouvier/
 2 GIVN Michel
-2 SURN BOUVIER
+2 SURN Bouvier
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -4350,7 +4538,7 @@
 0 @I134@ INDI
 1 NAME Dr. James /Lee/
 2 GIVN Dr., James
-2 SURN LEE
+2 SURN Lee
 1 SEX M
 1 SOUR @S3@
 1 CHAN
@@ -4362,7 +4550,7 @@
 0 @I162@ INDI
 1 NAME Mary /Norton/
 2 GIVN Mary
-2 SURN NORTON
+2 SURN Norton
 1 SEX F
 1 SOUR @S3@
 1 CHAN
@@ -4374,7 +4562,7 @@
 0 @I135@ INDI
 1 NAME James Thomas /Lee/
 2 GIVN James, Thomas
-2 SURN LEE
+2 SURN Lee
 1 SEX M
 1 SOUR @S3@
 1 CHAN
@@ -4389,7 +4577,7 @@
 0 @I155@ INDI
 1 NAME Margaret A. /Merritt/
 2 GIVN Margaret, A.
-2 SURN MERRITT
+2 SURN Merritt
 1 SEX F
 1 SOUR @S3@
 1 CHAN
@@ -4401,7 +4589,7 @@
 0 @I136@ INDI
 1 NAME Janet Norton /Lee/
 2 GIVN Janet, Norton
-2 SURN LEE
+2 SURN Lee
 1 SEX F
 1 SOUR @S2@
 1 CHAN
@@ -4418,7 +4606,7 @@
 0 @I18@ INDI
 1 NAME Caroline Lee /Bouvier/
 2 GIVN Caroline, Lee
-2 SURN BOUVIER
+2 SURN Bouvier
 1 SEX F
 1 SOUR @S4@
 1 CHAN
@@ -4443,7 +4631,7 @@
 0 @I14@ INDI
 1 NAME Stephen /Birmingham/
 2 GIVN Stephen
-2 SURN BIRMINGHAM
+2 SURN Birmingham
 1 SEX M
 1 SOUR @S3@
 1 CHAN
@@ -4460,7 +4648,7 @@
 0 @I33@ INDI
 1 NAME Michael /Canfield/
 2 GIVN Michael
-2 SURN CANFIELD
+2 SURN Canfield
 1 SEX M
 1 SOUR @S4@
 1 CHAN
@@ -4471,7 +4659,7 @@
 0 @I167@ INDI
 1 NAME Prince Stanislaus /Radziwill/
 2 GIVN Prince, Stanislaus
-2 SURN RADZIWILL
+2 SURN Radziwill
 1 SEX M
 1 SOUR @S4@
 1 CHAN
@@ -4482,7 +4670,7 @@
 0 @I166@ INDI
 1 NAME Anna Christina /Radziwill/
 2 GIVN Anna, Christina
-2 SURN RADZIWILL
+2 SURN Radziwill
 1 SEX F
 1 SOUR @S4@
 1 CHAN
@@ -4495,7 +4683,7 @@
 0 @I6@ INDI
 1 NAME Hugh D. /Auchincloss/
 2 GIVN Hugh, D.
-2 SURN AUCHINCLOSS
+2 SURN Auchincloss
 1 SEX M
 1 SOUR @S4@
 1 CHAN
@@ -4506,7 +4694,7 @@
 0 @I8@ INDI
 1 NAME Janet Jennings /Auchincloss/
 2 GIVN Janet, Jennings
-2 SURN AUCHINCLOSS
+2 SURN Auchincloss
 1 SEX F
 1 SOUR @S4@
 1 CHAN
@@ -4519,7 +4707,7 @@
 0 @I7@ INDI
 1 NAME James Lee /Auchincloss/
 2 GIVN James, Lee
-2 SURN AUCHINCLOSS
+2 SURN Auchincloss
 1 SEX M
 1 SOUR @S4@
 1 CHAN
@@ -4532,7 +4720,7 @@
 0 @I53@ INDI
 1 NAME Lester /David/
 2 GIVN Lester
-2 SURN DAVID
+2 SURN David
 1 SEX M
 1 CHAN
 2 DATE 8 FEB 2021
@@ -4540,7 +4728,7 @@
 0 @I186@ INDI
 1 NAME George /Skakel/
 2 GIVN George
-2 SURN SKAKEL
+2 SURN Skakel
 1 SEX M
 1 SOUR @S5@
 1 CHAN
@@ -4561,7 +4749,7 @@
 0 @I27@ INDI
 1 NAME Ann /Brannack/
 2 GIVN Ann
-2 SURN BRANNACK
+2 SURN Brannack
 1 SEX F
 1 SOUR @S5@
 1 CHAN
@@ -4577,7 +4765,7 @@
 0 @I187@ INDI
 1 NAME Georgeanne /Skakel/
 2 GIVN Georgeanne
-2 SURN SKAKEL
+2 SURN Skakel
 1 SEX F
 1 SOUR @S5@
 1 CHAN
@@ -4590,7 +4778,7 @@
 0 @I188@ INDI
 1 NAME James /Skakel/
 2 GIVN James
-2 SURN SKAKEL
+2 SURN Skakel
 1 SEX M
 1 SOUR @S5@
 1 CHAN
@@ -4603,7 +4791,7 @@
 0 @I183@ INDI
 1 NAME George /Skakel/ Jr.
 2 GIVN George
-2 SURN SKAKEL
+2 SURN Skakel
 2 NSFX Jr.
 1 SEX M
 1 SOUR @S5@
@@ -4617,7 +4805,7 @@
 0 @I190@ INDI
 1 NAME Rushton /Skakel/
 2 GIVN Rushton
-2 SURN SKAKEL
+2 SURN Skakel
 1 SEX M
 1 SOUR @S5@
 1 CHAN
@@ -4630,7 +4818,7 @@
 0 @I189@ INDI
 1 NAME Patricia /Skakel/
 2 GIVN Patricia
-2 SURN SKAKEL
+2 SURN Skakel
 1 SEX F
 1 SOUR @S5@
 1 CHAN
@@ -4643,7 +4831,7 @@
 0 @I184@ INDI
 1 NAME Ann /Skakel/
 2 GIVN Ann
-2 SURN SKAKEL
+2 SURN Skakel
 1 SEX F
 1 SOUR @S5@
 1 CHAN
@@ -4656,7 +4844,7 @@
 0 @I44@ INDI
 1 NAME Marcia /Chellis/
 2 GIVN Marcia
-2 SURN CHELLIS
+2 SURN Chellis
 1 SEX M
 1 SOUR @S5@
 1 CHAN
@@ -4665,7 +4853,7 @@
 0 @I12@ INDI
 1 NAME Harry Wiggin /Bennett/
 2 GIVN Harry, Wiggin
-2 SURN BENNETT
+2 SURN Bennett
 1 SEX M
 1 SOUR @S6@
 1 CHAN
@@ -4677,7 +4865,7 @@
 0 @I196@ INDI
 1 NAME Virginia Joan /Stead/
 2 GIVN Virginia, Joan
-2 SURN STEAD
+2 SURN Stead
 1 SEX F
 1 SOUR @S6@
 1 CHAN
@@ -4688,7 +4876,7 @@
 0 @I11@ INDI
 1 NAME Candace /Bennett/
 2 GIVN Candace
-2 SURN BENNETT
+2 SURN Bennett
 1 SEX F
 1 SOUR @S6@
 1 CHAN
@@ -4705,7 +4893,7 @@
 0 @I172@ INDI
 1 NAME Edwin /Schlossberg/
 2 GIVN Edwin
-2 SURN SCHLOSSBERG
+2 SURN Schlossberg
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -4718,7 +4906,7 @@
 0 @I43@ INDI
 1 NAME William John Robert /Cavendish/
 2 GIVN William, John, Robert
-2 SURN CAVENDISH
+2 SURN Cavendish
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -4738,7 +4926,7 @@
 0 @I164@ INDI
 1 NAME Aristotle Socrates /Onassis/
 2 GIVN Aristotle, Socrates
-2 SURN ONASSIS
+2 SURN Onassis
 1 SEX M
 1 SOUR @S2@
 1 CHAN
@@ -4752,15 +4940,15 @@
 0 @I68@ INDI
 1 NAME Edward L. /Galvin/
 2 GIVN Edward, L.
-2 SURN GALVIN
+2 SURN Galvin
 1 SEX M
 1 CHAN
 2 DATE 8 FEB 2021
 3 TIME 20:09:50
 0 @I78@ INDI
-1 NAME Linda /HOLMES/
+1 NAME Linda /Holmes/
 2 GIVN Linda
-2 SURN HOLMES
+2 SURN Holmes
 1 SEX F
 1 SOUR @S63@
 1 CHAN
@@ -4769,7 +4957,7 @@
 0 @I70@ INDI
 1 NAME Doris Kearns /Goodwin/
 2 GIVN Doris, Kearns
-2 SURN GOODWIN
+2 SURN Goodwin
 1 SEX F
 1 SOUR @S11@
 1 CHAN
@@ -4784,7 +4972,7 @@
 0 @I170@ INDI
 1 NAME Gary Boyd /Roberts/
 2 GIVN Gary, Boyd
-2 SURN ROBERTS
+2 SURN Roberts
 1 SEX M
 1 SOUR @S12@
 1 CHAN
@@ -4794,7 +4982,7 @@
 0 @I62@ INDI
 1 NAME James /Fitzgerald/
 2 GIVN James
-2 SURN FITZGERALD
+2 SURN Fitzgerald
 1 SEX M
 1 SOUR @S13@
 1 CHAN
@@ -4806,7 +4994,7 @@
 0 @I61@ INDI
 1 NAME Edmond (Edward) /Fitzgerald/
 2 GIVN Edmond, (Edward)
-2 SURN FITZGERALD
+2 SURN Fitzgerald
 1 SEX M
 1 SOUR @S13@
 1 CHAN
@@ -4826,7 +5014,7 @@
 0 @I139@ INDI
 1 NAME Mary /Linnehan/
 2 GIVN Mary
-2 SURN LINNEHAN
+2 SURN Linnehan
 1 SEX F
 1 CHAN
 2 DATE 8 FEB 2021
@@ -4834,6 +5022,837 @@
 1 DEAT
 1 ANCI HIGH
 1 FAMS @F71@
+0 @I209@ INDI
+1 NAME Carolyn Jeanne /Bessette/
+2 GIVN Carolyn, Jeanne
+2 SURN Bessette
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 7 JAN 1966
+2 PLAC White Plains, , Westchester County, NY, USA
+3 MAP
+4 LATI N41.03399
+4 LONG W73.76291
+2 SOUR @S83@
+3 QUAY 2
+1 DEAT
+2 DATE 16 JUL 1999
+2 PLAC Atlantic Ocean, near Martha's Vineyard, , MA, USA
+3 MAP
+4 LATI N41.41678
+4 LONG W70.61614
+2 SOUR @S82@
+3 QUAY 2
+1 BURI
+2 DATE 22 JUL 1999
+2 PLAC Atlantic Ocean, near Martha's Vineyard, , MA, USA
+3 MAP
+4 LATI N41.41678
+4 LONG W70.61614
+2 SOUR @S82@
+3 QUAY 2
+1 OCCU Publicist
+1 REFN BESSCA66
+1 FAMS @F75@
+0 @I210@ INDI
+1 NAME Rose Kennedy /Schlossberg/
+2 GIVN Rose, Kennedy
+2 SURN Schlossberg
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 25 JUN 1988
+2 PLAC New York City, , , NY, USA
+3 MAP
+4 LATI N40.71427
+4 LONG W74.00597
+1 OCCU Artist
+1 REFN SCHLORO88
+1 FAMC @F68@
+1 FAMS @F76@
+0 @I211@ INDI
+1 NAME Tatiana Celia Kennedy /Schlossberg/
+2 GIVN Tatiana, Celia, Kennedy
+2 SURN Schlossberg
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 5 MAY 1990
+2 PLAC New York City, , , NY, USA
+3 MAP
+4 LATI N40.71427
+4 LONG W74.00597
+1 DEAT
+2 DATE 30 DEC 2025
+2 PLAC New York City, , , NY, USA
+3 MAP
+4 LATI N40.71427
+4 LONG W74.00597
+2 SOUR @S85@
+3 QUAY 2
+1 OCCU Environmental journalist
+1 REFN SCHLOTA90
+1 FAMC @F68@
+1 FAMS @F77@
+0 @I212@ INDI
+1 NAME John Bouvier Kennedy /Schlossberg/
+2 GIVN John, Bouvier, Kennedy
+2 SURN Schlossberg
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 19 JAN 1993
+2 PLAC New York City, , , NY, USA
+3 MAP
+4 LATI N40.71427
+4 LONG W74.00597
+1 OCCU Political commentator
+1 REFN SCHLOJA93
+1 FAMC @F68@
+0 @I213@ INDI
+1 NAME Rory /McAuliffe/
+2 GIVN Rory
+2 SURN McAuliffe
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 OCCU Restaurateur
+1 REFN MCAULRO
+1 FAMS @F76@
+0 @I214@ INDI
+1 NAME George /Moran/
+2 GIVN George
+2 SURN Moran
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 OCCU Physician
+1 REFN MORANGO
+1 FAMS @F77@
+0 @I215@ INDI
+1 NAME Son of Tatiana /Moran/
+2 GIVN Son of Tatiana
+2 SURN Moran
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 2022
+2 SOUR @S85@
+3 QUAY 1
+1 FAMC @F77@
+0 @I216@ INDI
+1 NAME Daughter of Tatiana /Moran/
+2 GIVN Daughter of Tatiana
+2 SURN Moran
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 2024
+2 SOUR @S85@
+3 QUAY 1
+1 FAMC @F77@
+0 @I259@ INDI
+1 NAME Paul Michael /Hill/
+2 GIVN Paul, Michael
+2 SURN Hill
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1953
+2 PLAC Belfast, , , , Northern Ireland
+1 REFN HILLPM53
+1 FAMS @F89@
+0 @I260@ INDI
+1 NAME Saoirse Roisin /Kennedy Hill/
+2 GIVN Saoirse, Roisin
+2 SURN Kennedy HILL
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1997
+1 DEAT
+2 DATE 1 AUG 2019
+2 PLAC Hyannis Port, , Barnstable County, MA, USA
+3 MAP
+4 LATI N41.65289
+4 LONG W70.28280
+2 SOUR @S99@
+3 QUAY 2
+1 REFN HILLSR97
+1 FAMC @F89@
+0 @I261@ INDI
+1 NAME Sheila Sinclair /Berner/
+2 GIVN Sheila, Sinclair
+2 SURN Berner
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 4 DEC 1962
+1 DEAT
+2 DATE 2021
+1 REFN BERNSB62
+1 FAMS @F90@
+0 @I262@ INDI
+1 NAME Katherine Berner /Kennedy/
+2 GIVN Katherine, Berner
+2 SURN Kennedy
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1990
+1 REFN KENNKB90
+1 FAMC @F90@
+0 @I263@ INDI
+1 NAME Christopher George /Kennedy/ Jr.
+2 GIVN Christopher, George
+2 SURN Kennedy
+2 NSFX Jr.
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1992
+1 REFN KENNCG92
+1 FAMC @F90@
+0 @I264@ INDI
+1 NAME Sarah Louise /Kennedy/
+2 GIVN Sarah, Louise
+2 SURN Kennedy
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1994
+1 REFN KENNSL94
+1 FAMC @F90@
+0 @I265@ INDI
+1 NAME Clare Elizabeth /Kennedy/
+2 GIVN Clare, Elizabeth
+2 SURN Kennedy
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1998
+1 REFN KENNCE98
+1 FAMC @F90@
+0 @I217@ INDI
+1 NAME Victoria Anne /Reggie/
+2 GIVN Victoria, Anne
+2 SURN Reggie
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 26 FEB 1954
+2 PLAC Crowley, , Acadia Parish, LA, USA
+3 MAP
+4 LATI N30.21409
+4 LONG W92.37459
+1 REFN REGGVA54
+1 FAMS @F78@
+0 @I218@ INDI
+1 NAME Kerry Sophia Kennedy /Townsend/
+2 GIVN Kerry, Sophia, Kennedy
+2 SURN Townsend
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 30 NOV 1991
+1 REFN TOWNKS91
+1 FAMC @F10@
+0 @I219@ INDI
+1 NAME Rory Gifford /Kennedy/
+2 GIVN Rory, Gifford
+2 SURN Kennedy
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1987
+1 REFN KENNRG87
+1 FAMC @F14@
+0 @I220@ INDI
+1 NAME Kathleen Alexandra /Kennedy/
+2 GIVN Kathleen, Alexandra
+2 SURN Kennedy
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1988
+1 REFN KENNKA88
+1 FAMC @F12@
+0 @I221@ INDI
+1 NAME Anne Elizabeth /Kelly/
+2 GIVN Anne, Elizabeth
+2 SURN Kelly
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 REFN KELLAB
+1 FAMS @F88@
+0 @I222@ INDI
+1 NAME Michael /Allen/
+2 GIVN Michael
+2 SURN Allen
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 REFN ALLENM
+1 FAMS @F79@
+0 @I223@ INDI
+1 NAME Andrew Mark /Cuomo/
+2 GIVN Andrew, Mark
+2 SURN Cuomo
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 6 DEC 1957
+2 PLAC Ozone Park, , Queens County, NY, USA
+3 MAP
+4 LATI N40.67788
+4 LONG W73.84485
+1 OCCU Governor
+1 REFN CUOMOAM57
+1 FAMS @F80@
+0 @I224@ INDI
+1 NAME Katherine Anne /Gershman/
+2 GIVN Katherine, Anne
+2 SURN Gershman
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1959
+1 OCCU Psychiatrist
+1 REFN GERSHKA59
+1 FAMS @F81@
+0 @I225@ INDI
+1 NAME Amy /Savell/
+2 GIVN Amy
+2 SURN Savell
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 REFN SAVELAS
+1 FAMS @F82@
+0 @I226@ INDI
+1 NAME Mark /Bailey/
+2 GIVN Mark
+2 SURN Bailey
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 OCCU Writer
+1 REFN BAILEM
+1 FAMS @F83@
+0 @I227@ INDI
+1 NAME David /McKean/
+2 GIVN David
+2 SURN McKean
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 OCCU Diplomat
+1 REFN MCKEAD
+1 FAMS @F84@
+0 @I228@ INDI
+1 NAME Anne /Henry/
+2 GIVN Anne
+2 SURN Henry
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 REFN HENRYAH
+1 FAMS @F85@
+0 @I229@ INDI
+1 NAME Grace Elizabeth /Allen/
+2 GIVN Grace, Elizabeth
+2 SURN Allen
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1994
+1 REFN ALLENGE94
+1 FAMC @F79@
+0 @I230@ INDI
+1 NAME Max Greathouse /Allen/
+2 GIVN Max, Greathouse
+2 SURN Allen
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1996
+1 REFN ALLENMGA96
+1 FAMC @F79@
+0 @I231@ INDI
+1 NAME Cara Ethel /Kennedy-Cuomo/
+2 GIVN Cara, Ethel
+2 SURN Kennedy-CUOMO
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1995
+1 REFN KENCUCE95
+1 FAMC @F80@
+0 @I232@ INDI
+1 NAME Mariah Matilda /Kennedy-Cuomo/
+2 GIVN Mariah, Matilda
+2 SURN Kennedy-CUOMO
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1995
+1 REFN KENCUMM95
+1 FAMC @F80@
+0 @I233@ INDI
+1 NAME Michaela Andrea /Kennedy-Cuomo/
+2 GIVN Michaela, Andrea
+2 SURN Kennedy-CUOMO
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1997
+1 REFN KENCUMA97
+1 FAMC @F80@
+0 @I234@ INDI
+1 NAME Kiley Elizabeth /Kennedy/
+2 GIVN Kiley, Elizabeth
+2 SURN Kennedy
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 7 AUG 1994
+2 PLAC New Haven, , New Haven County, CT, USA
+3 MAP
+4 LATI N41.30815
+4 LONG W72.92816
+1 REFN KENNKE94
+1 FAMC @F81@
+0 @I235@ INDI
+1 NAME Edward Moore /Kennedy/ III
+2 GIVN Edward, Moore
+2 SURN Kennedy
+2 NSFX III
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 26 FEB 1998
+2 PLAC New Haven, , New Haven County, CT, USA
+3 MAP
+4 LATI N41.30815
+4 LONG W72.92816
+1 REFN KENNEM98
+1 FAMC @F81@
+0 @I236@ INDI
+1 NAME Owen /Kennedy/
+2 GIVN Owen
+2 SURN Kennedy
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 2012
+1 REFN KENNOW12
+1 FAMC @F82@
+0 @I237@ INDI
+1 NAME Marshall /Kennedy/
+2 GIVN Marshall
+2 SURN Kennedy
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 REFN KENNMAR
+1 FAMC @F82@
+0 @I238@ INDI
+1 NAME Daughter of Patrick /Kennedy/
+2 GIVN Daughter of Patrick
+2 SURN Kennedy
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 2013
+1 REFN KENNDP13
+1 FAMC @F82@
+0 @I239@ INDI
+1 NAME Daughter of Patrick /Kennedy/
+2 GIVN Daughter of Patrick
+2 SURN Kennedy
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 2015
+1 REFN KENNDP15
+1 FAMC @F82@
+0 @I240@ INDI
+1 NAME Daughter of Rory /Kennedy/
+2 GIVN Daughter of Rory
+2 SURN Kennedy
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 2003
+1 REFN KENNDR03
+1 FAMC @F83@
+0 @I241@ INDI
+1 NAME Daughter of Rory /Kennedy/
+2 GIVN Daughter of Rory
+2 SURN Kennedy
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 2004
+1 REFN KENNDR04
+1 FAMC @F83@
+0 @I242@ INDI
+1 NAME Son of Rory /Kennedy/
+2 GIVN Son of Rory
+2 SURN Kennedy
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 2007
+1 REFN KENNSR07
+1 FAMC @F83@
+0 @I243@ INDI
+1 NAME Gideon Joseph Kennedy /McKean/
+2 GIVN Gideon, Joseph, Kennedy
+2 SURN McKean
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 2012
+1 DEAT
+2 DATE 2 APR 2020
+2 PLAC Chesapeake Bay, , , MD, USA
+3 MAP
+4 LATI N38.66680
+4 LONG W76.48490
+2 SOUR @S97@
+3 QUAY 2
+1 REFN MCKEAGJ12
+1 FAMC @F84@
+0 @I244@ INDI
+1 NAME Child of Maeve /McKean/
+2 GIVN Child of Maeve
+2 SURN McKean
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 REFN MCKEA2
+1 FAMC @F84@
+0 @I245@ INDI
+1 NAME Child of Maeve /McKean/
+2 GIVN Child of Maeve
+2 SURN McKean
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 REFN MCKEA3
+1 FAMC @F84@
+0 @I246@ INDI
+1 NAME Conor Rory /Kennedy/
+2 GIVN Conor, Rory
+2 SURN Kennedy
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1994
+1 REFN KENNCR94
+1 FAMC @F86@
+0 @I247@ INDI
+1 NAME Kyra LeMoyne /Kennedy/
+2 GIVN Kyra, LeMoyne
+2 SURN Kennedy
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1995
+1 REFN KENNKL95
+1 FAMC @F86@
+0 @I248@ INDI
+1 NAME William Finbar /Kennedy/
+2 GIVN William, Finbar
+2 SURN Kennedy
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1997
+1 REFN KENNWF97
+1 FAMC @F86@
+0 @I249@ INDI
+1 NAME Aidan Caohman /Kennedy/
+2 GIVN Aidan, Caohman
+2 SURN Kennedy
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 1999
+1 REFN KENNAK99
+1 FAMC @F86@
+0 @I250@ INDI
+1 NAME Mary Kathleen /Richardson/
+2 GIVN Mary, Kathleen
+2 SURN Richardson
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 2 JUN 1959
+1 DEAT
+2 DATE 16 MAY 2012
+2 PLAC Bedford, , Westchester County, NY, USA
+3 MAP
+4 LATI N41.38676
+4 LONG W73.64152
+1 REFN RICHMK59
+1 FAMS @F86@
+0 @I251@ INDI
+1 NAME Cheryl /Hines/
+2 GIVN Cheryl
+2 SURN Hines
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 21 SEP 1965
+2 PLAC Miami, , Miami-Dade County, FL, USA
+3 MAP
+4 LATI N25.77427
+4 LONG W80.19366
+1 OCCU Actress
+1 REFN HINECJ65
+1 FAMS @F87@
+0 @I252@ INDI
+1 NAME David Christopher Kennedy /Lawford/
+2 GIVN David, Christopher, Kennedy
+2 SURN Lawford
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 REFN LAWFDC
+1 FAMC @F3@
+0 @I253@ INDI
+1 NAME Savannah Rose /Lawford/
+2 GIVN Savannah, Rose
+2 SURN Lawford
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 REFN LAWFSR
+1 FAMC @F3@
+0 @I254@ INDI
+1 NAME Matthew Peter Valentine /Lawford/
+2 GIVN Matthew, Peter, Valentine
+2 SURN Lawford
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 REFN LAWFMPV
+1 FAMC @F3@
+0 @I255@ INDI
+1 NAME Katherine Eunice /Schwarzenegger/
+2 GIVN Katherine, Eunice
+2 SURN Schwarzenegger
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 13 DEC 1989
+2 PLAC Los Angeles, , Los Angeles County, CA, USA
+3 MAP
+4 LATI N34.05223
+4 LONG W118.24368
+1 REFN SCHWKE89
+1 FAMC @F5@
+0 @I256@ INDI
+1 NAME Christina Aurelia /Schwarzenegger/
+2 GIVN Christina, Aurelia
+2 SURN Schwarzenegger
+1 SEX F
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 23 JUL 1991
+2 PLAC Los Angeles, , Los Angeles County, CA, USA
+3 MAP
+4 LATI N34.05223
+4 LONG W118.24368
+1 REFN SCHWCA91
+1 FAMC @F5@
+0 @I257@ INDI
+1 NAME Patrick Arnold Shriver /Schwarzenegger/
+2 GIVN Patrick, Arnold, Shriver
+2 SURN Schwarzenegger
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 18 SEP 1993
+2 PLAC Los Angeles, , Los Angeles County, CA, USA
+3 MAP
+4 LATI N34.05223
+4 LONG W118.24368
+1 REFN SCHWPA93
+1 FAMC @F5@
+0 @I258@ INDI
+1 NAME Christopher Sargent Shriver /Schwarzenegger/
+2 GIVN Christopher, Sargent, Shriver
+2 SURN Schwarzenegger
+1 SEX M
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 BIRT
+2 DATE 27 SEP 1997
+2 PLAC Los Angeles, , Los Angeles County, CA, USA
+3 MAP
+4 LATI N34.05223
+4 LONG W118.24368
+1 REFN SCHWCS97
+1 FAMC @F5@
 0 @F0@ FAM
 1 SOUR @S2@
 1 CHAN
@@ -4909,6 +5928,9 @@
 2 PLAC Bequia, , , , West Indies
 1 HUSB @I128@
 1 WIFE @I163@
+1 CHIL @I252@
+1 CHIL @I253@
+1 CHIL @I254@
 0 @F4@ FAM
 1 SOUR @S2@
 1 CHAN
@@ -4933,8 +5955,14 @@
 3 MAP
 4 LATI N41.65289
 4 LONG W70.2828
+1 DIV
+2 DATE 2021
 1 HUSB @I182@
 1 WIFE @I179@
+1 CHIL @I255@
+1 CHIL @I256@
+1 CHIL @I257@
+1 CHIL @I258@
 0 @F6@ FAM
 1 SOUR @S2@
 1 CHAN
@@ -4972,7 +6000,7 @@
 1 CHIL @I124@
 0 @F8@ FAM
 1 OBJE
-2 TITL John and Jacqueline KENNEDY
+2 TITL John and Jacqueline Kennedy
 2 FILE photos/JFK_Jacqueline-BOUVIER.jpg
 3 FORM jpg
 2 NOTE
@@ -5033,6 +6061,7 @@
 1 CHIL @I200@
 1 CHIL @I199@
 1 CHIL @I201@
+1 CHIL @I218@
 0 @F11@ FAM
 1 SOUR @S2@
 1 CHAN
@@ -5059,6 +6088,9 @@
 1 HUSB @I93@
 1 WIFE @I15@
 1 CHIL @I88@
+1 CHIL @I220@
+1 DIV
+2 DATE 1994
 0 @F13@ FAM
 1 SOUR @S2@
 1 CHAN
@@ -5066,10 +6098,10 @@
 3 TIME 20:22:32
 1 MARR
 2 DATE 14 JUN 1980
-2 PLAC Washington, , , DC, USA
+2 PLAC Greenwich, , Fairfield County, CT, USA
 3 MAP
-4 LATI N38.89511
-4 LONG W77.03637
+4 LATI N41.02649
+4 LONG W73.62846
 1 HUSB @I171@
 1 WIFE @I112@
 0 @F14@ FAM
@@ -5087,6 +6119,7 @@
 1 WIFE @I69@
 1 CHIL @I92@
 1 CHIL @I109@
+1 CHIL @I219@
 0 @F15@ FAM
 1 SOUR @S2@
 1 CHAN
@@ -5712,8 +6745,8 @@
 0 @F68@ FAM
 1 SOUR @S2@
 1 CHAN
-2 DATE 25 MAR 2018
-3 TIME 20:06:11
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
 1 MARR
 2 DATE 19 JUL 1986
 2 PLAC Centerville, , Barnstable County, MA, USA
@@ -5722,6 +6755,9 @@
 4 LONG W70.34808
 1 HUSB @I172@
 1 WIFE @I94@
+1 CHIL @I210@
+1 CHIL @I211@
+1 CHIL @I212@
 0 @F69@ FAM
 1 SOUR @S2@
 1 CHAN
@@ -5767,6 +6803,242 @@
 0 @F74@ FAM
 1 HUSB @I153@
 1 CHIL @I152@
+0 @F75@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 21 SEP 1996
+2 PLAC Cumberland Island, , Camden County, GA, USA
+3 MAP
+4 LATI N30.85568
+4 LONG W81.46229
+2 SOUR @S83@
+3 QUAY 2
+1 HUSB @I90@
+1 WIFE @I209@
+0 @F76@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 2022
+1 HUSB @I213@
+1 WIFE @I210@
+0 @F77@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 9 SEP 2017
+2 PLAC Aquinnah, , Dukes County, MA, USA
+3 MAP
+4 LATI N41.34893
+4 LONG W70.76928
+2 SOUR @S84@
+3 QUAY 2
+1 HUSB @I214@
+1 WIFE @I211@
+1 CHIL @I215@
+1 CHIL @I216@
+0 @F78@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 3 JUL 1992
+2 PLAC McLean, , Fairfax County, VA, USA
+3 MAP
+4 LATI N38.93428
+4 LONG W77.17748
+2 SOUR @S94@
+3 QUAY 2
+1 HUSB @I98@
+1 WIFE @I217@
+0 @F79@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 9 SEP 1990
+2 PLAC Centerville, , Barnstable County, MA, USA
+3 MAP
+4 LATI N41.64872
+4 LONG W70.34808
+2 SOUR @S95@
+3 QUAY 2
+1 DIV
+1 HUSB @I222@
+1 WIFE @I106@
+1 CHIL @I229@
+1 CHIL @I230@
+0 @F80@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 9 JUN 1990
+2 PLAC Washington, , , DC, USA
+3 MAP
+4 LATI N38.89511
+4 LONG W77.03637
+1 DIV
+2 DATE 2005
+1 HUSB @I223@
+1 WIFE @I113@
+1 CHIL @I231@
+1 CHIL @I232@
+1 CHIL @I233@
+0 @F81@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 10 OCT 1993
+2 PLAC Block Island, , Washington County, RI, USA
+3 MAP
+4 LATI N41.17121
+4 LONG W71.57715
+1 HUSB @I89@
+1 WIFE @I224@
+1 CHIL @I234@
+1 CHIL @I235@
+0 @F82@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 15 JUL 2011
+2 PLAC Hyannis Port, , Barnstable County, MA, USA
+3 MAP
+4 LATI N41.65289
+4 LONG W70.28280
+1 HUSB @I124@
+1 WIFE @I225@
+1 CHIL @I236@
+1 CHIL @I237@
+1 CHIL @I238@
+1 CHIL @I239@
+0 @F83@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 2 AUG 1999
+2 PLAC Skopelos, , , , Greece
+3 MAP
+4 LATI N39.12236
+4 LONG E23.71966
+1 HUSB @I226@
+1 WIFE @I126@
+1 CHIL @I240@
+1 CHIL @I241@
+1 CHIL @I242@
+0 @F84@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 21 MAR 2009
+2 PLAC Washington, , , DC, USA
+3 MAP
+4 LATI N38.89511
+4 LONG W77.03637
+1 HUSB @I227@
+1 WIFE @I199@
+1 CHIL @I243@
+1 CHIL @I244@
+1 CHIL @I245@
+0 @F85@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 12 MAY 2011
+2 PLAC Tilghman Island, , Talbot County, MD, USA
+3 MAP
+4 LATI N38.71316
+4 LONG W76.33827
+1 HUSB @I195@
+1 WIFE @I228@
+0 @F86@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 15 APR 1994
+2 PLAC Hudson River, , , NY, USA
+3 MAP
+4 LATI N41.40482
+4 LONG W73.99238
+1 DIV
+2 DATE 2010
+1 HUSB @I93@
+1 WIFE @I250@
+1 CHIL @I246@
+1 CHIL @I247@
+1 CHIL @I248@
+1 CHIL @I249@
+0 @F87@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 2 AUG 2014
+2 PLAC Hyannis Port, , Barnstable County, MA, USA
+3 MAP
+4 LATI N41.65289
+4 LONG W70.28280
+1 HUSB @I93@
+1 WIFE @I251@
+0 @F88@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 23 OCT 1993
+1 HUSB @I86@
+1 WIFE @I221@
+0 @F89@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 1993
+2 PLAC , , , , Ireland
+1 DIV
+2 DATE 2006
+1 HUSB @I259@
+1 WIFE @I112@
+1 CHIL @I260@
+0 @F90@ FAM
+1 SOUR @S2@
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+1 MARR
+2 DATE 16 AUG 1987
+1 HUSB @I95@
+1 WIFE @I261@
+1 CHIL @I262@
+1 CHIL @I263@
+1 CHIL @I264@
+1 CHIL @I265@
 0 @B1@ SUBM
 1 NAME Ancestris
 1 CHAN
@@ -5806,7 +7078,7 @@
 3 TIME 18:09:02
 1 TITL Living with the Kennedys
 1 PUBL (NY, NY, Simon & Shuster, 1987)
-1 ABBR Chellis, KENNEDYS
+1 ABBR Chellis, KennedyS
 0 @S76@ SOUR
 1 NOTE NUMB: 224
 1 CHAN
@@ -5814,7 +7086,7 @@
 3 TIME 18:09:47
 1 TITL The Fitzgeralds and the Kennedys
 1 PUBL (NY, NY, Simon & Schuster, 1987)
-1 ABBR Goodwin, KENNEDYS
+1 ABBR Goodwin, KennedyS
 0 @S77@ SOUR
 1 NOTE CALN: Vol. 53, no. 3, July 1977, pp. 145-146
 2 CONT NUMB: 226
@@ -5849,6 +7121,139 @@
 1 TITL "American Presidential Ancestry:_A Bibliography," TAG
 1 PUBL (Des Moines, IA: TAG)
 1 ABBR "Bibliography," TAG
+0 @S81@ SOUR
+1 TITL "Death of a First Lady; Jacqueline Kennedy Onassis Dies of Cancer at 64," The New York Times
+1 PUBL (New York, NY: The New York Times, 20 May 1994)
+1 ABBR "Kennedy Onassis Dies," NYT (1994)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S82@ SOUR
+1 TITL "JFK Jr., His Wife and Her Sister Are Lost in a Plane Crash," The New York Times
+1 PUBL (New York, NY: The New York Times, 17 Jul 1999)
+1 ABBR "JFK Jr. Plane Crash," NYT (1999)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S83@ SOUR
+1 TITL "Carolyn Bessette Kennedy, Private Woman Who Was New to Fame," The New York Times
+1 PUBL (New York, NY: The New York Times, 19 Jul 1999)
+1 ABBR "Bessette Kennedy Obituary," NYT (1999)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S84@ SOUR
+1 TITL "Tatiana Schlossberg, George Moran," The New York Times
+1 PUBL (New York, NY: The New York Times, 10 Sep 2017)
+1 ABBR "Schlossberg-Moran," NYT (2017)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S85@ SOUR
+1 TITL "Tatiana Schlossberg, journalist and granddaughter of John F. Kennedy, dies at 35," The Boston Globe
+1 PUBL (Boston, MA: The Boston Globe, 30 Dec 2025)
+1 ABBR "Tatiana Schlossberg Obituary," BG (2025)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S86@ SOUR
+1 TITL "Rosemary Kennedy, Sister of President and Inspiration for Special Olympics, Dies at 86," The New York Times
+1 PUBL (New York, NY: The New York Times, 8 Jan 2005)
+1 ABBR "Rosemary Kennedy Obituary," NYT (2005)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S87@ SOUR
+1 TITL "Eunice Kennedy Shriver, Founder of the Special Olympics, Dies at 88," The New York Times
+1 PUBL (New York, NY: The New York Times, 11 Aug 2009)
+1 ABBR "Eunice Kennedy Shriver Obituary," NYT (2009)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S88@ SOUR
+1 TITL "Patricia Kennedy Lawford, 82, Died," The New York Times
+1 PUBL (New York, NY: The New York Times, 18 Sep 2006)
+1 ABBR "Patricia Kennedy Lawford Obituary," NYT (2006)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S89@ SOUR
+1 TITL "Jean Kennedy Smith, 92, Last of President Kennedy's Siblings, Dies," The New York Times
+1 PUBL (New York, NY: The New York Times, 17 Jun 2020)
+1 ABBR "Jean Kennedy Smith Obituary," NYT (2020)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S90@ SOUR
+1 TITL "Edward M. Kennedy, Senate Stalwart, Dies at 77," The New York Times
+1 PUBL (New York, NY: The New York Times, 26 Aug 2009)
+1 ABBR "Ted Kennedy Obituary," NYT (2009)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S91@ SOUR
+1 TITL "Sargent Shriver, Peace Corps Founder, Is Dead at 95," The New York Times
+1 PUBL (New York, NY: The New York Times, 18 Jan 2011)
+1 ABBR "Sargent Shriver Obituary," NYT (2011)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S92@ SOUR
+1 TITL "Stephen Smith, 62, Dies; Brother-in-Law of Kennedys," The New York Times
+1 PUBL (New York, NY: The New York Times, 20 Aug 1990)
+1 ABBR "Stephen Smith Obituary," NYT (1990)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S93@ SOUR
+1 TITL "Joan Kennedy, Estranged Wife of Ted Kennedy, Dies at 89," The New York Times
+1 PUBL (New York, NY: The New York Times, Oct 2025)
+1 ABBR "Joan Kennedy Obituary," NYT (2025)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S94@ SOUR
+1 TITL "Ted Kennedy Remarries," The New York Times
+1 PUBL (New York, NY: The New York Times, 4 Jul 1992)
+1 ABBR "Kennedy Wedding," NYT (1992)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S95@ SOUR
+1 TITL "Kara Kennedy Allen, 51, Eldest Child of Ted Kennedy, Dies," The New York Times
+1 PUBL (New York, NY: The New York Times, 16 Sep 2011)
+1 ABBR "Kara Kennedy Obituary," NYT (2011)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S96@ SOUR
+1 TITL "Michael Kennedy, 39, Son of Robert F. Kennedy, Killed in Ski Accident," The New York Times
+1 PUBL (New York, NY: The New York Times, 1 Jan 1998)
+1 ABBR "Michael Kennedy Obituary," NYT (1998)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S97@ SOUR
+1 TITL "Bodies of Maeve Kennedy McKean and Her Son Are Recovered From Chesapeake Bay," The New York Times
+1 PUBL (New York, NY: The New York Times, 8 Apr 2020)
+1 ABBR "Maeve Kennedy McKean," NYT (2020)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S98@ SOUR
+1 TITL "Christopher Kennedy Lawford, Actor and Kennedy Family Member, Dies at 63," The New York Times
+1 PUBL (New York, NY: The New York Times, 4 Sep 2018)
+1 ABBR "Christopher Lawford Obituary," NYT (2018)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
+0 @S99@ SOUR
+1 TITL "Saoirse Kennedy Hill, Granddaughter of Robert F. Kennedy, Dies at 22," The New York Times
+1 PUBL (New York, NY: The New York Times, 1 Aug 2019)
+1 ABBR "Saoirse Kennedy Hill Obituary," NYT (2019)
+1 CHAN
+2 DATE 28 MAR 2026
+3 TIME 00:00:00
 0 @M00001@ OBJE
 1 FILE documents/Kennedy-Wins-Nixon-Concedes-1960-election-Evening-Sun-Baltimore.jpg
 2 FORM jpg

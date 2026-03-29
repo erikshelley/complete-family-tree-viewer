@@ -370,6 +370,18 @@ function usePresetStyle(preset_name) {
                             window.text_align = value;
                         }
                     }
+                    if (key === 'highlight-type') {
+                        const highlights_select_el = document.getElementById('highlights-select');
+                        if (highlights_select_el) {
+                            highlights_select_el.value = value;
+                            window.highlight_type = value;
+                        }
+                        const connection_container_el = document.getElementById('connection-container');
+                        if (connection_container_el) {
+                            if (value === 'connection') connection_container_el.classList.remove('hidden');
+                            else connection_container_el.classList.add('hidden');
+                        }
+                    }
                 }
             }
         }
