@@ -5,6 +5,7 @@ input[type="range"] {
     --range-border-color: #202020;
     --range-thumb-color: #000000;
     --range-thumb-text-color: #f0f0f0;
+    --range-thumb-highlighted-text-color: #f0f0f0;
     display: inline-block;
     vertical-align: middle;
     width: 100px;
@@ -14,6 +15,9 @@ input[type="range"] {
     background: transparent;
 }
 
+#highlighted-text-brightness-range::-webkit-slider-thumb { background: var(--range-thumb-highlighted-text-color); }
+#highlighted-text-brightness-range::-moz-range-thumb { background: var(--range-thumb-highlighted-text-color); }
+#highlighted-text-brightness-range::-ms-thumb { background: var(--range-thumb-highlighted-text-color); }
 #text-brightness-range::-webkit-slider-thumb { background: var(--range-thumb-text-color); }
 #text-brightness-range::-moz-range-thumb { background: var(--range-thumb-text-color); }
 #text-brightness-range::-ms-thumb { background: var(--range-thumb-text-color); }

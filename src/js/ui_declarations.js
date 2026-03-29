@@ -80,6 +80,7 @@ window.level_spacing; window.default_level_spacing;
 window.tree_padding; window.default_tree_padding;
 
 window.link_width; window.default_link_width;
+window.highlighted_link_width; window.default_highlighted_link_width;
 window.link_rounding; window.default_link_rounding;
 window.link_highlight_percent; window.default_link_highlight_percent;
 window.inlaw_link_highlight_percent; window.default_inlaw_link_highlight_percent;
@@ -90,6 +91,7 @@ window.highlight_type;
 
 window.text_size; window.default_text_size;
 window.text_brightness; window.default_text_brightness;
+window.highlighted_text_brightness; window.default_highlighted_text_brightness;
 window.text_shadow; window.default_text_shadow;
 window.root_hue; window.default_node_hue;
 window.node_saturation; window.default_node_saturation;
@@ -102,11 +104,11 @@ const style_presets = {
         // Content
         'max-stack-size': 1, 'vertical-inlaws': false, 'show-names': true, 'show-years': true, 'show-places': false,
         // Size
-        'node-width': 48, 'node-height': 48, 'node-border-width': 1, 'link-width': 2, 'text-size': 8,
+        'node-width': 48, 'node-height': 48, 'node-border-width': 1, 'link-width': 2, 'highlighted-link-width': 2, 'text-size': 8,
         // Spacing
         'h-spacing': 12, 'v-spacing': 24, 'level-spacing': 12, 'box-padding': 4, 'tree-padding': 12, 'text-align': 'top',
         // Color
-        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#000000',
+        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'highlighted-text-brightness': 80, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
         'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
         // Rounding
@@ -116,11 +118,11 @@ const style_presets = {
         // Content
         'max-stack-size': 2, 'vertical-inlaws': true, 'show-names': true, 'show-years': true, 'show-places': false,
         // Size
-        'node-width': 75, 'node-height': 50, 'node-border-width': 2, 'link-width': 4, 'text-size': 12,
+        'node-width': 75, 'node-height': 50, 'node-border-width': 2, 'link-width': 4, 'highlighted-link-width': 4, 'text-size': 12,
         // Spacing
         'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 100, 'box-padding': 2, 'tree-padding': 100, 'text-align': 'top',
         // Color
-        'hue': 180, 'saturation': 20, 'node-brightness': 25, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
+        'hue': 180, 'saturation': 20, 'node-brightness': 25, 'text-brightness': 80, 'highlighted-text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
         'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
         // Rounding
@@ -130,11 +132,11 @@ const style_presets = {
         // Content
         'max-stack-size': 99, 'vertical-inlaws': true, 'show-names': true, 'show-years': false, 'show-places': false,
         // Size
-        'node-width': 75, 'node-height': 50, 'node-border-width': 2, 'link-width': 4, 'text-size': 12,
+        'node-width': 75, 'node-height': 50, 'node-border-width': 2, 'link-width': 4, 'highlighted-link-width': 4, 'text-size': 12,
         // Spacing
         'h-spacing': 25, 'v-spacing': 25, 'level-spacing': 50, 'box-padding': 2, 'tree-padding': 100, 'text-align': 'middle',
         // Color
-        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#000000',
+        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'highlighted-text-brightness': 80, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
         'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
         // Rounding
@@ -144,11 +146,11 @@ const style_presets = {
         // Content
         'max-stack-size': 1, 'vertical-inlaws': false, 'show-names': true, 'show-years': true, 'show-places': true,
         // Size
-        'node-width': 150, 'node-height': 150, 'node-border-width': 5, 'link-width': 5, 'text-size': 16,
+        'node-width': 150, 'node-height': 150, 'node-border-width': 5, 'link-width': 5, 'highlighted-link-width': 5, 'text-size': 16,
         // Spacing
         'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 50, 'box-padding': 10, 'tree-padding': 100, 'text-align': 'top',
         // Color
-        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
+        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'highlighted-text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
         'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
         // Rounding
@@ -158,11 +160,11 @@ const style_presets = {
         // Content
         'max-stack-size': 1, 'vertical-inlaws': false, 'show-names': true, 'show-years': true, 'show-places': false,
         // Size
-        'node-width': 150, 'node-height': 150, 'node-border-width': 5, 'link-width': 10, 'text-size': 24,
+        'node-width': 150, 'node-height': 150, 'node-border-width': 5, 'link-width': 10, 'highlighted-link-width': 10, 'text-size': 24,
         // Spacing
         'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 100, 'box-padding': 2, 'tree-padding': 150, 'text-align': 'middle',
         // Color
-        'hue': 300, 'saturation': 20, 'node-brightness': 80, 'text-brightness': 40, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#ffffff',
+        'hue': 300, 'saturation': 20, 'node-brightness': 80, 'text-brightness': 40, 'highlighted-text-brightness': 80, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#ffffff',
         // Highlights
         'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 90, 'link-highlight-percent': 90, 'inlaw-link-highlight-percent': 90,
         // Rounding
@@ -172,11 +174,11 @@ const style_presets = {
         // Content
         'max-stack-size': 1, 'vertical-inlaws': true, 'show-names': true, 'show-years': true, 'show-places': false,
         // Size
-        'node-width': 100, 'node-height': 100, 'node-border-width': 3, 'link-width': 6, 'text-size': 16,
+        'node-width': 100, 'node-height': 100, 'node-border-width': 3, 'link-width': 6, 'highlighted-link-width': 6, 'text-size': 16,
         // Spacing
         'h-spacing': 50, 'v-spacing': 75, 'level-spacing': 100, 'box-padding': 10, 'tree-padding': 150, 'text-align': 'top',
         // Color
-        'hue': 180, 'saturation': 20, 'node-brightness': 25, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
+        'hue': 180, 'saturation': 20, 'node-brightness': 25, 'text-brightness': 80, 'highlighted-text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
         'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
         // Rounding
@@ -186,11 +188,11 @@ const style_presets = {
         // Content
         'max-stack-size': 99, 'vertical-inlaws': true, 'show-names': true, 'show-years': false, 'show-places': false,
         // Size
-        'node-width': 100, 'node-height': 100, 'node-border-width': 5, 'link-width': 5, 'text-size': 16,
+        'node-width': 100, 'node-height': 100, 'node-border-width': 5, 'link-width': 5, 'highlighted-link-width': 5, 'text-size': 16,
         // Spacing
         'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 100, 'box-padding': 10, 'tree-padding': 150, 'text-align': 'middle',
         // Color
-        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
+        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'highlighted-text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
         // Highlights
         'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
         // Rounding
@@ -220,6 +222,8 @@ const elements = [
     { id: 'node-border-width-range',             type: 'range',    default: 3,     min: 0, max: 20, variable: 'node_border_width' },
     { id: 'link-width-number',                   type: 'number',   default: 6,     min: 1, max: 20, variable: 'link_width' },
     { id: 'link-width-range',                    type: 'range',    default: 6,     min: 1, max: 20, variable: 'link_width' },
+    { id: 'highlighted-link-width-number',       type: 'number',   default: 6,     min: 1, max: 20, variable: 'highlighted_link_width' },
+    { id: 'highlighted-link-width-range',        type: 'range',    default: 6,     min: 1, max: 20, variable: 'highlighted_link_width' },
     { id: 'text-size-number',                    type: 'number',   default: 16,    min: 1, max: 100, variable: 'text_size' },
     { id: 'text-size-range',                     type: 'range',    default: 16,    min: 1, max: 100, variable: 'text_size' },
 
@@ -245,6 +249,8 @@ const elements = [
     { id: 'node-brightness-range',               type: 'range',    default: 30,    min: 0, max: 100, variable: 'node_brightness' },
     { id: 'text-brightness-number',              type: 'number',   default: 80,    min: 0, max: 100, variable: 'text_brightness' },
     { id: 'text-brightness-range',               type: 'range',    default: 80,    min: 0, max: 100, variable: 'text_brightness' },
+    { id: 'highlighted-text-brightness-number',  type: 'number',   default: 80,    min: 0, max: 100, variable: 'highlighted_text_brightness' },
+    { id: 'highlighted-text-brightness-range',   type: 'range',    default: 80,    min: 0, max: 100, variable: 'highlighted_text_brightness' },
     { id: 'text-shadow-checkbox',                type: 'checkbox', default: true,  variable: 'text_shadow' },
     { id: 'transparent-bg-rect-checkbox',        type: 'checkbox', default: false, variable: 'transparent_bg_rect' },
 

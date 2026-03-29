@@ -184,6 +184,7 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 06.38 | Clear connection filter resets text and repopulates all connections |
 |  Automated  | 06.39 | connection-select change sets connection_selected_id and triggers redraw when highlight_type is connection |
 |  Automated  | 06.40 | connection-select change sets connection_selected_id but does not trigger redraw when highlight_type is not connection |
+|  Automated  | 06.41 | updateRangeThumbs sets highlighted-text-brightness-range thumb brightness to match its own value, not text-brightness-range value |
 
 ## 07 Export Test Cases
 |    Status   |  ID   | Test Description |
@@ -275,6 +276,10 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 13.18 | promoteConnectionNodesInStacks swaps a non-top stacked node to stack_top when it is on the connection path |
 |  Automated  | 13.19 | promoteConnectionNodesInStacks leaves the stack unchanged when the stack_top is already on the connection path |
 |  Automated  | 13.20 | promoteConnectionNodesInStacks does nothing when connection_path_ids is empty |
+|  Automated  | 13.21 | drawLink uses link_width as stroke-width when the highlight factor is 1 |
+|  Automated  | 13.22 | drawLink uses highlighted_link_width as stroke-width when the highlight factor is not 1 |
+|  Automated  | 13.23 | drawText uses text_brightness for non-highlighted nodes |
+|  Automated  | 13.24 | drawText uses highlighted_text_brightness for highlighted nodes |
 
 ## Coverage Tracking
 Mark each case as one of:

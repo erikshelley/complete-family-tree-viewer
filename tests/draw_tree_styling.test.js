@@ -1521,4 +1521,74 @@ describe('draw tree styling outcomes', () => {
         expect(top_node.stack_top).toBe(true);
         expect(top_node.y).toBe(200);
     });
+
+    it('13.21 drawLink uses link_width as stroke-width when factor is 1', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: { link_width: 4, highlighted_link_width: 8, v_spacing: 50 },
+        });
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        context.drawLink(new SvgSelection(svg), '#fff', { x: 0, y: 0 }, { x: 50, y: 100 }, null, 1);
+
+        const path = svg.querySelector('path');
+        expect(path.getAttribute('stroke-width')).toBe('4');
+    });
+
+    it('13.22 drawLink uses highlighted_link_width as stroke-width when factor is not 1', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: { link_width: 4, highlighted_link_width: 8, v_spacing: 50 },
+        });
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        context.drawLink(new SvgSelection(svg), '#fff', { x: 0, y: 0 }, { x: 50, y: 100 }, null, 1.5);
+
+        const path = svg.querySelector('path');
+        expect(path.getAttribute('stroke-width')).toBe('8');
+    });
+
+    it('13.23 drawText uses text_brightness for non-highlighted nodes', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                highlight_type: 'pedigree',
+                text_brightness: 50,
+                highlighted_text_brightness: 90,
+                pedigree_highlight_percent: 150,
+            },
+            d3Overrides: {
+                hcl: (h, c, l) => `hcl(${h},${c},${l})`,
+            },
+        });
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        // inlaw type → isNodeHighlighted returns false in pedigree mode
+        context.drawText(new SvgSelection(svg).append('g'), {
+            type: 'inlaw', generation: 0,
+            individual: { name: 'Spouse', birth: '', death: '', birth_place: '', death_place: '', is_root: false, is_descendant: false },
+        });
+
+        expect(svg.querySelector('text').getAttribute('fill')).toBe('hcl(0,0,50)');
+    });
+
+    it('13.24 drawText uses highlighted_text_brightness for highlighted nodes', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                highlight_type: 'pedigree',
+                text_brightness: 50,
+                highlighted_text_brightness: 90,
+                pedigree_highlight_percent: 150,
+            },
+            d3Overrides: {
+                hcl: (h, c, l) => `hcl(${h},${c},${l})`,
+            },
+        });
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        // ancestor type → isNodeHighlighted returns true in pedigree mode
+        context.drawText(new SvgSelection(svg).append('g'), {
+            type: 'ancestor', generation: 0,
+            individual: { name: 'Parent', birth: '', death: '', birth_place: '', death_place: '', is_root: false, is_descendant: false },
+        });
+
+        expect(svg.querySelector('text').getAttribute('fill')).toBe('hcl(0,0,90)');
+    });
 });

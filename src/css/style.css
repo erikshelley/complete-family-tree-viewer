@@ -178,18 +178,6 @@ svg {
     width: calc(100% - 12px);
 }
 
-/*
-#individual-select-text option {
-    background-color: #202020;
-    color: #aaa;
-}
-
-#connection-select-text option {
-    background-color: #202020;
-    color: #aaa;
-}
-*/
-
 /* Styling for file name display */
 #file-name {
     display: inline;

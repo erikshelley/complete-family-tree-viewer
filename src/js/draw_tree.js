@@ -226,7 +226,7 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                             if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
                             const inlaw_color = d3.hcl(hue, 0, luminance * (window.inlaw_link_highlight_percent / 100) * factor);
                             drawLink(svg_node, inlaw_color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
-                                                            {x: spouse_node.x + window.box_width / 2, y: spouse_node.y}, 'inlaw');
+                                                            {x: spouse_node.x + window.box_width / 2, y: spouse_node.y}, 'inlaw', factor);
                         });
                     }
                     else {
@@ -235,7 +235,7 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                             if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
                             const inlaw_color = d3.hcl(hue, 0, luminance * (window.inlaw_link_highlight_percent / 100) * factor);
                             drawLink(svg_node, inlaw_color, {x: node.x + window.box_width / 2,         y: node.y}, 
-                                                            {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height}, 'inlaw-center');
+                                                            {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height}, 'inlaw-center', factor);
                         });
                     }
                 }
@@ -247,7 +247,7 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                         if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
                         const inlaw_color = d3.hcl(hue, 0, luminance * (window.inlaw_link_highlight_percent / 100) * factor);
                         drawLink(svg_node, inlaw_color, {x: node.x + window.box_width / 2,         y: node.y}, 
-                                                        {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height}, 'inlaw-center');
+                                                        {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height}, 'inlaw-center', factor);
                     });
                 }
 
@@ -260,7 +260,7 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                             const [chue, cchroma, clum] = getNodeHCL(child_node, false);
                             const child_color = d3.hcl(chue, cchroma, clum * (window.link_highlight_percent / 100) * factor);
                             drawLink(svg_node, child_color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
-                                                            {x: child_node.x + window.box_width / 2, y: child_node.y});
+                                                            {x: child_node.x + window.box_width / 2, y: child_node.y}, null, factor);
                         });
                     }
                     else {
@@ -275,7 +275,7 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                             const [chue, cchroma, clum] = getNodeHCL(child_node, false);
                             const child_color = d3.hcl(chue, cchroma, clum * (window.link_highlight_percent / 100) * factor);
                             drawLink(svg_node, child_color, {x: node.x + x_offset, y: node.y + window.box_height / 2 + radius}, 
-                                                            {x: child_node.x + window.box_width / 2, y: child_node.y});
+                                                            {x: child_node.x + window.box_width / 2, y: child_node.y}, null, factor);
                         });
                     }
                 }
@@ -288,7 +288,7 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                         const [chue, cchroma, clum] = getNodeHCL(child_node, false);
                         const child_color = d3.hcl(chue, cchroma, clum * (window.link_highlight_percent / 100) * factor);
                         drawLink(svg_node, child_color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
-                                                        {x: child_node.x + window.box_width / 2,              y: child_node.y});
+                                                        {x: child_node.x + window.box_width / 2,              y: child_node.y}, null, factor);
                     });
                 }
 
@@ -300,7 +300,7 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                     if (highlight_pass === null || (self_factor !== 1) === highlight_pass) {
                         const color = d3.hcl(hue, chroma, luminance * (window.link_highlight_percent / 100) * self_factor);
                         drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y}, 
-                                                  {x: node.x + window.box_width / 2, y: node.y - window.v_spacing});
+                                                  {x: node.x + window.box_width / 2, y: node.y - window.v_spacing}, null, self_factor);
                     }
                 }
 
@@ -309,7 +309,7 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                     if (highlight_pass === null || (self_factor !== 1) === highlight_pass) {
                         const inlaw_color = d3.hcl(hue, 0, luminance * (window.inlaw_link_highlight_percent / 100) * self_factor);
                         drawLink(svg_node, inlaw_color, {x: node.x + window.box_width / 2, y: node.y},
-                                                        {x: node.x + window.box_width / 2, y: node.y - window.v_spacing}, 'inlaw');
+                                                        {x: node.x + window.box_width / 2, y: node.y - window.v_spacing}, 'inlaw', self_factor);
                     }
                 }
 
@@ -335,13 +335,13 @@ function drawBoldLinks(svg_node, rows, highlight_pass = null) {
                     // Draw links from father and mother to center point
                     if (window.vertical_inlaws) {
                         drawLink(svg_node, color, {x: node.x + window.box_width / 2,                    y: node.y}, 
-                                                  {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 'center');
+                                                  {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 'center', anc_factor);
                         drawLink(svg_node, color, {x: node.x + 3 * window.box_width / 2 + window.h_spacing, y: node.y}, 
-                                                  {x: node.x + window.box_width + window.h_spacing / 2,     y: node.y + window.box_height}, 'center');
+                                                  {x: node.x + window.box_width + window.h_spacing / 2,     y: node.y + window.box_height}, 'center', anc_factor);
                     }
                     else {
                         drawLink(svg_node, color, {x: node.x + window.box_width / 2,                       y: node.y}, 
-                                                  {x: node.x + 1.5 * window.box_width + window.h_spacing,  y: node.y + window.box_height}, 'center');
+                                                  {x: node.x + 1.5 * window.box_width + window.h_spacing,  y: node.y + window.box_height}, 'center', anc_factor);
                     }
 
                     if (node.children_nodes.length > 0) {
@@ -353,13 +353,13 @@ function drawBoldLinks(svg_node, rows, highlight_pass = null) {
                     if (window.vertical_inlaws) {
                         node.children_nodes.filter(child_node => child_node.individual.is_root).forEach(child_node => {
                             drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
-                                                      {x: child_node.x + window.box_width / 2,              y: child_node.y});
+                                                      {x: child_node.x + window.box_width / 2,              y: child_node.y}, null, anc_factor);
                         });
                     }
                     else {
                         node.children_nodes.filter(child_node => child_node.individual.is_root).forEach(child_node => {
                             drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height / 2}, 
-                                                      {x: child_node.x + window.box_width / 2,              y: child_node.y});
+                                                      {x: child_node.x + window.box_width / 2,              y: child_node.y}, null, anc_factor);
                         });
                     }
 
@@ -372,11 +372,11 @@ function drawBoldLinks(svg_node, rows, highlight_pass = null) {
                     if (node.individual.pedigree_child_node) {
                         if (window.vertical_inlaws) {
                             drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2,             y: node.y + window.box_height}, 
-                                                      {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y});
+                                                      {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y}, null, anc_factor);
                         }
                         else {
                             drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2,             y: node.y + window.box_height / 2}, 
-                                                      {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y});
+                                                      {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y}, null, anc_factor);
                         }
                     }
 
@@ -389,7 +389,7 @@ function drawBoldLinks(svg_node, rows, highlight_pass = null) {
                     if (node.individual.duplicate_pedigree_child_node) {
                         drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2,                       y: node.y + window.box_height}, 
                                                   {x: node.individual.duplicate_pedigree_child_node.x + window.box_width / 2, y: node.individual.duplicate_pedigree_child_node.y}, 
-                                                  'duplicate');
+                                                  'duplicate', anc_factor);
                     }
                 }
             });
@@ -412,7 +412,7 @@ function drawCircles(svg_node, rows, highlight_pass = null) {
                             let right = window.box_width + window.h_spacing / 2;
                             let x_offset = (node.individual.gender === 'M') ? right : left;
                             if (node.spouse_nodes[0].type === 'ancestor') x_offset = (x_offset === right) ? left : right;
-                            let radius = window.link_width * 1.5;
+                            let radius = (factor !== 1 ? (window.highlighted_link_width || window.link_width) : window.link_width) * 1.5;
                             drawCircle(svg_node, color, {x: node.x + x_offset, y: node.y + window.box_height / 2}, radius);
                         }
                     }
@@ -421,7 +421,7 @@ function drawCircles(svg_node, rows, highlight_pass = null) {
                         if (highlight_pass === null || (factor !== 1) === highlight_pass) {
                             const [hue, chroma, luminance] = getNodeHCL(node.individual.pedigree_child_node ? node.individual.pedigree_child_node : window.root_node, false);
                             const color = d3.hcl(hue, chroma, luminance * factor * (window.link_highlight_percent / 100));
-                            drawCircle(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height / 2}, window.link_width * 1.5);
+                            drawCircle(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height / 2}, (factor !== 1 ? (window.highlighted_link_width || window.link_width) : window.link_width) * 1.5);
                         }
                     }
                 }
@@ -707,9 +707,10 @@ function ensureTextShadowFilter(selection) {
 }
 
 function drawText(g, node) {
-    const text_luminance = window.text_brightness || 0;
+    const highlight = isNodeHighlighted(node);
+    const text_luminance = highlight ? (window.highlighted_text_brightness ?? window.text_brightness ?? 0) : (window.text_brightness ?? 0);
     const text_color = d3.hcl(0, 0, text_luminance);
-    const is_bold = isNodeHighlighted(node) && (window.pedigree_highlight_percent !== 100);
+    const is_bold = highlight && (window.pedigree_highlight_percent !== 100);
     const text_shadow_filter_id = ensureTextShadowFilter(g);
     const text_element = g.append('text')
         .attr('x', window.box_width / 2)
@@ -796,7 +797,7 @@ function drawText(g, node) {
 }
 
 
-function drawLink(svg_node, color, point1, point2, special) {
+function drawLink(svg_node, color, point1, point2, special, factor = 1) {
     const customLink = (point1, point2) => {
         var x1 = point1.x;
         var x2 = point2.x;
@@ -827,7 +828,8 @@ function drawLink(svg_node, color, point1, point2, special) {
         return context.toString();
     };
 
-    const stroke_width = window.link_width || 3;
+    const base_link_width = window.link_width || 3;
+    const stroke_width = (factor !== 1) ? (window.highlighted_link_width || base_link_width) : base_link_width;
     if (window.vertical_inlaws || special === 'duplicate') {
         svg_node.append("path")
             .attr("d", customLink(point1, point2))

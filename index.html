@@ -164,6 +164,11 @@
                     <label for="link-width-range">Links</label>
                 </p>
                 <p>
+                    <input type="number" class="range-value" id="highlighted-link-width-number" min="1" max="28" value="6">
+                    <input type="range" id="highlighted-link-width-range" min="1" max="28" value="6">
+                    <label for="highlighted-link-width-range">Highlighted Links</label>
+                </p>
+                <p>
                     <input type="number" class="range-value" id="text-size-number" min="8" max="24" value="16">
                     <input type="range" id="text-size-range" min="8" max="24" value="16">
                     <label for="text-size-range">Font</label>
@@ -228,6 +233,11 @@
                         <label for="text-brightness-range">Text</label>
                     </p>
                     <p>
+                        <input type="number" class="range-value" id="highlighted-text-brightness-number" min="0" max="100" value="90">
+                        <input type="range" id="highlighted-text-brightness-range" min="0" max="100" value="90">
+                        <label for="highlighted-text-brightness-range">Highlighted Text</label>
+                    </p>
+                    <p>
                         <input type="checkbox" id="text-shadow-checkbox" checked>
                         <label for="text-shadow-checkbox">Text Shadow</label>
                     </p>
@@ -241,15 +251,6 @@
                     </p>
                 </details>
 
-                <!--
-The value selected in highlights-select will determine which elements of the tree are highlighted.
-If "None" is selected, no elements will be highlighted regardless of the percentage value.
-If "Root" is selected, only the root node will be highlighted.
-If "Pedigree" is selected, all nodes and links that are part of the pedigree (ancestors, siblings, and descendants of the root individual) will be highlighted.
-If "Connection" is selected, all nodes and links that are part of the connection (the path from the selected individual to the root, including all siblings and their descendants along that path) will be highlighted
-The "Pedigree" option is how highlighting currently works.
-Let's add functionality to handle "None" and "Root".
-                -->
                 <details closed><summary>Highlights (%)</summary>
                     <p>
                         <input type="number" class="range-value" id="pedigree-highlight-percent-number" min="0" max="200" value="125">

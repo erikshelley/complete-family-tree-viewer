@@ -7,9 +7,8 @@
 |    🟡    |   Bug   | Draw              | Auto box sizing sometimes seems to make errors |
 |    🟡    |   Bug   | UI                | Narrow windows push Tree Viewer header below buttons |
 |    🟢    |   Bug   | Draw              | Slower rendering for very large trees seems to be due to the text - without text it is quick |
+|    🟠    | Feature | UI                | Add, update, and delete presets - to do this without a webserver you'd have to have the user save and load files |
 |    🟢    | Feature | Draw              | Click on node to make them the new root person - making a large tree interactive could be problematic |
-|    🟢    | Feature | Draw              | Is there a way to make the root person easier to find |
-|    🟢    | Feature | UI                | Add, update, and delete presets - to do this without a webserver you'd have to have the user save and load files |
 |    🟢    | Feature | Parse             | Is it possible to show profile images from sites like Ancestry.com from what's in the Gedcom? |
 
 FYI - text shadow effects the size of the text bounding box

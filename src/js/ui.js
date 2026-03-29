@@ -517,6 +517,12 @@ function updateRangeThumbs() {
                     const color = d3.hcl(hue, sat, lum);
                     element.style.setProperty('--range-thumb-text-color', color);
                 }
+                else if (element_info.id === 'highlighted-text-brightness-range') {
+                    const sat = 0;
+                    const lum = parseInt(element.value);
+                    const color = d3.hcl(hue, sat, lum);
+                    element.style.setProperty('--range-thumb-highlighted-text-color', color);
+                }
                 else {
                     const color = d3.hcl(hue, sat, lum);
                     element.style.setProperty('--range-thumb-color', color);

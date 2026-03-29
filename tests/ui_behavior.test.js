@@ -992,4 +992,70 @@ describe('ui behavior cases', () => {
         expect(context.window.connection_selected_id).toBe('@I2@');
         expect(redrawCalled).toBe(false);
     });
+
+    it('06.41 updateRangeThumbs sets highlighted-text-brightness-range thumb to its own value, not text-brightness-range value', () => {
+        const html = `
+            <input type="range" id="text-brightness-range" value="50">
+            <input type="range" id="highlighted-text-brightness-range" value="80">
+        `;
+        const dom = new JSDOM(html);
+        const textBrightnessEl = dom.window.document.getElementById('text-brightness-range');
+
+        const context = loadBrowserScript('src/js/ui.js', {
+            windowOverrides: {
+                document: dom.window.document,
+                addEventListener: () => {},
+                individuals: [],
+                families: [],
+                gedcom_content: '',
+                individual_filter_value: '',
+                selected_individual: '',
+                tree_color: '#000000',
+            },
+            globalOverrides: {
+                document: dom.window.document,
+                Event: dom.window.Event,
+                d3: { hcl: (h, c, l) => `hcl(${h},${c},${l})` },
+                optionsMenu: { style: {} },
+                leftColumnWrapper: { classList: { remove: () => {}, add: () => {}, contains: () => false }, style: {} },
+                leftCol: { offsetWidth: 300 },
+                rightCol: { offsetWidth: 500 },
+                family_tree_div: { querySelector: () => null, innerHTML: '' },
+                expand_styling_button: { style: {} },
+                collapse_styling_button: { style: {} },
+                file_name_span: { textContent: '' },
+                individual_filter: { value: '' },
+                connection_filter: { value: '' },
+                individual_select: { innerHTML: '' },
+                connection_select: { innerHTML: '', appendChild: () => {} },
+                generations_up_number: { value: '1' },
+                generations_down_number: { value: '1' },
+                max_stack_size_number: { value: '1' },
+                hue_element: { value: '180' },
+                sat_element: { value: '20' },
+                lum_element: { value: '30' },
+                text_lum_element: textBrightnessEl,
+                root_name: null,
+                color_picker: { value: '#000000' },
+                save_filename_input: { value: '' },
+                save_modal: { style: {} },
+                style_presets: {},
+                filter_timeout: null,
+                update_in_progress: false,
+                update_waiting: false,
+                update_timeout: null,
+                elements: [
+                    { id: 'text-brightness-range',             type: 'range', default: 80, min: 0, max: 100, variable: 'text_brightness' },
+                    { id: 'highlighted-text-brightness-range', type: 'range', default: 80, min: 0, max: 100, variable: 'highlighted_text_brightness' },
+                ],
+            },
+        });
+
+        context.updateRangeThumbs();
+
+        const highlightedEl = dom.window.document.getElementById('highlighted-text-brightness-range');
+        // highlighted-text-brightness-range has value 80; text-brightness-range has value 50.
+        // The thumb color must reflect the element's own value (lum=80), not text-brightness-range's (lum=50).
+        expect(highlightedEl.style.getPropertyValue('--range-thumb-highlighted-text-color')).toBe('hcl(180,0,80)');
+    });
 });
