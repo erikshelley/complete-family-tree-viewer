@@ -41,7 +41,7 @@ export default [
         rules: {
             "no-unused-vars": ["warn", {
                 "args": "none",
-                "varsIgnorePattern": "^(validateGedcom|parseGedcomData|createFamilyTree|calculateMaxGenUp|calculateMaxGenDown|positionTree|setHeights|getMaximumDimensions|drawTree|expandAllStylingSections|collapseAllStylingSections|toggleOptions|updateOptionsVisibility|zoomToFit|zoomToFitHorizontal|zoomToFitVertical|scaleBodyForSmallScreens|updateMaxLinksState|selectGedcomFile|filterIndividuals|filterConnections|populateConnectionSelect|usePresetStyle|openSaveModal|saveSVG|savePNG|updateRangeThumbs|requestFamilyTreeUpdate|populateIndividualSelect|openOnlineGedcomModal|loadGedcomFromUrl)$"
+                "varsIgnorePattern": "^(validateGedcom|parseGedcomData|createFamilyTree|calculateMaxGenUp|calculateMaxGenDown|positionTree|setHeights|getMaximumDimensions|drawTree|expandAllStylingSections|collapseAllStylingSections|toggleOptions|updateOptionsVisibility|zoomToFit|zoomToFitHorizontal|zoomToFitVertical|scaleBodyForSmallScreens|updateMaxLinksState|selectGedcomFile|filterIndividuals|filterConnections|populateConnectionSelect|usePresetStyle|openSaveModal|saveSVG|savePNG|updateRangeThumbs|requestFamilyTreeUpdate|populateIndividualSelect|openOnlineGedcomModal|loadGedcomFromUrl|savePresetsFile|populatePresetSelect|confirmRenamePreset|updatePresetEditButtonState)$"
             }],
             "no-undef": "warn",
             "no-redeclare": ["warn", { "builtinGlobals": false }],
@@ -58,6 +58,13 @@ export default [
     {
         // ui_declarations.js only exports shared state — suppress unused-vars
         files: ["static/js/ui_declarations.js"],
+        rules: {
+            "no-unused-vars": "off"
+        }
+    },
+    {
+        // presets.js only exports shared state — suppress unused-vars
+        files: ["src/js/presets.js"],
         rules: {
             "no-unused-vars": "off"
         }

@@ -3,7 +3,10 @@
     individual_filter, connection_filter, individual_select, connection_select, generations_up_number,
     generations_down_number, max_stack_size_number, hue_element, sat_element,
     lum_element, text_lum_element, root_name, color_picker, save_filename_input,
-    save_modal, style_presets, elements */
+    save_modal, style_presets, elements, preset_select, add_preset_modal,
+    add_preset_name_input, save_preset_button, rename_preset_button, delete_preset_button,
+    rename_preset_modal, rename_preset_name_input */
+/* global XMLSerializer */
 /* global filter_timeout:writable, update_in_progress:writable,
     update_waiting:writable, update_timeout:writable */
 
@@ -388,6 +391,199 @@ function usePresetStyle(preset_name) {
     }
     updateRangeThumbs();
     requestFamilyTreeUpdate();
+}
+
+
+function renamePreset() {
+    const selected_option = preset_select.options[preset_select.selectedIndex];
+    if (!selected_option) return;
+    rename_preset_name_input.value = selected_option.textContent.trim();
+    const name_error = document.getElementById('rename-preset-name-error');
+    if (name_error) name_error.style.display = 'none';
+    rename_preset_modal.style.display = 'flex';
+    rename_preset_name_input.focus();
+}
+
+function confirmRenamePreset() {
+    const selected_option = preset_select.options[preset_select.selectedIndex];
+    if (!selected_option) return;
+    const name_error = document.getElementById('rename-preset-name-error');
+    const trimmed = rename_preset_name_input.value.trim();
+    if (!trimmed) {
+        if (name_error) name_error.style.display = 'inline';
+        return;
+    }
+    const duplicate = Array.from(preset_select.options).find(
+        o => o !== selected_option && (o.value === trimmed || o.textContent.trim() === trimmed)
+    );
+    if (duplicate) {
+        if (name_error) {
+            name_error.textContent = `A preset named "${trimmed}" already exists.`;
+            name_error.style.display = 'inline';
+        }
+        return;
+    }
+    if (name_error) name_error.style.display = 'none';
+    const old_key = selected_option.value;
+    style_presets[trimmed] = style_presets[old_key];
+    delete style_presets[old_key];
+    selected_option.value = trimmed;
+    selected_option.textContent = trimmed;
+    preset_select.value = trimmed;
+    rename_preset_modal.style.display = 'none';
+    savePresetsFile();
+}
+
+
+function populatePresetSelect() {
+    preset_select.innerHTML = '';
+    for (const key of Object.keys(style_presets).sort()) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+        preset_select.appendChild(option);
+    }
+}
+
+
+async function savePresetsFile() {
+    const lines = Object.entries(style_presets).map(([key, preset]) =>
+        `    ${JSON.stringify(key)}: ${JSON.stringify(preset)},`
+    );
+    const content = `const style_presets = {
+${lines.join('\n')}
+};
+`;
+    if (window.showSaveFilePicker) {
+        try {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: 'presets.js',
+                types: [{ description: 'JavaScript file', accept: { 'text/javascript': ['.js'] } }],
+            });
+            const writable = await handle.createWritable();
+            await writable.write(content);
+            await writable.close();
+            return;
+        } catch (e) {
+            if (e.name === 'AbortError') return;
+            // fall through to download fallback on other errors
+        }
+    }
+    const blob = new Blob([content], { type: 'text/javascript' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'presets.js';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    window.alert('presets.js was saved to your Downloads folder.\nTo apply your changes, move it to src/js/presets.js.');
+}
+
+
+function deletePreset() {
+    const selected_option = preset_select.options[preset_select.selectedIndex];
+    if (!selected_option) return;
+    const display = selected_option.textContent.trim();
+    if (!window.confirm(`Delete the preset "${display}"?`)) return;
+    const key = selected_option.value;
+    delete style_presets[key];
+    selected_option.remove();
+    if (preset_select.options.length > 0) {
+        preset_select.selectedIndex = 0;
+    }
+    updatePresetEditButtonState();
+    savePresetsFile();
+}
+
+
+function updatePresetEditButtonState() {
+    if (window.location.protocol !== 'file:') return;
+    const isDefault = preset_select.value === 'Default';
+    [rename_preset_button, delete_preset_button].forEach(btn => {
+        btn.parentElement.classList.toggle('preset-button-disabled', isDefault);
+    });
+}
+
+function addPreset() {
+    add_preset_name_input.value = '';
+    add_preset_name_input.readOnly = false;
+    const name_error = document.getElementById('add-preset-name-error');
+    if (name_error) {
+        name_error.textContent = 'A preset name is required.';
+        name_error.style.display = 'none';
+    }
+    add_preset_modal.style.display = 'flex';
+    document.querySelectorAll('#add-preset-settings input[type="checkbox"][name="preset-setting"]')
+        .forEach(cb => { cb.checked = true; });
+    add_preset_name_input.focus();
+}
+
+
+function savePreset() {
+    const selected_option = preset_select.options[preset_select.selectedIndex];
+    if (!selected_option) return;
+    add_preset_name_input.value = selected_option.textContent.trim();
+    add_preset_name_input.readOnly = true;
+    add_preset_modal.dataset.saveMode = 'true';
+    const name_error = document.getElementById('add-preset-name-error');
+    if (name_error) name_error.style.display = 'none';
+    const preset = style_presets[selected_option.value] || {};
+    document.querySelectorAll('#add-preset-settings input[type="checkbox"][name="preset-setting"]')
+        .forEach(cb => { cb.checked = cb.value in preset; });
+    add_preset_modal.style.display = 'flex';
+}
+
+
+function confirmAddPreset() {
+    const name_error = document.getElementById('add-preset-name-error');
+    const trimmed = add_preset_name_input.value.trim();
+    if (!trimmed) {
+        if (name_error) name_error.style.display = 'inline';
+        return;
+    }
+    const existing_option = Array.from(preset_select.options).find(
+        o => o.value === trimmed || o.textContent.trim() === trimmed
+    );
+    const replacing = existing_option !== undefined;
+    const save_mode = add_preset_modal.dataset.saveMode === 'true';
+    if (replacing && !save_mode && !window.confirm(`A preset named "${trimmed}" already exists. Replace it?`)) {
+        return;
+    }
+    if (name_error) name_error.style.display = 'none';
+    const key = replacing ? existing_option.value : trimmed;
+    const checked = new Set(
+        [...document.querySelectorAll('#add-preset-settings input[type="checkbox"][name="preset-setting"]:checked')]
+            .map(cb => cb.value)
+    );
+    const excluded = new Set(['generations-up', 'generations-down']);
+    const preset = {};
+    const seen_keys = new Set();
+    for (const el of elements) {
+        if (el.type === 'range') continue;
+        const ek = el.id.replace(/-(number|checkbox|select)$/, '');
+        if (excluded.has(ek) || seen_keys.has(ek)) continue;
+        seen_keys.add(ek);
+        if (checked.has(ek)) preset[ek] = window[el.variable];
+    }
+    if (checked.has('background-color')) preset['background-color'] = window.tree_color;
+    if (checked.has('highlight-type')) {
+        const highlights_el = document.getElementById('highlights-select');
+        if (highlights_el) preset['highlight-type'] = highlights_el.value;
+    }
+    style_presets[key] = preset;
+    if (!replacing) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = trimmed;
+        preset_select.appendChild(option);
+    }
+    preset_select.value = key;
+    add_preset_name_input.readOnly = false;
+    delete add_preset_modal.dataset.saveMode;
+    add_preset_modal.style.display = 'none';
+    savePresetsFile();
 }
 
 

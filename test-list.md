@@ -185,6 +185,57 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 06.39 | connection-select change sets connection_selected_id and triggers redraw when highlight_type is connection |
 |  Automated  | 06.40 | connection-select change sets connection_selected_id but does not trigger redraw when highlight_type is not connection |
 |  Automated  | 06.41 | updateRangeThumbs sets highlighted-text-brightness-range thumb brightness to match its own value, not text-brightness-range value |
+|  Automated  | 06.42 | addPreset opens the add-preset modal and clears the name input |
+|  Automated  | 06.43 | addPreset hides any pre-existing name error when opening the modal |
+|  Automated  | 06.44 | confirmAddPreset with empty name shows error message and does not create preset |
+|  Automated  | 06.45 | confirmAddPreset with duplicate name prompts to replace; declining leaves modal open and preset unchanged |
+|  Automated  | 06.56 | confirmAddPreset with duplicate name: confirming replaces the preset and closes modal |
+|  Automated  | 06.57 | confirmAddPreset replacing a preset updates the existing option text, not adds a new one |
+|  Automated  | 06.58 | confirmAddPreset detects duplicate when user types the display text of a preset whose option value differs |
+|  Automated  | 06.46 | confirmAddPreset includes only checked settings in the created preset |
+|  Automated  | 06.47 | confirmAddPreset captures background-color and highlight-type when their checkboxes are checked |
+|  Automated  | 06.48 | confirmAddPreset adds option to preset-select, selects it, and closes the modal |
+|  Automated  | 06.49 | Add-preset button click invokes addPreset |
+|  Automated  | 06.50 | Add-preset modal OK button invokes confirmAddPreset |
+|  Automated  | 06.51 | Add-preset modal cancel button hides the modal |
+|  Automated  | 06.52 | Add-preset modal Enter key triggers the OK button |
+|  Automated  | 06.53 | Add-preset modal Escape key hides the modal |
+|  Automated  | 06.54 | All toggle button checks all checkboxes in its group |
+|  Automated  | 06.55 | None toggle button unchecks all checkboxes in its group |
+|  Automated  | 06.59 | savePreset opens the add-preset modal |
+|  Automated  | 06.60 | savePreset pre-populates the name input with the selected preset display text |
+|  Automated  | 06.61 | savePreset sets the name input to read-only |
+|  Automated  | 06.62 | confirmAddPreset in save mode updates the preset without prompting |
+|  Automated  | 06.63 | confirmAddPreset in save mode clears readOnly and saveMode on close |
+|  Automated  | 06.64 | save-preset-button click invokes savePreset |
+|  Automated  | 06.65 | renamePreset shows rename modal pre-filled with current name |
+|  Automated  | 06.66 | confirmRenamePreset renames the preset and updates the option |
+|  Automated  | 06.67 | confirmRenamePreset shows inline error when the entered name is already taken |
+|  Automated  | 06.68 | rename-preset-button click invokes renamePreset |
+|  Automated  | 06.69 | reload-preset-button click applies the currently selected preset |
+|  Automated  | 06.70 | deletePreset prompts to confirm using the preset display name |
+|  Automated  | 06.71 | deletePreset removes the preset and option when the user confirms |
+|  Automated  | 06.72 | deletePreset does not delete when the user cancels |
+|  Automated  | 06.73 | delete-preset-button click invokes deletePreset |
+|  Automated  | 06.74 | preset edit buttons are disabled when loaded from a web server |
+|  Automated  | 06.75 | preset edit buttons are not disabled when loaded locally |
+|  Automated  | 06.76 | confirmAddPreset triggers a presets.js download |
+|  Automated  | 06.77 | confirmRenamePreset triggers a presets.js download |
+|  Automated  | 06.78 | deletePreset triggers a presets.js download |
+|  Automated  | 06.79 | savePresetsFile uses showSaveFilePicker when available |
+|  Automated  | 06.80 | savePresetsFile shows a message in the fallback download path |
+|  Automated  | 06.81 | populatePresetSelect builds options from style_presets keys |
+|  Automated  | 06.82 | populatePresetSelect is called during DOMContentLoaded |
+|  Automated  | 06.83 | populatePresetSelect sorts options alphabetically |
+|  Automated  | 06.84 | confirmRenamePreset shows inline error when name is empty |
+|  Automated  | 06.85 | rename-preset-modal OK and Cancel buttons are wired during DOMContentLoaded |
+|  Automated  | 06.86 | updatePresetEditButtonState disables rename and delete when Default is selected |
+|  Automated  | 06.87 | updatePresetEditButtonState enables rename and delete when a non-Default preset is selected |
+|  Automated  | 06.88 | preset-select change event calls updatePresetEditButtonState |
+|  Automated  | 06.89 | addPreset resets all preset-setting checkboxes to checked |
+|  Automated  | 06.90 | savePreset checks only the checkboxes whose settings are present in the selected preset |
+|  Automated  | 06.91 | confirmAddPreset with quotes in the name generates valid loadable presets.js content |
+|  Automated  | 06.92 | confirmRenamePreset with quotes in the name generates valid loadable presets.js content |
 
 ## 07 Export Test Cases
 |    Status   |  ID   | Test Description |

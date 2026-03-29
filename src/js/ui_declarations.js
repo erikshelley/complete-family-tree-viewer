@@ -22,6 +22,19 @@ const connection_select = document.getElementById('connection-select');
 const connection_container = document.getElementById('connection-container');
 
 const preset_select = document.getElementById('preset-select');
+const add_preset_button = document.getElementById('add-preset-button');
+const save_preset_button = document.getElementById('save-preset-button');
+const rename_preset_button = document.getElementById('rename-preset-button');
+const reload_preset_button = document.getElementById('reload-preset-button');
+const delete_preset_button = document.getElementById('delete-preset-button');
+const add_preset_modal = document.getElementById('add-preset-modal');
+const add_preset_name_input = document.getElementById('add-preset-name-input');
+const add_preset_modal_ok_button = document.getElementById('add-preset-modal-ok-button');
+const add_preset_modal_cancel_button = document.getElementById('add-preset-modal-cancel-button');
+const rename_preset_modal = document.getElementById('rename-preset-modal');
+const rename_preset_name_input = document.getElementById('rename-preset-name-input');
+const rename_preset_modal_ok_button = document.getElementById('rename-preset-modal-ok-button');
+const rename_preset_modal_cancel_button = document.getElementById('rename-preset-modal-cancel-button');
 
 const hue_element = document.getElementById('hue-range');
 const sat_element = document.getElementById('saturation-range');
@@ -98,107 +111,6 @@ window.node_saturation; window.default_node_saturation;
 window.transparent_bg_rect; window.default_transparent_bg_rect;
 
 window.tree_color = color_picker.value;
-
-const style_presets = {
-    'traditional': {
-        // Content
-        'max-stack-size': 1, 'vertical-inlaws': false, 'show-names': true, 'show-years': true, 'show-places': false,
-        // Size
-        'node-width': 48, 'node-height': 48, 'node-border-width': 1, 'link-width': 2, 'highlighted-link-width': 2, 'text-size': 8,
-        // Spacing
-        'h-spacing': 12, 'v-spacing': 24, 'level-spacing': 12, 'box-padding': 4, 'tree-padding': 12, 'text-align': 'top',
-        // Color
-        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'highlighted-text-brightness': 80, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#000000',
-        // Highlights
-        'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
-        // Rounding
-        'node-rounding': 10, 'link-rounding': 10,
-    },
-    'balanced': {
-        // Content
-        'max-stack-size': 2, 'vertical-inlaws': true, 'show-names': true, 'show-years': true, 'show-places': false,
-        // Size
-        'node-width': 75, 'node-height': 50, 'node-border-width': 2, 'link-width': 4, 'highlighted-link-width': 4, 'text-size': 12,
-        // Spacing
-        'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 100, 'box-padding': 2, 'tree-padding': 100, 'text-align': 'top',
-        // Color
-        'hue': 180, 'saturation': 20, 'node-brightness': 25, 'text-brightness': 80, 'highlighted-text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
-        // Highlights
-        'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
-        // Rounding
-        'node-rounding': 25, 'link-rounding': 25,
-    },
-    'stacked': {
-        // Content
-        'max-stack-size': 99, 'vertical-inlaws': true, 'show-names': true, 'show-years': false, 'show-places': false,
-        // Size
-        'node-width': 75, 'node-height': 50, 'node-border-width': 2, 'link-width': 4, 'highlighted-link-width': 4, 'text-size': 12,
-        // Spacing
-        'h-spacing': 25, 'v-spacing': 25, 'level-spacing': 50, 'box-padding': 2, 'tree-padding': 100, 'text-align': 'middle',
-        // Color
-        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'highlighted-text-brightness': 80, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#000000',
-        // Highlights
-        'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
-        // Rounding
-        'node-rounding': 25, 'link-rounding': 25,
-    },
-    'detailed': {
-        // Content
-        'max-stack-size': 1, 'vertical-inlaws': false, 'show-names': true, 'show-years': true, 'show-places': true,
-        // Size
-        'node-width': 150, 'node-height': 150, 'node-border-width': 5, 'link-width': 5, 'highlighted-link-width': 5, 'text-size': 16,
-        // Spacing
-        'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 50, 'box-padding': 10, 'tree-padding': 100, 'text-align': 'top',
-        // Color
-        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'highlighted-text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
-        // Highlights
-        'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 125,
-        // Rounding
-        'node-rounding': 10, 'link-rounding': 25,
-    },
-    'print': {
-        // Content
-        'max-stack-size': 1, 'vertical-inlaws': false, 'show-names': true, 'show-years': true, 'show-places': false,
-        // Size
-        'node-width': 150, 'node-height': 150, 'node-border-width': 5, 'link-width': 10, 'highlighted-link-width': 10, 'text-size': 24,
-        // Spacing
-        'h-spacing': 50, 'v-spacing': 100, 'level-spacing': 100, 'box-padding': 2, 'tree-padding': 150, 'text-align': 'middle',
-        // Color
-        'hue': 300, 'saturation': 20, 'node-brightness': 80, 'text-brightness': 40, 'highlighted-text-brightness': 80, 'text-shadow': false, 'transparent-bg-rect': false, 'background-color': '#ffffff',
-        // Highlights
-        'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 90, 'link-highlight-percent': 90, 'inlaw-link-highlight-percent': 90,
-        // Rounding
-        'node-rounding': 25, 'link-rounding': 50,
-    },
-    'sharp': {
-        // Content
-        'max-stack-size': 1, 'vertical-inlaws': true, 'show-names': true, 'show-years': true, 'show-places': false,
-        // Size
-        'node-width': 100, 'node-height': 100, 'node-border-width': 3, 'link-width': 6, 'highlighted-link-width': 6, 'text-size': 16,
-        // Spacing
-        'h-spacing': 50, 'v-spacing': 75, 'level-spacing': 100, 'box-padding': 10, 'tree-padding': 150, 'text-align': 'top',
-        // Color
-        'hue': 180, 'saturation': 20, 'node-brightness': 25, 'text-brightness': 80, 'highlighted-text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
-        // Highlights
-        'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
-        // Rounding
-        'node-rounding': 0, 'link-rounding': 0,
-    },
-    'orbs': {
-        // Content
-        'max-stack-size': 99, 'vertical-inlaws': true, 'show-names': true, 'show-years': false, 'show-places': false,
-        // Size
-        'node-width': 100, 'node-height': 100, 'node-border-width': 5, 'link-width': 5, 'highlighted-link-width': 5, 'text-size': 16,
-        // Spacing
-        'h-spacing': 25, 'v-spacing': 50, 'level-spacing': 100, 'box-padding': 10, 'tree-padding': 150, 'text-align': 'middle',
-        // Color
-        'hue': 180, 'saturation': 20, 'node-brightness': 30, 'text-brightness': 80, 'highlighted-text-brightness': 80, 'text-shadow': true, 'transparent-bg-rect': false, 'background-color': '#000000',
-        // Highlights
-        'highlight-type': 'root', 'pedigree-highlight-percent': 150, 'border-highlight-percent': 125, 'link-highlight-percent': 125, 'inlaw-link-highlight-percent': 150,
-        // Rounding
-        'node-rounding': 50, 'link-rounding': 50,
-    },
-}
 
 const elements = [
     // Tree Content

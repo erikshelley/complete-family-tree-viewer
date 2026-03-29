@@ -77,6 +77,17 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
         individual_select: dom.window.document.getElementById('individual-select') || { addEventListener: () => {}, innerHTML: '' },
         connection_select: dom.window.document.getElementById('connection-select') || { addEventListener: () => {}, value: '' },
         preset_select: dom.window.document.getElementById('preset-select') || { addEventListener: () => {}, value: '' },
+        add_preset_button: dom.window.document.getElementById('add-preset-button') || { addEventListener: () => {} },
+        save_preset_button: dom.window.document.getElementById('save-preset-button') || { addEventListener: () => {} },
+        rename_preset_button: dom.window.document.getElementById('rename-preset-button') || { addEventListener: () => {} },
+        reload_preset_button: dom.window.document.getElementById('reload-preset-button') || { addEventListener: () => {} },
+        delete_preset_button: dom.window.document.getElementById('delete-preset-button') || { addEventListener: () => {} },
+        add_preset_modal: dom.window.document.getElementById('add-preset-modal') || { addEventListener: () => {}, style: {} },
+        add_preset_modal_ok_button: dom.window.document.getElementById('add-preset-modal-ok-button') || { addEventListener: () => {}, click: () => {} },
+        add_preset_modal_cancel_button: dom.window.document.getElementById('add-preset-modal-cancel-button') || { addEventListener: () => {} },
+        rename_preset_modal: dom.window.document.getElementById('rename-preset-modal') || { addEventListener: () => {}, style: {} },
+        rename_preset_modal_ok_button: dom.window.document.getElementById('rename-preset-modal-ok-button') || { addEventListener: () => {}, click: () => {} },
+        rename_preset_modal_cancel_button: dom.window.document.getElementById('rename-preset-modal-cancel-button') || { addEventListener: () => {} },
         save_tree_button: dom.window.document.getElementById('save-tree-button') || { addEventListener: () => {} },
         save_modal_cancel_button: dom.window.document.getElementById('save-modal-cancel-button') || { addEventListener: () => {}, click: () => {} },
         save_modal: dom.window.document.getElementById('save-modal') || { addEventListener: () => {}, style: {} },
@@ -95,6 +106,7 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
             individuals: [],
             individual_filter_value: '',
             connection_filter_value: '',
+            location: { protocol: 'file:' },
             ...overrides.windowOverrides,
         },
         globalOverrides: {
@@ -122,6 +134,14 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
             filterConnections: () => {},
             populateConnectionSelect: () => {},
             usePresetStyle: () => {},
+            populatePresetSelect: () => {},
+            addPreset: () => {},
+            savePreset: () => {},
+            renamePreset: () => {},
+            deletePreset: () => {},
+            confirmAddPreset: () => {},
+            confirmRenamePreset: () => {},
+            updatePresetEditButtonState: () => {},
             openSaveModal: () => {},
             openOnlineGedcomModal: () => {},
             loadGedcomFromUrl: () => {},
@@ -140,6 +160,71 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
 
     dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
 
+    return { context, dom };
+}
+
+function loadUiWithAddPresetDom(html, overrides = {}) {
+    const dom = new JSDOM(html);
+    const style_presets = overrides.style_presets || {};
+    const elements_override = overrides.elements || [];
+    const context = loadBrowserScript('src/js/ui.js', {
+        windowOverrides: {
+            document: dom.window.document,
+            addEventListener: () => {},
+            individuals: [],
+            families: [],
+            gedcom_content: '',
+            individual_filter_value: '',
+            selected_individual: '',
+            tree_color: '#000000',
+            location: { protocol: 'file:' },
+            ...overrides.windowOverrides,
+        },
+        globalOverrides: {
+            document: dom.window.document,
+            Event: dom.window.Event,
+            Blob,
+            URL: { createObjectURL: () => 'blob:mock', revokeObjectURL: () => {} },
+            d3: { hcl: () => ({}) },
+            optionsMenu: { style: {} },
+            leftColumnWrapper: { classList: { remove: () => {}, add: () => {}, contains: () => false }, style: {} },
+            leftCol: { offsetWidth: 300 },
+            rightCol: { offsetWidth: 500 },
+            family_tree_div: { querySelector: () => null, innerHTML: '' },
+            expand_styling_button: { style: {} },
+            collapse_styling_button: { style: {} },
+            file_name_span: { textContent: '' },
+            individual_filter: { value: '' },
+            connection_filter: { value: '' },
+            individual_select: { innerHTML: '' },
+            connection_select: { innerHTML: '', appendChild: () => {} },
+            generations_up_number: { value: '1' },
+            generations_down_number: { value: '1' },
+            max_stack_size_number: { value: '1' },
+            hue_element: { value: '180' },
+            sat_element: { value: '20' },
+            lum_element: { value: '30' },
+            text_lum_element: { value: '80' },
+            root_name: null,
+            color_picker: dom.window.document.getElementById('color-picker') || { value: '#000000' },
+            save_filename_input: { value: '' },
+            save_modal: { style: {} },
+            add_preset_modal: dom.window.document.getElementById('add-preset-modal') || { style: {} },
+            add_preset_name_input: dom.window.document.getElementById('add-preset-name-input') || { value: '', focus: () => {} },
+            preset_select: dom.window.document.getElementById('preset-select') || { appendChild: () => {}, value: '' },
+            rename_preset_modal: dom.window.document.getElementById('rename-preset-modal') || { style: {} },
+            rename_preset_name_input: dom.window.document.getElementById('rename-preset-name-input') || { value: '', focus: () => {} },
+            rename_preset_button: dom.window.document.getElementById('rename-preset-button') || { parentElement: { classList: { toggle: () => {}, add: () => {}, remove: () => {} } } },
+            delete_preset_button: dom.window.document.getElementById('delete-preset-button') || { parentElement: { classList: { toggle: () => {}, add: () => {}, remove: () => {} } } },
+            style_presets,
+            elements: elements_override,
+            filter_timeout: null,
+            update_in_progress: false,
+            update_waiting: false,
+            update_timeout: null,
+            ...overrides.globalOverrides,
+        },
+    });
     return { context, dom };
 }
 
@@ -1057,5 +1142,1076 @@ describe('ui behavior cases', () => {
         // highlighted-text-brightness-range has value 80; text-brightness-range has value 50.
         // The thumb color must reflect the element's own value (lum=80), not text-brightness-range's (lum=50).
         expect(highlightedEl.style.getPropertyValue('--range-thumb-highlighted-text-color')).toBe('hcl(180,0,80)');
+    });
+
+    it('06.42 addPreset opens the modal and clears the name input', () => {
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="old-value" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <select id="preset-select"></select>
+        `);
+
+        context.addPreset();
+
+        expect(dom.window.document.getElementById('add-preset-modal').style.display).toBe('flex');
+        expect(dom.window.document.getElementById('add-preset-name-input').value).toBe('');
+    });
+
+    it('06.43 addPreset hides any pre-existing name error', () => {
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <span id="add-preset-name-error" style="display:block;">previous error</span>
+            <select id="preset-select"></select>
+        `);
+
+        context.addPreset();
+
+        expect(dom.window.document.getElementById('add-preset-name-error').style.display).toBe('none');
+    });
+
+    it('06.44 confirmAddPreset with empty name shows error and does not create preset', () => {
+        const style_presets = {};
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings"></div>
+            <select id="preset-select"></select>
+        `, { style_presets });
+
+        context.confirmAddPreset();
+
+        expect(dom.window.document.getElementById('add-preset-name-error').style.display).not.toBe('none');
+        expect(Object.keys(style_presets)).toHaveLength(0);
+        expect(dom.window.document.getElementById('add-preset-modal').style.display).toBe('flex');
+    });
+
+    it('06.45 confirmAddPreset with duplicate name prompts to replace; declining leaves modal open and preset unchanged', () => {
+        const existing = { 'node-width': 100 };
+        const style_presets = { 'my-preset': existing };
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="my-preset" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings"></div>
+            <select id="preset-select"><option value="my-preset">my-preset</option></select>
+        `, { style_presets });
+        context.window.confirm = () => false;
+
+        context.confirmAddPreset();
+
+        expect(style_presets['my-preset']).toBe(existing);
+        expect(dom.window.document.getElementById('add-preset-modal').style.display).toBe('flex');
+    });
+
+
+    it('06.46 confirmAddPreset includes only checked settings in the created preset', () => {
+        const style_presets = {};
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="partial" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings">
+                <input type="checkbox" name="preset-setting" value="node-width" checked />
+                <input type="checkbox" name="preset-setting" value="node-height" />
+                <input type="checkbox" name="preset-setting" value="text-size" checked />
+            </div>
+            <select id="preset-select"></select>
+        `, {
+            style_presets,
+            elements: [
+                { id: 'node-width-number',  type: 'number', default: 100, min: 20, max: 480, variable: 'box_width' },
+                { id: 'node-height-number', type: 'number', default: 100, min: 20, max: 480, variable: 'box_height' },
+                { id: 'text-size-number',   type: 'number', default: 16,  min: 1,  max: 100, variable: 'text_size' },
+            ],
+            windowOverrides: { box_width: 120, box_height: 80, text_size: 18 },
+        });
+
+        context.confirmAddPreset();
+
+        expect(style_presets['partial']['node-width']).toBe(120);
+        expect(style_presets['partial']['text-size']).toBe(18);
+        expect(style_presets['partial']['node-height']).toBeUndefined();
+    });
+
+    it('06.47 confirmAddPreset captures background-color and highlight-type when checked', () => {
+        const style_presets = {};
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="color-preset" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings">
+                <input type="checkbox" name="preset-setting" value="background-color" checked />
+                <input type="checkbox" name="preset-setting" value="highlight-type" checked />
+            </div>
+            <select id="highlights-select"><option value="pedigree" selected>Pedigree</option></select>
+            <select id="preset-select"></select>
+        `, {
+            style_presets,
+            windowOverrides: { tree_color: '#abcdef' },
+        });
+
+        context.confirmAddPreset();
+
+        expect(style_presets['color-preset']['background-color']).toBe('#abcdef');
+        expect(style_presets['color-preset']['highlight-type']).toBe('pedigree');
+    });
+
+    it('06.56 confirmAddPreset with duplicate name: confirming replaces the preset and closes modal', () => {
+        const style_presets = { 'my-preset': { 'node-width': 100 } };
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="my-preset" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings">
+                <input type="checkbox" name="preset-setting" value="node-width" checked />
+            </div>
+            <select id="preset-select"><option value="my-preset">my-preset</option></select>
+        `, {
+            style_presets,
+            elements: [
+                { id: 'node-width-number', type: 'number', default: 100, min: 20, max: 480, variable: 'box_width' },
+            ],
+            windowOverrides: { box_width: 200 },
+        });
+        context.window.confirm = () => true;
+
+        context.confirmAddPreset();
+
+        expect(style_presets['my-preset']['node-width']).toBe(200);
+        expect(dom.window.document.getElementById('add-preset-modal').style.display).toBe('none');
+        expect(dom.window.document.querySelectorAll('#preset-select option')).toHaveLength(1);
+    });
+
+    it('06.57 confirmAddPreset replacing a preset updates the existing option text, not adds a new one', () => {
+        const style_presets = { 'my-preset': { 'node-width': 100 } };
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="my-preset" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings"></div>
+            <select id="preset-select"><option value="my-preset">my-preset</option></select>
+        `, { style_presets });
+        context.window.confirm = () => true;
+
+        context.confirmAddPreset();
+
+        const options = dom.window.document.querySelectorAll('#preset-select option');
+        expect(options).toHaveLength(1);
+        expect(options[0].value).toBe('my-preset');
+    });
+
+    it('06.58 confirmAddPreset detects duplicate when user types the display text of a preset whose option value differs', () => {
+        const style_presets = { 'traditional': { 'node-width': 48 } };
+        let confirmMessage = '';
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="Traditional" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings">
+                <input type="checkbox" name="preset-setting" value="node-width" checked />
+            </div>
+            <select id="preset-select"><option value="traditional">Traditional</option></select>
+        `, {
+            style_presets,
+            elements: [
+                { id: 'node-width-number', type: 'number', default: 100, min: 20, max: 480, variable: 'box_width' },
+            ],
+            windowOverrides: { box_width: 75 },
+        });
+        context.window.confirm = (msg) => { confirmMessage = msg; return true; };
+
+        context.confirmAddPreset();
+
+        // Confirm was prompted
+        expect(confirmMessage).toMatch(/Traditional/);
+        // Existing preset was updated under the original lowercase key
+        expect(style_presets['traditional']['node-width']).toBe(75);
+        // No new preset key was created
+        expect(style_presets['Traditional']).toBeUndefined();
+        // No duplicate option was added
+        expect(dom.window.document.querySelectorAll('#preset-select option')).toHaveLength(1);
+    });
+
+    it('06.48 confirmAddPreset adds option to preset-select, selects it, and closes modal', () => {
+        const style_presets = {};
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="new-preset" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings"></div>
+            <select id="preset-select"></select>
+        `, { style_presets });
+
+        context.confirmAddPreset();
+
+        const options = dom.window.document.querySelectorAll('#preset-select option');
+        expect(options).toHaveLength(1);
+        expect(options[0].value).toBe('new-preset');
+        expect(dom.window.document.getElementById('preset-select').value).toBe('new-preset');
+        expect(dom.window.document.getElementById('add-preset-modal').style.display).toBe('none');
+    });
+
+    it('06.49 add-preset-button click invokes addPreset', () => {
+        let calls = 0;
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#" id="add-preset-button"></a>
+            <select id="preset-select"></select>
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+        `, {
+            globalOverrides: { addPreset: () => { calls += 1; } },
+        });
+
+        dom.window.document.getElementById('add-preset-button').click();
+
+        expect(calls).toBe(1);
+    });
+
+    it('06.50 add-preset-modal OK button invokes confirmAddPreset', () => {
+        let calls = 0;
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#" id="add-preset-button"></a>
+            <select id="preset-select"></select>
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+        `, {
+            globalOverrides: { confirmAddPreset: () => { calls += 1; } },
+        });
+
+        dom.window.document.getElementById('add-preset-modal-ok-button').click();
+
+        expect(calls).toBe(1);
+    });
+
+    it('06.51 add-preset-modal cancel button hides modal', () => {
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#" id="add-preset-button"></a>
+            <select id="preset-select"></select>
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+        `);
+
+        dom.window.document.getElementById('add-preset-modal-cancel-button').click();
+
+        expect(dom.window.document.getElementById('add-preset-modal').style.display).toBe('none');
+    });
+
+    it('06.52 add-preset-modal Enter key triggers OK button', () => {
+        let okClicks = 0;
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#" id="add-preset-button"></a>
+            <select id="preset-select"></select>
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+        `);
+
+        dom.window.document.getElementById('add-preset-modal-ok-button').addEventListener('click', () => { okClicks += 1; });
+
+        dom.window.document.getElementById('add-preset-modal')
+            .dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+        expect(okClicks).toBe(1);
+    });
+
+    it('06.53 add-preset-modal Escape key hides modal', () => {
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#" id="add-preset-button"></a>
+            <select id="preset-select"></select>
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+        `);
+
+        dom.window.document.getElementById('add-preset-modal')
+            .dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+        expect(dom.window.document.getElementById('add-preset-modal').style.display).toBe('none');
+    });
+
+    it('06.54 All toggle button checks all checkboxes in its group', () => {
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#" id="add-preset-button"></a>
+            <select id="preset-select"></select>
+            <div id="add-preset-modal" style="display:flex;">
+                <button class="add-preset-group-toggle" data-group="size" data-check="true">All</button>
+                <div id="add-preset-group-size">
+                    <input type="checkbox" name="preset-setting" value="node-width" />
+                    <input type="checkbox" name="preset-setting" value="node-height" />
+                    <input type="checkbox" name="preset-setting" value="text-size" />
+                </div>
+            </div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+        `);
+
+        dom.window.document.querySelector('.add-preset-group-toggle[data-check="true"]').click();
+
+        const checkboxes = dom.window.document.querySelectorAll('#add-preset-group-size input[type="checkbox"]');
+        checkboxes.forEach(cb => expect(cb.checked).toBe(true));
+    });
+
+    it('06.55 None toggle button unchecks all checkboxes in its group', () => {
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#" id="add-preset-button"></a>
+            <select id="preset-select"></select>
+            <div id="add-preset-modal" style="display:flex;">
+                <button class="add-preset-group-toggle" data-group="content" data-check="false">None</button>
+                <div id="add-preset-group-content">
+                    <input type="checkbox" name="preset-setting" value="max-stack-size" checked />
+                    <input type="checkbox" name="preset-setting" value="show-names" checked />
+                    <input type="checkbox" name="preset-setting" value="show-years" checked />
+                </div>
+            </div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+        `);
+
+        dom.window.document.querySelector('.add-preset-group-toggle[data-check="false"]').click();
+
+        const checkboxes = dom.window.document.querySelectorAll('#add-preset-group-content input[type="checkbox"]');
+        checkboxes.forEach(cb => expect(cb.checked).toBe(false));
+    });
+
+    it('06.59 savePreset opens the add-preset modal', () => {
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+            </select>
+        `);
+
+        context.savePreset();
+
+        expect(dom.window.document.getElementById('add-preset-modal').style.display).toBe('flex');
+    });
+
+    it('06.60 savePreset pre-populates the name input with the selected preset display text', () => {
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+                <option value="balanced">Balanced</option>
+            </select>
+        `);
+        dom.window.document.getElementById('preset-select').value = 'balanced';
+
+        context.savePreset();
+
+        expect(dom.window.document.getElementById('add-preset-name-input').value).toBe('Balanced');
+    });
+
+    it('06.61 savePreset sets the name input to read-only', () => {
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+            </select>
+        `);
+
+        context.savePreset();
+
+        expect(dom.window.document.getElementById('add-preset-name-input').readOnly).toBe(true);
+    });
+
+    it('06.62 confirmAddPreset in save mode updates the preset without prompting', () => {
+        const style_presets = { 'traditional': { 'node-width': 48 } };
+        let confirmCalled = false;
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:flex;" data-save-mode="true"></div>
+            <input id="add-preset-name-input" value="Traditional" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings">
+                <input type="checkbox" name="preset-setting" value="node-width" checked />
+            </div>
+            <select id="preset-select"><option value="traditional">Traditional</option></select>
+        `, {
+            style_presets,
+            elements: [
+                { id: 'node-width-number', type: 'number', default: 100, min: 20, max: 480, variable: 'box_width' },
+            ],
+            windowOverrides: { box_width: 120 },
+        });
+        context.window.confirm = () => { confirmCalled = true; return true; };
+
+        context.confirmAddPreset();
+
+        expect(confirmCalled).toBe(false);
+        expect(style_presets['traditional']['node-width']).toBe(120);
+    });
+
+    it('06.63 confirmAddPreset in save mode clears readOnly and saveMode on close', () => {
+        const style_presets = { 'traditional': { 'node-width': 48 } };
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:flex;" data-save-mode="true"></div>
+            <input id="add-preset-name-input" value="Traditional" readonly />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings"></div>
+            <select id="preset-select"><option value="traditional">Traditional</option></select>
+        `, { style_presets });
+
+        context.confirmAddPreset();
+
+        const input = dom.window.document.getElementById('add-preset-name-input');
+        expect(input.readOnly).toBe(false);
+        const modal = dom.window.document.getElementById('add-preset-modal');
+        expect(modal.dataset.saveMode).toBeUndefined();
+    });
+
+    it('06.64 save-preset-button click invokes savePreset', () => {
+        let calls = 0;
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#"><img id="save-preset-button" /></a>
+            <a href="#" id="add-preset-button"></a>
+            <select id="preset-select"></select>
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+        `, {
+            globalOverrides: { savePreset: () => { calls += 1; } },
+        });
+
+        dom.window.document.getElementById('save-preset-button').click();
+
+        expect(calls).toBe(1);
+    });
+
+    it('06.65 renamePreset shows the rename modal pre-filled with the current preset name', () => {
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+                <option value="balanced">Balanced</option>
+            </select>
+            <div id="rename-preset-modal" style="display:none;"></div>
+            <input id="rename-preset-name-input" value="" />
+            <span id="rename-preset-name-error" style="display:none;"></span>
+            <button id="rename-preset-modal-ok-button"></button>
+            <button id="rename-preset-modal-cancel-button"></button>
+        `, { style_presets: { traditional: {}, balanced: {} } });
+        dom.window.document.getElementById('preset-select').value = 'balanced';
+
+        context.renamePreset();
+
+        expect(dom.window.document.getElementById('rename-preset-name-input').value).toBe('Balanced');
+        expect(dom.window.document.getElementById('rename-preset-modal').style.display).toBe('flex');
+    });
+
+    it('06.66 confirmRenamePreset renames the preset and updates the option', () => {
+        const style_presets = { traditional: { 'node-width': 48 } };
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+            </select>
+            <div id="rename-preset-modal" style="display:flex;"></div>
+            <input id="rename-preset-name-input" value="Classic" />
+            <span id="rename-preset-name-error" style="display:none;"></span>
+            <button id="rename-preset-modal-ok-button"></button>
+            <button id="rename-preset-modal-cancel-button"></button>
+        `, { style_presets });
+
+        context.confirmRenamePreset();
+
+        expect(style_presets['Classic']).toBeDefined();
+        expect(style_presets['traditional']).toBeUndefined();
+        const option = dom.window.document.querySelector('#preset-select option');
+        expect(option.value).toBe('Classic');
+        expect(option.textContent).toBe('Classic');
+        expect(dom.window.document.getElementById('preset-select').value).toBe('Classic');
+        expect(dom.window.document.getElementById('rename-preset-modal').style.display).toBe('none');
+    });
+
+    it('06.67 confirmRenamePreset shows inline error when the entered name is already taken', () => {
+        const style_presets = { traditional: {}, balanced: {} };
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+                <option value="balanced">Balanced</option>
+            </select>
+            <div id="rename-preset-modal" style="display:flex;"></div>
+            <input id="rename-preset-name-input" value="Balanced" />
+            <span id="rename-preset-name-error" style="display:none;"></span>
+            <button id="rename-preset-modal-ok-button"></button>
+            <button id="rename-preset-modal-cancel-button"></button>
+        `, { style_presets });
+
+        context.confirmRenamePreset();
+
+        const error = dom.window.document.getElementById('rename-preset-name-error');
+        expect(error.style.display).toBe('inline');
+        expect(error.textContent).toMatch(/Balanced/);
+        // preset and option should be unchanged
+        expect(style_presets['traditional']).toBeDefined();
+        const opts = dom.window.document.querySelectorAll('#preset-select option');
+        expect(opts).toHaveLength(2);
+    });
+
+    it('06.68 rename-preset-button click invokes renamePreset', () => {
+        let calls = 0;
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#"><img id="rename-preset-button" /></a>
+            <a href="#"><img id="save-preset-button" /></a>
+            <a href="#" id="add-preset-button"></a>
+            <select id="preset-select"></select>
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+        `, {
+            globalOverrides: { renamePreset: () => { calls += 1; } },
+        });
+
+        dom.window.document.getElementById('rename-preset-button').click();
+
+        expect(calls).toBe(1);
+    });
+
+    it('06.69 reload-preset-button click applies the currently selected preset', () => {
+        let appliedPreset = null;
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#"><img id="reload-preset-button" /></a>
+            <a href="#"><img id="rename-preset-button" /></a>
+            <a href="#"><img id="save-preset-button" /></a>
+            <a href="#" id="add-preset-button"></a>
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+                <option value="balanced">Balanced</option>
+            </select>
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+        `, {
+            globalOverrides: { usePresetStyle: (name) => { appliedPreset = name; } },
+        });
+        dom.window.document.getElementById('preset-select').value = 'balanced';
+
+        dom.window.document.getElementById('reload-preset-button').click();
+
+        expect(appliedPreset).toBe('balanced');
+    });
+
+    it('06.70 deletePreset prompts to confirm using the preset display name', () => {
+        const style_presets = { traditional: { 'node-width': 48 } };
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+            </select>
+        `, { style_presets });
+        let confirmMessage = '';
+        context.window.confirm = (msg) => { confirmMessage = msg; return false; };
+
+        context.deletePreset();
+
+        expect(confirmMessage).toMatch(/Traditional/);
+    });
+
+    it('06.71 deletePreset removes the preset and option when the user confirms', () => {
+        const style_presets = { traditional: { 'node-width': 48 }, balanced: {} };
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+                <option value="balanced">Balanced</option>
+            </select>
+        `, { style_presets });
+        context.window.confirm = () => true;
+
+        context.deletePreset();
+
+        expect(style_presets['traditional']).toBeUndefined();
+        const opts = dom.window.document.querySelectorAll('#preset-select option');
+        expect(opts).toHaveLength(1);
+        expect(opts[0].value).toBe('balanced');
+    });
+
+    it('06.72 deletePreset does not delete when the user cancels', () => {
+        const style_presets = { traditional: { 'node-width': 48 } };
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+            </select>
+        `, { style_presets });
+        context.window.confirm = () => false;
+
+        context.deletePreset();
+
+        expect(style_presets['traditional']).toBeDefined();
+        expect(dom.window.document.querySelectorAll('#preset-select option')).toHaveLength(1);
+    });
+
+    it('06.73 delete-preset-button click invokes deletePreset', () => {
+        let calls = 0;
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#"><img id="delete-preset-button" /></a>
+            <a href="#"><img id="reload-preset-button" /></a>
+            <a href="#"><img id="rename-preset-button" /></a>
+            <a href="#"><img id="save-preset-button" /></a>
+            <a href="#" id="add-preset-button"></a>
+            <select id="preset-select"></select>
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+        `, {
+            globalOverrides: { deletePreset: () => { calls += 1; } },
+        });
+
+        dom.window.document.getElementById('delete-preset-button').click();
+
+        expect(calls).toBe(1);
+    });
+
+    it('06.74 preset edit buttons are disabled when loaded from a web server', () => {
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#"><img id="add-preset-button" /></a>
+            <a href="#"><img id="save-preset-button" /></a>
+            <a href="#"><img id="rename-preset-button" /></a>
+            <a href="#"><img id="reload-preset-button" /></a>
+            <a href="#"><img id="delete-preset-button" /></a>
+            <select id="preset-select"></select>
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+        `, {
+            windowOverrides: { location: { protocol: 'https:' } },
+        });
+
+        const buttonIds = ['add-preset-button', 'save-preset-button', 'rename-preset-button', 'reload-preset-button', 'delete-preset-button'];
+        buttonIds.forEach(id => {
+            const anchor = dom.window.document.getElementById(id).parentElement;
+            expect(anchor.classList.contains('preset-button-disabled'), `${id} parent should have preset-button-disabled`).toBe(true);
+        });
+    });
+
+    it('06.75 preset edit buttons are not disabled when loaded locally', () => {
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#"><img id="add-preset-button" /></a>
+            <a href="#"><img id="save-preset-button" /></a>
+            <a href="#"><img id="rename-preset-button" /></a>
+            <a href="#"><img id="reload-preset-button" /></a>
+            <a href="#"><img id="delete-preset-button" /></a>
+            <select id="preset-select"></select>
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+        `, {
+            windowOverrides: { location: { protocol: 'file:' } },
+        });
+
+        const buttonIds = ['add-preset-button', 'save-preset-button', 'rename-preset-button', 'reload-preset-button', 'delete-preset-button'];
+        buttonIds.forEach(id => {
+            const anchor = dom.window.document.getElementById(id).parentElement;
+            expect(anchor.classList.contains('preset-button-disabled'), `${id} parent should not have preset-button-disabled`).toBe(false);
+        });
+    });
+
+    it('06.76 confirmAddPreset triggers a presets.js download', () => {
+        const style_presets = {};
+        let blobContent = '';
+        const { context } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="MyPreset" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings"></div>
+            <select id="preset-select"></select>
+        `, {
+            style_presets,
+            globalOverrides: {
+                Blob: class extends Blob {
+                    constructor(parts, opts) { super(parts, opts); blobContent = parts[0]; }
+                },
+            },
+        });
+
+        context.confirmAddPreset();
+
+        expect(blobContent).toContain('const style_presets');
+        expect(blobContent).toContain('"MyPreset"');
+    });
+
+    it('06.77 confirmRenamePreset triggers a presets.js download', () => {
+        const style_presets = { traditional: { 'node-width': 48 } };
+        let blobContent = '';
+        const { context } = loadUiWithAddPresetDom(`
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+            </select>
+            <div id="rename-preset-modal" style="display:flex;"></div>
+            <input id="rename-preset-name-input" value="Classic" />
+            <span id="rename-preset-name-error" style="display:none;"></span>
+            <button id="rename-preset-modal-ok-button"></button>
+            <button id="rename-preset-modal-cancel-button"></button>
+        `, {
+            style_presets,
+            globalOverrides: {
+                Blob: class extends Blob {
+                    constructor(parts, opts) { super(parts, opts); blobContent = parts[0]; }
+                },
+            },
+        });
+
+        context.confirmRenamePreset();
+
+        expect(blobContent).toContain('const style_presets');
+        expect(blobContent).toContain('"Classic"');
+    });
+
+    it('06.78 deletePreset triggers a presets.js download', () => {
+        const style_presets = { traditional: {}, balanced: {} };
+        let blobContent = '';
+        const { context } = loadUiWithAddPresetDom(`
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+                <option value="balanced">Balanced</option>
+            </select>
+        `, {
+            style_presets,
+            globalOverrides: {
+                Blob: class extends Blob {
+                    constructor(parts, opts) { super(parts, opts); blobContent = parts[0]; }
+                },
+            },
+        });
+        context.window.confirm = () => true;
+
+        context.deletePreset();
+
+        expect(blobContent).toContain('const style_presets');
+        expect(blobContent).not.toContain('"traditional"');
+        expect(blobContent).toContain('"balanced"');
+    });
+
+    it('06.79 savePresetsFile uses showSaveFilePicker when available', async () => {
+        const style_presets = { traditional: { 'node-width': 48 } };
+        let savedContent = '';
+        let pickerOptions = null;
+        const mockWritable = {
+            write: async (text) => { savedContent = text; },
+            close: async () => {},
+        };
+        const mockHandle = { createWritable: async () => mockWritable };
+        const { context } = loadUiWithAddPresetDom(`
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+            </select>
+        `, {
+            style_presets,
+            windowOverrides: {
+                showSaveFilePicker: async (opts) => { pickerOptions = opts; return mockHandle; },
+            },
+        });
+
+        await context.savePresetsFile();
+
+        expect(pickerOptions.suggestedName).toBe('presets.js');
+        expect(savedContent).toContain('const style_presets');
+        expect(savedContent).toContain('"traditional"');
+    });
+
+    it('06.80 savePresetsFile shows a message in the fallback download path', async () => {
+        const style_presets = { traditional: { 'node-width': 48 } };
+        let alertMessage = '';
+        const { context } = loadUiWithAddPresetDom(`
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+            </select>
+        `, { style_presets });
+        context.window.alert = (msg) => { alertMessage = msg; };
+
+        await context.savePresetsFile();
+
+        expect(alertMessage).toContain('Downloads');
+        expect(alertMessage).toContain('src/js/presets.js');
+    });
+
+    it('06.81 populatePresetSelect builds options from style_presets keys', () => {
+        const style_presets = { traditional: {}, balanced: {}, mypreset: {} };
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <select id="preset-select"></select>
+        `, { style_presets });
+
+        context.populatePresetSelect();
+
+        const options = dom.window.document.querySelectorAll('#preset-select option');
+        expect(options).toHaveLength(3);
+        expect(options[0].value).toBe('balanced');
+        expect(options[0].textContent).toBe('Balanced');
+        expect(options[1].value).toBe('mypreset');
+        expect(options[2].value).toBe('traditional');
+        expect(options[2].textContent).toBe('Traditional');
+    });
+
+    it('06.83 populatePresetSelect sorts options alphabetically', () => {
+        const style_presets = { zebra: {}, apple: {}, mango: {} };
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <select id="preset-select"></select>
+        `, { style_presets });
+
+        context.populatePresetSelect();
+
+        const values = [...dom.window.document.querySelectorAll('#preset-select option')].map(o => o.value);
+        expect(values).toEqual(['apple', 'mango', 'zebra']);
+    });
+
+    it('06.82 populatePresetSelect is called during DOMContentLoaded', () => {
+        let calls = 0;
+        const { dom } = loadUiEventsContextWithDom(`
+            <select id="preset-select"></select>
+            <a href="#" id="add-preset-button"></a>
+            <a href="#"><img id="save-preset-button" /></a>
+            <a href="#"><img id="rename-preset-button" /></a>
+            <a href="#"><img id="reload-preset-button" /></a>
+            <a href="#"><img id="delete-preset-button" /></a>
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+        `, {
+            globalOverrides: { populatePresetSelect: () => { calls += 1; } },
+        });
+
+        expect(calls).toBe(1);
+    });
+
+    it('06.84 confirmRenamePreset shows inline error when name is empty', () => {
+        const style_presets = { traditional: {} };
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+            </select>
+            <div id="rename-preset-modal" style="display:flex;"></div>
+            <input id="rename-preset-name-input" value="   " />
+            <span id="rename-preset-name-error" style="display:none;"></span>
+            <button id="rename-preset-modal-ok-button"></button>
+            <button id="rename-preset-modal-cancel-button"></button>
+        `, { style_presets });
+
+        context.confirmRenamePreset();
+
+        const error = dom.window.document.getElementById('rename-preset-name-error');
+        expect(error.style.display).toBe('inline');
+        expect(style_presets['traditional']).toBeDefined();
+    });
+
+    it('06.85 rename-preset-modal OK and Cancel buttons are wired during DOMContentLoaded', () => {
+        let okCalls = 0;
+        let cancelCalls = 0;
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#" id="add-preset-button"></a>
+            <a href="#"><img id="save-preset-button" /></a>
+            <a href="#"><img id="rename-preset-button" /></a>
+            <a href="#"><img id="reload-preset-button" /></a>
+            <a href="#"><img id="delete-preset-button" /></a>
+            <select id="preset-select"></select>
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+            <div id="rename-preset-modal" style="display:none;"></div>
+            <input id="rename-preset-name-input" value="" />
+            <span id="rename-preset-name-error"></span>
+            <button id="rename-preset-modal-ok-button"></button>
+            <button id="rename-preset-modal-cancel-button"></button>
+        `, {
+            globalOverrides: {
+                confirmRenamePreset: () => { okCalls += 1; },
+            },
+        });
+
+        dom.window.document.getElementById('rename-preset-modal-ok-button').click();
+        dom.window.document.getElementById('rename-preset-modal-cancel-button').click();
+
+        expect(okCalls).toBe(1);
+        expect(dom.window.document.getElementById('rename-preset-modal').style.display).toBe('none');
+    });
+
+    it('06.86 updatePresetEditButtonState disables rename and delete when Default is selected', () => {
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <select id="preset-select">
+                <option value="Default">Default</option>
+                <option value="Balanced">Balanced</option>
+            </select>
+            <a href="#"><img id="rename-preset-button" /></a>
+            <a href="#"><img id="delete-preset-button" /></a>
+        `, { style_presets: { Default: {}, Balanced: {} } });
+        dom.window.document.getElementById('preset-select').value = 'Default';
+
+        context.updatePresetEditButtonState();
+
+        const renameParent = dom.window.document.getElementById('rename-preset-button').parentElement;
+        const deleteParent = dom.window.document.getElementById('delete-preset-button').parentElement;
+        expect(renameParent.classList.contains('preset-button-disabled')).toBe(true);
+        expect(deleteParent.classList.contains('preset-button-disabled')).toBe(true);
+    });
+
+    it('06.87 updatePresetEditButtonState enables rename and delete when a non-Default preset is selected', () => {
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <select id="preset-select">
+                <option value="Default">Default</option>
+                <option value="Balanced">Balanced</option>
+            </select>
+            <a href="#" class="preset-button-disabled"><img id="rename-preset-button" /></a>
+            <a href="#" class="preset-button-disabled"><img id="delete-preset-button" /></a>
+        `, { style_presets: { Default: {}, Balanced: {} } });
+        dom.window.document.getElementById('preset-select').value = 'Balanced';
+
+        context.updatePresetEditButtonState();
+
+        const renameParent = dom.window.document.getElementById('rename-preset-button').parentElement;
+        const deleteParent = dom.window.document.getElementById('delete-preset-button').parentElement;
+        expect(renameParent.classList.contains('preset-button-disabled')).toBe(false);
+        expect(deleteParent.classList.contains('preset-button-disabled')).toBe(false);
+    });
+
+    it('06.88 preset-select change event calls updatePresetEditButtonState', () => {
+        let calls = 0;
+        const { dom } = loadUiEventsContextWithDom(`
+            <a href="#" id="add-preset-button"></a>
+            <a href="#"><img id="save-preset-button" /></a>
+            <a href="#"><img id="rename-preset-button" /></a>
+            <a href="#"><img id="reload-preset-button" /></a>
+            <a href="#"><img id="delete-preset-button" /></a>
+            <select id="preset-select">
+                <option value="Default">Default</option>
+                <option value="Balanced">Balanced</option>
+            </select>
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <button id="add-preset-modal-ok-button"></button>
+            <button id="add-preset-modal-cancel-button"></button>
+            <div id="rename-preset-modal" style="display:none;"></div>
+            <input id="rename-preset-name-input" value="" />
+            <button id="rename-preset-modal-ok-button"></button>
+            <button id="rename-preset-modal-cancel-button"></button>
+        `, {
+            globalOverrides: { updatePresetEditButtonState: () => { calls += 1; } },
+        });
+        const callsAfterInit = calls;
+
+        dom.window.document.getElementById('preset-select').dispatchEvent(new dom.window.Event('change'));
+
+        expect(calls).toBe(callsAfterInit + 1);
+    });
+
+    it('06.89 addPreset resets all preset-setting checkboxes to checked', () => {
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings">
+                <input type="checkbox" name="preset-setting" value="node-width" checked>
+                <input type="checkbox" name="preset-setting" value="text-size">
+                <input type="checkbox" name="preset-setting" value="hue">
+            </div>
+            <select id="preset-select"></select>
+        `);
+
+        context.addPreset();
+
+        const checkboxes = dom.window.document.querySelectorAll('#add-preset-settings input[type="checkbox"][name="preset-setting"]');
+        expect(checkboxes).toHaveLength(3);
+        checkboxes.forEach(cb => expect(cb.checked).toBe(true));
+    });
+
+    it('06.90 savePreset checks only the checkboxes whose settings are present in the selected preset', () => {
+        const style_presets = { traditional: { 'node-width': 48, 'hue': 180 } };
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:none;"></div>
+            <input id="add-preset-name-input" value="" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings">
+                <input type="checkbox" name="preset-setting" value="node-width" checked>
+                <input type="checkbox" name="preset-setting" value="text-size" checked>
+                <input type="checkbox" name="preset-setting" value="hue">
+            </div>
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+            </select>
+        `, { style_presets });
+
+        context.savePreset();
+
+        const nodeWidth = dom.window.document.querySelector('input[value="node-width"]');
+        const textSize = dom.window.document.querySelector('input[value="text-size"]');
+        const hue = dom.window.document.querySelector('input[value="hue"]');
+        expect(nodeWidth.checked).toBe(true);
+        expect(textSize.checked).toBe(false);
+        expect(hue.checked).toBe(true);
+    });
+
+    it('06.91 confirmAddPreset with quotes in the name generates valid loadable presets.js content', () => {
+        const style_presets = {};
+        let blobContent = '';
+        const { context } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value='My "Best" Preset' />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings">
+                <input type="checkbox" name="preset-setting" value="node-width" checked>
+            </div>
+            <select id="preset-select"></select>
+        `, {
+            style_presets,
+            globalOverrides: {
+                Blob: class extends Blob {
+                    constructor(parts, opts) { super(parts, opts); blobContent = parts[0]; }
+                },
+            },
+        });
+
+        context.confirmAddPreset();
+
+        expect(() => new Function(blobContent)()).not.toThrow();
+        const loaded = new Function(blobContent + '; return style_presets;')();
+        expect('My "Best" Preset' in loaded).toBe(true);
+    });
+
+    it('06.92 confirmRenamePreset with quotes in the name generates valid loadable presets.js content', () => {
+        const style_presets = { traditional: { 'node-width': 48 } };
+        let blobContent = '';
+        const { context } = loadUiWithAddPresetDom(`
+            <select id="preset-select">
+                <option value="traditional">Traditional</option>
+            </select>
+            <div id="rename-preset-modal" style="display:flex;"></div>
+            <input id="rename-preset-name-input" value="It's Mine" />
+            <span id="rename-preset-name-error" style="display:none;"></span>
+            <button id="rename-preset-modal-ok-button"></button>
+            <button id="rename-preset-modal-cancel-button"></button>
+        `, {
+            style_presets,
+            globalOverrides: {
+                Blob: class extends Blob {
+                    constructor(parts, opts) { super(parts, opts); blobContent = parts[0]; }
+                },
+            },
+        });
+
+        context.confirmRenamePreset();
+
+        expect(() => new Function(blobContent)()).not.toThrow();
+        const loaded = new Function(blobContent + '; return style_presets;')();
+        expect("It's Mine" in loaded).toBe(true);
     });
 });

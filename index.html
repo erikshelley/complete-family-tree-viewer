@@ -32,6 +32,138 @@
         </div>
     </div>
 
+    <div id="add-preset-modal" class="modal-bg" style="display:none;">
+        <div class="modal-content add-preset-modal-content">
+            <h3 class="modal-label">Add New Preset</h3>
+            <p>When you click OK, the browser will save a file called 'presets.js'. 
+                If you want these changes to persist after your session is completed,
+                you must replace the existing 'presets.js' file in the 'src/js' folder of this application with the new version.
+            </p>
+            <label for="add-preset-name-input" class="modal-label">Preset name:</label>
+            <input id="add-preset-name-input" type="text" class="modal-input" value=""/>
+            <span id="add-preset-name-error" style="display:none; color:red;">A preset name is required.</span>
+            <div id="add-preset-settings" class="add-preset-settings">
+                <div class="add-preset-group">
+                    <div class="add-preset-group-header">
+                        <span>Content</span>
+                        <div class="add-preset-group-toggles">
+                            <button class="add-preset-group-toggle" data-group="content" data-check="true">All</button>
+                            <button class="add-preset-group-toggle" data-group="content" data-check="false">None</button>
+                        </div>
+                    </div>
+                    <div class="add-preset-group-items" id="add-preset-group-content">
+                        <label for="preset-cb-max-stack-size"><input type="checkbox" id="preset-cb-max-stack-size" name="preset-setting" value="max-stack-size" checked> Max Stack Size</label>
+                        <label for="preset-cb-show-names"><input type="checkbox" id="preset-cb-show-names" name="preset-setting" value="show-names" checked> Show Names</label>
+                        <label for="preset-cb-show-years"><input type="checkbox" id="preset-cb-show-years" name="preset-setting" value="show-years" checked> Show Years</label>
+                        <label for="preset-cb-show-places"><input type="checkbox" id="preset-cb-show-places" name="preset-setting" value="show-places" checked> Show Places</label>
+                        <label for="preset-cb-vertical-inlaws"><input type="checkbox" id="preset-cb-vertical-inlaws" name="preset-setting" value="vertical-inlaws" checked> Vertical In-Laws</label>
+                        <label for="preset-cb-hide-childless-inlaws"><input type="checkbox" id="preset-cb-hide-childless-inlaws" name="preset-setting" value="hide-childless-inlaws" checked> Hide Childless In-Laws</label>
+                        <label for="preset-cb-hide-non-pedigree-family"><input type="checkbox" id="preset-cb-hide-non-pedigree-family" name="preset-setting" value="hide-non-pedigree-family" checked> Hide Non-Pedigree Family</label>
+                    </div>
+                </div>
+                <div class="add-preset-group">
+                    <div class="add-preset-group-header">
+                        <span>Size</span>
+                        <div class="add-preset-group-toggles">
+                            <button class="add-preset-group-toggle" data-group="size" data-check="true">All</button>
+                            <button class="add-preset-group-toggle" data-group="size" data-check="false">None</button>
+                        </div>
+                    </div>
+                    <div class="add-preset-group-items" id="add-preset-group-size">
+                        <label for="preset-cb-node-width"><input type="checkbox" id="preset-cb-node-width" name="preset-setting" value="node-width" checked> Node Width</label>
+                        <label for="preset-cb-node-height"><input type="checkbox" id="preset-cb-node-height" name="preset-setting" value="node-height" checked> Node Height</label>
+                        <label for="preset-cb-node-border-width"><input type="checkbox" id="preset-cb-node-border-width" name="preset-setting" value="node-border-width" checked> Border Width</label>
+                        <label for="preset-cb-link-width"><input type="checkbox" id="preset-cb-link-width" name="preset-setting" value="link-width" checked> Link Width</label>
+                        <label for="preset-cb-highlighted-link-width"><input type="checkbox" id="preset-cb-highlighted-link-width" name="preset-setting" value="highlighted-link-width" checked> Highlighted Link Width</label>
+                        <label for="preset-cb-text-size"><input type="checkbox" id="preset-cb-text-size" name="preset-setting" value="text-size" checked> Text Size</label>
+                    </div>
+                </div>
+                <div class="add-preset-group">
+                    <div class="add-preset-group-header">
+                        <span>Spacing</span>
+                        <div class="add-preset-group-toggles">
+                            <button class="add-preset-group-toggle" data-group="spacing" data-check="true">All</button>
+                            <button class="add-preset-group-toggle" data-group="spacing" data-check="false">None</button>
+                        </div>
+                    </div>
+                    <div class="add-preset-group-items" id="add-preset-group-spacing">
+                        <label for="preset-cb-h-spacing"><input type="checkbox" id="preset-cb-h-spacing" name="preset-setting" value="h-spacing" checked> Horizontal Spacing</label>
+                        <label for="preset-cb-v-spacing"><input type="checkbox" id="preset-cb-v-spacing" name="preset-setting" value="v-spacing" checked> Vertical Spacing</label>
+                        <label for="preset-cb-level-spacing"><input type="checkbox" id="preset-cb-level-spacing" name="preset-setting" value="level-spacing" checked> Level Spacing</label>
+                        <label for="preset-cb-box-padding"><input type="checkbox" id="preset-cb-box-padding" name="preset-setting" value="box-padding" checked> Box Padding</label>
+                        <label for="preset-cb-tree-padding"><input type="checkbox" id="preset-cb-tree-padding" name="preset-setting" value="tree-padding" checked> Tree Padding</label>
+                        <label for="preset-cb-text-align"><input type="checkbox" id="preset-cb-text-align" name="preset-setting" value="text-align" checked> Text Alignment</label>
+                    </div>
+                </div>
+                <div class="add-preset-group">
+                    <div class="add-preset-group-header">
+                        <span>Color</span>
+                        <div class="add-preset-group-toggles">
+                            <button class="add-preset-group-toggle" data-group="color" data-check="true">All</button>
+                            <button class="add-preset-group-toggle" data-group="color" data-check="false">None</button>
+                        </div>
+                    </div>
+                    <div class="add-preset-group-items" id="add-preset-group-color">
+                        <label for="preset-cb-hue"><input type="checkbox" id="preset-cb-hue" name="preset-setting" value="hue" checked> Hue</label>
+                        <label for="preset-cb-saturation"><input type="checkbox" id="preset-cb-saturation" name="preset-setting" value="saturation" checked> Saturation</label>
+                        <label for="preset-cb-node-brightness"><input type="checkbox" id="preset-cb-node-brightness" name="preset-setting" value="node-brightness" checked> Node Brightness</label>
+                        <label for="preset-cb-text-brightness"><input type="checkbox" id="preset-cb-text-brightness" name="preset-setting" value="text-brightness" checked> Text Brightness</label>
+                        <label for="preset-cb-highlighted-text-brightness"><input type="checkbox" id="preset-cb-highlighted-text-brightness" name="preset-setting" value="highlighted-text-brightness" checked> Highlighted Text Brightness</label>
+                        <label for="preset-cb-text-shadow"><input type="checkbox" id="preset-cb-text-shadow" name="preset-setting" value="text-shadow" checked> Text Shadow</label>
+                        <label for="preset-cb-transparent-bg-rect"><input type="checkbox" id="preset-cb-transparent-bg-rect" name="preset-setting" value="transparent-bg-rect" checked> Transparent Background</label>
+                        <label for="preset-cb-background-color"><input type="checkbox" id="preset-cb-background-color" name="preset-setting" value="background-color" checked> Background Color</label>
+                        <label for="preset-cb-highlight-type"><input type="checkbox" id="preset-cb-highlight-type" name="preset-setting" value="highlight-type" checked> Highlight Type</label>
+                    </div>
+                </div>
+                <div class="add-preset-group">
+                    <div class="add-preset-group-header">
+                        <span>Highlights</span>
+                        <div class="add-preset-group-toggles">
+                            <button class="add-preset-group-toggle" data-group="highlights" data-check="true">All</button>
+                            <button class="add-preset-group-toggle" data-group="highlights" data-check="false">None</button>
+                        </div>
+                    </div>
+                    <div class="add-preset-group-items" id="add-preset-group-highlights">
+                        <label for="preset-cb-pedigree-highlight-percent"><input type="checkbox" id="preset-cb-pedigree-highlight-percent" name="preset-setting" value="pedigree-highlight-percent" checked> Pedigree Highlight</label>
+                        <label for="preset-cb-border-highlight-percent"><input type="checkbox" id="preset-cb-border-highlight-percent" name="preset-setting" value="border-highlight-percent" checked> Border Highlight</label>
+                        <label for="preset-cb-link-highlight-percent"><input type="checkbox" id="preset-cb-link-highlight-percent" name="preset-setting" value="link-highlight-percent" checked> Link Highlight</label>
+                        <label for="preset-cb-inlaw-link-highlight-percent"><input type="checkbox" id="preset-cb-inlaw-link-highlight-percent" name="preset-setting" value="inlaw-link-highlight-percent" checked> In-Law Link Highlight</label>
+                    </div>
+                </div>
+                <div class="add-preset-group">
+                    <div class="add-preset-group-header">
+                        <span>Rounding</span>
+                        <div class="add-preset-group-toggles">
+                            <button class="add-preset-group-toggle" data-group="rounding" data-check="true">All</button>
+                            <button class="add-preset-group-toggle" data-group="rounding" data-check="false">None</button>
+                        </div>
+                    </div>
+                    <div class="add-preset-group-items" id="add-preset-group-rounding">
+                        <label for="preset-cb-node-rounding"><input type="checkbox" id="preset-cb-node-rounding" name="preset-setting" value="node-rounding" checked> Node Rounding</label>
+                        <label for="preset-cb-link-rounding"><input type="checkbox" id="preset-cb-link-rounding" name="preset-setting" value="link-rounding" checked> Link Rounding</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="add-preset-modal-ok-button" class="modal-ok">OK</button>
+                <button id="add-preset-modal-cancel-button" class="modal-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="rename-preset-modal" class="modal-bg" style="display:none;">
+        <div class="modal-content">
+            <h3 class="modal-label">Rename Preset</h3>
+            <label for="rename-preset-name-input" class="modal-label">New name:</label>
+            <input id="rename-preset-name-input" type="text" class="modal-input" value=""/>
+            <span id="rename-preset-name-error" style="display:none; color:red;">A preset name is required.</span>
+            <div class="modal-buttons">
+                <button id="rename-preset-modal-ok-button" class="modal-ok">OK</button>
+                <button id="rename-preset-modal-cancel-button" class="modal-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <div id="save-modal" class="modal-bg" style="display:none;">
         <div class="modal-content">
             <label for="save-filename-input" class="modal-label">File name:</label>
@@ -132,14 +264,12 @@
             <div class="input-section">
                 <details closed><summary>Preset</summary>
                     <select id="preset-select" size="1">
-                        <option value="traditional" selected>Traditional</option>
-                        <option value="balanced">Balanced</option>
-                        <option value="stacked">Stacked</option>
-                        <option value="detailed">Detailed</option>
-                        <option value="print">Print</option>
-                        <option value="sharp">Sharp</option>
-                        <option value="orbs">Orbs</option>
                     </select>
+                    <a href="#" class="right-shortcut"><img id="add-preset-button" src="src/png/icons8-add-48-gold.png" alt="Add New Preset" title="Add New Preset" width="24" height="24"></a>
+                    <a href="#" class="right-shortcut"><img id="save-preset-button" src="src/png/icons8-save-48-gold.png" alt="Save Preset" title="Save Preset" width="24" height="24"></a>
+                    <a href="#" class="right-shortcut"><img id="rename-preset-button" src="src/png/icons8-rename-48-gold.png" alt="Rename Preset" title="Rename Preset" width="24" height="24"></a>
+                    <a href="#" class="right-shortcut"><img id="reload-preset-button" src="src/png/icons8-synchronize-48-gold.png" alt="Reload Preset" title="Reload Preset" width="24" height="24"></a>
+                    <a href="#" class="right-shortcut"><img id="delete-preset-button" src="src/png/icons8-remove-48-gold.png" alt="Delete Preset" title="Delete Preset" width="24" height="24"></a>
                 </details>
 
                 <details closed><summary>Size</summary>
@@ -325,6 +455,7 @@
     <script src="src/js/build_tree.js"></script>
     <script src="src/js/position_tree.js"></script>
     <script src="src/js/draw_tree.js"></script>
+    <script src="src/js/presets.js"></script>
     <script src="src/js/ui_declarations.js"></script>
     <script src="src/js/ui.js"></script>
     <script src="src/js/ui_events.js"></script>

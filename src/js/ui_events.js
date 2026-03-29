@@ -2,7 +2,9 @@
     save_modal_ok_button, save_filename_input, clearIndividualFilterbutton,
     individual_filter, connection_filter, clearConnectionFilterbutton,
     color_picker, optionsMenu, file_input, individual_select, connection_select,
-    preset_select, save_tree_button, save_modal_cancel_button, save_modal,
+    preset_select, add_preset_button, save_preset_button, rename_preset_button, reload_preset_button, delete_preset_button, add_preset_modal, add_preset_modal_ok_button,
+    add_preset_modal_cancel_button, rename_preset_modal, rename_preset_modal_ok_button, rename_preset_modal_cancel_button,
+    save_tree_button, save_modal_cancel_button, save_modal,
     resize_tree_button, resize_tree_horizontal_button, resize_tree_vertical_button,
     expand_styling_button, collapse_styling_button,
     open_online_button, online_gedcom_modal, online_gedcom_cancel_button,
@@ -10,7 +12,9 @@
 /* global requestFamilyTreeUpdate, updateRangeThumbs, populateIndividualSelect,
     savePNG, saveSVG, expandAllStylingSections, collapseAllStylingSections,
     toggleOptions, selectGedcomFile, filterIndividuals, filterConnections,
-    populateConnectionSelect, usePresetStyle,
+    populateConnectionSelect, usePresetStyle, addPreset, savePreset, renamePreset, deletePreset, confirmAddPreset, confirmRenamePreset,
+    updatePresetEditButtonState,
+    populatePresetSelect,
     openSaveModal, zoomToFit, zoomToFitHorizontal, zoomToFitVertical,
     scaleBodyForSmallScreens, updateOptionsVisibility, updateMaxLinksState,
     calculateMaxGenUp, calculateMaxGenDown,
@@ -250,7 +254,49 @@ document.addEventListener('DOMContentLoaded', function() {
             requestFamilyTreeUpdate();
         });
     }
-    preset_select.addEventListener('change', function(event) { usePresetStyle(event.target.value); });
+    preset_select.addEventListener('change', function(event) { usePresetStyle(event.target.value); updatePresetEditButtonState(); });
+    const isLocal = window.location.protocol === 'file:';
+    if (isLocal) {
+        add_preset_button.addEventListener('click', function(event) { event.preventDefault(); addPreset(); });
+        save_preset_button.addEventListener('click', function(event) { event.preventDefault(); savePreset(); });
+        rename_preset_button.addEventListener('click', function(event) { event.preventDefault(); renamePreset(); });
+        reload_preset_button.addEventListener('click', function(event) { event.preventDefault(); usePresetStyle(preset_select.value); });
+        delete_preset_button.addEventListener('click', function(event) { event.preventDefault(); deletePreset(); });
+    } else {
+        [add_preset_button, save_preset_button, rename_preset_button, reload_preset_button, delete_preset_button]
+            .forEach(btn => btn.parentElement.classList.add('preset-button-disabled'));
+    }
+    add_preset_modal_ok_button.addEventListener('click', function() { confirmAddPreset(); });
+    add_preset_modal_cancel_button.addEventListener('click', function() { add_preset_modal.style.display = 'none'; });
+    rename_preset_modal_ok_button.addEventListener('click', function() { confirmRenamePreset(); });
+    rename_preset_modal_cancel_button.addEventListener('click', function() { rename_preset_modal.style.display = 'none'; });
+    rename_preset_modal.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            rename_preset_modal_ok_button.click();
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            rename_preset_modal_cancel_button.click();
+        }
+    });
+    add_preset_modal.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            add_preset_modal_ok_button.click();
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            add_preset_modal_cancel_button.click();
+        }
+    });
+    add_preset_modal.addEventListener('click', function(event) {
+        const btn = event.target.closest('.add-preset-group-toggle');
+        if (btn) {
+            const group = btn.dataset.group;
+            const check = btn.dataset.check === 'true';
+            document.querySelectorAll(`#add-preset-group-${group} input[type="checkbox"]`)
+                .forEach(cb => { cb.checked = check; });
+        }
+    });
     save_tree_button.addEventListener('click', function() { openSaveModal(); });
     save_modal_cancel_button.addEventListener('click', function() { document.getElementById('save-modal').style.display = 'none'; });
 
@@ -269,8 +315,10 @@ document.addEventListener('DOMContentLoaded', function() {
     expand_styling_button.addEventListener('click', function() { expandAllStylingSections(); });
     collapse_styling_button.addEventListener('click', function() { collapseAllStylingSections(); });
 
-    preset_select.value = 'traditional';
-    usePresetStyle('traditional');
+    populatePresetSelect();
+    preset_select.value = 'Default';
+    updatePresetEditButtonState();
+    usePresetStyle('Default');
     scaleBodyForSmallScreens();
     updateOptionsVisibility();
     updateRangeThumbs();
