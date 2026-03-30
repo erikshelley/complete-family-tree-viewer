@@ -899,6 +899,7 @@ function positionSpouses(node, rows, type_to_drop) {
             [spouse_min_x, spouse_max_x, stacks, stack_sub_level] 
                 = positionStackableNode(node, spouse_node, rows, has_grandchildren, drop_sub_level, stack_sub_level, stacks, spouse_min_x, spouse_max_x, false);
         });
+        alignStacks(stacks);
     }
 
     if (window.vertical_inlaws && drop_sub_level && (node.spouse_nodes.length > 0)) {

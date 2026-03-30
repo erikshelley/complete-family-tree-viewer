@@ -609,6 +609,31 @@ function getSiblingRelativesNoLinkCrossMock() {
     ].join('\n');
 }
 
+// Mock for ancestor in-law stacking alignment tests (05.47–05.48).
+// Root (M) has parents: Father (M) and Mother (F).
+// Mother has four additional in-law husbands (H1–H4), none with children.
+// With vertical_inlaws=true and max_stack_size>1, the husbands are stacked into columns
+// below the generation row. Before the fix, alignStacks was never called for ancestor
+// spouse stacks, so the bottom rows were misaligned to the far left.
+function getMotherInlawStackingGedcom() {
+    return [
+        '0 HEAD',
+        '0 @I1@ INDI', '1 NAME Root /Person/', '1 SEX M', '1 FAMC @F0@',
+        '0 @I2@ INDI', '1 NAME Father /Ancestor/', '1 SEX M', '1 FAMS @F0@',
+        '0 @I3@ INDI', '1 NAME Mother /Ancestor/', '1 SEX F', '1 FAMS @F0@', '1 FAMS @F1@', '1 FAMS @F2@', '1 FAMS @F3@', '1 FAMS @F4@',
+        '0 @I4@ INDI', '1 NAME Husband1 /Inlaw/', '1 SEX M', '1 FAMS @F1@',
+        '0 @I5@ INDI', '1 NAME Husband2 /Inlaw/', '1 SEX M', '1 FAMS @F2@',
+        '0 @I6@ INDI', '1 NAME Husband3 /Inlaw/', '1 SEX M', '1 FAMS @F3@',
+        '0 @I7@ INDI', '1 NAME Husband4 /Inlaw/', '1 SEX M', '1 FAMS @F4@',
+        '0 @F0@ FAM', '1 HUSB @I2@', '1 WIFE @I3@', '1 CHIL @I1@',
+        '0 @F1@ FAM', '1 HUSB @I4@', '1 WIFE @I3@',
+        '0 @F2@ FAM', '1 HUSB @I5@', '1 WIFE @I3@',
+        '0 @F3@ FAM', '1 HUSB @I6@', '1 WIFE @I3@',
+        '0 @F4@ FAM', '1 HUSB @I7@', '1 WIFE @I3@',
+        '0 TRLR',
+    ].join('\n');
+}
+
 function buildAndPositionTree(context, rootId) {
     const root = context.window.individuals.find(person => person.id === rootId);
     const rootNode = context.buildTree(root);
@@ -2150,5 +2175,79 @@ describe('integration test cases', () => {
         expect(sibA.x < sibB.x, 'SibA should be to the left of SibB').toBe(true);
         expect(sibAConnector < sibBConnector, 'SibA parent connector should be left of SibB parent connector').toBe(true);
         expect(sibA.x < sibB.x).toBe(sibAConnector < sibBConnector);
+    });
+
+    it('05.47 stacked in-law spouses of female ancestor are aligned to their column (two stacks of two)', () => {
+        // Root's mother has four in-law husbands with no children.
+        // With max_stack_size=2, they form two stacks of two: [H1,H2] and [H3,H4].
+        // Each stack column must have both nodes at the same x.
+        // Before the fix, alignStacks was never called for ancestor spouse stacks,
+        // so H2 and H4 were placed at far-left positions instead of aligning with H1/H3.
+        const parsed = createPipelineContext().parseGedcomData(getMotherInlawStackingGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 1;
+        context.window.generations_down = 0;
+        context.window.max_stack_size = 2;
+        context.window.hide_childless_inlaws = false;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const h1 = find('@I4@');
+        const h2 = find('@I5@');
+        const h3 = find('@I6@');
+        const h4 = find('@I7@');
+
+        expect(h1, 'Husband1 should be in tree').toBeDefined();
+        expect(h2, 'Husband2 should be in tree').toBeDefined();
+        expect(h3, 'Husband3 should be in tree').toBeDefined();
+        expect(h4, 'Husband4 should be in tree').toBeDefined();
+
+        // First stack column: H1 (top) and H2 (bottom) must share the same x
+        expect(h1.x).toBe(h2.x);
+        // Second stack column: H3 (top) and H4 (bottom) must share the same x
+        expect(h3.x).toBe(h4.x);
+        // The two columns must be at different x positions
+        expect(h1.x).not.toBe(h3.x);
+    });
+
+    it('05.48 stacked in-law spouses of female ancestor are aligned to their column (single deeper stack)', () => {
+        // Root's mother has four in-law husbands with no children.
+        // With max_stack_size=4 all four are placed in a single column at sub-levels 0–3.
+        // All four must share the same x after alignment.
+        const parsed = createPipelineContext().parseGedcomData(getMotherInlawStackingGedcom());
+
+        const context = createPipelineContext();
+        context.window.individuals = structuredClone(parsed.individuals);
+        context.window.families = structuredClone(parsed.families);
+        context.window.vertical_inlaws = true;
+        context.window.generations_up = 1;
+        context.window.generations_down = 0;
+        context.window.max_stack_size = 4;
+        context.window.hide_childless_inlaws = false;
+
+        const rootNode = buildAndPositionTree(context, '@I1@');
+        const nodes = collectAllNodes(rootNode);
+        const find = id => nodes.find(n => n.individual.id === id);
+
+        const h1 = find('@I4@');
+        const h2 = find('@I5@');
+        const h3 = find('@I6@');
+        const h4 = find('@I7@');
+
+        expect(h1, 'Husband1 should be in tree').toBeDefined();
+        expect(h2, 'Husband2 should be in tree').toBeDefined();
+        expect(h3, 'Husband3 should be in tree').toBeDefined();
+        expect(h4, 'Husband4 should be in tree').toBeDefined();
+
+        // All four are in a single column: every node must share the same x
+        expect(h1.x).toBe(h2.x);
+        expect(h1.x).toBe(h3.x);
+        expect(h1.x).toBe(h4.x);
     });
 });

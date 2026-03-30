@@ -139,6 +139,8 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 05.44 | Each descendant child is centered below the connector circle to the right of their male relative father |
 |  Automated  | 05.45 | Child of female relative and male inlaw is centered below the connector circle to the left of the female relative |
 |  Automated  | 05.46 | Pedigree-sibling link from parents does not intersect with another branch pedigree-sibling link from parents |
+|  Automated  | 05.47 | Stacked in-law spouses of female ancestor are aligned to their column (two stacks of two) |
+|  Automated  | 05.48 | Stacked in-law spouses of female ancestor are aligned to their column (single deeper stack) |
 
 ## 06 UI Behavior Test Cases
 |    Status   |  ID   | Test Description |
