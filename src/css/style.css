@@ -70,6 +70,20 @@ svg {
     overflow-y: scroll;
 }
 
+.left-column::-webkit-scrollbar {
+    width: 6px;
+}
+.left-column::-webkit-scrollbar-track {
+    background: transparent;
+}
+.left-column::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,0.25);
+    border-radius: 3px;
+}
+.left-column::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255,255,255,0.45);
+}
+
 .left-column-wrapper {
     transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
     will-change: transform;
@@ -177,8 +191,26 @@ svg {
     margin-top: 8px;
 }
 
+#individual-select::-webkit-scrollbar,
+#connection-select::-webkit-scrollbar {
+    width: 6px;
+}
+#individual-select::-webkit-scrollbar-track,
+#connection-select::-webkit-scrollbar-track {
+    background: transparent;
+}
+#individual-select::-webkit-scrollbar-thumb,
+#connection-select::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,0.25);
+    border-radius: 3px;
+}
+#individual-select::-webkit-scrollbar-thumb:hover,
+#connection-select::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255,255,255,0.45);
+}
+
 #preset-select {
-    width: 45%;
+    width: 50%;
 }
 
 #individual-filter-text {
