@@ -45,7 +45,7 @@ Here are a few examples trees to demonstrate some of the program's capabilities:
 
 | Root&nbsp;Person | People&nbsp;Shown | Family&nbsp;Tree |
 |:----------------:|:-----------------:|:----------------:|
-| John&nbsp;Fitzgerald&nbsp;Kennedy | 145 People   | ![John Fitzgerald Kennedy](readme/John-Fitzgerald-Kennedy.png) |
+| John&nbsp;Fitzgerald&nbsp;Kennedy | 202 People   | ![John Fitzgerald Kennedy](readme/John-Fitzgerald-Kennedy.png) |
 | Bart&nbsp;Simpson                 | 10 People    | ![Bart Simpson](readme/Bart-Simpson.png) |
 | Johann&nbsp;Sebastian&nbsp;Bach   | 32 People    | ![Johann Sebastian Bach](readme/Johann-Sebastian-Bach.png) |
 | Me                                | 4,798 People | ![My Family Tree](readme/Erik-Michael-Shelley.svg) |
@@ -114,7 +114,16 @@ The example below contains the same people as the previous example in the **leve
 | ------ | ----------- |
 | ![](src/png/icons8-expand-48.png) | Expand all tree styling sections. |
 | ![](src/png/icons8-collapse-48.png) | Collapse all tree styling sections. |
-| Presets | Select a preset to quickly change a number of the style settings. Some tree content settings may be changed as well. |
+
+### Preset
+| Option | Description |
+| ------ | ----------- |
+| Preset | Select a preset to quickly change a number of the style settings and tree content. Use one of the five buttons below to change the presets. Your changes will only persist across sessions if you overwrite src/js/presets.js with the new file that gets downloaded after you click OK. |
+| ![](src/png/icons8-add-48-gold.png) | Create a new preset |
+| ![](src/png/icons8-save-48-gold.png) | Save changes to the current preset |
+| ![](src/png/icons8-rename-48-gold.png) | Rename the current preset |
+| ![](src/png/icons8-synchronize-48-gold.png) | Reload the current preset |
+| ![](src/png/icons8-remove-48-gold.png) | Delete the current preset |
 
 ### Size
 | Option | Description |
@@ -123,6 +132,7 @@ The example below contains the same people as the previous example in the **leve
 | Box Y | Change this value to control thet height of the nodes. Click the resize icon <img src="src/png/icons8-resize-48-gold.png" width="18" height="18"> to use thhe height needed to fit the text. |
 | Borders | Change this value to control the size of the node borders. |
 | Links | Change this value to control how thick the links are between nodes. |
+| Highlighted Links | Change this value to control how thick the highlighted links are between nodes. |
 | Font | Change this value to control the size of the text in the nodes. |
 
 ### Spacing
@@ -132,6 +142,7 @@ The example below contains the same people as the previous example in the **leve
 | Boxes Y | Change this value to control the vertical space between nodes. |
 | Levels Y | Change this value to control the vertical space between levels. |
 | Tree Padding | Change this value to control the padding around the tree. |
+| Vertical Text Alignment | Choose whether text is aligned to the **Top** / **Middle** / **Bottom**. |
 
 ### Color
 | Option | Description |
@@ -140,6 +151,7 @@ The example below contains the same people as the previous example in the **leve
 | Saturation | Change this value to control how saturated the colors of the nodes are. |
 | Brightness | Change this value to control the brightness of the tree nodes and links. |
 | Text | Change this value to control how bright the text is in the nodes. |
+| Highlighted Text | Change this value to control how bright the highlighted text is in the nodes. |
 | Text Shadow | Click this checkbox to enable text shadows. |
 | Transparent Background | Click this checkbox to use a transparent background for the tree. |
 | Background Color | Click this control to choose a background color. The color will only be used if the Transparent Background checkbox is not checked. |
@@ -147,7 +159,7 @@ The example below contains the same people as the previous example in the **leve
 ### Highlights (%)
 | Option | Description |
 | ------ | ----------- |
-| Pedigree | Change this value to control if thte pedigree nodes (direct ancestors and descendants of the root person) are darker or brighter than everyone else. 0% is black, 100% is the same brightness as everyone else, and 200% is twice as bright as everyone else. Click the X icon <img src="src/png/icons8-cancel-48-gold.png" width="18" height="18"> to use 100% for no highlighting. |
+| Special | Change this value to control if the desired nodes are darker or brighter than everyone else. 0% is black, 100% is the same brightness as everyone else, and 200% is twice as bright as everyone else. Click the X icon <img src="src/png/icons8-cancel-48-gold.png" width="18" height="18"> to use 100% for no highlighting.<br />- **None**: No nodes are highlighted.<br />- **Root**: The root node is highlighted.<br />- **Pedigree**: The ancestors and descendants of root are highlighted.<br />- **Connection**: Choose a second node from the tree and the path connecting them will be highlighted. |
 | Borders | Change this value to control if the node borders are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="src/png/icons8-cancel-48-gold.png" width="18" height="18"> to use 100% for no highlighting. |
 | Links | Change this value to control if the links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="src/png/icons8-cancel-48-gold.png" width="18" height="18"> to use 100% for no highlighting. |
 | In-Law Links | Change this value to control if the in-law links are darker or brighter than the nodes. 0% is black, 100% is the same brightness as the nodes, and 200% is twice as bright as the nodes. Click the X icon <img src="src/png/icons8-cancel-48-gold.png" width="18" height="18""> to use 100% for no highlighting. |
@@ -180,27 +192,40 @@ The page background came from this excellent source:
 - [Free SVG Backgrounds and Patterns by SVGBackgrounds.com](https://www.svgbackgrounds.com/set/free-svg-backgrounds-and-patterns/)
 
 The icons are from icons8 > [liquid glass](https://icons8.com/icons/all--style-liquid-glass).
-- ![](src/png/icons8-menu-48.png) <a target="_blank" href="https://icons8.com/icon/0mAtpPoNoAEd/menu">Menu</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-help-48.png) <a target="_blank" href="https://icons8.com/icon/osnYseY0Xola/help">Help</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-browse-folder-48.png) <a target="_blank" href="https://icons8.com/icon/lSqvuA59KBiX/browse-folder">Browse Folder</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-cloud-folder-48.png) <a target="_blank" href="https://icons8.com/icon/kd6S8UCs78vy/cloud-folder">Cloud Folder</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-top-48.png) <a target="_blank" href="https://icons8.com/icon/Kxg3ddPq2XL6/upward-arrow">Top</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-expand-48.png) <a target="_blank" href="https://icons8.com/icon/1jinb9WZokXK/expand">Expand</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](src/png/icons8-collapse-48.png) <a target="_blank" href="https://icons8.com/icon/oXQVibFkysZg/collapse">Collapse</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-resize-48.png) <a target="_blank" href="https://icons8.com/icon/PjMvq8ClC94p/resize">Resize</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-cancel-48.png) <a target="_blank" href="https://icons8.com/icon/DXECg4JU1n2x/cancel">Cancel</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-save-48.png) <a target="_blank" href="https://icons8.com/icon/3VO7xUNfMILv/save">Save</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-resize-vertical-48.png) <a target="_blank" href="https://icons8.com/icon/GiGSyDPA8118/resize-vertical">Resize Vertical</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-resize-horizontal-48.png) <a target="_blank" href="https://icons8.com/icon/GXzkVzhz4pZm/resize-horizontal">Resize Horizontal</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-enlarge-48.png) <a target="_blank" href="https://icons8.com/icon/bcZmJfs5prDE/enlarge">Enlarge</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+<p>
 
-- ![](readme/icons8-privacy-48.png) <a target="_blank" href="https://icons8.com/icon/KjQkA7JG7lDE/security-shield">Privacy</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-complete-48.png) <a target="_blank" href="https://icons8.com/icon/hJniet82Bq1U/approval">Complete</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-drag-48.png) <a target="_blank" href="https://icons8.com/icon/jQhdjj6cuiwg/drag">Drag</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-customize-48.png) <a target="_blank" href="https://icons8.com/icon/b6eLSBnQN1Xl/slider">Customize</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-filter-48.png) <a target="_blank" href="https://icons8.com/icon/lIPVBw1hMKkS/filter">Filter</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-layout-48.png) <a target="_blank" href="https://icons8.com/icon/I9FnHLOemrZ8/template">Layout</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
-- ![](readme/icons8-laptop-48.png) <a target="_blank" href="https://icons8.com/icon/vHaL5ib6nGhu/laptop-with-cursor">Laptop</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+![Add](readme/icons8-add-48.png) 
+![Browse Folder](readme/icons8-browse-folder-48.png)
+![Cancel](readme/icons8-cancel-48.png)
+![Cloud Folder](readme/icons8-cloud-folder-48.png)
+![Collapse](src/png/icons8-collapse-48.png)
+![Complete](readme/icons8-complete-48.png)
+![Customize](readme/icons8-customize-48.png)
+![Drag](readme/icons8-drag-48.png)
+
+<br />
+
+![Enlarge](readme/icons8-enlarge-48.png)
+![Expand](src/png/icons8-expand-48.png)
+![Filter](readme/icons8-filter-48.png)
+![Help](readme/icons8-help-48.png)
+![Laptop](readme/icons8-laptop-48.png)
+![Layout](readme/icons8-layout-48.png)
+![Privacy](readme/icons8-privacy-48.png)
+![Remove](readme/icons8-remove-48.png)
+
+<br />
+
+![Rename](readme/icons8-rename-48.png)
+![Resize](readme/icons8-resize-48.png)
+![Resize Horizontal](readme/icons8-resize-horizontal-48.png)
+![Resize Vertical](readme/icons8-resize-vertical-48.png)
+![Save](readme/icons8-save-48.png)
+![Synchronize](readme/icons8-synchronize-48.png)
+![Top](readme/icons8-top-48.png)
+![Menu](src/png/icons8-menu-48.png) 
+
+</p>
 
 
 ## Similar Repositories
