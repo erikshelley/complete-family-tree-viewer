@@ -275,6 +275,26 @@ function openOnlineGedcomModal() {
 }
 
 
+function openAboutModal() {
+    const modal = document.getElementById('about-modal');
+    if (!modal) return;
+    const latest_span = document.getElementById('about-latest-version');
+    if (latest_span) { latest_span.textContent = 'Checking\u2026'; }
+    modal.style.display = 'flex';
+    fetch('https://api.github.com/repos/erikshelley/complete-family-tree-viewer/releases/latest')
+        .then(function(response) {
+            if (!response.ok) throw new Error('network');
+            return response.json();
+        })
+        .then(function(data) {
+            if (latest_span) { latest_span.textContent = data.tag_name || 'Unknown'; }
+        })
+        .catch(function() {
+            if (latest_span) { latest_span.textContent = 'Unavailable'; }
+        });
+}
+
+
 function loadGedcomFromUrl(url, display_name) {
     const modal = document.getElementById('online-gedcom-modal');
     const status = document.getElementById('online-gedcom-status');

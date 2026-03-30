@@ -628,3 +628,38 @@ input[type="color"]:focus {
 .hidden {
     display: none !important;
 }
+
+.about-modal-content {
+    min-width: 300px;
+    max-width: 480px;
+    align-items: center;
+    text-align: center;
+}
+
+.about-modal-description {
+    color: #ccc;
+    font-size: 0.95em;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.about-modal-versions {
+    margin-bottom: 16px;
+    color: #eee;
+    font-size: 0.95em;
+}
+
+.about-modal-versions p {
+    margin: 4px 0;
+}
+
+.about-modal-link {
+    color: #7aade8;
+    text-decoration: none;
+    margin-bottom: 20px;
+    font-size: 0.95em;
+}
+
+.about-modal-link:hover {
+    text-decoration: underline;
+}

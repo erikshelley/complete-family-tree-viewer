@@ -97,6 +97,9 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
         expand_styling_button: dom.window.document.getElementById('expand-styling-button') || { addEventListener: () => {} },
         collapse_styling_button: dom.window.document.getElementById('collapse-styling-button') || { addEventListener: () => {} },
         connection_container: dom.window.document.getElementById('connection-container') || { classList: { add: () => {}, remove: () => {} } },
+        about_button: dom.window.document.getElementById('about-button') || { addEventListener: () => {} },
+        about_modal: dom.window.document.getElementById('about-modal') || { addEventListener: () => {}, style: {} },
+        about_modal_close_button: dom.window.document.getElementById('about-modal-close-button') || { addEventListener: () => {} },
     };
 
     const context = loadBrowserScript('src/js/ui_events.js', {
@@ -144,6 +147,7 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
             updatePresetEditButtonState: () => {},
             openSaveModal: () => {},
             openOnlineGedcomModal: () => {},
+            openAboutModal: () => {},
             loadGedcomFromUrl: () => {},
             zoomToFit: () => {},
             zoomToFitHorizontal: () => {},
@@ -2213,5 +2217,235 @@ describe('ui behavior cases', () => {
         expect(() => new Function(blobContent)()).not.toThrow();
         const loaded = new Function(blobContent + '; return style_presets;')();
         expect("It's Mine" in loaded).toBe(true);
+    });
+
+    it('06.93 about button click invokes openAboutModal', () => {
+        let openAboutModalCalled = false;
+        loadUiEventsContextWithDom(`
+            <button id="about-button"></button>
+            <div id="about-modal" style="display:none;"></div>
+            <button id="about-modal-close-button"></button>
+        `, {
+            globalOverrides: {
+                openAboutModal: () => { openAboutModalCalled = true; },
+            },
+        });
+        expect(openAboutModalCalled).toBe(false);
+        // loadUiEventsContextWithDom fires DOMContentLoaded which wires listeners,
+        // so we re-load to get a clean wired context then trigger the click
+        let clicked = false;
+        const { dom } = loadUiEventsContextWithDom(`
+            <button id="about-button"></button>
+            <div id="about-modal" style="display:none;"></div>
+            <button id="about-modal-close-button"></button>
+        `, {
+            globalOverrides: {
+                openAboutModal: () => { clicked = true; },
+            },
+        });
+        dom.window.document.getElementById('about-button').click();
+        expect(clicked).toBe(true);
+    });
+
+    it('06.94 about modal close button hides the about modal', () => {
+        const { dom } = loadUiEventsContextWithDom(`
+            <button id="about-button"></button>
+            <div id="about-modal" style="display:flex;"></div>
+            <button id="about-modal-close-button"></button>
+        `);
+        const about_modal_el = dom.window.document.getElementById('about-modal');
+        about_modal_el.style.display = 'flex';
+        dom.window.document.getElementById('about-modal-close-button').click();
+        expect(about_modal_el.style.display).toBe('none');
+    });
+
+    it('06.95 Escape key on about modal hides the modal', () => {
+        const { dom } = loadUiEventsContextWithDom(`
+            <button id="about-button"></button>
+            <div id="about-modal" style="display:flex;"></div>
+            <button id="about-modal-close-button"></button>
+        `);
+        const about_modal_el = dom.window.document.getElementById('about-modal');
+        about_modal_el.style.display = 'flex';
+        const event = new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+        about_modal_el.dispatchEvent(event);
+        expect(about_modal_el.style.display).toBe('none');
+    });
+
+    it('06.96 openAboutModal shows the modal and sets latest version to Checking', async () => {
+        const pendingFetch = new Promise(() => {});
+        const dom = new JSDOM(`
+            <div id="about-modal" style="display:none;"></div>
+            <span id="about-latest-version">v0.0.0</span>
+        `);
+        const context = loadBrowserScript('src/js/ui.js', {
+            windowOverrides: {
+                document: dom.window.document,
+                addEventListener: () => {},
+                individuals: [],
+                families: [],
+                gedcom_content: '',
+                individual_filter_value: '',
+                selected_individual: '',
+                tree_color: '#000000',
+            },
+            globalOverrides: {
+                document: dom.window.document,
+                fetch: () => pendingFetch,
+                Event: dom.window.Event,
+                d3: { hcl: () => ({}) },
+                optionsMenu: { style: {} },
+                leftColumnWrapper: { classList: { remove: () => {}, add: () => {}, contains: () => false }, style: {} },
+                leftCol: { offsetWidth: 300 },
+                rightCol: { offsetWidth: 500 },
+                family_tree_div: { querySelector: () => null, innerHTML: '' },
+                expand_styling_button: { style: {} },
+                collapse_styling_button: { style: {} },
+                file_name_span: { textContent: '' },
+                individual_filter: { value: '' },
+                connection_filter: { value: '' },
+                individual_select: { innerHTML: '' },
+                connection_select: { innerHTML: '', appendChild: () => {} },
+                generations_up_number: { value: '1' },
+                generations_down_number: { value: '1' },
+                max_stack_size_number: { value: '1' },
+                hue_element: { value: '180' },
+                sat_element: { value: '20' },
+                lum_element: { value: '30' },
+                text_lum_element: { value: '80' },
+                root_name: null,
+                color_picker: { value: '#000000' },
+                save_filename_input: { value: '' },
+                save_modal: { style: {} },
+                style_presets: {},
+                elements: [],
+                filter_timeout: null,
+                update_in_progress: false,
+                update_waiting: false,
+                update_timeout: null,
+            },
+        });
+        context.openAboutModal();
+        expect(dom.window.document.getElementById('about-modal').style.display).toBe('flex');
+        expect(dom.window.document.getElementById('about-latest-version').textContent).toBe('Checking\u2026');
+    });
+
+    it('06.97 openAboutModal updates latest version span on successful fetch', async () => {
+        const dom = new JSDOM(`
+            <div id="about-modal" style="display:none;"></div>
+            <span id="about-latest-version">Checking\u2026</span>
+        `);
+        const mockFetch = () => Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ tag_name: 'v2.5.0' }),
+        });
+        const context = loadBrowserScript('src/js/ui.js', {
+            windowOverrides: {
+                document: dom.window.document,
+                addEventListener: () => {},
+                individuals: [],
+                families: [],
+                gedcom_content: '',
+                individual_filter_value: '',
+                selected_individual: '',
+                tree_color: '#000000',
+            },
+            globalOverrides: {
+                document: dom.window.document,
+                fetch: mockFetch,
+                Event: dom.window.Event,
+                d3: { hcl: () => ({}) },
+                optionsMenu: { style: {} },
+                leftColumnWrapper: { classList: { remove: () => {}, add: () => {}, contains: () => false }, style: {} },
+                leftCol: { offsetWidth: 300 },
+                rightCol: { offsetWidth: 500 },
+                family_tree_div: { querySelector: () => null, innerHTML: '' },
+                expand_styling_button: { style: {} },
+                collapse_styling_button: { style: {} },
+                file_name_span: { textContent: '' },
+                individual_filter: { value: '' },
+                connection_filter: { value: '' },
+                individual_select: { innerHTML: '' },
+                connection_select: { innerHTML: '', appendChild: () => {} },
+                generations_up_number: { value: '1' },
+                generations_down_number: { value: '1' },
+                max_stack_size_number: { value: '1' },
+                hue_element: { value: '180' },
+                sat_element: { value: '20' },
+                lum_element: { value: '30' },
+                text_lum_element: { value: '80' },
+                root_name: null,
+                color_picker: { value: '#000000' },
+                save_filename_input: { value: '' },
+                save_modal: { style: {} },
+                style_presets: {},
+                elements: [],
+                filter_timeout: null,
+                update_in_progress: false,
+                update_waiting: false,
+                update_timeout: null,
+            },
+        });
+        await context.openAboutModal();
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(dom.window.document.getElementById('about-latest-version').textContent).toBe('v2.5.0');
+    });
+
+    it('06.98 openAboutModal sets latest version to Unavailable on fetch error', async () => {
+        const dom = new JSDOM(`
+            <div id="about-modal" style="display:none;"></div>
+            <span id="about-latest-version">Checking\u2026</span>
+        `);
+        const mockFetch = () => Promise.reject(new Error('network'));
+        const context = loadBrowserScript('src/js/ui.js', {
+            windowOverrides: {
+                document: dom.window.document,
+                addEventListener: () => {},
+                individuals: [],
+                families: [],
+                gedcom_content: '',
+                individual_filter_value: '',
+                selected_individual: '',
+                tree_color: '#000000',
+            },
+            globalOverrides: {
+                document: dom.window.document,
+                fetch: mockFetch,
+                Event: dom.window.Event,
+                d3: { hcl: () => ({}) },
+                optionsMenu: { style: {} },
+                leftColumnWrapper: { classList: { remove: () => {}, add: () => {}, contains: () => false }, style: {} },
+                leftCol: { offsetWidth: 300 },
+                rightCol: { offsetWidth: 500 },
+                family_tree_div: { querySelector: () => null, innerHTML: '' },
+                expand_styling_button: { style: {} },
+                collapse_styling_button: { style: {} },
+                file_name_span: { textContent: '' },
+                individual_filter: { value: '' },
+                connection_filter: { value: '' },
+                individual_select: { innerHTML: '' },
+                connection_select: { innerHTML: '', appendChild: () => {} },
+                generations_up_number: { value: '1' },
+                generations_down_number: { value: '1' },
+                max_stack_size_number: { value: '1' },
+                hue_element: { value: '180' },
+                sat_element: { value: '20' },
+                lum_element: { value: '30' },
+                text_lum_element: { value: '80' },
+                root_name: null,
+                color_picker: { value: '#000000' },
+                save_filename_input: { value: '' },
+                save_modal: { style: {} },
+                style_presets: {},
+                elements: [],
+                filter_timeout: null,
+                update_in_progress: false,
+                update_waiting: false,
+                update_timeout: null,
+            },
+        });
+        await context.openAboutModal();
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(dom.window.document.getElementById('about-latest-version').textContent).toBe('Unavailable');
     });
 });

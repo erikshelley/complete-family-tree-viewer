@@ -8,6 +8,7 @@
     resize_tree_button, resize_tree_horizontal_button, resize_tree_vertical_button,
     expand_styling_button, collapse_styling_button,
     open_online_button, online_gedcom_modal, online_gedcom_cancel_button,
+    about_button, about_modal, about_modal_close_button,
     connection_container */
 /* global requestFamilyTreeUpdate, updateRangeThumbs, populateIndividualSelect,
     savePNG, saveSVG, expandAllStylingSections, collapseAllStylingSections,
@@ -18,7 +19,7 @@
     openSaveModal, zoomToFit, zoomToFitHorizontal, zoomToFitVertical,
     scaleBodyForSmallScreens, updateOptionsVisibility, updateMaxLinksState,
     calculateMaxGenUp, calculateMaxGenDown, calculateMaxStackSize,
-    openOnlineGedcomModal, loadGedcomFromUrl */
+    openOnlineGedcomModal, loadGedcomFromUrl, openAboutModal */
 
 function getNumberInputLabel(input) {
     if (!input || !input.id) return 'value';
@@ -241,6 +242,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (event.key === 'Escape') {
             event.preventDefault();
             online_gedcom_modal.style.display = 'none';
+        }
+    });
+    about_button.addEventListener('click', function() { openAboutModal(); });
+    about_modal_close_button.addEventListener('click', function() { about_modal.style.display = 'none'; });
+    about_modal.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            about_modal.style.display = 'none';
         }
     });
     individual_filter.addEventListener('input', function(event) { filterIndividuals(event.target.value); });

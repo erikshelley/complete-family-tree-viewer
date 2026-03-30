@@ -9,6 +9,9 @@ const save_modal_cancel_button = document.getElementById('save-modal-cancel-butt
 const open_online_button = document.getElementById('open-online-button');
 const online_gedcom_modal = document.getElementById('online-gedcom-modal');
 const online_gedcom_cancel_button = document.getElementById('online-gedcom-cancel-button');
+const about_button = document.getElementById('about-button');
+const about_modal = document.getElementById('about-modal');
+const about_modal_close_button = document.getElementById('about-modal-close-button');
 
 const leftColumnWrapper = document.querySelector('.left-column-wrapper');
 const leftCol = document.querySelector('.left-column');

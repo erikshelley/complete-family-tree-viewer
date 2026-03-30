@@ -182,15 +182,38 @@
         </div>
     </div>
 
+    <div id="about-modal" class="modal-bg" style="display:none;">
+        <div class="modal-content about-modal-content">
+            <h3 class="modal-label">Complete Family Tree Viewer</h3>
+            <p class="about-modal-description">
+                A browser-based application for visualizing genealogy data from GEDCOM files. 
+                Load a local GEDCOM file, select a root individual, and generate a complete family tree including all relatives and in-laws for that individual.</p>
+            <p class="about-modal-description">
+                For a full description of the features and how to use this application, please see the
+                <a href="https://github.com/erikshelley/complete-family-tree-viewer/" target="_blank" rel="noopener noreferrer" class="about-modal-link">GitHub Repository</a>.
+                You can also report any issues or request new features there.
+            </p>
+            <div class="about-modal-versions">
+                <p>Current version: <span id="about-current-version">v1.4.1</span></p>
+                <p>Latest version: <span id="about-latest-version">Checking&#8230;</span></p>
+            </div>
+            <div class="modal-buttons">
+                <button id="about-modal-close-button" class="modal-cancel">Close</button>
+            </div>
+        </div>
+    </div>
+
     <div id="mobile-menu-background" style="display: none;"></div>
     <button id="options-menu-button" aria-label="Open menu" style="display: none;">
         <img src="src/png/icons8-menu-48.png" alt="Options" title="Options" width="48" height="48">
     </button>
 
     <h1>Complete Family Tree Viewer</h1>
-    <div class="about"><a href="https://github.com/erikshelley/complete-family-tree-viewer/" target="_blank">
-        <img src="src/png/icons8-help-48-gold.png" alt="About Complete Family Tree Viewer" title="About Complete Family Tree Viewer" width="32" height="32">
-    </a></div>
+    <div class="about">
+        <button id="about-button" class="icon-button-bare" type="button" aria-label="About Complete Family Tree Viewer" title="About Complete Family Tree Viewer">
+            <img src="src/png/icons8-help-48-gold.png" alt="About Complete Family Tree Viewer" width="32" height="32">
+        </button>
+    </div>
     <div class="container">
         <div class="left-column-wrapper">
             <div class="left-column">

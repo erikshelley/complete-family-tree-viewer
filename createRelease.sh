@@ -56,6 +56,10 @@ main() {
     sed -i.bak -E "s/$MOST_RECENT_TAG/$1/g" README.md
     rm README.md.bak
 
+    # Update current version in the about modal in index.html
+    sed -i.bak -E "s|(<span id=\"about-current-version\">)[^<]*(</span>)|\1$1\2|" index.html
+    rm index.html.bak
+
     # Strip leading v from version number for consistency
     if [[ $1 == v* ]]; then
         VERSION="${1:1}"
