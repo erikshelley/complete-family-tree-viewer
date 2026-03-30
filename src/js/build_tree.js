@@ -387,3 +387,63 @@ function calculateMaxGenDown(individual, current_gen = 0, max_gen = 0, ancestor 
     }
     return Math.max(max_gen, -current_gen);
 }
+
+// Calculate the maximum useful stack size for the tree rooted at individual.
+// Returns the largest number of stackable nodes in any single group:
+//   - siblings with no spousal family under any ancestor family (walking up to generations_up)
+//   - childless in-law spouses grouped by individual
+//   - leaf children (no spousal family) under any descendant family (walking down to generations_down)
+// Setting max_stack_size higher than this value has no further effect on the layout.
+function calculateMaxStackSize(individual, current_gen = 0, ancestor = true) {
+    if (!individual) return 1;
+    window.visited_individuals = window.visited_individuals || new Set();
+    if (window.visited_individuals.has(individual.id)) return 1;
+    window.visited_individuals.add(individual.id);
+
+    let max_size = 1;
+
+    // Walk ancestor chain upward, counting stackable siblings in each ancestor family
+    if (ancestor && individual.famc && (current_gen < window.generations_up)) {
+        const parent_family = window.families.find(fam => fam.id === individual.famc);
+        if (parent_family) {
+            const stackable_count = parent_family.chil.filter(child_id => {
+                const child = window.individuals.find(ind => ind.id === child_id);
+                return !child || !child.fams || child.fams.length === 0;
+            }).length;
+            max_size = Math.max(max_size, stackable_count);
+
+            const father = parent_family.husb ? window.individuals.find(ind => ind.id === parent_family.husb) : null;
+            const mother = parent_family.wife ? window.individuals.find(ind => ind.id === parent_family.wife) : null;
+            max_size = Math.max(max_size, calculateMaxStackSize(father, current_gen + 1, true));
+            max_size = Math.max(max_size, calculateMaxStackSize(mother, current_gen + 1, true));
+        }
+    }
+
+    // Count childless in-law spouses of this individual (they stack as a group)
+    if (individual.fams) {
+        const childless_spouse_count = individual.fams.filter(fam_id => {
+            const family = window.families.find(fam => fam.id === fam_id);
+            return family && family.chil.length === 0;
+        }).length;
+        max_size = Math.max(max_size, childless_spouse_count);
+    }
+
+    // Walk downward through children, counting stackable leaf children per family
+    if (individual.fams) {
+        individual.fams.forEach(fam_id => {
+            const family = window.families.find(fam => fam.id === fam_id);
+            if (!family) return;
+            const stackable_count = family.chil.filter(child_id => {
+                const child = window.individuals.find(ind => ind.id === child_id);
+                return !child || !child.fams || child.fams.length === 0;
+            }).length;
+            max_size = Math.max(max_size, stackable_count);
+            family.chil.forEach(child_id => {
+                const child = window.individuals.find(ind => ind.id === child_id);
+                max_size = Math.max(max_size, calculateMaxStackSize(child, current_gen - 1, false));
+            });
+        });
+    }
+
+    return max_size;
+}

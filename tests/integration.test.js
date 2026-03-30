@@ -695,7 +695,7 @@ describe('integration test cases', () => {
         expect(dom.window.document.querySelector('#family-tree-div svg')).not.toBeNull();
     });
 
-    it('05.02 updateFamilyTree enforces generation and stack maximums after redraw', async () => {
+    it('05.02 updateFamilyTree redraws the tree without clamping generation or stack inputs', async () => {
         const dom = new JSDOM(`
             <div id="family-tree-div"></div>
             <select id="individual-select"><option value="@I1@" selected>Root</option></select>
@@ -782,9 +782,10 @@ describe('integration test cases', () => {
 
         await context.updateFamilyTree();
 
-        expect(elements.generations_up_number.value).toBe('1');
-        expect(elements.generations_down_number.value).toBe('1');
-        expect(elements.max_stack_size_number.value).toBe('1');
+        // Inputs are not clamped to the tree's actual max; user-set values are preserved
+        expect(elements.generations_up_number.value).toBe('99');
+        expect(elements.generations_down_number.value).toBe('99');
+        expect(elements.max_stack_size_number.value).toBe('99');
     });
 
     it('05.03 larger stack size produces narrower layout for leaf-heavy children', () => {

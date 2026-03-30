@@ -94,7 +94,7 @@ Use these fixture profiles when implementing tests:
 |    Status   |  ID   | Test Description |
 | ----------- | ----- | ---------------- |
 |  Automated  | 05.01 | End-to-end: valid GEDCOM load -> individual selection -> tree appears with root and links |
-|  Automated  | 05.02 | End-to-end: generations up/down changes redraw tree and enforce max limits |
+|  Automated  | 05.02 | End-to-end: updateFamilyTree redraws tree without clamping generation or stack inputs |
 |  Automated  | 05.03 | End-to-end: stack size changes reduce width for large leaf-heavy trees |
 |  Automated  | 05.04 | End-to-end: toggle in-laws below spouses changes relative placement |
 |  Automated  | 05.05 | End-to-end: hide childless in-laws removes expected inlaw nodes only |

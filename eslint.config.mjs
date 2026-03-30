@@ -41,7 +41,7 @@ export default [
         rules: {
             "no-unused-vars": ["warn", {
                 "args": "none",
-                "varsIgnorePattern": "^(validateGedcom|parseGedcomData|createFamilyTree|calculateMaxGenUp|calculateMaxGenDown|positionTree|setHeights|getMaximumDimensions|drawTree|expandAllStylingSections|collapseAllStylingSections|toggleOptions|updateOptionsVisibility|zoomToFit|zoomToFitHorizontal|zoomToFitVertical|scaleBodyForSmallScreens|updateMaxLinksState|selectGedcomFile|filterIndividuals|filterConnections|populateConnectionSelect|usePresetStyle|openSaveModal|saveSVG|savePNG|updateRangeThumbs|requestFamilyTreeUpdate|populateIndividualSelect|openOnlineGedcomModal|loadGedcomFromUrl|savePresetsFile|populatePresetSelect|confirmRenamePreset|updatePresetEditButtonState)$"
+                "varsIgnorePattern": "^(validateGedcom|parseGedcomData|createFamilyTree|calculateMaxGenUp|calculateMaxGenDown|calculateMaxStackSize|positionTree|setHeights|getMaximumDimensions|drawTree|expandAllStylingSections|collapseAllStylingSections|toggleOptions|updateOptionsVisibility|zoomToFit|zoomToFitHorizontal|zoomToFitVertical|scaleBodyForSmallScreens|updateMaxLinksState|selectGedcomFile|filterIndividuals|filterConnections|populateConnectionSelect|usePresetStyle|openSaveModal|saveSVG|savePNG|updateRangeThumbs|requestFamilyTreeUpdate|populateIndividualSelect|openOnlineGedcomModal|loadGedcomFromUrl|savePresetsFile|populatePresetSelect|confirmRenamePreset|updatePresetEditButtonState)$"
             }],
             "no-undef": "warn",
             "no-redeclare": ["warn", { "builtinGlobals": false }],

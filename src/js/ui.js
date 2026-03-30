@@ -772,18 +772,6 @@ async function updateFamilyTree() {
                     window.selected_individual = selected_individual;
                     await createFamilyTree(selected_individual);
                     populateConnectionSelect();
-                    if (generations_up_number.value > window.max_gen_up) {
-                        generations_up_number.value = window.max_gen_up;
-                        window.generations_up = window.max_gen_up;
-                    }
-                    if (generations_down_number.value > window.max_gen_down) {
-                        generations_down_number.value = window.max_gen_down;
-                        window.generations_down = window.max_gen_down;
-                    }
-                    if (max_stack_size_number.value > window.max_stack_actual) {
-                        max_stack_size_number.value = window.max_stack_actual;
-                        window.max_stack_size = window.max_stack_actual;
-                    }
                 }
             }
         } catch (error) {
