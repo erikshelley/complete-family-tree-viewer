@@ -1,6 +1,8 @@
 window.gedcom_content = ''; // Store raw GEDCOM content globally
 window.individuals = []; // Store parsed individuals globally
 window.families = []; // Store parsed families globally
+window.individuals_by_id = new Map();
+window.families_by_id = new Map();
 window.generations = 1; // Default generation depth
 
 

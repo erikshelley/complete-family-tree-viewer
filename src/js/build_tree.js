@@ -1,4 +1,10 @@
+function rebuildLookupMaps() {
+    window.individuals_by_id = new Map((window.individuals || []).map(i => [i.id, i]));
+    window.families_by_id = new Map((window.families || []).map(f => [f.id, f]));
+}
+
 function computeRawConnectionPathIds(root_individual_id, target_id) {
+    rebuildLookupMaps();
     if (!root_individual_id || !target_id || root_individual_id === target_id) return new Set();
     const queue = [root_individual_id];
     const visited = new Set([root_individual_id]);
@@ -14,18 +20,18 @@ function computeRawConnectionPathIds(root_individual_id, target_id) {
             }
             return path_ids;
         }
-        const person = window.individuals.find(ind => ind.id === current_id);
+        const person = window.individuals_by_id.get(current_id);
         if (!person) continue;
         const neighbors = [];
         if (person.famc) {
-            const fam = window.families.find(f => f.id === person.famc);
+            const fam = window.families_by_id.get(person.famc);
             if (fam) {
                 if (fam.husb) neighbors.push(fam.husb);
                 if (fam.wife) neighbors.push(fam.wife);
             }
         }
         for (const fam_id of (person.fams || [])) {
-            const fam = window.families.find(f => f.id === fam_id);
+            const fam = window.families_by_id.get(fam_id);
             if (!fam) continue;
             const spouse_id = fam.husb === current_id ? fam.wife : fam.husb;
             if (spouse_id) neighbors.push(spouse_id);
@@ -57,6 +63,7 @@ async function createFamilyTree(selected_individual) {
     window.auto_box_width = 0;
     window.auto_box_height = 0;
 
+    rebuildLookupMaps();
     resolveGenders(window.individuals, window.families);
 
     window.connection_path_individual_ids = (window.highlight_type === 'connection' && window.connection_selected_id)
@@ -79,6 +86,9 @@ async function createFamilyTree(selected_individual) {
 
 
 function resolveGenders(individuals, families) {
+    const fam_by_id = new Map(families.map(f => [f.id, f]));
+    const ind_by_id = new Map(individuals.map(i => [i.id, i]));
+
     // Normalize any gender that is not M or F to empty string so it is treated as missing.
     individuals.forEach(person => { if (person.gender !== 'M' && person.gender !== 'F') person.gender = ''; });
 
@@ -92,10 +102,10 @@ function resolveGenders(individuals, families) {
             if (person.gender) return;
             let hasF = false, hasM = false;
             person.fams.forEach(fam_id => {
-                const family = families.find(f => f.id === fam_id);
+                const family = fam_by_id.get(fam_id);
                 if (!family) return;
                 const spouse_id = family.husb === person.id ? family.wife : family.husb;
-                const spouse = individuals.find(i => i.id === spouse_id);
+                const spouse = ind_by_id.get(spouse_id);
                 if (spouse?.gender === 'F') hasF = true;
                 if (spouse?.gender === 'M') hasM = true;
             });
@@ -109,7 +119,7 @@ function resolveGenders(individuals, families) {
     individuals.forEach(person => {
         if (person.gender) return;
         for (const fam_id of person.fams) {
-            const family = families.find(f => f.id === fam_id);
+            const family = fam_by_id.get(fam_id);
             if (!family) continue;
             if (family.husb === person.id) { person.gender = 'M'; return; }
             if (family.wife === person.id) { person.gender = 'F'; return; }
@@ -120,6 +130,7 @@ function resolveGenders(individuals, families) {
 
 
 function buildTree(individual, current_gen = window.generations_down, anchor_gen = window.generations_down, type = 'root') {
+    if (type === 'root') rebuildLookupMaps();
     if (!individual || (current_gen > window.generations_up + window.generations_down)) return null;
 
     // Handle duplicates from relatives having children together
@@ -170,6 +181,7 @@ function createUnknownIndividual(gender, family) {
     const first_name = known_spouse ? known_spouse.name.split(' ')[0] : 'Unknown';
     const person = { id: known_spouse ? known_spouse.id + gender : 'unknown' + gender, name: `Spouse of ${first_name}`, famc: null, fams: [family], gender: gender };
     window.individuals.push(person);
+    window.individuals_by_id?.set(person.id, person);
     if (gender === 'M') family.husb = person.id;
     else family.wife = person.id;
     return person;
@@ -222,7 +234,7 @@ function resolveDuplicate(individual, type, anchor_gen) {
 
 
 function resolveParent(parent_id, gender, family) {
-    let parent = parent_id ? window.individuals.find(ind => ind.id === parent_id) : null;
+    let parent = parent_id ? window.individuals_by_id.get(parent_id) : null;
     if (!parent) parent = createUnknownIndividual(gender, family);
     return parent;
 }
@@ -243,7 +255,7 @@ function addParents(node, anchor_gen) {
     if (node.generation >= window.generations_up + window.generations_down) return;
     if (!['root', 'ancestor'].includes(node.type)) return;
 
-    node.parent_family = window.families.find(fam => fam.id === node.individual.famc);
+    node.parent_family = window.families_by_id.get(node.individual.famc);
     if (!node.parent_family) return;
 
     const father = resolveParent(node.parent_family.husb, 'M', node.parent_family);
@@ -277,7 +289,7 @@ function addPedigreeChildren(node, fam_id, anchor_gen) {
             return !node.individual.pedigree_child_node || child_id !== node.individual.pedigree_child_node.individual.id;
         })
         .forEach(child_id => {
-            const child = window.individuals.find(ind => ind.id === child_id);
+            const child = window.individuals_by_id.get(child_id);
             if (child) {
                 const child_node = buildTree(child, node.generation - 1, anchor_gen - 1, 'relative');
                 if (child_node) {
@@ -290,12 +302,12 @@ function addPedigreeChildren(node, fam_id, anchor_gen) {
 
 
 function addInlawSpouse(node, fam_id, anchor_gen) {
-    const spouse_family = window.families.find(fam => fam.id === fam_id);
+    const spouse_family = window.families_by_id.get(fam_id);
     if (!spouse_family) return;
 
     const spouse_id = spouse_family.husb === node.individual.id ? spouse_family.wife : spouse_family.husb;
     const spouse_gender = spouse_family.husb === node.individual.id ? 'F' : 'M';
-    let spouse = window.individuals.find(ind => ind.id === spouse_id);
+    let spouse = window.individuals_by_id.get(spouse_id);
     if (!spouse) spouse = createUnknownIndividual(spouse_gender, spouse_family);
     if (node.individual.is_root || node.individual.is_descendant) spouse.is_descendant = true;
     spouse.spouse_family = spouse_family;
@@ -318,7 +330,7 @@ function addSpousesAndRelatives(node, anchor_gen) {
             addPedigreeChildren(node, fam_id, anchor_gen);
         } else {
             if (window.hide_non_pedigree_family && (node.type === 'ancestor')) {
-                const fam = window.families.find(f => f.id === fam_id);
+                const fam = window.families_by_id.get(fam_id);
                 const spouse_id = fam && (fam.husb === node.individual.id ? fam.wife : fam.husb);
                 if (!spouse_id || !window.connection_path_individual_ids || !window.connection_path_individual_ids.has(spouse_id)) return;
             }
@@ -334,7 +346,7 @@ function addInlawChildren(node, anchor_gen) {
     if (!node.individual.spouse_family || node.individual.spouse_family.chil.length === 0) return;
 
     node.individual.spouse_family.chil.forEach(child_id => {
-        const child = window.individuals.find(ind => ind.id === child_id);
+        const child = window.individuals_by_id.get(child_id);
         if (child) {
             if (node.individual.is_root || node.individual.is_descendant) child.is_descendant = true;
             const child_node = buildTree(child, node.generation - 1, anchor_gen, 'relative');
@@ -348,12 +360,13 @@ function addInlawChildren(node, anchor_gen) {
 
 
 function calculateMaxGenUp(individual, current_gen = 0, max_gen = 0) {
+    if (current_gen === 0) rebuildLookupMaps();
     if (!individual) return max_gen;
     if (individual.famc) {
-        const parent_family = window.families.find(fam => fam.id === individual.famc);
-        const father = parent_family.husb ? window.individuals.find(ind => ind.id === parent_family.husb) : createUnknownIndividual('M', parent_family);
+        const parent_family = window.families_by_id.get(individual.famc);
+        const father = parent_family.husb ? window.individuals_by_id.get(parent_family.husb) : createUnknownIndividual('M', parent_family);
         max_gen = calculateMaxGenUp(father, current_gen + 1, max_gen);
-        const mother = parent_family.wife ? window.individuals.find(ind => ind.id === parent_family.wife) : createUnknownIndividual('F', parent_family);
+        const mother = parent_family.wife ? window.individuals_by_id.get(parent_family.wife) : createUnknownIndividual('F', parent_family);
         max_gen = calculateMaxGenUp(mother, current_gen + 1, max_gen);
     }
     return Math.max(max_gen, current_gen);
@@ -362,24 +375,25 @@ function calculateMaxGenUp(individual, current_gen = 0, max_gen = 0) {
 
 // Calculate maximum generations down from individual in a tree that goes up windows.generations_up from that individual
 function calculateMaxGenDown(individual, current_gen = 0, max_gen = 0, ancestor = true) {
+    if (current_gen === 0) rebuildLookupMaps();
     if (!individual) return max_gen;
     window.visited_individuals = window.visited_individuals || new Set();
     if (window.visited_individuals.has(individual.id)) return max_gen;
     window.visited_individuals.add(individual.id);
 
     if (individual.famc && ancestor && (current_gen < window.generations_up)) {
-        const parent_family = window.families.find(fam => fam.id === individual.famc);
-        const father = parent_family.husb ? window.individuals.find(ind => ind.id === parent_family.husb) : null;
+        const parent_family = window.families_by_id.get(individual.famc);
+        const father = parent_family.husb ? window.individuals_by_id.get(parent_family.husb) : null;
         max_gen = Math.max(max_gen, calculateMaxGenDown(father, current_gen + 1, max_gen));
-        const mother = parent_family.wife ? window.individuals.find(ind => ind.id === parent_family.wife) : null;
+        const mother = parent_family.wife ? window.individuals_by_id.get(parent_family.wife) : null;
         max_gen = Math.max(max_gen, calculateMaxGenDown(mother, current_gen + 1, max_gen));
     }
     if (individual.fams) {
         individual.fams.forEach(fam_id => {
-            const family = window.families.find(fam => fam.id === fam_id);
+            const family = window.families_by_id.get(fam_id);
             if (family) {
                 family.chil.forEach(child_id => {
-                    const child = window.individuals.find(ind => ind.id === child_id);
+                    const child = window.individuals_by_id.get(child_id);
                     max_gen = Math.max(max_gen, calculateMaxGenDown(child, current_gen - 1, max_gen, false));
                 });
             }
@@ -395,6 +409,7 @@ function calculateMaxGenDown(individual, current_gen = 0, max_gen = 0, ancestor 
 //   - leaf children (no spousal family) under any descendant family (walking down to generations_down)
 // Setting max_stack_size higher than this value has no further effect on the layout.
 function calculateMaxStackSize(individual, current_gen = 0, ancestor = true) {
+    if (current_gen === 0) rebuildLookupMaps();
     if (!individual) return 1;
     window.visited_individuals = window.visited_individuals || new Set();
     if (window.visited_individuals.has(individual.id)) return 1;
@@ -404,16 +419,16 @@ function calculateMaxStackSize(individual, current_gen = 0, ancestor = true) {
 
     // Walk ancestor chain upward, counting stackable siblings in each ancestor family
     if (ancestor && individual.famc && (current_gen < window.generations_up)) {
-        const parent_family = window.families.find(fam => fam.id === individual.famc);
+        const parent_family = window.families_by_id.get(individual.famc);
         if (parent_family) {
             const stackable_count = parent_family.chil.filter(child_id => {
-                const child = window.individuals.find(ind => ind.id === child_id);
+                const child = window.individuals_by_id.get(child_id);
                 return !child || !child.fams || child.fams.length === 0;
             }).length;
             max_size = Math.max(max_size, stackable_count);
 
-            const father = parent_family.husb ? window.individuals.find(ind => ind.id === parent_family.husb) : null;
-            const mother = parent_family.wife ? window.individuals.find(ind => ind.id === parent_family.wife) : null;
+            const father = parent_family.husb ? window.individuals_by_id.get(parent_family.husb) : null;
+            const mother = parent_family.wife ? window.individuals_by_id.get(parent_family.wife) : null;
             max_size = Math.max(max_size, calculateMaxStackSize(father, current_gen + 1, true));
             max_size = Math.max(max_size, calculateMaxStackSize(mother, current_gen + 1, true));
         }
@@ -422,7 +437,7 @@ function calculateMaxStackSize(individual, current_gen = 0, ancestor = true) {
     // Count childless in-law spouses of this individual (they stack as a group)
     if (individual.fams) {
         const childless_spouse_count = individual.fams.filter(fam_id => {
-            const family = window.families.find(fam => fam.id === fam_id);
+            const family = window.families_by_id.get(fam_id);
             return family && family.chil.length === 0;
         }).length;
         max_size = Math.max(max_size, childless_spouse_count);
@@ -431,15 +446,15 @@ function calculateMaxStackSize(individual, current_gen = 0, ancestor = true) {
     // Walk downward through children, counting stackable leaf children per family
     if (individual.fams) {
         individual.fams.forEach(fam_id => {
-            const family = window.families.find(fam => fam.id === fam_id);
+            const family = window.families_by_id.get(fam_id);
             if (!family) return;
             const stackable_count = family.chil.filter(child_id => {
-                const child = window.individuals.find(ind => ind.id === child_id);
+                const child = window.individuals_by_id.get(child_id);
                 return !child || !child.fams || child.fams.length === 0;
             }).length;
             max_size = Math.max(max_size, stackable_count);
             family.chil.forEach(child_id => {
-                const child = window.individuals.find(ind => ind.id === child_id);
+                const child = window.individuals_by_id.get(child_id);
                 max_size = Math.max(max_size, calculateMaxStackSize(child, current_gen - 1, false));
             });
         });

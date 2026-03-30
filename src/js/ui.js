@@ -235,6 +235,8 @@ function selectGedcomFile(file) {
                 const parsed_data = parseGedcomData(window.gedcom_content);
                 window.individuals = parsed_data.individuals;
                 window.families = parsed_data.families;
+                window.individuals_by_id = new Map(window.individuals.map(i => [i.id, i]));
+                window.families_by_id = new Map(window.families.map(f => [f.id, f]));
 
                 individual_filter.value = '';
                 window.individual_filter_value = '';
@@ -324,6 +326,8 @@ function loadGedcomFromUrl(url, display_name) {
                 const parsed_data = parseGedcomData(window.gedcom_content);
                 window.individuals = parsed_data.individuals;
                 window.families = parsed_data.families;
+                window.individuals_by_id = new Map(window.individuals.map(i => [i.id, i]));
+                window.families_by_id = new Map(window.families.map(f => [f.id, f]));
 
                 individual_filter.value = '';
                 window.individual_filter_value = '';
@@ -782,12 +786,14 @@ async function updateFamilyTree() {
             const parsed_data = parseGedcomData(window.gedcom_content);
             window.individuals = parsed_data.individuals;
             window.families = parsed_data.families;
+            window.individuals_by_id = new Map(window.individuals.map(i => [i.id, i]));
+            window.families_by_id = new Map(window.families.map(f => [f.id, f]));
             update_in_progress = false;
 
             const selected_id = individual_select.value || window.selected_individual.id;
 
             if (selected_id && (selected_id !== 'Select an individual...')) {
-                const selected_individual = window.individuals.find(ind => ind.id === selected_id);
+                const selected_individual = window.individuals_by_id.get(selected_id);
                 if (selected_individual) {
                     window.selected_individual = selected_individual;
                     await createFamilyTree(selected_individual);

@@ -230,4 +230,106 @@ describe('rendering helpers', () => {
             expect(lineOnly.lines.length).toBe(1);
         });
     });
+
+    it('11.21 alignTextVertically places text top/middle/bottom precisely using exact getBBox coords', () => {
+        // alignTextVertically receives a bbox measured while text.y = box_height/2.
+        // It must set y so that:
+        //   top    → new bbox.y = box_padding
+        //   bottom → new bbox.y + bbox.height = box_height - box_padding
+        //   middle → new bbox.y = (box_height - bbox.height) / 2
+        //
+        // Key identity: after setting text.y = new_y, the bbox shifts by (new_y - old_y),
+        // so new_bbox.y = bbox.y + (new_y - box_height/2).
+
+        const BOX_H = 80;
+        const BOX_PAD = 5;
+        const MID = BOX_H / 2;  // 40
+
+        // Simulate: text.y = 40 when getBBox was called, first tspan at 12px font.
+        //   ascender ≈ 12 * 0.72 = 8.64  →  bbox.y = 40 - 8.64 = 31.36
+        const ASCENDER = 8.64;
+        const DESCENDER = 3.36;          // 12 * 0.28, bottom of single line beyond baseline
+        const bbox = { x: 0, y: MID - ASCENDER, width: 50, height: ASCENDER + DESCENDER };
+
+        // Helper: create a minimal mock D3 selection that captures the last attr('y', ...) call
+        function makeCapture() {
+            let y_set;
+            return {
+                attr(name, value) { if (name === 'y') y_set = value; return this; },
+                get capturedY() { return y_set; },
+            };
+        }
+
+        // --- top alignment ---
+        // After setting y = text_y, new bbox.y = bbox.y + (text_y - MID). We want that = BOX_PAD.
+        // → text_y = BOX_PAD - bbox.y + MID  → top of text (baseline − ascender) = BOX_PAD.
+        const ctxTop = loadDrawTreeContext({ box_height: BOX_H, box_padding: BOX_PAD, text_align: 'top' });
+        const selTop = makeCapture();
+        ctxTop.alignTextVertically(selTop, bbox);
+
+        const topOfText = selTop.capturedY - ASCENDER;           // baseline - ascender = top of glyphs
+        expect(topOfText).toBeCloseTo(BOX_PAD, 5);
+
+        // --- bottom alignment ---
+        // new bbox.y + bbox.height = BOX_H - BOX_PAD
+        const ctxBot = loadDrawTreeContext({ box_height: BOX_H, box_padding: BOX_PAD, text_align: 'bottom' });
+        const selBot = makeCapture();
+        ctxBot.alignTextVertically(selBot, bbox);
+
+        const bottomOfText = selBot.capturedY + DESCENDER;       // baseline + descender = bottom of glyphs
+        expect(bottomOfText).toBeCloseTo(BOX_H - BOX_PAD, 5);
+
+        // --- middle alignment ---
+        // new bbox.y = (BOX_H - bbox.height) / 2
+        const ctxMid = loadDrawTreeContext({ box_height: BOX_H, box_padding: BOX_PAD, text_align: 'middle' });
+        const selMid = makeCapture();
+        ctxMid.alignTextVertically(selMid, bbox);
+
+        const centeredTop = selMid.capturedY - ASCENDER;
+        const expectedCenteredTop = (BOX_H - bbox.height) / 2;
+        expect(centeredTop).toBeCloseTo(expectedCenteredTop, 5);
+    });
+
+    it('11.22 alignTextVertically works correctly for multiline text with unequal dy gaps', () => {
+        // For a name + secondary-year layout the 1.7em gap before the year line makes
+        // bbox.height larger per line than a uniform-spacing would.  The formula must still
+        // place the FIRST LINE's top at box_padding for 'top' alignment.
+
+        const BOX_H = 48;
+        const BOX_PAD = 4;
+        const MID = 24;
+        const NAME_FS = 8;
+        const SEC_FS = 6;
+
+        // Simulate rendered positions (text.y = 24 throughout):
+        //   name baseline  at 24,           name ascender ≈ 8*0.72 = 5.76
+        //   year baseline  at 24 + 1.7*6 = 34.2, sec  ascender ≈ 6*0.72 = 4.32
+        // bbox.y    = 24 - 5.76    = 18.24  (top of name glyphs)
+        // bbox.bottom = 34.2 + 6*0.28 = 35.88
+        // bbox.height = 35.88 - 18.24 = 17.64
+        const NAME_ASC = NAME_FS * 0.72;   // 5.76
+        const SEC_DES  = SEC_FS  * 0.28;   // 1.68
+        const SEC_BASE = MID + 1.7 * SEC_FS;  // 34.2
+        const multilineBbox = {
+            x: 0,
+            y: MID - NAME_ASC,
+            width: 30,
+            height: (SEC_BASE + SEC_DES) - (MID - NAME_ASC),
+        };
+
+        function makeCapture() {
+            let y_set;
+            return {
+                attr(name, value) { if (name === 'y') y_set = value; return this; },
+                get capturedY() { return y_set; },
+            };
+        }
+
+        // top: first-line top should land on BOX_PAD
+        const ctx = loadDrawTreeContext({ box_height: BOX_H, box_padding: BOX_PAD, text_align: 'top' });
+        const sel = makeCapture();
+        ctx.alignTextVertically(sel, multilineBbox);
+
+        expect(sel.capturedY - NAME_ASC).toBeCloseTo(BOX_PAD, 5);
+    });
 });

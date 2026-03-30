@@ -601,16 +601,22 @@ function shrinkToFit(name_lines, secondary_strings, place_strings, lines, name_f
 }
 
 // Position text element vertically based on text_align setting
-function alignTextVertically(text_element, bbox, text_lines) {
-    const line_height = bbox.height / text_lines;
+function alignTextVertically(text_element, bbox) {
+    // bbox was measured while the text element's y = box_height / 2, so:
+    //   bbox.y = box_height/2 - ascender_of_first_line  (exact, from rendered metrics)
+    //   ascender = box_height/2 - bbox.y
+    // Use this directly instead of approximating via (bbox.height / lines / 1.25),
+    // which overestimates the ascender when lines have unequal spacing (e.g. the 1.7em
+    // gap before secondary text) and causes mis-alignment in multi-line nodes.
     const pad = window.box_padding || 0;
+    const mid = window.box_height / 2;
     let text_y;
     if (window.text_align === 'top') {
-        text_y = line_height / 1.25 + pad;
+        text_y = mid + pad - bbox.y;
     } else if (window.text_align === 'bottom') {
-        text_y = line_height / 1.25 + (window.box_height - bbox.height) - pad;
+        text_y = mid + (window.box_height - pad - bbox.height) - bbox.y;
     } else {
-        text_y = line_height / 1.25 + (window.box_height - bbox.height) / 2;
+        text_y = mid + (window.box_height - bbox.height) / 2 - bbox.y;
     }
     text_element.attr('y', text_y);
 }
@@ -793,7 +799,7 @@ function drawText(g, node) {
     window.auto_box_width = Math.max(window.auto_box_width, required_text_width + 2 * padding, 20);
     window.auto_box_height = Math.max(window.auto_box_height, bbox.height, 20);
 
-    alignTextVertically(text_element, bbox, lines.length);
+    alignTextVertically(text_element, bbox);
 }
 
 
