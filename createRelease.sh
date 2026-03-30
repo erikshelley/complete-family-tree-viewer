@@ -76,7 +76,7 @@ main() {
     git push origin main # Push changes to main branch
     git tag -a $1 -m "Version $VERSION release" # Create annotated tag
     git push origin $1 # Push tag to remote repository
-    git tag -n # List tags with their messages
+    #git tag -n # List tags with their messages
 
     # Must be authorized
     # gh auth status

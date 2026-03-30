@@ -118,7 +118,7 @@ The example below contains the same people as the previous example in the **leve
 ### Preset
 | Option | Description |
 | ------ | ----------- |
-| Preset | Select a preset to quickly change a number of the style settings and tree content. Use one of the five buttons below to change the presets. Your changes will only persist across sessions if you overwrite src/js/presets.js with the new file that gets downloaded after you click OK. |
+| Preset | Select a preset to quickly change a number of the style settings and tree content. Use one of the five buttons below to change the presets. Your changes will only persist across sessions if you overwrite src/js/presets.js with the new file that gets downloaded after you click OK. The five buttons are only active if you load this application from a local file, not from a webserver. |
 | ![](src/png/icons8-add-48-gold.png) | Create a new preset |
 | ![](src/png/icons8-save-48-gold.png) | Save changes to the current preset |
 | ![](src/png/icons8-rename-48-gold.png) | Rename the current preset |
