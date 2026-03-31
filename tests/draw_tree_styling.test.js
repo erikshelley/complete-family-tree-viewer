@@ -1591,4 +1591,47 @@ describe('draw tree styling outcomes', () => {
 
         expect(svg.querySelector('text').getAttribute('fill')).toBe('hcl(0,0,90)');
     });
+
+    it('11.23 drawText uses geometric bbox model so text is never placed at midpoint regardless of getBBox output', () => {
+        // Simulates the case where getBBox() returns {x:0, y:0, width:0, height:0} because the SVG
+        // is not yet laid out (e.g. after scheduler.yield() in a large async draw loop).
+        // The fallback must still position text correctly instead of placing it at mid+padding.
+        const BOX_H = 48;
+        const BOX_PAD = 4;
+        const NAME_FS = 8;
+
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                box_width: 48, box_height: BOX_H, box_padding: BOX_PAD,
+                text_size: NAME_FS, default_text_size: NAME_FS,
+                text_align: 'top',
+                show_names: true, show_years: false, show_places: false,
+                text_shadow: false,
+                min_text_size: NAME_FS, max_text_size: 6,
+                auto_box_width: 0, auto_box_height: 0,
+            },
+        });
+
+        // Return zero dimensions — exactly what Chrome returns for unrendered SVG elements
+        dom.window.SVGElement.prototype.getBBox = function() {
+            return { x: 0, y: 0, width: 0, height: 0 };
+        };
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        dom.window.document.getElementById('root').appendChild(svg);
+        const gSel = new SvgSelection(svg).append('g');
+
+        context.drawText(gSel, {
+            type: 'relative', generation: 2,
+            individual: { name: 'Alice Smith', birth: '', death: '', birth_place: '', death_place: '', is_root: false, is_descendant: false },
+        });
+
+        const textY = parseFloat(svg.querySelector('text').getAttribute('y'));
+        // With the fallback, text_y must NOT equal box_height/2 + box_padding (= 28)
+        // which is what the broken no-fallback formula would produce.
+        // It should be close to box_padding + ascender ≈ 4 + 8*0.72 = 9.76.
+        expect(textY).not.toBeCloseTo(BOX_H / 2 + BOX_PAD, 1);
+        // And it should be below box_height/2 to confirm it's nearer the top
+        expect(textY).toBeLessThan(BOX_H / 2);
+    });
 });

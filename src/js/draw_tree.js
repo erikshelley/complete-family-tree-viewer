@@ -600,14 +600,13 @@ function shrinkToFit(name_lines, secondary_strings, place_strings, lines, name_f
     return { name_font_size, secondary_font_size, lines };
 }
 
-// Position text element vertically based on text_align setting
+// Position text element vertically based on text_align setting.
+// bbox must be expressed relative to text.y = box_height/2:
+//   bbox.y      = box_height/2 - ascender_of_first_line
+//   bbox.height = ascender_of_first_line + distance_to_bottom_of_last_glyph
+// Callers must supply a geometrically correct bbox (not raw getBBox() output, which
+// can be zero or incorrect in Chrome after scheduler.yield() in large async draw loops).
 function alignTextVertically(text_element, bbox) {
-    // bbox was measured while the text element's y = box_height / 2, so:
-    //   bbox.y = box_height/2 - ascender_of_first_line  (exact, from rendered metrics)
-    //   ascender = box_height/2 - bbox.y
-    // Use this directly instead of approximating via (bbox.height / lines / 1.25),
-    // which overestimates the ascender when lines have unequal spacing (e.g. the 1.7em
-    // gap before secondary text) and causes mis-alignment in multi-line nodes.
     const pad = window.box_padding || 0;
     const mid = window.box_height / 2;
     let text_y;
@@ -799,7 +798,25 @@ function drawText(g, node) {
     window.auto_box_width = Math.max(window.auto_box_width, required_text_width + 2 * padding, 20);
     window.auto_box_height = Math.max(window.auto_box_height, bbox.height, 20);
 
-    alignTextVertically(text_element, bbox);
+    // Compute text position from the known line geometry (dy values + font sizes) rather than
+    // getBBox().  getBBox() can return incorrect bbox.y values in Chrome after each
+    // scheduler.yield() in a large async draw loop, causing text to appear at the node midpoint
+    // instead of the requested alignment position.  The geometric model is always correct.
+    const sec_line_count = lines.length - name_lines.length;
+    const first_fs = name_lines.length > 0 ? name_font_size : secondary_font_size;
+    const last_fs  = sec_line_count > 0 ? secondary_font_size : name_font_size;
+    const asc = first_fs * 0.72;  // ascender of first rendered glyph row
+    let sum_dy = 0;
+    if (name_lines.length > 1) sum_dy += (name_lines.length - 1) * 1.2 * name_font_size;
+    if (sec_line_count > 0) {
+        if (name_lines.length > 0) sum_dy += 1.7 * secondary_font_size;  // 1.7em gap before secondary
+        if (sec_line_count > 1)   sum_dy += (sec_line_count - 1) * 1.2 * secondary_font_size;
+    }
+    const align_bbox = {
+        y: window.box_height / 2 - asc,
+        height: asc + sum_dy + last_fs * 0.28,
+    };
+    alignTextVertically(text_element, align_bbox);
 }
 
 
