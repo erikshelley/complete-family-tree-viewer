@@ -94,7 +94,7 @@ describe('draw tree keyboard navigation', () => {
         const treeDiv = dom.window.document.getElementById('family-tree-div');
         treeDiv.getBoundingClientRect = () => ({ width: 1000, height: 800 });
 
-        const { d3, handlers, zoomCalls } = createD3Harness(dom.window.document);
+        const { d3, zoomCalls } = createD3Harness(dom.window.document);
 
         const context = loadBrowserScript('src/js/draw_tree.js', {
             windowOverrides: {
@@ -106,8 +106,8 @@ describe('draw tree keyboard navigation', () => {
                 link_highlight_percent: 100,
                 box_width: 80,
                 box_height: 50,
-                h_spacing: 24,
-                v_spacing: 24,
+                sibling_spacing: 24,
+                generation_spacing: 24,
                 link_width: 2,
                 selected_individual: { name: 'Root Person' },
             },
@@ -133,16 +133,13 @@ describe('draw tree keyboard navigation', () => {
 
         await context.drawTree([]);
 
-        const keydownHandler = handlers['keydown.tree'];
-        expect(typeof keydownHandler).toBe('function');
-
-        keydownHandler({ key: 'Escape' });
-        keydownHandler({ key: '+' });
-        keydownHandler({ key: '-' });
-        keydownHandler({ key: 'ArrowLeft' });
-        keydownHandler({ key: 'ArrowRight' });
-        keydownHandler({ key: 'ArrowUp' });
-        keydownHandler({ key: 'ArrowDown' });
+        context.treeKeyboardEvent({ key: 'Escape' });
+        context.treeKeyboardEvent({ key: '+' });
+        context.treeKeyboardEvent({ key: '-' });
+        context.treeKeyboardEvent({ key: 'ArrowLeft' });
+        context.treeKeyboardEvent({ key: 'ArrowRight' });
+        context.treeKeyboardEvent({ key: 'ArrowUp' });
+        context.treeKeyboardEvent({ key: 'ArrowDown' });
 
         const callTypes = zoomCalls.map(call => call.type);
         expect(callTypes).toContain('transform');

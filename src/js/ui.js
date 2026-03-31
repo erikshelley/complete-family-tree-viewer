@@ -2,12 +2,14 @@
     expand_styling_button, collapse_styling_button, file_name_span,
     individual_filter, connection_filter, individual_select, connection_select, generations_up_number,
     generations_down_number, max_stack_size_number, hue_element, sat_element,
-    lum_element, text_lum_element, root_name, color_picker, save_filename_input,
+    lum_element, text_lum_element, root_name, save_filename_input,
     save_modal, style_presets, elements, preset_select, add_preset_modal,
     add_preset_name_input, save_preset_button, rename_preset_button, delete_preset_button,
-    rename_preset_modal, rename_preset_name_input */
+    rename_preset_modal, rename_preset_name_input,
+    buildRenderConfig, createFamilyTree,
+    DIV_PADDING_H, DIV_PADDING_V */
 /* global XMLSerializer */
-/* global filter_timeout:writable, update_in_progress:writable,
+/* global filter_timeout:writable, connection_filter_timeout:writable, update_in_progress:writable,
     update_waiting:writable, update_timeout:writable */
 
 function expandAllStylingSections() {
@@ -76,8 +78,8 @@ function zoomToFitHorizontal() {
     const origH = svgEl.__orig_svg_height;
     const ms = svgEl.__max_scale;
     const divRect = family_tree_div.getBoundingClientRect();
-    const availWidth = divRect.width - 24;
-    const availHeight = divRect.height - 40;
+    const availWidth = divRect.width - DIV_PADDING_H;
+    const availHeight = divRect.height - DIV_PADDING_V;
     // Resize SVG and viewBox proportionally to fill available width
     svg.attr('width', availWidth).attr('height', availHeight);
     svg.attr('viewBox', `0 0 ${ms * availWidth} ${ms * availHeight}`);
@@ -101,8 +103,8 @@ function zoomToFitVertical() {
     const origH = svgEl.__orig_svg_height;
     const ms = svgEl.__max_scale;
     const divRect = family_tree_div.getBoundingClientRect();
-    const availWidth = divRect.width - 24;
-    const availHeight = divRect.height - 40;
+    const availWidth = divRect.width - DIV_PADDING_H;
+    const availHeight = divRect.height - DIV_PADDING_V;
     // Resize SVG and viewBox proportionally to fill available space
     svg.attr('width', availWidth).attr('height', availHeight);
     svg.attr('viewBox', `0 0 ${ms * availWidth} ${ms * availHeight}`);
@@ -366,51 +368,30 @@ function usePresetStyle(preset_name) {
     const preset = style_presets[preset_name];
     if (preset) {
         for (const [key, value] of Object.entries(preset)) {
-            // Update the number and range values for this setting
-            let element_info = elements.find(el => el.id === key + '-number');
-            if (element_info) {
-                const element = document.getElementById(element_info.id);
+            const element_info = elements.find(
+                el => (el.preset_key || el.id.replace(/-(number|checkbox|select)$/, '')) === key
+            );
+            if (!element_info || element_info.type === 'range') continue;
+            const element = document.getElementById(element_info.id);
+            if (!element) continue;
+            if (element_info.type === 'number') {
                 element.value = value;
-                // Not sure why element_info.linked_element is not populated here
-                const linked_element = document.getElementById(element_info.id.replace('number', 'range'));
-                if (linked_element) linked_element.value = value;
+                const linked = document.getElementById(element_info.id.replace('number', 'range'));
+                if (linked) linked.value = value;
+                window[element_info.variable] = value;
+            } else if (element_info.type === 'checkbox') {
+                element.checked = value;
+                window[element_info.variable] = value;
+            } else if (element_info.type === 'select' || element_info.type === 'color') {
+                element.value = value;
                 window[element_info.variable] = value;
             }
-            // Update the checkbox value for this setting
-            else {
-                element_info = elements.find(el => el.id === key + '-checkbox');
-                if (element_info) {
-                    const element = document.getElementById(element_info.id);
-                    element.checked = value;
-                    window[element_info.variable] = value;
-                }
-                // Update background color if it's part of the preset
-                else {
-                    if (key === 'background-color') {
-                        color_picker.value = value;
-                        window.tree_color = value;
-                    }
-                    if (key === 'text-align') {
-                        const text_align_element = document.getElementById('text-align-select');
-                        if (text_align_element) {
-                            text_align_element.value = value;
-                            window.text_align = value;
-                        }
-                    }
-                    if (key === 'highlight-type') {
-                        const highlights_select_el = document.getElementById('highlights-select');
-                        if (highlights_select_el) {
-                            highlights_select_el.value = value;
-                            window.highlight_type = value;
-                        }
-                        const connection_container_el = document.getElementById('connection-container');
-                        if (connection_container_el) {
-                            if (value === 'connection') connection_container_el.classList.remove('hidden');
-                            else connection_container_el.classList.add('hidden');
-                        }
-                    }
-                }
-            }
+        }
+        // Sync connection-container visibility based on updated highlight_type
+        const connection_container_el = document.getElementById('connection-container');
+        if (connection_container_el) {
+            if (window.highlight_type === 'connection') connection_container_el.classList.remove('hidden');
+            else connection_container_el.classList.add('hidden');
         }
     }
     updateRangeThumbs();
@@ -435,6 +416,13 @@ function confirmRenamePreset() {
     const trimmed = rename_preset_name_input.value.trim();
     if (!trimmed) {
         if (name_error) name_error.style.display = 'inline';
+        return;
+    }
+    if (['__proto__', 'constructor', 'prototype'].includes(trimmed)) {
+        if (name_error) {
+            name_error.textContent = `"${trimmed}" is not a valid preset name.`;
+            name_error.style.display = 'inline';
+        }
         return;
     }
     const duplicate = Array.from(preset_select.options).find(
@@ -567,6 +555,13 @@ function confirmAddPreset() {
         if (name_error) name_error.style.display = 'inline';
         return;
     }
+    if (['__proto__', 'constructor', 'prototype'].includes(trimmed)) {
+        if (name_error) {
+            name_error.textContent = `"${trimmed}" is not a valid preset name.`;
+            name_error.style.display = 'inline';
+        }
+        return;
+    }
     const existing_option = Array.from(preset_select.options).find(
         o => o.value === trimmed || o.textContent.trim() === trimmed
     );
@@ -586,15 +581,10 @@ function confirmAddPreset() {
     const seen_keys = new Set();
     for (const el of elements) {
         if (el.type === 'range') continue;
-        const ek = el.id.replace(/-(number|checkbox|select)$/, '');
+        const ek = el.preset_key || el.id.replace(/-(number|checkbox|select)$/, '');
         if (excluded.has(ek) || seen_keys.has(ek)) continue;
         seen_keys.add(ek);
         if (checked.has(ek)) preset[ek] = window[el.variable];
-    }
-    if (checked.has('background-color')) preset['background-color'] = window.tree_color;
-    if (checked.has('highlight-type')) {
-        const highlights_el = document.getElementById('highlights-select');
-        if (highlights_el) preset['highlight-type'] = highlights_el.value;
     }
     style_presets[key] = preset;
     if (!replacing) {
@@ -668,20 +658,20 @@ function savePNG() {
         }
         const original_vbWidth = vbWidth;
         const original_vbHeight = vbHeight;
-        const max_canvas_area = window.max_canvas_width * window.max_canvas_height;
+        const max_canvas_area = (window.max_canvas_width || 16384) * (window.max_canvas_height || 16384);
         const img_area = vbWidth * vbHeight;
         if (img_area > max_canvas_area) {
             const scale_factor = Math.sqrt(max_canvas_area / img_area);
             vbWidth = Math.floor(vbWidth * scale_factor);
             vbHeight = Math.floor(vbHeight * scale_factor);
         }
-        if (vbWidth > window.max_canvas_width) {
-            const scale_factor = window.max_canvas_width / vbWidth;
+        if (vbWidth > (window.max_canvas_width || 16384)) {
+            const scale_factor = (window.max_canvas_width || 16384) / vbWidth;
             vbWidth = Math.floor(vbWidth * scale_factor);
             vbHeight = Math.floor(vbHeight * scale_factor);
         }
-        if (vbHeight > window.max_canvas_height) {
-            const scale_factor = window.max_canvas_height / vbHeight;
+        if (vbHeight > (window.max_canvas_height || 16384)) {
+            const scale_factor = (window.max_canvas_height || 16384) / vbHeight;
             vbWidth = Math.floor(vbWidth * scale_factor);
             vbHeight = Math.floor(vbHeight * scale_factor);
         }
@@ -788,15 +778,14 @@ async function updateFamilyTree() {
             window.families = parsed_data.families;
             window.individuals_by_id = new Map(window.individuals.map(i => [i.id, i]));
             window.families_by_id = new Map(window.families.map(f => [f.id, f]));
-            update_in_progress = false;
 
-            const selected_id = individual_select.value || window.selected_individual.id;
+            const selected_id = individual_select.value || window.selected_individual?.id;
 
             if (selected_id && (selected_id !== 'Select an individual...')) {
                 const selected_individual = window.individuals_by_id.get(selected_id);
                 if (selected_individual) {
                     window.selected_individual = selected_individual;
-                    await createFamilyTree(selected_individual);
+                    await createFamilyTree(selected_individual, buildRenderConfig());
                     populateConnectionSelect();
                 }
             }
@@ -876,8 +865,8 @@ function populateConnectionSelect() {
 
 function filterConnections(filter) {
     window.connection_filter_value = filter.toLowerCase();
-    if (filter_timeout) clearTimeout(filter_timeout);
-    filter_timeout = setTimeout(() => {
+    if (connection_filter_timeout) clearTimeout(connection_filter_timeout);
+    connection_filter_timeout = setTimeout(() => {
         populateConnectionSelect();
     }, 100);
 }

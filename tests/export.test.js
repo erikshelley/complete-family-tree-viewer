@@ -148,6 +148,8 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
             updateMaxLinksState: () => {},
             calculateMaxGenUp: () => 0,
             calculateMaxGenDown: () => 0,
+            d3: { select: () => ({ on: () => {} }) },
+            treeKeyboardEvent: () => {},
             ...defaultElements,
             ...overrides.globalOverrides,
         },

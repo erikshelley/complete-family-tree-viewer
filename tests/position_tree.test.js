@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { loadBrowserScript } from './helpers/load-browser-script.js';
+import { loadBrowserScripts } from './helpers/load-browser-script.js';
 
 function loadPositioningContext(windowOverrides = {}) {
-    const context = loadBrowserScript('src/js/position_tree.js');
+    const context = loadBrowserScripts(['src/js/position_tree_helpers.js', 'src/js/position_tree.js']);
     Object.assign(context.window, windowOverrides);
     return context;
 }
@@ -20,8 +20,8 @@ describe('position tree helpers', () => {
         const context = loadPositioningContext({
             box_width: 80,
             box_height: 50,
-            h_spacing: 20,
-            v_spacing: 20,
+            sibling_spacing: 20,
+            generation_spacing: 20,
             level_spacing: 20,
             tree_padding: 50,
             vertical_inlaws: true,
@@ -254,7 +254,7 @@ describe('position tree helpers', () => {
 
     it('does not compact left-most node when it is the top of a stack deeper than one', () => {
         const context = loadPositioningContext({
-            h_spacing: 20,
+            sibling_spacing: 20,
             box_width: 80,
         });
 
@@ -321,8 +321,8 @@ describe('position tree helpers', () => {
             max_stack_size: 1,
             vertical_inlaws: true,
             box_width: 80,
-            h_spacing: 20,
-            v_spacing: 20,
+            sibling_spacing: 20,
+            generation_spacing: 20,
         });
 
         const children = [
@@ -385,8 +385,8 @@ describe('position tree helpers', () => {
             max_stack_size: 4,
             vertical_inlaws: true,
             box_width: 80,
-            h_spacing: 20,
-            v_spacing: 20,
+            sibling_spacing: 20,
+            generation_spacing: 20,
             level_boundary_node_leaf: [],
             level_boundary_node_ancestor: [],
             level_heights: [],
@@ -455,8 +455,8 @@ describe('position tree helpers', () => {
             max_stack_size: 1,
             vertical_inlaws: true,
             box_width: 80,
-            h_spacing: 20,
-            v_spacing: 20,
+            sibling_spacing: 20,
+            generation_spacing: 20,
             level_boundary_node_leaf: [],
             level_boundary_node_ancestor: [],
             level_heights: [],

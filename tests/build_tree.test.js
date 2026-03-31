@@ -381,7 +381,9 @@ describe('resolveGenders', () => {
 
 describe('computeRawConnectionPathIds', () => {
     function makeConnectionContext(individuals, families) {
-        return loadBuildTreeContext({ individuals, families });
+        const context = loadBuildTreeContext({ individuals, families });
+        context.rebuildLookupMaps();
+        return context;
     }
 
     it('02.16 returns empty set when root and target are the same individual', () => {

@@ -49,6 +49,7 @@ function loadUiContextWithDom(html) {
             style_presets: {},
             elements: [],
             filter_timeout: null,
+            connection_filter_timeout: null,
             update_in_progress: false,
             update_waiting: false,
             update_timeout: null,
@@ -157,6 +158,8 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
             updateMaxLinksState: () => {},
             calculateMaxGenUp: () => 0,
             calculateMaxGenDown: () => 0,
+            d3: { select: () => ({ on: () => {} }) },
+            treeKeyboardEvent: () => {},
             ...defaultElements,
             ...overrides.globalOverrides,
         },
@@ -223,6 +226,7 @@ function loadUiWithAddPresetDom(html, overrides = {}) {
             style_presets,
             elements: elements_override,
             filter_timeout: null,
+            connection_filter_timeout: null,
             update_in_progress: false,
             update_waiting: false,
             update_timeout: null,
@@ -1130,6 +1134,7 @@ describe('ui behavior cases', () => {
                 save_modal: { style: {} },
                 style_presets: {},
                 filter_timeout: null,
+                connection_filter_timeout: null,
                 update_in_progress: false,
                 update_waiting: false,
                 update_timeout: null,
@@ -1250,11 +1255,16 @@ describe('ui behavior cases', () => {
                 <input type="checkbox" name="preset-setting" value="background-color" checked />
                 <input type="checkbox" name="preset-setting" value="highlight-type" checked />
             </div>
+            <input type="color" id="color-picker" value="#abcdef" />
             <select id="highlights-select"><option value="pedigree" selected>Pedigree</option></select>
             <select id="preset-select"></select>
         `, {
             style_presets,
-            windowOverrides: { tree_color: '#abcdef' },
+            elements: [
+                { id: 'color-picker', type: 'color', variable: 'tree_color', preset_key: 'background-color' },
+                { id: 'highlights-select', type: 'select', variable: 'highlight_type', preset_key: 'highlight-type' },
+            ],
+            windowOverrides: { tree_color: '#abcdef', highlight_type: 'pedigree' },
         });
 
         context.confirmAddPreset();
@@ -2320,6 +2330,7 @@ describe('ui behavior cases', () => {
                 style_presets: {},
                 elements: [],
                 filter_timeout: null,
+                connection_filter_timeout: null,
                 update_in_progress: false,
                 update_waiting: false,
                 update_timeout: null,
@@ -2381,6 +2392,7 @@ describe('ui behavior cases', () => {
                 style_presets: {},
                 elements: [],
                 filter_timeout: null,
+                connection_filter_timeout: null,
                 update_in_progress: false,
                 update_waiting: false,
                 update_timeout: null,
@@ -2439,6 +2451,7 @@ describe('ui behavior cases', () => {
                 style_presets: {},
                 elements: [],
                 filter_timeout: null,
+                connection_filter_timeout: null,
                 update_in_progress: false,
                 update_waiting: false,
                 update_timeout: null,

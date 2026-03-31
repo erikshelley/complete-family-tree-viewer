@@ -87,8 +87,8 @@
                         </div>
                     </div>
                     <div class="add-preset-group-items" id="add-preset-group-spacing">
-                        <label for="preset-cb-h-spacing"><input type="checkbox" id="preset-cb-h-spacing" name="preset-setting" value="h-spacing" checked> Horizontal Spacing</label>
-                        <label for="preset-cb-v-spacing"><input type="checkbox" id="preset-cb-v-spacing" name="preset-setting" value="v-spacing" checked> Vertical Spacing</label>
+                        <label for="preset-cb-sibling-spacing"><input type="checkbox" id="preset-cb-sibling-spacing" name="preset-setting" value="sibling-spacing" checked> Sibling Spacing</label>
+                        <label for="preset-cb-generation-spacing"><input type="checkbox" id="preset-cb-generation-spacing" name="preset-setting" value="generation-spacing" checked> Generation Spacing</label>
                         <label for="preset-cb-level-spacing"><input type="checkbox" id="preset-cb-level-spacing" name="preset-setting" value="level-spacing" checked> Level Spacing</label>
                         <label for="preset-cb-box-padding"><input type="checkbox" id="preset-cb-box-padding" name="preset-setting" value="box-padding" checked> Box Padding</label>
                         <label for="preset-cb-tree-padding"><input type="checkbox" id="preset-cb-tree-padding" name="preset-setting" value="tree-padding" checked> Tree Padding</label>
@@ -329,14 +329,14 @@
 
                 <details closed><summary>Spacing</summary>
                     <p>
-                        <input type="number" class="range-value" id="h-spacing-number" min="1" max="400" value="40">
-                        <input type="range" id="h-spacing-range" min="1" max="400" value="40">
-                        <label for="h-spacing-range">Box X</label>
+                        <input type="number" class="range-value" id="sibling-spacing-number" min="1" max="400" value="40">
+                        <input type="range" id="sibling-spacing-range" min="1" max="400" value="40">
+                        <label for="sibling-spacing-range">Sibling</label>
                     </p>
                     <p>
-                        <input type="number" class="range-value" id="v-spacing-number" min="1" max="400" value="80">
-                        <input type="range" id="v-spacing-range" min="1" max="400" value="80">
-                        <label for="v-spacing-range">Box Y</label>
+                        <input type="number" class="range-value" id="generation-spacing-number" min="1" max="400" value="80">
+                        <input type="range" id="generation-spacing-range" min="1" max="400" value="80">
+                        <label for="generation-spacing-range">Generation</label>
                     </p>
                     <p>
                         <input type="number" class="range-value" id="level-spacing-number" min="0" max="400" value="160">
@@ -475,6 +475,7 @@
     </div>
     <script src="src/js/gedcom.js"></script>
     <script src="src/js/build_tree.js"></script>
+    <script src="src/js/position_tree_helpers.js"></script>
     <script src="src/js/position_tree.js"></script>
     <script src="src/js/draw_tree.js"></script>
     <script src="src/js/presets.js"></script>

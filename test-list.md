@@ -31,6 +31,13 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 01.08 | parseGedcomData keeps final INDI record before entering a FAM block |
 |  Automated  | 01.09 | place normalization removes County and trims spacing around commas |
 |  Automated  | 01.10 | place normalization converts US state names to abbreviations and country names to alpha-3 |
+|  Automated  | 01.11 | CONT continuation line appends to name with a space separator |
+|  Automated  | 01.12 | CONC continuation line appends to name without a separator |
+|  Automated  | 01.13 | CONC/CONT after BIRT does not corrupt the name field |
+|  Automated  | 01.14 | CONC/CONT after DEAT does not corrupt the name field |
+|  Automated  | 01.15 | CONC/CONT after FAMC does not corrupt the name field |
+|  Automated  | 01.16 | CONC/CONT on a birth place appends to birth_place not to name |
+|  Automated  | 01.17 | deep source-citation CONT lines (level 4+) under a NAME do not corrupt the name |
 
 ### 02 Tree Construction (build_tree)
 |    Status   |  ID   | Test Description |

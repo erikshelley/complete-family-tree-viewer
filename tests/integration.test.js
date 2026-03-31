@@ -188,8 +188,8 @@ function createPipelineContext({ dom, drawTree } = {}) {
         max_stack_size: 1,
         box_width: 80,
         box_height: 50,
-        h_spacing: 24,
-        v_spacing: 28,
+        sibling_spacing: 24,
+        generation_spacing: 28,
         level_spacing: 40,
         box_padding: 2,
         tree_padding: 80,
@@ -202,7 +202,7 @@ function createPipelineContext({ dom, drawTree } = {}) {
         drawTree: drawTree || (async () => {}),
     };
 
-    const context = loadBrowserScripts(['src/js/gedcom.js', 'src/js/build_tree.js', 'src/js/position_tree.js'], {
+    const context = loadBrowserScripts(['src/js/gedcom.js', 'src/js/build_tree.js', 'src/js/position_tree_helpers.js', 'src/js/position_tree.js'], {
         windowOverrides,
         globalOverrides,
     });
@@ -520,7 +520,7 @@ function getMaleRootCenteringGedcom() {
 // and ChildB (@I16@) via @I10@→@I12@→@I14@.
 // In horizontal-inlaw mode each male relative has his female inlaw wife to the right.
 // ChildA and ChildB (at gen=0) should each be centered below the connector circle between their
-// respective father and mother, i.e. father.x + box_width + h_spacing/2.
+// respective father and mother, i.e. father.x + box_width + sibling_spacing/2.
 function getHorizInlawFourGenMock() {
     return [
         '0 HEAD',
@@ -556,7 +556,7 @@ function getHorizInlawFourGenMock() {
 // A single branch descends 4 levels: root → RelGen3 (M) → RelGen2 (M) → RelFem (F) → ChildD.
 // RelFem is a female relative with a male inlaw FemRelSpouse to her left.
 // ChildD should be centered below the connector circle to the left of RelFem,
-// i.e. RelFem.x − h_spacing/2.
+// i.e. RelFem.x − sibling_spacing/2.
 function getFemRelInlawMock() {
     return [
         '0 HEAD',
@@ -725,8 +725,8 @@ describe('integration test cases', () => {
                     pedigree_only: false,
                     box_width: 80,
                     box_height: 50,
-                    h_spacing: 24,
-                    v_spacing: 28,
+                    sibling_spacing: 24,
+                    generation_spacing: 28,
                     level_spacing: 40,
                     box_padding: 2,
                     tree_padding: 80,
@@ -917,10 +917,11 @@ describe('integration test cases', () => {
                     },
                 },
                 elements: [
-                    { id: 'max-stack-size-number', variable: 'max_stack_size' },
-                    { id: 'show-places-checkbox', variable: 'show_places' },
+                    { id: 'max-stack-size-number', type: 'number', variable: 'max_stack_size' },
+                    { id: 'show-places-checkbox', type: 'checkbox', variable: 'show_places' },
+                    { id: 'text-align-select', type: 'select', variable: 'text_align' },
+                    { id: 'color-picker', type: 'color', variable: 'tree_color', preset_key: 'background-color' },
                 ],
-                color_picker: dom.window.document.getElementById('color-picker'),
                 updateRangeThumbs: () => {},
                 requestFamilyTreeUpdate: () => {
                     redrawRequests += 1;
@@ -994,8 +995,8 @@ describe('integration test cases', () => {
 
             // The x coordinate of the vertical connector line from male ancestor couple → pedigree child
             const box_width = context.window.box_width;
-            const h_spacing = context.window.h_spacing;
-            const connector_x = fatherNode.x + box_width + h_spacing / 2;
+            const sibling_spacing = context.window.sibling_spacing;
+            const connector_x = fatherNode.x + box_width + sibling_spacing / 2;
 
             // Collect all nodes in the in-law subtree (in-law spouse + all their descendants)
             const inlawSpouseNodes = fatherNode.spouse_nodes.filter(n => n.type === 'inlaw');
@@ -1656,11 +1657,11 @@ describe('integration test cases', () => {
         expect(uniqueIds.has('@I7@')).toBe(false); // SibSpouse excluded
     });
 
-    it('05.29 in-law subtree to the left of the ancestor connector is separated by 1.5 * h_spacing', () => {
+    it('05.29 in-law subtree to the left of the ancestor connector is separated by 1.5 * sibling_spacing', () => {
         // Tests the positioning constraint: the rightmost edge of an in-law subtree hanging off a male
-        // ancestor's secondary family must stay at least h_spacing to the left of the connector circle
-        // between the ancestor and his pedigree spouse. The connector is at ancestor.x + box_width + h_spacing/2.
-        // In practice the gap equals exactly 1.5 * h_spacing.
+        // ancestor's secondary family must stay at least sibling_spacing to the left of the connector circle
+        // between the ancestor and his pedigree spouse. The connector is at ancestor.x + box_width + sibling_spacing/2.
+        // In practice the gap equals exactly 1.5 * sibling_spacing.
         const parsed = createPipelineContext().parseGedcomData(getGenUp2Gedcom());
 
         const context = createPipelineContext();
@@ -1681,7 +1682,7 @@ describe('integration test cases', () => {
         expect(marineSpouse, 'MarineSpouse should be in tree').toBeDefined();
 
         const bw = context.window.box_width;
-        const hs = context.window.h_spacing;
+        const hs = context.window.sibling_spacing;
         const connectorX = patGF.x + bw + hs / 2;
         const marineSpouseRightEdge = marineSpouse.x + bw;
 
@@ -1714,10 +1715,10 @@ describe('integration test cases', () => {
         expect(sibB.x).toBeGreaterThan(ancMom.x);
     });
 
-    it('05.31 grandchildren of a sibling of the female ancestor are positioned one level_spacing + v_spacing above the root generation', () => {
+    it('05.31 grandchildren of a sibling of the female ancestor are positioned one level_spacing + generation_spacing above the root generation', () => {
         // The bottom edge of the deepest relatives hanging off the parent level is exactly
-        // level_spacing + v_spacing above the top of the root generation row.
-        // (Note: test-examples.md lists 2 * v_spacing, but the computed gap is v_spacing.)
+        // level_spacing + generation_spacing above the top of the root generation row.
+        // (Note: test-examples.md lists 2 * generation_spacing, but the computed gap is generation_spacing.)
         const parsed = createPipelineContext().parseGedcomData(getGenUp2Gedcom());
 
         const context = createPipelineContext();
@@ -1739,12 +1740,12 @@ describe('integration test cases', () => {
 
         const bh = context.window.box_height;
         const ls = context.window.level_spacing;
-        const vs = context.window.v_spacing;
+        const vs = context.window.generation_spacing;
 
         expect(rootRel.y - (gcLeft.y + bh)).toBe(ls + vs);
     });
 
-    it('05.32 the in-law husband of a female ancestor is h_spacing to her right', () => {
+    it('05.32 the in-law husband of a female ancestor is sibling_spacing to her right', () => {
         const parsed = createPipelineContext().parseGedcomData(getGenUp2Gedcom());
 
         const context = createPipelineContext();
@@ -1765,7 +1766,7 @@ describe('integration test cases', () => {
         expect(ancInlaw, 'AncInlaw should be in tree').toBeDefined();
 
         const bw = context.window.box_width;
-        const hs = context.window.h_spacing;
+        const hs = context.window.sibling_spacing;
         expect(ancInlaw.x - (patGM.x + bw)).toBe(hs);
     });
 
@@ -1848,7 +1849,7 @@ describe('integration test cases', () => {
         expect(childB.x + bw / 2).toBe(flanksCenter);
     });
 
-    it('05.36 all nodes are separated horizontally by at least h_spacing', () => {
+    it('05.36 all nodes are separated horizontally by at least sibling_spacing', () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1863,7 +1864,7 @@ describe('integration test cases', () => {
 
         const bw = context.window.box_width;
         const bh = context.window.box_height;
-        const hs = context.window.h_spacing;
+        const hs = context.window.sibling_spacing;
 
         for (let i = 0; i < nodes.length; i++) {
             for (let j = i + 1; j < nodes.length; j++) {
@@ -1877,7 +1878,7 @@ describe('integration test cases', () => {
         }
     });
 
-    it('05.37 all nodes are separated vertically by at least v_spacing', () => {
+    it('05.37 all nodes are separated vertically by at least generation_spacing', () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1892,7 +1893,7 @@ describe('integration test cases', () => {
 
         const bw = context.window.box_width;
         const bh = context.window.box_height;
-        const vs = context.window.v_spacing;
+        const vs = context.window.generation_spacing;
 
         for (let i = 0; i < nodes.length; i++) {
             for (let j = i + 1; j < nodes.length; j++) {
@@ -1906,7 +1907,7 @@ describe('integration test cases', () => {
         }
     });
 
-    it('05.38 all nodes are separated horizontally by at least h_spacing (vertical in-laws)', () => {
+    it('05.38 all nodes are separated horizontally by at least sibling_spacing (vertical in-laws)', () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1921,7 +1922,7 @@ describe('integration test cases', () => {
 
         const bw = context.window.box_width;
         const bh = context.window.box_height;
-        const hs = context.window.h_spacing;
+        const hs = context.window.sibling_spacing;
 
         for (let i = 0; i < nodes.length; i++) {
             for (let j = i + 1; j < nodes.length; j++) {
@@ -1935,7 +1936,7 @@ describe('integration test cases', () => {
         }
     });
 
-    it('05.39 all nodes are separated vertically by at least v_spacing (vertical in-laws)', () => {
+    it('05.39 all nodes are separated vertically by at least generation_spacing (vertical in-laws)', () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1950,7 +1951,7 @@ describe('integration test cases', () => {
 
         const bw = context.window.box_width;
         const bh = context.window.box_height;
-        const vs = context.window.v_spacing;
+        const vs = context.window.generation_spacing;
 
         for (let i = 0; i < nodes.length; i++) {
             for (let j = i + 1; j < nodes.length; j++) {
@@ -2165,7 +2166,7 @@ describe('integration test cases', () => {
         expect(sibB, 'SibB should be in tree').toBeDefined();
 
         const bw = context.window.box_width;
-        const hs = context.window.h_spacing;
+        const hs = context.window.sibling_spacing;
 
         // Connector circle x for each parent couple (at the slot between father and mother)
         const sibAConnector = patGGF.x + bw + hs / 2;

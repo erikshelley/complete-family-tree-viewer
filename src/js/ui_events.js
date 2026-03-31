@@ -19,7 +19,8 @@
     openSaveModal, zoomToFit, zoomToFitHorizontal, zoomToFitVertical,
     scaleBodyForSmallScreens, updateOptionsVisibility, updateMaxLinksState,
     calculateMaxGenUp, calculateMaxGenDown, calculateMaxStackSize,
-    openOnlineGedcomModal, loadGedcomFromUrl, openAboutModal */
+    openOnlineGedcomModal, loadGedcomFromUrl, openAboutModal,
+    d3, treeKeyboardEvent */
 
 function getNumberInputLabel(input) {
     if (!input || !input.id) return 'value';
@@ -89,6 +90,7 @@ function setupCustomNumberSteppers() {
 
 document.addEventListener('DOMContentLoaded', function() {
     setupCustomNumberSteppers();
+    d3.select('body').on('keydown.tree', treeKeyboardEvent);
 
     // Setup event listeners for all input elements based on the configuration in ui_declarations.js
     for (const element_info of elements) {
@@ -109,19 +111,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 element.value = element_info.default;
                 window[element_info.variable] = element_info.default;
                 element.addEventListener('input', function(event) {
-                    /*
-                    let max = element_info.max;
-                    if (element_info.variable === 'generations_up' && window.selected_individual) max = calculateMaxGenUp(window.selected_individual);
-                    if (element_info.variable === 'generations_down' && window.selected_individual) {
-                        window.visited_individuals = null;
-                        max = calculateMaxGenDown(window.selected_individual);
-                    }
-                    if (element_info.variable === 'max_stack_size' && window.selected_individual) {
-                        window.visited_individuals = null;
-                        max = calculateMaxStackSize(window.selected_individual);
-                    }
-                    if ((element_info.max !== undefined) && (val > max)) val = max;
-                    */
                     let val = parseInt(event.target.value);
                     if ((element_info.min !== undefined) && (val < element_info.min)) val = element_info.min;
                     window[element_info.variable] = val;
@@ -207,8 +196,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('save-modal').style.display = 'none';
         // Determine selected format
         const save_format_input = document.querySelector('input[name="save-format"]:checked');
-        if (save_format_input.value === 'png') savePNG();
-        if (save_format_input.value === 'svg') saveSVG();
+        if (save_format_input && save_format_input.value === 'png') savePNG();
+        if (save_format_input && save_format_input.value === 'svg') saveSVG();
     });
 
     clearIndividualFilterbutton.addEventListener('click', function() {

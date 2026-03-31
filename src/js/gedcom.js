@@ -37,6 +37,7 @@ function parseGedcomData(content) {
     let current_individual = null;
     let current_family = null;
     let current_event = null;
+    let current_continuation = null; // { target: obj, key: string } for CONC/CONT support
 
     for (let line of lines) {
         line = line.trim();
@@ -58,6 +59,7 @@ function parseGedcomData(content) {
             current_family = { id: parts[1], husb: null, wife: null, chil: [] };
             current_individual = null; // Reset individual
             current_event = null;
+            current_continuation = null;
         } else if (level === 1 && parts[1] === 'NAME' && current_individual) {
             // Name line: 1 NAME Given /Surname/
             const nameParts = parts.slice(2);
@@ -73,24 +75,26 @@ function parseGedcomData(content) {
             name = name.replace(/\//g, '');
             current_individual.name = name.trim();
             current_event = null;
+            current_continuation = { target: current_individual, key: 'name', level: 1 };
         } else if (level === 1 && parts[1] === 'SEX' && current_individual) {
             // Gender line: 1 SEX M or 1 SEX F
             current_individual.gender = parts[2];
             current_event = null;
+            current_continuation = null;
         } else if (level === 1 && parts[1] === 'FAMC' && current_individual) {
             // Family as child: 1 FAMC @Fxxx@
             current_individual.famc = parts[2];
-            current_event = null;
-        } else if (level === 1 && parts[1] === 'FAMS' && current_individual) {
+            current_event = null;            current_continuation = null;        } else if (level === 1 && parts[1] === 'FAMS' && current_individual) {
             // Family as spouse: 1 FAMS @Fxxx@
             current_individual.fams.push(parts[2]);
-            current_event = null;
-        } else if (level === 1 && parts[1] === 'BIRT' && current_individual) {
+            current_event = null;            current_continuation = null;        } else if (level === 1 && parts[1] === 'BIRT' && current_individual) {
             // Birth event
             current_event = 'BIRT';
+            current_continuation = null;
         } else if (level === 1 && parts[1] === 'DEAT' && current_individual) {
             // Death event
             current_event = 'DEAT';
+            current_continuation = null;
         } else if (level === 2 && parts[1] === 'DATE' && current_event && current_individual) {
             // Date for current event
             const date_parts = parts.slice(2);
@@ -110,13 +114,25 @@ function parseGedcomData(content) {
             place = replaceCountryNamesWithAlpha3(place);
             if (current_event === 'BIRT' && current_individual) {
                 current_individual.birth_place = place;
+                current_continuation = { target: current_individual, key: 'birth_place', level: 2 };
             } else if (current_event === 'DEAT' && current_individual) {
                 current_individual.death_place = place;
+                current_continuation = { target: current_individual, key: 'death_place', level: 2 };
+            }
+        } else if (parts[1] === 'CONC' || parts[1] === 'CONT') {
+            // Continuation lines for long field values (GEDCOM standard §5.16)
+            // Only fire when this line is the immediate child of the continued field
+            // (level === continuation.level + 1). This prevents source-citation sub-records
+            // (e.g. 4 CONT / 5 CONT inside SOUR→DATA→TEXT) from leaking into name/place.
+            if (current_continuation && level === current_continuation.level + 1) {
+                const joiner = (parts[1] === 'CONT') ? ' ' : '';
+                current_continuation.target[current_continuation.key] += joiner + parts.slice(2).join(' ');
             }
         } else if (level === 1 && parts[1] === 'HUSB' && current_family) {
             // Husband: 1 HUSB @Ixxx@
             current_family.husb = parts[2];
             current_event = null;
+            current_continuation = null;
         } else if (level === 1 && parts[1] === 'WIFE' && current_family) {
             // Wife: 1 WIFE @Ixxx@
             current_family.wife = parts[2];
@@ -126,8 +142,9 @@ function parseGedcomData(content) {
             current_family.chil.push(parts[2]);
             current_event = null;
         } else if (level === 1) {
-            // Any other level 1 event - reset current_event
+            // Any other level 1 event - reset current_event and continuation
             current_event = null;
+            current_continuation = null;
         }
     }
 

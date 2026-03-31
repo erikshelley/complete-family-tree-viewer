@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
 
-import { loadBrowserScript } from './helpers/load-browser-script.js';
+import { loadBrowserScript, loadBrowserScripts } from './helpers/load-browser-script.js';
 
 function makeDomWithCanvasMock() {
     const dom = new JSDOM('<div id="root"></div>');
@@ -62,7 +62,7 @@ function loadDrawTreeContext(windowOverrides = {}) {
 describe('rendering helpers', () => {
     it('11.01 getMaximumDimensions returns max width/height and node count from positioned rows', () => {
         // position_tree.js sets window.tree_padding = 160 on load; override it after loading
-        const context = loadBrowserScript('src/js/position_tree.js', {
+        const context = loadBrowserScripts(['src/js/position_tree_helpers.js', 'src/js/position_tree.js'], {
             windowOverrides: { box_width: 80, box_height: 50 },
         });
         context.window.tree_padding = 50;

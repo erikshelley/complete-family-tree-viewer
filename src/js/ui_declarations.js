@@ -60,6 +60,7 @@ const collapse_styling_button = document.getElementById('collapse-styling-button
 const save_tree_button = document.getElementById('save-tree-button');
 
 let filter_timeout = null;
+let connection_filter_timeout = null;
 let update_in_progress = false;
 let update_waiting = false;
 let update_timeout = null;
@@ -69,7 +70,7 @@ window.individual_filter_value = '';
 window.connection_filter_value = '';
 window.connection_selected_id = null;
 window.connection_path_individual_ids = new Set();
-window.selected_individual = '';
+window.selected_individual = null;
 window.tree_rows = null;
 window.generations_up;
 window.generations_down;
@@ -80,11 +81,12 @@ window.hide_non_pedigree_family;
 // Tree Styling Variables
 window.box_width; window.default_box_width;
 window.box_height; window.default_box_height;
-window.h_spacing; window.default_h_spacing;
-window.v_spacing; window.default_v_spacing;
+window.sibling_spacing; window.default_sibling_spacing;
+window.generation_spacing; window.default_generation_spacing;
 window.node_rounding; window.default_node_rounding;
 window.node_brightness; window.default_node_brightness;
 window.vertical_inlaws; window.default_vertical_inlaws;
+window.tree_orientation = 'vertical'; // 'vertical' (default) or 'horizontal'
 window.show_names; window.default_show_names;
 window.show_years; window.default_show_years;
 window.show_places; window.default_show_places;
@@ -143,10 +145,10 @@ const elements = [
     { id: 'text-size-range',                     type: 'range',    default: 16,    min: 1, max: 100, variable: 'text_size' },
 
     // Spacing
-    { id: 'h-spacing-number',                    type: 'number',   default: 50,    min: 0, max: 480, variable: 'h_spacing' },
-    { id: 'h-spacing-range',                     type: 'range',    default: 50,    min: 0, max: 480, variable: 'h_spacing' },
-    { id: 'v-spacing-number',                    type: 'number',   default: 50,    min: 0, max: 480, variable: 'v_spacing' },
-    { id: 'v-spacing-range',                     type: 'range',    default: 50,    min: 0, max: 480, variable: 'v_spacing' },
+    { id: 'sibling-spacing-number',               type: 'number',   default: 50,    min: 0, max: 480, variable: 'sibling_spacing' },
+    { id: 'sibling-spacing-range',               type: 'range',    default: 50,    min: 0, max: 480, variable: 'sibling_spacing' },
+    { id: 'generation-spacing-number',           type: 'number',   default: 50,    min: 0, max: 480, variable: 'generation_spacing' },
+    { id: 'generation-spacing-range',            type: 'range',    default: 50,    min: 0, max: 480, variable: 'generation_spacing' },
     { id: 'level-spacing-number',                type: 'number',   default: 100,   min: 0, max: 400, variable: 'level_spacing' },
     { id: 'level-spacing-range',                 type: 'range',    default: 100,   min: 0, max: 400, variable: 'level_spacing' },
     { id: 'box-padding-number',                  type: 'number',   default: 2,     min: 0, max: 50, variable: 'box_padding' },
@@ -184,6 +186,10 @@ const elements = [
     { id: 'node-rounding-range',                 type: 'range',    default: 25,    min: 0, max: 100, variable: 'node_rounding' },
     { id: 'link-rounding-number',                type: 'number',   default: 25,    min: 0, max: 100, variable: 'link_rounding' },
     { id: 'link-rounding-range',                 type: 'range',    default: 25,    min: 0, max: 100, variable: 'link_rounding' },
+
+    // Select and color controls (preset_key where element id differs from the preset key convention)
+    { id: 'highlights-select',  type: 'select', variable: 'highlight_type', preset_key: 'highlight-type' },
+    { id: 'color-picker',       type: 'color',  variable: 'tree_color',     preset_key: 'background-color' },
 ];
 
 const none_links = [
@@ -197,3 +203,17 @@ const auto_links = [
     { id: 'auto-node-width', variable: 'box_width' },
     { id: 'auto-node-height', variable: 'box_height' },
 ]
+
+// Snapshot all rendering/layout parameters from window into a plain object.
+// Pass this into createFamilyTree so the pipeline reads from a stable config
+// rather than reaching into window at every call site.
+function buildRenderConfig() {
+    const config = {};
+    const seen = new Set();
+    for (const el of elements) {
+        if (seen.has(el.variable)) continue;
+        seen.add(el.variable);
+        config[el.variable] = window[el.variable];
+    }
+    return config;
+}

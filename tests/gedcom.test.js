@@ -130,6 +130,130 @@ describe('gedcom utilities', () => {
         });
     });
 
+    it('01.11 CONT continuation line appends to name with a space separator', () => {
+        const { parseGedcomData } = loadGedcomFunctions();
+
+        const content = [
+            '0 HEAD',
+            '0 @I1@ INDI',
+            '1 NAME John',
+            '2 CONT Doe',
+            '0 TRLR',
+        ].join('\n');
+
+        const result = parseGedcomData(content);
+        expect(result.individuals[0].name).toBe('John Doe');
+    });
+
+    it('01.12 CONC continuation line appends to name without a separator', () => {
+        const { parseGedcomData } = loadGedcomFunctions();
+
+        const content = [
+            '0 HEAD',
+            '0 @I1@ INDI',
+            '1 NAME John',
+            '2 CONC ny',
+            '0 TRLR',
+        ].join('\n');
+
+        const result = parseGedcomData(content);
+        // NAME handler stores the processed name after slash removal; CONC appends raw
+        expect(result.individuals[0].name).toBe('Johnny');
+    });
+
+    it('01.13 CONC/CONT after BIRT does not corrupt the name field', () => {
+        const { parseGedcomData } = loadGedcomFunctions();
+
+        const content = [
+            '0 HEAD',
+            '0 @I1@ INDI',
+            '1 NAME Alice /Smith/',
+            '1 BIRT',
+            '2 DATE 15 JAN 1990',
+            '2 CONT some extra note',
+            '0 TRLR',
+        ].join('\n');
+
+        const result = parseGedcomData(content);
+        expect(result.individuals[0].name).toBe('Alice Smith');
+        expect(result.individuals[0].birth).toBe('1990');
+    });
+
+    it('01.14 CONC/CONT after DEAT does not corrupt the name field', () => {
+        const { parseGedcomData } = loadGedcomFunctions();
+
+        const content = [
+            '0 HEAD',
+            '0 @I1@ INDI',
+            '1 NAME Bob /Jones/',
+            '1 DEAT',
+            '2 DATE 2020',
+            '2 CONT extra',
+            '0 TRLR',
+        ].join('\n');
+
+        const result = parseGedcomData(content);
+        expect(result.individuals[0].name).toBe('Bob Jones');
+    });
+
+    it('01.15 CONC/CONT after FAMC does not corrupt the name field', () => {
+        const { parseGedcomData } = loadGedcomFunctions();
+
+        const content = [
+            '0 HEAD',
+            '0 @I1@ INDI',
+            '1 NAME Carol /Lee/',
+            '1 FAMC @F1@',
+            '2 CONT continuation that should be ignored',
+            '0 TRLR',
+        ].join('\n');
+
+        const result = parseGedcomData(content);
+        expect(result.individuals[0].name).toBe('Carol Lee');
+    });
+
+    it('01.16 CONC/CONT on a birth place appends to birth_place not to name', () => {
+        const { parseGedcomData } = loadGedcomFunctions();
+
+        const content = [
+            '0 HEAD',
+            '0 @I1@ INDI',
+            '1 NAME Dave /Brown/',
+            '1 BIRT',
+            '2 PLAC Springfield',
+            '3 CONT Illinois, United States',
+            '0 TRLR',
+        ].join('\n');
+
+        const result = parseGedcomData(content);
+        expect(result.individuals[0].name).toBe('Dave Brown');
+        expect(result.individuals[0].birth_place).toContain('Springfield');
+        expect(result.individuals[0].birth_place).toContain('Illinois');
+    });
+
+    it('01.17 deep source-citation CONT lines (level 4+) under a NAME do not corrupt the name', () => {
+        // Ancestry and other tools embed SOUR->DATA->TEXT->CONT sub-records under NAME.
+        // These CONT lines are at level 4 or 5, not at level 2 (the immediate child of NAME),
+        // so they must be ignored.
+        const { parseGedcomData } = loadGedcomFunctions();
+
+        const content = [
+            '0 HEAD',
+            '0 @I1@ INDI',
+            '1 NAME John /Doe/',
+            '2 SOUR @S1@',
+            '3 PAGE Death Certificate, 1943',
+            '3 DATA',
+            '4 DATE 15 OCT 1943',
+            '4 TEXT Transcription of death certificate',
+            '5 CONT John Doe, died 1943, age 45',
+            '0 TRLR',
+        ].join('\n');
+
+        const result = parseGedcomData(content);
+        expect(result.individuals[0].name).toBe('John Doe');
+    });
+
     it('preserves UTF-8 and special characters in names and places', () => {
         const { parseGedcomData } = loadGedcomFunctions();
 

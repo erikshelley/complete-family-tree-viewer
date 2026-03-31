@@ -4,7 +4,6 @@ function rebuildLookupMaps() {
 }
 
 function computeRawConnectionPathIds(root_individual_id, target_id) {
-    rebuildLookupMaps();
     if (!root_individual_id || !target_id || root_individual_id === target_id) return new Set();
     const queue = [root_individual_id];
     const visited = new Set([root_individual_id]);
@@ -50,7 +49,7 @@ function computeRawConnectionPathIds(root_individual_id, target_id) {
     return new Set();
 }
 
-async function createFamilyTree(selected_individual) {
+async function createFamilyTree(selected_individual, config = null) {
     // Clear previous content
     const family_tree_div = document.getElementById('family-tree-div');
     family_tree_div.innerHTML = '';
@@ -70,24 +69,21 @@ async function createFamilyTree(selected_individual) {
         ? computeRawConnectionPathIds(selected_individual.id, window.connection_selected_id)
         : new Set();
 
-    // Measure buildTree
     const tree_data = buildTree(selected_individual);
 
-    // Measure positionTree
-    const tree_positions = positionTree(tree_data);
-    normalizeTreeX(tree_positions);
-    setHeights(tree_positions);
+    const tree_positions = positionTree(tree_data, undefined, config);
+    normalizeTreeX(tree_positions, config);
+    setHeights(tree_positions, config);
     adjustInnerChildrenSpacingGlobal(tree_positions);
-    normalizeTreeX(tree_positions);
+    normalizeTreeX(tree_positions, config);
 
-    // Measure drawTree
-    await drawTree(tree_positions);
+    await drawTree(tree_positions, config);
 }
 
 
 function resolveGenders(individuals, families) {
-    const fam_by_id = new Map(families.map(f => [f.id, f]));
-    const ind_by_id = new Map(individuals.map(i => [i.id, i]));
+    const fam_by_id = window.families_by_id ?? new Map(families.map(f => [f.id, f]));
+    const ind_by_id = window.individuals_by_id ?? new Map(individuals.map(i => [i.id, i]));
 
     // Normalize any gender that is not M or F to empty string so it is treated as missing.
     individuals.forEach(person => { if (person.gender !== 'M' && person.gender !== 'F') person.gender = ''; });
@@ -176,7 +172,9 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
 
 function createUnknownIndividual(gender, family) {
     const known_spouse_id = gender === 'M' ? family.wife : family.husb;
-    const known_spouse = window.individuals.find(ind => ind.id === known_spouse_id);
+    const known_spouse = known_spouse_id
+        ? (window.individuals_by_id?.get(known_spouse_id) ?? window.individuals.find(ind => ind.id === known_spouse_id))
+        : null;
     // Only use first name of known spouse to create unknown individual ID
     const first_name = known_spouse ? known_spouse.name.split(' ')[0] : 'Unknown';
     const person = { id: known_spouse ? known_spouse.id + gender : 'unknown' + gender, name: `Spouse of ${first_name}`, famc: null, fams: [family], gender: gender };
@@ -217,7 +215,9 @@ function resolveDuplicate(individual, type, anchor_gen) {
     if (existingIsAncestor && !newIsAncestor) return 'keep-existing';
 
     if (existingIsAncestor && newIsAncestor) {
-        individual.duplicate_pedigree_child_node.duplicate_parents = true;
+        if (individual.duplicate_pedigree_child_node) {
+            individual.duplicate_pedigree_child_node.duplicate_parents = true;
+        }
         return 'link-pedigree';
     }
 
@@ -323,7 +323,6 @@ function addInlawSpouse(node, fam_id, anchor_gen) {
 function addSpousesAndRelatives(node, anchor_gen) {
     if (!node.individual.fams) return;
     if (!['root', 'ancestor', 'relative'].includes(node.type)) return;
-    if (window.pedigree_only && !node.individual.is_descendant) return;
 
     node.individual.fams.forEach(fam_id => {
         if (node.individual.pedigree_family && node.individual.pedigree_family.id === fam_id) {
@@ -342,7 +341,6 @@ function addSpousesAndRelatives(node, anchor_gen) {
 
 function addInlawChildren(node, anchor_gen) {
     if (!node.individual.fams || node.generation <= 0 || node.type !== 'inlaw') return;
-    if (window.pedigree_only && !node.individual.is_descendant) return;
     if (!node.individual.spouse_family || node.individual.spouse_family.chil.length === 0) return;
 
     node.individual.spouse_family.chil.forEach(child_id => {
@@ -360,13 +358,15 @@ function addInlawChildren(node, anchor_gen) {
 
 
 function calculateMaxGenUp(individual, current_gen = 0, max_gen = 0) {
-    if (current_gen === 0) rebuildLookupMaps();
+    if (current_gen === 0) { rebuildLookupMaps(); window.visited_individuals = new Set(); }
     if (!individual) return max_gen;
+    if (window.visited_individuals.has(individual.id)) return max_gen;
+    window.visited_individuals.add(individual.id);
     if (individual.famc) {
         const parent_family = window.families_by_id.get(individual.famc);
-        const father = parent_family.husb ? window.individuals_by_id.get(parent_family.husb) : createUnknownIndividual('M', parent_family);
+        const father = parent_family.husb ? window.individuals_by_id.get(parent_family.husb) : null;
         max_gen = calculateMaxGenUp(father, current_gen + 1, max_gen);
-        const mother = parent_family.wife ? window.individuals_by_id.get(parent_family.wife) : createUnknownIndividual('F', parent_family);
+        const mother = parent_family.wife ? window.individuals_by_id.get(parent_family.wife) : null;
         max_gen = calculateMaxGenUp(mother, current_gen + 1, max_gen);
     }
     return Math.max(max_gen, current_gen);

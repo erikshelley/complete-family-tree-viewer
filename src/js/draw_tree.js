@@ -1,7 +1,19 @@
 // Tree drawing and visualization functionality using D3.js
-async function drawTree(rows) {
+
+// Pixel gap removed from the family-tree-div bounding box to obtain usable SVG space.
+// Values come from the CSS padding on #family-tree-div (12px left + 12px right = 24px)
+// and the combined vertical offset including bottom padding and status-bar clearance.
+const DIV_PADDING_H = 24;
+const DIV_PADDING_V = 40;
+
+// Active rendering configuration for the current drawTree call.
+// Set from the config argument if provided, otherwise falls back to window.
+let _draw_cfg = window;
+
+async function drawTree(rows, config) {
+    _draw_cfg = (config !== undefined) ? (config ?? window) : (_draw_cfg ?? window);
     window.tree_rows = rows;
-    window.connection_path_ids = ((window.highlight_type || 'pedigree') === 'connection')
+    window.connection_path_ids = ((_draw_cfg.highlight_type || 'pedigree') === 'connection')
         ? findConnectionPath(window.connection_selected_id)
         : new Set();
     promoteConnectionNodesInStacks(rows);
@@ -18,13 +30,13 @@ async function drawTree(rows) {
         }
     }
     window.earliest_birth_year = earliest_birth;
-    window.min_text_size = window.text_size;
+    window.min_text_size = _draw_cfg.text_size;
     window.max_text_size = 6;
 
     // Set SVG dimensions
     const bounding_box = family_tree_div.getBoundingClientRect();
-    let svg_width = bounding_box.width - 24; // horizontal padding in div
-    let svg_height = bounding_box.height - 40; // bottom padding in div
+    let svg_width = bounding_box.width - DIV_PADDING_H;
+    let svg_height = bounding_box.height - DIV_PADDING_V;
 
     // Initial SVG
     const svg = d3.select('#family-tree-div')
@@ -58,8 +70,8 @@ async function drawTree(rows) {
     svg_node.append('rect')
         .attr('width', max_x)
         .attr('height', max_y)
-        .attr('fill', window.transparent_bg_rect ? "rgba(0,0,0,0)" : window.tree_color || "#000")
-        .attr('stroke', "000")
+        .attr('fill', _draw_cfg.transparent_bg_rect ? "rgba(0,0,0,0)" : _draw_cfg.tree_color || "#000")
+        .attr('stroke', "#000")
         .attr('stroke-width', 0);
 
     drawNonBoldLinks(svg_node, rows, false);
@@ -73,50 +85,62 @@ async function drawTree(rows) {
     const root_name_span = document.getElementById('root-name');
     root_name_span.textContent = '\u00A0\u00A0\u2022\u00A0\u00A0' + selected_individual.name;
 
-    const status_bar_div = document.getElementById('status-bar-div');
-    let people_shown;
-    if (node_count === "1") people_shown = `${node_count}&nbsp;Person&nbsp;Shown`;
-    else people_shown = `${node_count} People`;
-    let spacer = '&nbsp;&nbsp;&bull;&nbsp;&nbsp;';
-    let tree_dimensions = `${spacer}${Math.ceil(max_x).toLocaleString()} x ${Math.ceil(max_y).toLocaleString()}`;
-    let print_dimensions = `${(Math.ceil(max_x) / 300).toFixed(1)}" x ${(Math.ceil(max_y) / 300).toFixed(1)}" @ 300 DPI`;
-    let min_text_size = `${spacer}Min Font: ${window.min_text_size}px`;
-    let max_text_size = `${spacer}Max Font: ${window.max_text_size}px`;
-    let earliest_birth_year = window.earliest_birth_year ? `${spacer}Earliest Birth: ${window.earliest_birth_year}` : '';
-    status_bar_div.innerHTML = `${people_shown}${tree_dimensions}${spacer}${print_dimensions}${min_text_size}${max_text_size}${earliest_birth_year}`;
+    setStatusBarContent(document.getElementById('status-bar-div'), node_count, max_x, max_y);
 
-    d3.select('body').on('keydown.tree', function (event) {
-        const k = d3.zoomTransform(svg.node()).k;
-        const step_x = (bounding_box.width - 24) * max_scale * 0.1 / k;
-        const step_y = (bounding_box.height - 40) * max_scale * 0.1 / k;
-        const key = event.key;
-        switch (key) {
-        case 'Escape':
-            svg.transition().call(zoom.transform, d3.zoomIdentity);
-            break;
-        case '+':
-        case '=':
-            svg.transition().call(zoom.scaleBy, 2);
-            break;
-        case '-':
-            svg.transition().call(zoom.scaleBy, 0.5);
-            break;
-        case 'ArrowLeft':
-            svg.call(zoom.translateBy, step_x, 0);
-            break;
-        case 'ArrowRight':
-            svg.call(zoom.translateBy, -step_x, 0);
-            break;
-        case 'ArrowUp':
-            svg.call(zoom.translateBy, 0, step_y);
-            break;
-        case 'ArrowDown':
-            svg.call(zoom.translateBy, 0, -step_y);
-            break;
-        }
-    });
 }
 
+function setStatusBarContent(status_bar_div, node_count, max_x, max_y) {
+    const bull = '\u00A0\u00A0\u2022\u00A0\u00A0';
+    const people = (node_count === '1')
+        ? `${node_count}\u00A0Person\u00A0Shown`
+        : `${node_count} People`;
+    const w = Math.ceil(max_x);
+    const h = Math.ceil(max_y);
+    let text = `${people}${bull}${w.toLocaleString()} x ${h.toLocaleString()}`;
+    text += `${bull}${(w / 300).toFixed(1)}" x ${(h / 300).toFixed(1)}" @ 300 DPI`;
+    text += `${bull}Min Font: ${window.min_text_size}px`;
+    text += `${bull}Max Font: ${window.max_text_size}px`;
+    if (window.earliest_birth_year) text += `${bull}Earliest Birth: ${window.earliest_birth_year}`;
+    status_bar_div.textContent = text;
+}
+
+function treeKeyboardEvent(event) {
+    const svg_node = document.querySelector('#family-tree-div svg');
+    if (!svg_node) return;
+    const zoom = svg_node.__zoom_behavior;
+    const max_scale = svg_node.__max_scale;
+    if (!zoom || !max_scale) return;
+    const bounding_box = family_tree_div.getBoundingClientRect();
+    const svg = d3.select(svg_node);
+    const k = d3.zoomTransform(svg_node).k;
+    const step_x = (bounding_box.width - DIV_PADDING_H) * max_scale * 0.1 / k;
+    const step_y = (bounding_box.height - DIV_PADDING_V) * max_scale * 0.1 / k;
+    const key = event.key;
+    switch (key) {
+    case 'Escape':
+        svg.transition().call(zoom.transform, d3.zoomIdentity);
+        break;
+    case '+':
+    case '=':
+        svg.transition().call(zoom.scaleBy, 2);
+        break;
+    case '-':
+        svg.transition().call(zoom.scaleBy, 0.5);
+        break;
+    case 'ArrowLeft':
+        svg.call(zoom.translateBy, step_x, 0);
+        break;
+    case 'ArrowRight':
+        svg.call(zoom.translateBy, -step_x, 0);
+        break;
+    case 'ArrowUp':
+        svg.call(zoom.translateBy, 0, step_y);
+        break;
+    case 'ArrowDown':
+        svg.call(zoom.translateBy, 0, -step_y);
+        break;
+    }
+}
 
 function findConnectionPath(target_id) {
     if (!window.root_node || !target_id) return new Set();
@@ -190,17 +214,17 @@ function getLinkHighlightFactor(node, linked_node) {
     if (ht === 'none' || ht === 'root') return 1;
     if (ht === 'connection') {
         const on_path = window.connection_path_ids.has(node.individual.id);
-        if (linked_node !== undefined) return (on_path && window.connection_path_ids.has(linked_node.individual.id)) ? window.pedigree_highlight_percent / 100 : 1;
-        return on_path ? window.pedigree_highlight_percent / 100 : 1;
+        if (linked_node !== undefined) return (on_path && window.connection_path_ids.has(linked_node.individual.id)) ? _draw_cfg.pedigree_highlight_percent / 100 : 1;
+        return on_path ? _draw_cfg.pedigree_highlight_percent / 100 : 1;
     }
-    return (node.individual.is_descendant || node.individual.is_root) ? window.pedigree_highlight_percent / 100 : 1;
+    return (node.individual.is_descendant || node.individual.is_root) ? _draw_cfg.pedigree_highlight_percent / 100 : 1;
 }
 
 function getAncestorLinkHighlightFactor(node) {
     const ht = window.highlight_type || 'pedigree';
     if (ht === 'none' || ht === 'root') return 1;
-    if (ht === 'connection') return (node && window.connection_path_ids.has(node.individual.id)) ? window.pedigree_highlight_percent / 100 : 1;
-    return window.pedigree_highlight_percent / 100;
+    if (ht === 'connection') return (node && window.connection_path_ids.has(node.individual.id)) ? _draw_cfg.pedigree_highlight_percent / 100 : 1;
+    return _draw_cfg.pedigree_highlight_percent / 100;
 }
 
 function isNodeHighlighted(node) {
@@ -209,6 +233,15 @@ function isNodeHighlighted(node) {
     if (ht === 'root') return !!node.individual.is_root;
     if (ht === 'connection') return window.connection_path_ids.has(node.individual.id);
     return (node.type === 'ancestor') || !!node.individual.is_root || !!node.individual.is_descendant;
+}
+
+// Maps a point from layout space (sibling-axis = s, generation-axis = g) to SVG (x, y).
+// For vertical trees (current default) the sibling axis is x and the generation axis is y,
+// so this is the identity. When horizontal layout is implemented, swap: s → SVG-y, g → SVG-x.
+// All coordinate pairs built for drawLink/drawCircle/drawNode should pass through this
+// function so that the axis swap happens in exactly one place.
+function mapCoords(s, g) {
+    return { x: s, y: g };
 }
 
 function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
@@ -224,18 +257,18 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                         node.spouse_nodes.filter(spouse_node => !(spouse_node.stacked && !spouse_node.stack_top)).forEach(spouse_node => {
                             const factor = getLinkHighlightFactor(node, spouse_node);
                             if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
-                            const inlaw_color = d3.hcl(hue, 0, luminance * (window.inlaw_link_highlight_percent / 100) * factor);
-                            drawLink(svg_node, inlaw_color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
-                                                            {x: spouse_node.x + window.box_width / 2, y: spouse_node.y}, 'inlaw', factor);
+                            const inlaw_color = d3.hcl(hue, 0, luminance * (_draw_cfg.inlaw_link_highlight_percent / 100) * factor);
+                            drawLink(svg_node, inlaw_color, {x: node.x + _draw_cfg.box_width / 2, y: node.y + _draw_cfg.box_height}, 
+                                                            {x: spouse_node.x + _draw_cfg.box_width / 2, y: spouse_node.y}, 'inlaw', factor);
                         });
                     }
                     else {
                         node.spouse_nodes.forEach(spouse_node => {
                             const factor = getLinkHighlightFactor(node, spouse_node);
                             if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
-                            const inlaw_color = d3.hcl(hue, 0, luminance * (window.inlaw_link_highlight_percent / 100) * factor);
-                            drawLink(svg_node, inlaw_color, {x: node.x + window.box_width / 2,         y: node.y}, 
-                                                            {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height}, 'inlaw-center', factor);
+                            const inlaw_color = d3.hcl(hue, 0, luminance * (_draw_cfg.inlaw_link_highlight_percent / 100) * factor);
+                            drawLink(svg_node, inlaw_color, {x: node.x + _draw_cfg.box_width / 2,         y: node.y}, 
+                                                            {x: spouse_node.x + _draw_cfg.box_width / 2,  y: spouse_node.y + _draw_cfg.box_height}, 'inlaw-center', factor);
                         });
                     }
                 }
@@ -245,9 +278,9 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                     node.spouse_nodes.forEach(spouse_node => {
                         const factor = getLinkHighlightFactor(node, spouse_node);
                         if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
-                        const inlaw_color = d3.hcl(hue, 0, luminance * (window.inlaw_link_highlight_percent / 100) * factor);
-                        drawLink(svg_node, inlaw_color, {x: node.x + window.box_width / 2,         y: node.y}, 
-                                                        {x: spouse_node.x + window.box_width / 2,  y: spouse_node.y + window.box_height}, 'inlaw-center', factor);
+                        const inlaw_color = d3.hcl(hue, 0, luminance * (_draw_cfg.inlaw_link_highlight_percent / 100) * factor);
+                        drawLink(svg_node, inlaw_color, {x: node.x + _draw_cfg.box_width / 2,         y: node.y}, 
+                                                        {x: spouse_node.x + _draw_cfg.box_width / 2,  y: spouse_node.y + _draw_cfg.box_height}, 'inlaw-center', factor);
                     });
                 }
 
@@ -258,24 +291,24 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                             const factor = getLinkHighlightFactor(node, child_node);
                             if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
                             const [chue, cchroma, clum] = getNodeHCL(child_node, false);
-                            const child_color = d3.hcl(chue, cchroma, clum * (window.link_highlight_percent / 100) * factor);
-                            drawLink(svg_node, child_color, {x: node.x + window.box_width / 2, y: node.y + window.box_height}, 
-                                                            {x: child_node.x + window.box_width / 2, y: child_node.y}, null, factor);
+                            const child_color = d3.hcl(chue, cchroma, clum * (_draw_cfg.link_highlight_percent / 100) * factor);
+                            drawLink(svg_node, child_color, {x: node.x + _draw_cfg.box_width / 2, y: node.y + _draw_cfg.box_height}, 
+                                                            {x: child_node.x + _draw_cfg.box_width / 2, y: child_node.y}, null, factor);
                         });
                     }
                     else {
-                        let left = -window.h_spacing / 2;
-                        let right = window.box_width + window.h_spacing / 2;
+                        let left = -_draw_cfg.sibling_spacing / 2;
+                        let right = _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2;
                         let x_offset = (node.individual.gender === 'M') ? right : left;
                         if (node.spouse_nodes[0].type === 'ancestor') x_offset = (x_offset === right) ? left : right;
-                        let radius = window.link_width * 1.5;
+                        let radius = _draw_cfg.link_width * 1.5;
                         node.children_nodes.filter(child_node => !(child_node.stacked && !child_node.stack_top)).forEach(child_node => {
                             const factor = getLinkHighlightFactor(node, child_node);
                             if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
                             const [chue, cchroma, clum] = getNodeHCL(child_node, false);
-                            const child_color = d3.hcl(chue, cchroma, clum * (window.link_highlight_percent / 100) * factor);
-                            drawLink(svg_node, child_color, {x: node.x + x_offset, y: node.y + window.box_height / 2 + radius}, 
-                                                            {x: child_node.x + window.box_width / 2, y: child_node.y}, null, factor);
+                            const child_color = d3.hcl(chue, cchroma, clum * (_draw_cfg.link_highlight_percent / 100) * factor);
+                            drawLink(svg_node, child_color, {x: node.x + x_offset, y: node.y + _draw_cfg.box_height / 2 + radius}, 
+                                                            {x: child_node.x + _draw_cfg.box_width / 2, y: child_node.y}, null, factor);
                         });
                     }
                 }
@@ -286,9 +319,9 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                         const factor = getLinkHighlightFactor(node, child_node);
                         if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
                         const [chue, cchroma, clum] = getNodeHCL(child_node, false);
-                        const child_color = d3.hcl(chue, cchroma, clum * (window.link_highlight_percent / 100) * factor);
-                        drawLink(svg_node, child_color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
-                                                        {x: child_node.x + window.box_width / 2,              y: child_node.y}, null, factor);
+                        const child_color = d3.hcl(chue, cchroma, clum * (_draw_cfg.link_highlight_percent / 100) * factor);
+                        drawLink(svg_node, child_color, {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2, y: node.y + _draw_cfg.box_height}, 
+                                                        {x: child_node.x + _draw_cfg.box_width / 2,              y: child_node.y}, null, factor);
                     });
                 }
 
@@ -298,18 +331,18 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                 // Draw link stacked child and previous stacked child
                 if ((node.type === 'relative') && node.stacked && !node.stack_top) {
                     if (highlight_pass === null || (self_factor !== 1) === highlight_pass) {
-                        const color = d3.hcl(hue, chroma, luminance * (window.link_highlight_percent / 100) * self_factor);
-                        drawLink(svg_node, color, {x: node.x + window.box_width / 2, y: node.y}, 
-                                                  {x: node.x + window.box_width / 2, y: node.y - window.v_spacing}, null, self_factor);
+                        const color = d3.hcl(hue, chroma, luminance * (_draw_cfg.link_highlight_percent / 100) * self_factor);
+                        drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width / 2, y: node.y}, 
+                                                  {x: node.x + _draw_cfg.box_width / 2, y: node.y - _draw_cfg.generation_spacing}, null, self_factor);
                     }
                 }
 
                 // Draw link between stacked in-law and previous stacked in-law
                 if ((node.type === 'inlaw') && node.stacked && !node.stack_top) {
                     if (highlight_pass === null || (self_factor !== 1) === highlight_pass) {
-                        const inlaw_color = d3.hcl(hue, 0, luminance * (window.inlaw_link_highlight_percent / 100) * self_factor);
-                        drawLink(svg_node, inlaw_color, {x: node.x + window.box_width / 2, y: node.y},
-                                                        {x: node.x + window.box_width / 2, y: node.y - window.v_spacing}, 'inlaw', self_factor);
+                        const inlaw_color = d3.hcl(hue, 0, luminance * (_draw_cfg.inlaw_link_highlight_percent / 100) * self_factor);
+                        drawLink(svg_node, inlaw_color, {x: node.x + _draw_cfg.box_width / 2, y: node.y},
+                                                        {x: node.x + _draw_cfg.box_width / 2, y: node.y - _draw_cfg.generation_spacing}, 'inlaw', self_factor);
                     }
                 }
 
@@ -330,65 +363,65 @@ function drawBoldLinks(svg_node, rows, highlight_pass = null) {
                     if (highlight_pass !== null && (anc_factor !== 1) !== highlight_pass) return;
 
                     let [hue, chroma, luminance] = getNodeHCL(node, false);
-                    let color = d3.hcl(hue, chroma, luminance * anc_factor * (window.link_highlight_percent / 100));
+                    let color = d3.hcl(hue, chroma, luminance * anc_factor * (_draw_cfg.link_highlight_percent / 100));
 
                     // Draw links from father and mother to center point
                     if (window.vertical_inlaws) {
-                        drawLink(svg_node, color, {x: node.x + window.box_width / 2,                    y: node.y}, 
-                                                  {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 'center', anc_factor);
-                        drawLink(svg_node, color, {x: node.x + 3 * window.box_width / 2 + window.h_spacing, y: node.y}, 
-                                                  {x: node.x + window.box_width + window.h_spacing / 2,     y: node.y + window.box_height}, 'center', anc_factor);
+                        drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width / 2,                    y: node.y}, 
+                                                  {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2, y: node.y + _draw_cfg.box_height}, 'center', anc_factor);
+                        drawLink(svg_node, color, {x: node.x + 3 * _draw_cfg.box_width / 2 + _draw_cfg.sibling_spacing, y: node.y}, 
+                                                  {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2,     y: node.y + _draw_cfg.box_height}, 'center', anc_factor);
                     }
                     else {
-                        drawLink(svg_node, color, {x: node.x + window.box_width / 2,                       y: node.y}, 
-                                                  {x: node.x + 1.5 * window.box_width + window.h_spacing,  y: node.y + window.box_height}, 'center', anc_factor);
+                        drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width / 2,                       y: node.y}, 
+                                                  {x: node.x + 1.5 * _draw_cfg.box_width + _draw_cfg.sibling_spacing,  y: node.y + _draw_cfg.box_height}, 'center', anc_factor);
                     }
 
                     if (node.children_nodes.length > 0) {
                         [hue, chroma, luminance] = getNodeHCL(node.children_nodes[0], false);
-                        color = d3.hcl(hue, chroma, luminance * anc_factor * (window.link_highlight_percent / 100));
+                        color = d3.hcl(hue, chroma, luminance * anc_factor * (_draw_cfg.link_highlight_percent / 100));
                     }
 
                     // Draw link between ancestor and root child
                     if (window.vertical_inlaws) {
                         node.children_nodes.filter(child_node => child_node.individual.is_root).forEach(child_node => {
-                            drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height}, 
-                                                      {x: child_node.x + window.box_width / 2,              y: child_node.y}, null, anc_factor);
+                            drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2, y: node.y + _draw_cfg.box_height}, 
+                                                      {x: child_node.x + _draw_cfg.box_width / 2,              y: child_node.y}, null, anc_factor);
                         });
                     }
                     else {
                         node.children_nodes.filter(child_node => child_node.individual.is_root).forEach(child_node => {
-                            drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height / 2}, 
-                                                      {x: child_node.x + window.box_width / 2,              y: child_node.y}, null, anc_factor);
+                            drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2, y: node.y + _draw_cfg.box_height / 2}, 
+                                                      {x: child_node.x + _draw_cfg.box_width / 2,              y: child_node.y}, null, anc_factor);
                         });
                     }
 
                     if (node.individual.pedigree_child_node) {
                         [hue, chroma, luminance] = getNodeHCL(node.individual.pedigree_child_node, false);
-                        color = d3.hcl(hue, chroma, luminance * anc_factor * (window.link_highlight_percent / 100));
+                        color = d3.hcl(hue, chroma, luminance * anc_factor * (_draw_cfg.link_highlight_percent / 100));
                     }
 
                     // Draw link between ancestor and pedigree child
                     if (node.individual.pedigree_child_node) {
                         if (window.vertical_inlaws) {
-                            drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2,             y: node.y + window.box_height}, 
-                                                      {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y}, null, anc_factor);
+                            drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2,             y: node.y + _draw_cfg.box_height}, 
+                                                      {x: node.individual.pedigree_child_node.x + _draw_cfg.box_width / 2, y: node.individual.pedigree_child_node.y}, null, anc_factor);
                         }
                         else {
-                            drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2,             y: node.y + window.box_height / 2}, 
-                                                      {x: node.individual.pedigree_child_node.x + window.box_width / 2, y: node.individual.pedigree_child_node.y}, null, anc_factor);
+                            drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2,             y: node.y + _draw_cfg.box_height / 2}, 
+                                                      {x: node.individual.pedigree_child_node.x + _draw_cfg.box_width / 2, y: node.individual.pedigree_child_node.y}, null, anc_factor);
                         }
                     }
 
                     if (node.individual.duplicate_pedigree_child_node) {
                         [hue, chroma, luminance] = getNodeHCL(node.individual.duplicate_pedigree_child_node, false);
-                        color = d3.hcl(hue, chroma, luminance * anc_factor * (window.link_highlight_percent / 100));
+                        color = d3.hcl(hue, chroma, luminance * anc_factor * (_draw_cfg.link_highlight_percent / 100));
                     }
 
                     // Draw link between ancestor and duplicate pedigree child
                     if (node.individual.duplicate_pedigree_child_node) {
-                        drawLink(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2,                       y: node.y + window.box_height}, 
-                                                  {x: node.individual.duplicate_pedigree_child_node.x + window.box_width / 2, y: node.individual.duplicate_pedigree_child_node.y}, 
+                        drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2,                       y: node.y + _draw_cfg.box_height}, 
+                                                  {x: node.individual.duplicate_pedigree_child_node.x + _draw_cfg.box_width / 2, y: node.individual.duplicate_pedigree_child_node.y}, 
                                                   'duplicate', anc_factor);
                     }
                 }
@@ -407,21 +440,21 @@ function drawCircles(svg_node, rows, highlight_pass = null) {
                         const factor = getLinkHighlightFactor(node);
                         if (highlight_pass === null || (factor !== 1) === highlight_pass) {
                             const [hue, chroma, luminance] = getNodeHCL(node.children_nodes[0], false);
-                            const color = d3.hcl(hue, chroma, luminance * (window.link_highlight_percent / 100) * factor);
-                            let left = -window.h_spacing / 2;
-                            let right = window.box_width + window.h_spacing / 2;
+                            const color = d3.hcl(hue, chroma, luminance * (_draw_cfg.link_highlight_percent / 100) * factor);
+                            let left = -_draw_cfg.sibling_spacing / 2;
+                            let right = _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2;
                             let x_offset = (node.individual.gender === 'M') ? right : left;
                             if (node.spouse_nodes[0].type === 'ancestor') x_offset = (x_offset === right) ? left : right;
-                            let radius = (factor !== 1 ? (window.highlighted_link_width || window.link_width) : window.link_width) * 1.5;
-                            drawCircle(svg_node, color, {x: node.x + x_offset, y: node.y + window.box_height / 2}, radius);
+                            let radius = (factor !== 1 ? (_draw_cfg.highlighted_link_width || _draw_cfg.link_width) : _draw_cfg.link_width) * 1.5;
+                            drawCircle(svg_node, color, {x: node.x + x_offset, y: node.y + _draw_cfg.box_height / 2}, radius);
                         }
                     }
                     if ((node.type === 'ancestor') && (node.individual.gender === 'M')) {
                         const factor = getAncestorLinkHighlightFactor(node);
                         if (highlight_pass === null || (factor !== 1) === highlight_pass) {
                             const [hue, chroma, luminance] = getNodeHCL(node.individual.pedigree_child_node ? node.individual.pedigree_child_node : window.root_node, false);
-                            const color = d3.hcl(hue, chroma, luminance * factor * (window.link_highlight_percent / 100));
-                            drawCircle(svg_node, color, {x: node.x + window.box_width + window.h_spacing / 2, y: node.y + window.box_height / 2}, (factor !== 1 ? (window.highlighted_link_width || window.link_width) : window.link_width) * 1.5);
+                            const color = d3.hcl(hue, chroma, luminance * factor * (_draw_cfg.link_highlight_percent / 100));
+                            drawCircle(svg_node, color, {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2, y: node.y + _draw_cfg.box_height / 2}, (factor !== 1 ? (_draw_cfg.highlighted_link_width || _draw_cfg.link_width) : _draw_cfg.link_width) * 1.5);
                         }
                     }
                 }
@@ -456,20 +489,20 @@ function drawNode(svg, node) {
     let highlight = isNodeHighlighted(node);
 
     let [hue, chroma, luminance] = getNodeHCL(node);
-    const fill_color = d3.hcl(hue, chroma, highlight ? luminance * window.pedigree_highlight_percent / 100 : luminance);
+    const fill_color = d3.hcl(hue, chroma, highlight ? luminance * _draw_cfg.pedigree_highlight_percent / 100 : luminance);
 
     [hue, chroma, luminance] = getNodeHCL(node, false);
-    const border_luminance = Math.max(1, luminance * window.border_highlight_percent / 100);
-    const stroke_color = d3.hcl(hue, node.type === 'inlaw' ? 0 : chroma, highlight ? border_luminance * window.pedigree_highlight_percent / 100 : border_luminance);
+    const border_luminance = Math.max(1, luminance * _draw_cfg.border_highlight_percent / 100);
+    const stroke_color = d3.hcl(hue, node.type === 'inlaw' ? 0 : chroma, highlight ? border_luminance * _draw_cfg.pedigree_highlight_percent / 100 : border_luminance);
 
     // Draw rectangle
     g.append('rect')
-        .attr('width', window.box_width)
-        .attr('height', window.box_height)
+        .attr('width', _draw_cfg.box_width)
+        .attr('height', _draw_cfg.box_height)
         .attr('fill', fill_color)
         .attr('stroke', stroke_color)
-        .attr('stroke-width', window.node_border_width)
-        .attr('rx', Math.min(window.box_width, window.box_height) * window.node_rounding / 100);
+        .attr('stroke-width', _draw_cfg.node_border_width)
+        .attr('rx', Math.min(_draw_cfg.box_width, _draw_cfg.box_height) * _draw_cfg.node_rounding / 100);
 
     drawText(g, node);
 }
@@ -517,7 +550,7 @@ function buildSecondaryStrings(individual) {
 function buildSecondaryLines(secondary_strings, place_strings, secFontSize) {
     const result = secondary_strings.slice();
     place_strings.forEach(s => {
-        const fit = fitTextInBox(s, window.box_width, secFontSize * 10, 'Arial, sans-serif', 'normal', secFontSize);
+        const fit = fitTextInBox(s, _draw_cfg.box_width, secFontSize * 10, 'Arial, sans-serif', 'normal', secFontSize);
         fit.lines.forEach(l => result.push(l));
     });
     return result;
@@ -557,7 +590,7 @@ function renderTspans(text_element, lines, nameCount, nameFontSize, secFontSize,
         else if (i === nameCount) dy = '1.7em';
         const is_name = line.type === 'name';
         text_element.append('tspan')
-            .attr('x', window.box_width / 2)
+            .attr('x', _draw_cfg.box_width / 2)
             .attr('text-anchor', 'middle')
             .attr('dy', dy)
             .attr('font-size', is_name ? nameFontSize : secFontSize)
@@ -569,8 +602,8 @@ function renderTspans(text_element, lines, nameCount, nameFontSize, secFontSize,
 // Shrink font sizes until text fits within box, returns adjusted sizes and lines
 function shrinkToFit(name_lines, secondary_strings, place_strings, lines, name_font_size, secondary_font_size, name_fits_at_desired, is_bold) {
     const min_font_size = 6;
-    const max_width = window.box_width;
-    const max_height = window.box_height;
+    const max_width = _draw_cfg.box_width;
+    const max_height = _draw_cfg.box_height;
     let secondary_lines = lines.filter(l => l.type === 'secondary').map(l => l.text);
     let est = estimateTextDimensions(lines, name_lines.length, name_font_size, secondary_font_size, is_bold);
 
@@ -607,21 +640,21 @@ function shrinkToFit(name_lines, secondary_strings, place_strings, lines, name_f
 // Callers must supply a geometrically correct bbox (not raw getBBox() output, which
 // can be zero or incorrect in Chrome after scheduler.yield() in large async draw loops).
 function alignTextVertically(text_element, bbox) {
-    const pad = window.box_padding || 0;
-    const mid = window.box_height / 2;
+    const pad = _draw_cfg.box_padding || 0;
+    const mid = _draw_cfg.box_height / 2;
     let text_y;
-    if (window.text_align === 'top') {
+    if (_draw_cfg.text_align === 'top') {
         text_y = mid + pad - bbox.y;
-    } else if (window.text_align === 'bottom') {
-        text_y = mid + (window.box_height - pad - bbox.height) - bbox.y;
+    } else if (_draw_cfg.text_align === 'bottom') {
+        text_y = mid + (_draw_cfg.box_height - pad - bbox.height) - bbox.y;
     } else {
-        text_y = mid + (window.box_height - bbox.height) / 2 - bbox.y;
+        text_y = mid + (_draw_cfg.box_height - bbox.height) / 2 - bbox.y;
     }
     text_element.attr('y', text_y);
 }
 
 function getNameAvailableHeight(secondary_lines, secondary_font_size) {
-    let name_available_height = window.box_height;
+    let name_available_height = _draw_cfg.box_height;
     if (secondary_lines.length > 0) {
         const gap = secondary_font_size * 0.5;
         name_available_height -= secondary_lines.length * secondary_font_size * 1.2 + gap;
@@ -641,7 +674,7 @@ function selectInitialTextLayout(name, weight, main_font_size, secondary_strings
         let name_lines = [];
         let name_font_size = main_font_size;
         if (window.show_names && name) {
-            const fit = fitTextInBox(name, window.box_width, name_available_height, 'Arial, sans-serif', weight, main_font_size);
+            const fit = fitTextInBox(name, _draw_cfg.box_width, name_available_height, 'Arial, sans-serif', weight, main_font_size);
             name_lines = fit.lines;
             name_font_size = fit.fontSize;
         }
@@ -673,7 +706,7 @@ function selectInitialTextLayout(name, weight, main_font_size, secondary_strings
 const TREE_TEXT_SHADOW_FILTER_ID = 'tree-text-shadow-filter';
 
 function ensureTextShadowFilter(selection) {
-    if (window.text_shadow === false) return null;
+    if (_draw_cfg.text_shadow === false) return null;
 
     const selection_node = selection && typeof selection.node === 'function' ? selection.node() : null;
     if (!selection_node) return null;
@@ -713,17 +746,17 @@ function ensureTextShadowFilter(selection) {
 
 function drawText(g, node) {
     const highlight = isNodeHighlighted(node);
-    const text_luminance = highlight ? (window.highlighted_text_brightness ?? window.text_brightness ?? 0) : (window.text_brightness ?? 0);
+    const text_luminance = highlight ? (_draw_cfg.highlighted_text_brightness ?? _draw_cfg.text_brightness ?? 0) : (_draw_cfg.text_brightness ?? 0);
     const text_color = d3.hcl(0, 0, text_luminance);
-    const is_bold = highlight && (window.pedigree_highlight_percent !== 100);
+    const is_bold = highlight && (_draw_cfg.pedigree_highlight_percent !== 100);
     const text_shadow_filter_id = ensureTextShadowFilter(g);
     const text_element = g.append('text')
-        .attr('x', window.box_width / 2)
-        .attr('y', window.box_height / 2)
+        .attr('x', _draw_cfg.box_width / 2)
+        .attr('y', _draw_cfg.box_height / 2)
         .attr('text-anchor', 'middle')
         .attr('font-family', 'Arial, sans-serif')
         .attr('font-weight', is_bold ? 'bold' : 'normal')
-        .attr('font-size', (window.text_size || window.default_text_size) + 'px')
+        .attr('font-size', (_draw_cfg.text_size || window.default_text_size) + 'px')
         .attr('fill', text_color);
 
     if (text_shadow_filter_id) {
@@ -732,7 +765,7 @@ function drawText(g, node) {
 
     const name = node.individual.name || '';
     const weight = is_bold ? 'bold' : 'normal';
-    const main_font_size = window.text_size || window.default_text_size || 12;
+    const main_font_size = _draw_cfg.text_size || window.default_text_size || 12;
 
     // Build secondary content
     const { secondary_strings, place_strings } = buildSecondaryStrings(node.individual);
@@ -764,11 +797,11 @@ function drawText(g, node) {
     const current_secondary_lines = lines.filter(l => l.type === 'secondary').map(l => l.text);
     if (window.show_names && name && current_name_lines.length === 1 && name_font_size <= 7 && name.includes(' ')) {
         const retry_name_height = getNameAvailableHeight(current_secondary_lines, secondary_font_size);
-        const conservative_fit = fitTextInBox(name, window.box_width * 0.92, retry_name_height, 'Arial, sans-serif', weight, name_font_size);
+        const conservative_fit = fitTextInBox(name, _draw_cfg.box_width * 0.92, retry_name_height, 'Arial, sans-serif', weight, name_font_size);
         if ((conservative_fit.fontSize === name_font_size) && (conservative_fit.lines.length > 1)) {
             const candidate_lines = buildAllLines(conservative_fit.lines, current_secondary_lines);
             const candidate_est = estimateTextDimensions(candidate_lines, conservative_fit.lines.length, name_font_size, secondary_font_size, is_bold);
-            if ((candidate_est.width <= window.box_width) && (candidate_est.height <= window.box_height)) {
+            if ((candidate_est.width <= _draw_cfg.box_width) && (candidate_est.height <= _draw_cfg.box_height)) {
                 name_lines = conservative_fit.lines;
                 lines = candidate_lines;
             }
@@ -782,10 +815,10 @@ function drawText(g, node) {
     renderTspans(text_element, lines, name_lines.length, name_font_size, secondary_font_size, is_bold);
     const bbox = text_element.node().getBBox();
 
-    const max_width = window.box_width;
-    const max_height = window.box_height;
+    const max_width = _draw_cfg.box_width;
+    const max_height = _draw_cfg.box_height;
     if (bbox.width <= max_width && bbox.height <= max_height) window.max_text_size = Math.max(window.max_text_size, name_font_size);
-    const padding = window.box_padding || 0;
+    const padding = _draw_cfg.box_padding || 0;
     const preferred_secondary_size = Math.max(6, Math.round(main_font_size * 0.75));
     let required_text_width = 0;
     lines.forEach(line => {
@@ -813,7 +846,7 @@ function drawText(g, node) {
         if (sec_line_count > 1)   sum_dy += (sec_line_count - 1) * 1.2 * secondary_font_size;
     }
     const align_bbox = {
-        y: window.box_height / 2 - asc,
+        y: _draw_cfg.box_height / 2 - asc,
         height: asc + sum_dy + last_fs * 0.28,
     };
     alignTextVertically(text_element, align_bbox);
@@ -826,9 +859,9 @@ function drawLink(svg_node, color, point1, point2, special, factor = 1) {
         var x2 = point2.x;
         var y1 = point1.y;
         var y2 = point2.y;
-        const ymid = (special && special.includes('center') ? y1 + window.box_height / 2 : y2 - window.v_spacing / 2) - (special === 'duplicate' ? window.v_spacing / 2 : 0);
+        const ymid = (special && special.includes('center') ? y1 + _draw_cfg.box_height / 2 : y2 - _draw_cfg.generation_spacing / 2) - (special === 'duplicate' ? _draw_cfg.generation_spacing / 2 : 0);
         const xmid = x1 + (x2 - x1) / 2;
-        const corner_radius = Math.min(window.box_width, window.box_height) * window.link_rounding / 200;
+        const corner_radius = Math.min(_draw_cfg.box_width, _draw_cfg.box_height) * _draw_cfg.link_rounding / 200;
         const context = d3.path();
         context.moveTo(x1, y1);
         context.lineTo(x1, ymid - corner_radius);
@@ -851,8 +884,8 @@ function drawLink(svg_node, color, point1, point2, special, factor = 1) {
         return context.toString();
     };
 
-    const base_link_width = window.link_width || 3;
-    const stroke_width = (factor !== 1) ? (window.highlighted_link_width || base_link_width) : base_link_width;
+    const base_link_width = _draw_cfg.link_width || 3;
+    const stroke_width = (factor !== 1) ? (_draw_cfg.highlighted_link_width || base_link_width) : base_link_width;
     if (window.vertical_inlaws || special === 'duplicate') {
         svg_node.append("path")
             .attr("d", customLink(point1, point2))
@@ -885,10 +918,10 @@ function getNodeHCL(node, inlaw_desaturated = true) {
     // Use HCL for equal luminance regardless of hue
     var hue_spacing = 60;
     if (window.max_gen_up + window.max_gen_down >= 6) hue_spacing = 360 / (window.max_gen_up + window.max_gen_down + 1);
-    const base_hue = window.root_hue;
+    const base_hue = _draw_cfg.root_hue;
     const hue = ((node.generation - window.generations_down) * hue_spacing + base_hue + 360) % 360;
-    const chroma = (inlaw_desaturated && (node.type === 'inlaw')) ? 0 : window.node_saturation;
-    const luminance = window.node_brightness;
+    const chroma = (inlaw_desaturated && (node.type === 'inlaw')) ? 0 : _draw_cfg.node_saturation;
+    const luminance = _draw_cfg.node_brightness;
     return [hue, chroma, luminance];
 }
 
@@ -902,7 +935,7 @@ function fitTextInBox(str, width, height, fontFamily = 'Arial, sans-serif', font
     // such that the wrapped lines fit within the given width and height.
 
     // Reduce effective box size by box padding on all sides
-    const padding = window.box_padding || 0;
+    const padding = _draw_cfg.box_padding || 0;
     width = Math.max(0, width - 2 * padding);
     height = Math.max(0, height - 2 * padding);
 

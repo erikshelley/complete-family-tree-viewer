@@ -5,7 +5,7 @@ import { loadBrowserScripts } from './helpers/load-browser-script.js';
 
 function createTreeContext(windowOverrides = {}, globalOverrides = {}) {
     const dom = new JSDOM('<div id="family-tree-div"></div>');
-    const context = loadBrowserScripts(['src/js/build_tree.js', 'src/js/position_tree.js'], {
+    const context = loadBrowserScripts(['src/js/build_tree.js', 'src/js/position_tree_helpers.js', 'src/js/position_tree.js'], {
         windowOverrides: {
             generations_up: 2,
             generations_down: 2,
@@ -15,8 +15,8 @@ function createTreeContext(windowOverrides = {}, globalOverrides = {}) {
             vertical_inlaws: true,
             box_width: 80,
             box_height: 50,
-            h_spacing: 24,
-            v_spacing: 28,
+            sibling_spacing: 24,
+            generation_spacing: 28,
             level_spacing: 40,
             box_padding: 2,
             tree_padding: 80,

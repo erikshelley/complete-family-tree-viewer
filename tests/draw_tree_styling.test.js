@@ -191,8 +191,8 @@ describe('draw tree styling outcomes', () => {
             windowOverrides: {
                 box_width: 80,
                 box_height: 40,
-                h_spacing: 20,
-                v_spacing: 30,
+                sibling_spacing: 20,
+                generation_spacing: 30,
                 vertical_inlaws: true,
                 link_highlight_percent: 100,
                 inlaw_link_highlight_percent: 100,
@@ -254,7 +254,7 @@ describe('draw tree styling outcomes', () => {
 
         context.drawNonBoldLinks(svgSelection, rows);
 
-        const parentConnectorX = parent.x + context.window.box_width + context.window.h_spacing / 2;
+        const parentConnectorX = parent.x + context.window.box_width + context.window.sibling_spacing / 2;
         const topChildCenterX = topStackChild.x + context.window.box_width / 2;
         const lowerChildCenterX = lowerStackChild.x + context.window.box_width / 2;
 
@@ -276,7 +276,7 @@ describe('draw tree styling outcomes', () => {
             link.p1.x === lowerChildCenterX &&
             link.p1.y === lowerStackChild.y &&
             link.p2.x === lowerChildCenterX &&
-            link.p2.y === lowerStackChild.y - context.window.v_spacing
+            link.p2.y === lowerStackChild.y - context.window.generation_spacing
         );
         expect(stackedToAbove).toBeDefined();
     });
@@ -286,8 +286,8 @@ describe('draw tree styling outcomes', () => {
             windowOverrides: {
                 box_width: 80,
                 box_height: 40,
-                h_spacing: 20,
-                v_spacing: 30,
+                sibling_spacing: 20,
+                generation_spacing: 30,
                 vertical_inlaws: true,
                 link_highlight_percent: 100,
                 inlaw_link_highlight_percent: 100,
@@ -374,7 +374,7 @@ describe('draw tree styling outcomes', () => {
             link.p1.x === lowerInlawCenterX &&
             link.p1.y === lowerInlaw.y &&
             link.p2.x === lowerInlawCenterX &&
-            link.p2.y === lowerInlaw.y - context.window.v_spacing
+            link.p2.y === lowerInlaw.y - context.window.generation_spacing
         );
         expect(inlawToAboveInlaw).toBeDefined();
     });
@@ -384,8 +384,8 @@ describe('draw tree styling outcomes', () => {
             windowOverrides: {
                 box_width: 80,
                 box_height: 40,
-                h_spacing: 20,
-                v_spacing: 30,
+                sibling_spacing: 20,
+                generation_spacing: 30,
                 vertical_inlaws: true,
                 link_highlight_percent: 100,
                 inlaw_link_highlight_percent: 100,
@@ -612,7 +612,7 @@ describe('draw tree styling outcomes', () => {
             windowOverrides: {
                 box_width: 80,
                 box_height: 40,
-                h_spacing: 24,
+                sibling_spacing: 24,
                 vertical_inlaws: false,
                 link_width: 2,
                 node_saturation: 20,
@@ -666,8 +666,8 @@ describe('draw tree styling outcomes', () => {
 
         context.drawCircles(new SvgSelection(svg), rows);
 
-        // Circle should be at x = father.x + box_width + h_spacing/2
-        const expectedX = father.x + context.window.box_width + context.window.h_spacing / 2;
+        // Circle should be at x = father.x + box_width + sibling_spacing/2
+        const expectedX = father.x + context.window.box_width + context.window.sibling_spacing / 2;
         const expectedY = father.y + context.window.box_height / 2;
         const ancestorCircle = circlesCaptured.find(c => c.x === expectedX && c.y === expectedY);
         expect(ancestorCircle, 'circle should exist between ancestor pair').toBeDefined();
@@ -1524,7 +1524,7 @@ describe('draw tree styling outcomes', () => {
 
     it('13.21 drawLink uses link_width as stroke-width when factor is 1', () => {
         const { context, dom } = loadDrawTreeContext({
-            windowOverrides: { link_width: 4, highlighted_link_width: 8, v_spacing: 50 },
+            windowOverrides: { link_width: 4, highlighted_link_width: 8, generation_spacing: 50 },
         });
 
         const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1536,7 +1536,7 @@ describe('draw tree styling outcomes', () => {
 
     it('13.22 drawLink uses highlighted_link_width as stroke-width when factor is not 1', () => {
         const { context, dom } = loadDrawTreeContext({
-            windowOverrides: { link_width: 4, highlighted_link_width: 8, v_spacing: 50 },
+            windowOverrides: { link_width: 4, highlighted_link_width: 8, generation_spacing: 50 },
         });
 
         const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
