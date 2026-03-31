@@ -7,7 +7,7 @@
     <meta name="darkreader-lock">
     <title>Complete Family Tree Viewer</title>
     <link rel="stylesheet" href="src/css/style_ranges.css?v=2026-03-21">
-    <link rel="stylesheet" href="src/css/style.css?v=2026-03-28">
+    <link rel="stylesheet" href="src/css/style.css?v=2026-03-31">
     <link rel="stylesheet" href="src/css/style_media.css?v=2026-03-21">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-size@2"></script>
@@ -52,13 +52,27 @@
                         </div>
                     </div>
                     <div class="add-preset-group-items" id="add-preset-group-content">
-                        <label for="preset-cb-max-stack-size"><input type="checkbox" id="preset-cb-max-stack-size" name="preset-setting" value="max-stack-size" checked> Max Stack Size</label>
+                        <label for="preset-cb-generations-up"><input type="checkbox" id="preset-cb-generations-up" name="preset-setting" value="generations-up" checked> Max Generations Up</label>
+                        <label for="preset-cb-generations-down"><input type="checkbox" id="preset-cb-generations-down" name="preset-setting" value="generations-down" checked> Max Generations Down</label>
+                        <label for="preset-cb-show-childless-inlaws"><input type="checkbox" id="preset-cb-show-childless-inlaws" name="preset-setting" value="show-childless-inlaws" checked> Show Childless In-Laws</label>
+                        <label for="preset-cb-show-non-pedigree-family"><input type="checkbox" id="preset-cb-show-non-pedigree-family" name="preset-setting" value="show-non-pedigree-family" checked> Show Non-Pedigree Family</label>
                         <label for="preset-cb-show-names"><input type="checkbox" id="preset-cb-show-names" name="preset-setting" value="show-names" checked> Show Names</label>
                         <label for="preset-cb-show-years"><input type="checkbox" id="preset-cb-show-years" name="preset-setting" value="show-years" checked> Show Years</label>
                         <label for="preset-cb-show-places"><input type="checkbox" id="preset-cb-show-places" name="preset-setting" value="show-places" checked> Show Places</label>
-                        <label for="preset-cb-vertical-inlaws"><input type="checkbox" id="preset-cb-vertical-inlaws" name="preset-setting" value="vertical-inlaws" checked> Vertical In-Laws</label>
-                        <label for="preset-cb-hide-childless-inlaws"><input type="checkbox" id="preset-cb-hide-childless-inlaws" name="preset-setting" value="hide-childless-inlaws" checked> Hide Childless In-Laws</label>
-                        <label for="preset-cb-hide-non-pedigree-family"><input type="checkbox" id="preset-cb-hide-non-pedigree-family" name="preset-setting" value="hide-non-pedigree-family" checked> Hide Non-Pedigree Family</label>
+                    </div>
+                </div>
+                <div class="add-preset-group">
+                    <div class="add-preset-group-header">
+                        <span>Layout</span>
+                        <div class="add-preset-group-toggles">
+                            <button class="add-preset-group-toggle" data-group="layout" data-check="true">All</button>
+                            <button class="add-preset-group-toggle" data-group="layout" data-check="false">None</button>
+                        </div>
+                    </div>
+                    <div class="add-preset-group-items" id="add-preset-group-layout">
+                        <label for="preset-cb-max-stack-size"><input type="checkbox" id="preset-cb-max-stack-size" name="preset-setting" value="max-stack-size" checked> Max Stack Size</label>
+                        <label for="preset-cb-beside-inlaws"><input type="checkbox" id="preset-cb-beside-inlaws" name="preset-setting" value="beside-inlaws" checked> Beside In-Laws</label>
+                        <label for="preset-cb-tree-orientation"><input type="checkbox" id="preset-cb-tree-orientation" name="preset-setting" value="tree-orientation" checked> Tree Orientation</label>
                     </div>
                 </div>
                 <div class="add-preset-group">
@@ -124,7 +138,7 @@
                         </div>
                     </div>
                     <div class="add-preset-group-items" id="add-preset-group-highlights">
-                        <label for="preset-cb-pedigree-highlight-percent"><input type="checkbox" id="preset-cb-pedigree-highlight-percent" name="preset-setting" value="pedigree-highlight-percent" checked> Pedigree Highlight</label>
+                        <label for="preset-cb-special-highlight-percent"><input type="checkbox" id="preset-cb-special-highlight-percent" name="preset-setting" value="special-highlight-percent" checked> Special Highlight</label>
                         <label for="preset-cb-border-highlight-percent"><input type="checkbox" id="preset-cb-border-highlight-percent" name="preset-setting" value="border-highlight-percent" checked> Border Highlight</label>
                         <label for="preset-cb-link-highlight-percent"><input type="checkbox" id="preset-cb-link-highlight-percent" name="preset-setting" value="link-highlight-percent" checked> Link Highlight</label>
                         <label for="preset-cb-inlaw-link-highlight-percent"><input type="checkbox" id="preset-cb-inlaw-link-highlight-percent" name="preset-setting" value="inlaw-link-highlight-percent" checked> In-Law Link Highlight</label>
@@ -217,244 +231,262 @@
     <div class="container">
         <div class="left-column-wrapper">
             <div class="left-column">
-            <div class="section-header">
-                <h2>Tree Content</h2>
-            </div>
-
-            <div class="input-section">
-                <div class="file-input">
-                    <label for="file-input-button">
-                        <img class="icon-button-left" src="src/png/icons8-browse-folder-48-gold.png" alt="Open Local GEDCOM File" title="Open Local GEDCOM File">
-                    </label>
-                    <button id="open-online-button" class="icon-button-bare" type="button" aria-label="Open Online GEDCOM File" title="Open Online GEDCOM File">
-                        <img class="icon-button-left" src="src/png/icons8-cloud-folder-48-gold.png" alt="Open Online GEDCOM File">
-                    </button>
-                    <span id="file-name">Select GEDCOM file...</span>
-                    <input type="file" id="file-input-button" accept=".ged,.gedcom">
+                <div class="section-header">
+                    <h2>Tree Content</h2>
                 </div>
-                <div class="filter-container">
-                    <input type="text" id="individual-filter-text" class="filter-input" placeholder="Type to filter names...">
-                    <button id="clear-individual-filter" type="button" class="clear-filter-button">&#10005;</button>
-                </div>
-                <select id="individual-select" size="10">
-                    <option>Populated from GEDCOM file...</option>
-                </select>
-                <p>
-                    <input type="number" id="generations-up-number" min="0" max="99" value="1">
-                    <label for="generations-up-number">Generations Up</label>&nbsp;<a href="#" class="right-shortcut" id="generations-up-number-max-link"><img src="src/png/icons8-top-48-gold.png" alt="Maximum" title="Maximum" width="24" height="24"></a>
-                </p>
-                <p>
-                    <input type="number" id="generations-down-number" min="0" max="99" value="1">
-                    <label for="generations-down-number">Generations Down</label>&nbsp;<a href="#" class="right-shortcut" id="generations-down-number-max-link"><img src="src/png/icons8-top-48-gold.png" alt="Maximum" title="Maximum" width="24" height="24"></a>
-                </p>
-                <p>
-                    <input type="number" id="max-stack-size-number" min="1" max="99" value="1">
-                    <label for="max-stack-size-number">Stack Size</label>&nbsp;<a href="#" class="right-shortcut" id="max-stack-size-number-max-link"><img src="src/png/icons8-top-48-gold.png" alt="Maximum" title="Maximum" width="24" height="24"></a>
-                </p>
-                <p>
-                    <input type="checkbox" id="vertical-inlaws-checkbox" checked>
-                    <label for="vertical-inlaws-checkbox">Position In-Laws Below Spouses</label>
-                </p>
-                <p>
-                    <input type="checkbox" id="hide-childless-inlaws-checkbox">
-                    <label for="hide-childless-inlaws-checkbox">Hide Childless In-Laws</label>
-                </p>
-                <p>
-                    <input type="checkbox" id="hide-non-pedigree-family-checkbox">
-                    <label for="hide-non-pedigree-family-checkbox">Hide Non-Pedigree Family</label>
-                </p>
-                <h3>Person Details</h3>
-                <p>
-                    <input type="checkbox" id="show-names-checkbox" checked>
-                    <label for="show-names-checkbox">Show Names</label>
-                </p>
-                <p>
-                    <input type="checkbox" id="show-years-checkbox" checked>
-                    <label for="show-years-checkbox">Show Years of Birth / Death</label>
-                </p>
-                <p>
-                    <input type="checkbox" id="show-places-checkbox">
-                    <label for="show-places-checkbox">Show Places of Birth / Death</label>
-                </p>
-            </div>
 
-            <div class="section-header">
-                <a href="#"><img id="expand-styling-button" class="icon-button" src="src/png/icons8-expand-48.png" alt="Expand All Sections" title="Expand All Sections"></a>
-                <a href="#"><img id="collapse-styling-button" class="icon-button" src="src/png/icons8-collapse-48.png" alt="Collapse All Sections" title="Collapse All Sections" style="display:none;"></a>
-                <h2>Tree Styling</h2>
-            </div>
-
-            <div class="input-section">
-                <details closed><summary>Preset</summary>
-                    <select id="preset-select" size="1"></select>
-                    <a href="#" class="right-shortcut"><img id="add-preset-button" src="src/png/icons8-add-48-gold.png" alt="Add New Preset" title="Add New Preset" width="24" height="24"></a>
-                    <a href="#" class="right-shortcut"><img id="save-preset-button" src="src/png/icons8-save-48-gold.png" alt="Save Preset" title="Save Preset" width="24" height="24"></a>
-                    <a href="#" class="right-shortcut"><img id="rename-preset-button" src="src/png/icons8-rename-48-gold.png" alt="Rename Preset" title="Rename Preset" width="24" height="24"></a>
-                    <a href="#" class="right-shortcut"><img id="reload-preset-button" src="src/png/icons8-synchronize-48-gold.png" alt="Reload Preset" title="Reload Preset" width="24" height="24"></a>
-                    <a href="#" class="right-shortcut"><img id="delete-preset-button" src="src/png/icons8-remove-48-gold.png" alt="Delete Preset" title="Delete Preset" width="24" height="24"></a>
-                </details>
-
-                <details closed><summary>Size</summary>
-                <p>
-                    <input type="number" class="range-value" id="node-width-number" min="20" max="480" value="150">
-                    <input type="range" id="node-width-range" min="20" max="480" value="150">
-                    <label for="node-width-range">Boxes X</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-width"><img src="src/png/icons8-resize-48-gold.png" alt="Auto Size" title="Auto Size" width="24" height="24"></a>
-                </p>
-                <p>
-                    <input type="number" class="range-value" id="node-height-number" min="20" max="480" value="75">
-                    <input type="range" id="node-height-range" min="20" max="480" value="75">
-                    <label for="node-height-range">Boxes Y</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-height"><img src="src/png/icons8-resize-48-gold.png" alt="Auto Size" title="Auto Size" width="24" height="24"></a>
-                </p>
-                <p>
-                    <input type="number" class="range-value" id="node-border-width-number" min="0" max="20" value="2">
-                    <input type="range" id="node-border-width-range" min="0" max="20" value="2">
-                    <label for="node-border-width-range">Borders</label>
-                </p>
-                <p>
-                    <input type="number" class="range-value" id="link-width-number" min="1" max="28" value="6">
-                    <input type="range" id="link-width-range" min="1" max="28" value="6">
-                    <label for="link-width-range">Links</label>
-                </p>
-                <p>
-                    <input type="number" class="range-value" id="highlighted-link-width-number" min="1" max="28" value="6">
-                    <input type="range" id="highlighted-link-width-range" min="1" max="28" value="6">
-                    <label for="highlighted-link-width-range">Highlighted Links</label>
-                </p>
-                <p>
-                    <input type="number" class="range-value" id="text-size-number" min="8" max="24" value="16">
-                    <input type="range" id="text-size-range" min="8" max="24" value="16">
-                    <label for="text-size-range">Font</label>
-                </p>
-                </details>
-
-                <details closed><summary>Spacing</summary>
-                    <p>
-                        <input type="number" class="range-value" id="sibling-spacing-number" min="1" max="400" value="40">
-                        <input type="range" id="sibling-spacing-range" min="1" max="400" value="40">
-                        <label for="sibling-spacing-range">Sibling</label>
-                    </p>
-                    <p>
-                        <input type="number" class="range-value" id="generation-spacing-number" min="1" max="400" value="80">
-                        <input type="range" id="generation-spacing-range" min="1" max="400" value="80">
-                        <label for="generation-spacing-range">Generation</label>
-                    </p>
-                    <p>
-                        <input type="number" class="range-value" id="level-spacing-number" min="0" max="400" value="160">
-                        <input type="range" id="level-spacing-range" min="0" max="400" value="160">
-                        <label for="level-spacing-range">Level Y</label>
-                    </p>
-                    <p>
-                        <input type="number" class="range-value" id="box-padding-number" min="0" max="20" value="0">
-                        <input type="range" id="box-padding-range" min="0" max="20" value="0">
-                        <label for="box-padding-range">Box Padding</label>
-                    </p>
-                    <p>
-                        <input type="number" class="range-value" id="tree-padding-number" min="0" max="400" value="160">
-                        <input type="range" id="tree-padding-range" min="0" max="400" value="160">
-                        <label for="tree-padding-range">Tree Padding</label>
-                    </p>
-                    <p>
-                        <select id="text-align-select">
-                            <option value="top">Top</option>
-                            <option value="middle" selected>Middle</option>
-                            <option value="bottom">Bottom</option>
-                        </select>
-                        <label for="text-align-select">Vertical Text Alignment</label>
-                    </p>
-                </details>
-
-                <details closed><summary>Color</summary>
-                    <p>
-                        <input type="number" class="range-value" id="hue-number" min="0" max="359" value="120">
-                        <input type="range" id="hue-range" min="0" max="359" value="120">
-                        <label for="hue-range">Hue (Root)</label>
-                    </p>
-                    <p>
-                        <input type="number" class="range-value" id="saturation-number" min="0" max="100" value="33">
-                        <input type="range" id="saturation-range" min="0" max="100" value="33">
-                        <label for="saturation-range">Saturation</label>
-                    </p>
-                    <p>
-                        <input type="number" class="range-value" id="node-brightness-number" min="0" max="100" value="33">
-                        <input type="range" id="node-brightness-range" min="0" max="100" value="33">
-                        <label for="node-brightness-range">Brightness</label>
-                    </p>
-                    <p>
-                        <input type="number" class="range-value" id="text-brightness-number" min="0" max="100" value="90">
-                        <input type="range" id="text-brightness-range" min="0" max="100" value="90">
-                        <label for="text-brightness-range">Text</label>
-                    </p>
-                    <p>
-                        <input type="number" class="range-value" id="highlighted-text-brightness-number" min="0" max="100" value="90">
-                        <input type="range" id="highlighted-text-brightness-range" min="0" max="100" value="90">
-                        <label for="highlighted-text-brightness-range">Highlighted Text</label>
-                    </p>
-                    <p>
-                        <input type="checkbox" id="text-shadow-checkbox" checked>
-                        <label for="text-shadow-checkbox">Text Shadow</label>
-                    </p>
-                    <p>
-                        <input type="checkbox" id="transparent-bg-rect-checkbox" checked>
-                        <label for="transparent-bg-rect-checkbox">Transparent Background</label>
-                    </p>
-                    <p>
-                        <input type="color" id="color-picker" value="#000000">
-                        <label for="color-picker">Background Color</label>
-                    </p>
-                </details>
-
-                <details closed><summary>Highlights (%)</summary>
-                    <p>
-                        <input type="number" class="range-value" id="pedigree-highlight-percent-number" min="0" max="200" value="125">
-                        <input type="range" id="pedigree-highlight-percent-range" min="0" max="200" value="125">
-                        <label for="pedigree-highlight-percent-range">
-                            <select id="highlights-select" size="1">
-                                <option value="none">None</option>
-                                <option value="root" selected>Root</option>
-                                <option value="pedigree">Pedigree</option>
-                                <option value="connection">Connection</option>
-                            </select>
+                <div class="input-section">
+                    <div class="file-input">
+                        <label for="file-input-button">
+                            <img class="icon-button-left" src="src/png/icons8-browse-folder-48-gold.png" alt="Open Local GEDCOM File" title="Open Local GEDCOM File">
                         </label>
-                        <div class="hidden" id="connection-container">
-                            <div class="filter-container">
-                                <input type="text" id="connection-filter-text" class="filter-input" placeholder="Type to filter names...">
-                                <button id="clear-connection-filter" type="button" class="clear-filter-button">&#10005;</button>
-                            </div>
-                            <select id="connection-select" size="5"></select>
-                        </div>
+                        <button id="open-online-button" class="icon-button-bare" type="button" aria-label="Open Online GEDCOM File" title="Open Online GEDCOM File">
+                            <img class="icon-button-left" src="src/png/icons8-cloud-folder-48-gold.png" alt="Open Online GEDCOM File">
+                        </button>
+                        <span id="file-name">Select GEDCOM file...</span>
+                        <input type="file" id="file-input-button" accept=".ged,.gedcom">
+                    </div>
+                    <div class="filter-container">
+                        <input type="text" id="individual-filter-text" class="filter-input" placeholder="Type to filter names...">
+                        <button id="clear-individual-filter" type="button" class="clear-filter-button">&#10005;</button>
+                    </div>
+                    <select id="individual-select" size="10">
+                        <option>Populated from GEDCOM file...</option>
+                    </select>
+                    <p>
+                        <input type="number" id="generations-up-number" min="0" max="99" value="1">
+                        <label for="generations-up-number">Generations Up</label>&nbsp;<a href="#" class="right-shortcut" id="generations-up-number-max-link"><img src="src/png/icons8-top-48-gold.png" alt="Maximum" title="Maximum" width="24" height="24"></a>
                     </p>
                     <p>
-                        <input type="number" class="range-value" id="border-highlight-percent-number" min="0" max="200" value="125">
-                        <input type="range" id="border-highlight-percent-range" min="0" max="200" value="125">
-                        <label for="border-highlight-percent-range">Borders</label>&nbsp;<a href="#" class="right-shortcut" id="no-border-highlight-percent"><img src="src/png/icons8-cancel-48-gold.png" alt="No Highlights" title="No Highlights" width="24" height="24"></a>
+                        <input type="number" id="generations-down-number" min="0" max="99" value="1">
+                        <label for="generations-down-number">Generations Down</label>&nbsp;<a href="#" class="right-shortcut" id="generations-down-number-max-link"><img src="src/png/icons8-top-48-gold.png" alt="Maximum" title="Maximum" width="24" height="24"></a>
                     </p>
                     <p>
-                        <input type="number" class="range-value" id="link-highlight-percent-number" min="0" max="200" value="100">
-                        <input type="range" id="link-highlight-percent-range" min="0" max="200" value="100">
-                        <label for="link-highlight-percent-range">Links</label>&nbsp;<a href="#" class="right-shortcut" id="no-link-highlight-percent"><img src="src/png/icons8-cancel-48-gold.png" alt="No Highlights" title="No Highlights" width="24" height="24"></a>
+                        <input type="checkbox" id="show-childless-inlaws-checkbox" checked>
+                        <label for="show-childless-inlaws-checkbox">Show Childless In-Laws</label>
                     </p>
                     <p>
-                        <input type="number" class="range-value" id="inlaw-link-highlight-percent-number" min="0" max="200" value="100">
-                        <input type="range" id="inlaw-link-highlight-percent-range" min="0" max="200" value="100">
-                        <label for="inlaw-link-highlight-percent-range">In-Law Links</label>&nbsp;<a href="#" class="right-shortcut" id="no-inlaw-link-highlight-percent"><img src="src/png/icons8-cancel-48-gold.png" alt="No Highlights" title="No Highlights" width="24" height="24"></a>
+                        <input type="checkbox" id="show-non-pedigree-family-checkbox" checked>
+                        <label for="show-non-pedigree-family-checkbox">Show Non-Pedigree Family</label>
                     </p>
-                </details>
+                    <p>
+                        <input type="checkbox" id="show-names-checkbox" checked>
+                        <label for="show-names-checkbox">Show Names</label>
+                    </p>
+                    <p>
+                        <input type="checkbox" id="show-years-checkbox" checked>
+                        <label for="show-years-checkbox">Show Years of Birth / Death</label>
+                    </p>
+                    <p>
+                        <input type="checkbox" id="show-places-checkbox">
+                        <label for="show-places-checkbox">Show Places of Birth / Death</label>
+                    </p>
+                </div>
 
-                <details closed><summary>Rounded Corners (%)</summary>
-                    <p>
-                        <input type="number" class="range-value" id="node-rounding-number" min="0" max="100" value="10">
-                        <input type="range" id="node-rounding-range" min="0" max="100" value="10">
-                        <label for="node-rounding-range">Boxes</label>
-                    </p>
-                    <p>
-                        <input type="number" class="range-value" id="link-rounding-number" min="0" max="100" value="10">
-                        <input type="range" id="link-rounding-range" min="0" max="100" value="10">
-                        <label for="link-rounding-range">Links</label>
-                    </p>
-                </details>
-            </div>
+                <div class="section-header">
+                    <a href="#"><img id="expand-styling-button" class="icon-button" src="src/png/icons8-expand-48.png" alt="Expand All Sections" title="Expand All Sections"></a>
+                    <a href="#"><img id="collapse-styling-button" class="icon-button" src="src/png/icons8-collapse-48.png" alt="Collapse All Sections" title="Collapse All Sections" style="display:none;"></a>
+                    <h2>Tree Styling</h2>
+                </div>
+
+                <div class="input-section">
+                    <details closed>
+                        <summary>Preset</summary>
+                        <select id="preset-select" size="1"></select>
+                        <a href="#" class="right-shortcut"><img id="add-preset-button" src="src/png/icons8-add-48-gold.png" alt="Add New Preset" title="Add New Preset" width="24" height="24"></a>
+                        <a href="#" class="right-shortcut"><img id="save-preset-button" src="src/png/icons8-save-48-gold.png" alt="Save Preset" title="Save Preset" width="24" height="24"></a>
+                        <a href="#" class="right-shortcut"><img id="rename-preset-button" src="src/png/icons8-rename-48-gold.png" alt="Rename Preset" title="Rename Preset" width="24" height="24"></a>
+                        <a href="#" class="right-shortcut"><img id="reload-preset-button" src="src/png/icons8-synchronize-48-gold.png" alt="Reload Preset" title="Reload Preset" width="24" height="24"></a>
+                        <a href="#" class="right-shortcut"><img id="delete-preset-button" src="src/png/icons8-remove-48-gold.png" alt="Delete Preset" title="Delete Preset" width="24" height="24"></a>
+                    </details>
+
+                    <details closed>
+                        <summary>Layout</summary>
+                        <p>
+                            <input type="number" id="max-stack-size-number" min="1" max="99" value="1">
+                            <label for="max-stack-size-number">Stack Size</label>&nbsp;<a href="#" class="right-shortcut" id="max-stack-size-number-max-link"><img src="src/png/icons8-top-48-gold.png" alt="Maximum" title="Maximum" width="24" height="24"></a>
+                        </p>
+                        <p>
+                            <input type="checkbox" id="beside-inlaws-checkbox">
+                            <label for="beside-inlaws-checkbox">Position In-Laws Beside Spouses</label>
+                        </p>
+                        <p>
+                            <input type="radio" id="layout-vertical" name="layout" value="vertical" checked>
+                            <label for="layout-vertical">Vertical&nbsp;<img class="right-shortcut" src="src/png/icons8-flow-chart-48-vertical-gold.png" alt="Vertical" title="Vertical" width="24" height="24"></label>
+                        </p>
+                        <p>
+                            <input type="radio" id="layout-horizontal" name="layout" value="horizontal">
+                            <label for="layout-horizontal">Horizontal&nbsp;<img class="right-shortcut" src="src/png/icons8-flow-chart-48-horizontal-gold.png" alt="Horizontal" title="Horizontal" width="24" height="24"></label>
+                        </p>
+                    </details>
+
+                    <details closed>
+                        <summary>Size</summary>
+                        <p>
+                            <input type="number" class="range-value" id="node-width-number" min="20" max="480" value="150">
+                            <input type="range" id="node-width-range" min="20" max="480" value="150">
+                            <label for="node-width-range">Boxes X</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-width"><img src="src/png/icons8-resize-48-gold.png" alt="Auto Size" title="Auto Size" width="24" height="24"></a>
+                        </p>
+                        <p>
+                        <input type="number" class="range-value" id="node-height-number" min="20" max="480" value="75">
+                        <input type="range" id="node-height-range" min="20" max="480" value="75">
+                        <label for="node-height-range">Boxes Y</label>&nbsp;<a href="#" class="right-shortcut" id="auto-node-height"><img src="src/png/icons8-resize-48-gold.png" alt="Auto Size" title="Auto Size" width="24" height="24"></a>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="node-border-width-number" min="0" max="20" value="2">
+                            <input type="range" id="node-border-width-range" min="0" max="20" value="2">
+                            <label for="node-border-width-range">Borders</label>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="link-width-number" min="1" max="28" value="6">
+                            <input type="range" id="link-width-range" min="1" max="28" value="6">
+                            <label for="link-width-range">Links</label>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="highlighted-link-width-number" min="1" max="28" value="6">
+                            <input type="range" id="highlighted-link-width-range" min="1" max="28" value="6">
+                            <label for="highlighted-link-width-range">Highlighted Links</label>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="text-size-number" min="8" max="24" value="16">
+                            <input type="range" id="text-size-range" min="8" max="24" value="16">
+                            <label for="text-size-range">Font</label>
+                        </p>
+                    </details>
+
+                    <details closed>
+                        <summary>Spacing</summary>
+                        <p>
+                            <input type="number" class="range-value" id="sibling-spacing-number" min="1" max="400" value="40">
+                            <input type="range" id="sibling-spacing-range" min="1" max="400" value="40">
+                            <label for="sibling-spacing-range">Sibling</label>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="generation-spacing-number" min="1" max="400" value="80">
+                            <input type="range" id="generation-spacing-range" min="1" max="400" value="80">
+                            <label for="generation-spacing-range">Generation</label>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="level-spacing-number" min="0" max="400" value="160">
+                            <input type="range" id="level-spacing-range" min="0" max="400" value="160">
+                            <label for="level-spacing-range">Level Y</label>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="box-padding-number" min="0" max="20" value="0">
+                            <input type="range" id="box-padding-range" min="0" max="20" value="0">
+                            <label for="box-padding-range">Box Padding</label>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="tree-padding-number" min="0" max="400" value="160">
+                            <input type="range" id="tree-padding-range" min="0" max="400" value="160">
+                            <label for="tree-padding-range">Tree Padding</label>
+                        </p>
+                        <p>
+                            <select id="text-align-select">
+                                <option value="top">Top</option>
+                                <option value="middle" selected>Middle</option>
+                                <option value="bottom">Bottom</option>
+                            </select>
+                            <label for="text-align-select">Vertical Text Alignment</label>
+                        </p>
+                    </details>
+
+                    <details closed>
+                        <summary>Color</summary>
+                        <p>
+                            <input type="number" class="range-value" id="hue-number" min="0" max="359" value="120">
+                            <input type="range" id="hue-range" min="0" max="359" value="120">
+                            <label for="hue-range">Hue (Root)</label>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="saturation-number" min="0" max="100" value="33">
+                            <input type="range" id="saturation-range" min="0" max="100" value="33">
+                            <label for="saturation-range">Saturation</label>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="node-brightness-number" min="0" max="100" value="33">
+                            <input type="range" id="node-brightness-range" min="0" max="100" value="33">
+                            <label for="node-brightness-range">Brightness</label>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="text-brightness-number" min="0" max="100" value="90">
+                            <input type="range" id="text-brightness-range" min="0" max="100" value="90">
+                            <label for="text-brightness-range">Text</label>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="highlighted-text-brightness-number" min="0" max="100" value="90">
+                            <input type="range" id="highlighted-text-brightness-range" min="0" max="100" value="90">
+                            <label for="highlighted-text-brightness-range">Highlighted Text</label>
+                        </p>
+                        <p>
+                            <input type="checkbox" id="text-shadow-checkbox" checked>
+                            <label for="text-shadow-checkbox">Text Shadow</label>
+                        </p>
+                        <p>
+                            <input type="checkbox" id="transparent-bg-rect-checkbox" checked>
+                            <label for="transparent-bg-rect-checkbox">Transparent Background</label>
+                        </p>
+                        <p>
+                            <input type="color" id="color-picker" value="#000000">
+                            <label for="color-picker">Background Color</label>
+                        </p>
+                    </details>
+
+                    <details closed>
+                        <summary>Highlights (%)</summary>
+                        <p>
+                            <input type="number" class="range-value" id="special-highlight-percent-number" min="0" max="200" value="125">
+                            <input type="range" id="special-highlight-percent-range" min="0" max="200" value="125">
+                            <label for="special-highlight-percent-range">
+                                <select id="highlights-select" size="1">
+                                    <option value="none">None</option>
+                                    <option value="root" selected>Root</option>
+                                    <option value="pedigree">Pedigree</option>
+                                    <option value="connection">Connection</option>
+                                </select>
+                            </label>
+                            <div class="hidden" id="connection-container">
+                                <div class="filter-container">
+                                    <input type="text" id="connection-filter-text" class="filter-input" placeholder="Type to filter names...">
+                                    <button id="clear-connection-filter" type="button" class="clear-filter-button">&#10005;</button>
+                                </div>
+                                <select id="connection-select" size="5"></select>
+                            </div>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="border-highlight-percent-number" min="0" max="200" value="125">
+                            <input type="range" id="border-highlight-percent-range" min="0" max="200" value="125">
+                            <label for="border-highlight-percent-range">Borders</label>&nbsp;<a href="#" class="right-shortcut" id="no-border-highlight-percent"><img src="src/png/icons8-cancel-48-gold.png" alt="No Highlights" title="No Highlights" width="24" height="24"></a>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="link-highlight-percent-number" min="0" max="200" value="100">
+                            <input type="range" id="link-highlight-percent-range" min="0" max="200" value="100">
+                            <label for="link-highlight-percent-range">Links</label>&nbsp;<a href="#" class="right-shortcut" id="no-link-highlight-percent"><img src="src/png/icons8-cancel-48-gold.png" alt="No Highlights" title="No Highlights" width="24" height="24"></a>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="inlaw-link-highlight-percent-number" min="0" max="200" value="100">
+                            <input type="range" id="inlaw-link-highlight-percent-range" min="0" max="200" value="100">
+                            <label for="inlaw-link-highlight-percent-range">In-Law Links</label>&nbsp;<a href="#" class="right-shortcut" id="no-inlaw-link-highlight-percent"><img src="src/png/icons8-cancel-48-gold.png" alt="No Highlights" title="No Highlights" width="24" height="24"></a>
+                        </p>
+                    </details>
+
+                    <details closed>
+                        <summary>Rounded Corners (%)</summary>
+                        <p>
+                            <input type="number" class="range-value" id="node-rounding-number" min="0" max="100" value="10">
+                            <input type="range" id="node-rounding-range" min="0" max="100" value="10">
+                            <label for="node-rounding-range">Boxes</label>
+                        </p>
+                        <p>
+                            <input type="number" class="range-value" id="link-rounding-number" min="0" max="100" value="10">
+                            <input type="range" id="link-rounding-range" min="0" max="100" value="10">
+                            <label for="link-rounding-range">Links</label>
+                        </p>
+                    </details>
+                </div>
             </div>
         </div>
+
         <div class="right-column">
             <div class="section-header">
                 <a href="#"><img id="resize-tree-button" class="icon-button" src="src/png/icons8-enlarge-48-gold.png" alt="Fit to Viewer" title="Fit to Viewer"></a>

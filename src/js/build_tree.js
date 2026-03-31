@@ -136,7 +136,7 @@ function buildTree(individual, current_gen = window.generations_down, anchor_gen
         if (action === 'link-pedigree') return individual.node;
     }
 
-    if (window.hide_childless_inlaws && (type === 'inlaw')) {
+    if (!window.show_childless_inlaws && (type === 'inlaw')) {
         if (!individual.spouse_family || (individual.spouse_family.chil.length === 0) || (current_gen === 0)) return null;
     }
 
@@ -279,7 +279,7 @@ function addPedigreeChildren(node, fam_id, anchor_gen) {
 
     node.individual.pedigree_family.chil
         .filter(child_id => {
-            if (window.hide_non_pedigree_family) {
+            if (!window.show_non_pedigree_family) {
                 const pedigree_child_id = node.individual.pedigree_child_node
                     ? node.individual.pedigree_child_node.individual.id
                     : (window.root_node ? window.root_node.individual.id : null);
@@ -328,7 +328,7 @@ function addSpousesAndRelatives(node, anchor_gen) {
         if (node.individual.pedigree_family && node.individual.pedigree_family.id === fam_id) {
             addPedigreeChildren(node, fam_id, anchor_gen);
         } else {
-            if (window.hide_non_pedigree_family && (node.type === 'ancestor')) {
+            if (!window.show_non_pedigree_family && (node.type === 'ancestor')) {
                 const fam = window.families_by_id.get(fam_id);
                 const spouse_id = fam && (fam.husb === node.individual.id ? fam.wife : fam.husb);
                 if (!spouse_id || !window.connection_path_individual_ids || !window.connection_path_individual_ids.has(spouse_id)) return;

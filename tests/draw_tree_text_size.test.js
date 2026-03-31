@@ -92,7 +92,7 @@ function loadDrawTreeContext() {
             show_names: true,
             show_years: true,
             show_places: true,
-            pedigree_highlight_percent: 125,
+            special_highlight_percent: 125,
             node_saturation: 30,
             node_brightness: 30,
             root_hue: 180,

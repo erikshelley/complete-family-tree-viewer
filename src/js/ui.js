@@ -385,6 +385,10 @@ function usePresetStyle(preset_name) {
             } else if (element_info.type === 'select' || element_info.type === 'color') {
                 element.value = value;
                 window[element_info.variable] = value;
+            } else if (element_info.type === 'radio') {
+                document.querySelectorAll(`input[name="${element_info.name}"]`)
+                    .forEach(r => { r.checked = (r.value === value); });
+                window[element_info.variable] = value;
             }
         }
         // Sync connection-container visibility based on updated highlight_type
@@ -576,13 +580,12 @@ function confirmAddPreset() {
         [...document.querySelectorAll('#add-preset-settings input[type="checkbox"][name="preset-setting"]:checked')]
             .map(cb => cb.value)
     );
-    const excluded = new Set(['generations-up', 'generations-down']);
     const preset = {};
     const seen_keys = new Set();
     for (const el of elements) {
         if (el.type === 'range') continue;
         const ek = el.preset_key || el.id.replace(/-(number|checkbox|select)$/, '');
-        if (excluded.has(ek) || seen_keys.has(ek)) continue;
+        if (seen_keys.has(ek)) continue;
         seen_keys.add(ek);
         if (checked.has(ek)) preset[ek] = window[el.variable];
     }

@@ -214,17 +214,17 @@ function getLinkHighlightFactor(node, linked_node) {
     if (ht === 'none' || ht === 'root') return 1;
     if (ht === 'connection') {
         const on_path = window.connection_path_ids.has(node.individual.id);
-        if (linked_node !== undefined) return (on_path && window.connection_path_ids.has(linked_node.individual.id)) ? _draw_cfg.pedigree_highlight_percent / 100 : 1;
-        return on_path ? _draw_cfg.pedigree_highlight_percent / 100 : 1;
+        if (linked_node !== undefined) return (on_path && window.connection_path_ids.has(linked_node.individual.id)) ? _draw_cfg.special_highlight_percent / 100 : 1;
+        return on_path ? _draw_cfg.special_highlight_percent / 100 : 1;
     }
-    return (node.individual.is_descendant || node.individual.is_root) ? _draw_cfg.pedigree_highlight_percent / 100 : 1;
+    return (node.individual.is_descendant || node.individual.is_root) ? _draw_cfg.special_highlight_percent / 100 : 1;
 }
 
 function getAncestorLinkHighlightFactor(node) {
     const ht = window.highlight_type || 'pedigree';
     if (ht === 'none' || ht === 'root') return 1;
-    if (ht === 'connection') return (node && window.connection_path_ids.has(node.individual.id)) ? _draw_cfg.pedigree_highlight_percent / 100 : 1;
-    return _draw_cfg.pedigree_highlight_percent / 100;
+    if (ht === 'connection') return (node && window.connection_path_ids.has(node.individual.id)) ? _draw_cfg.special_highlight_percent / 100 : 1;
+    return _draw_cfg.special_highlight_percent / 100;
 }
 
 function isNodeHighlighted(node) {
@@ -236,12 +236,44 @@ function isNodeHighlighted(node) {
 }
 
 // Maps a point from layout space (sibling-axis = s, generation-axis = g) to SVG (x, y).
-// For vertical trees (current default) the sibling axis is x and the generation axis is y,
-// so this is the identity. When horizontal layout is implemented, swap: s → SVG-y, g → SVG-x.
-// All coordinate pairs built for drawLink/drawCircle/drawNode should pass through this
-// function so that the axis swap happens in exactly one place.
+// For vertical trees the sibling axis is x and the generation axis is y (identity).
+// For horizontal trees the axes are swapped: s → SVG-y, g → SVG-x.
 function mapCoords(s, g) {
+    if (_draw_cfg.tree_orientation === 'horizontal') return { x: g, y: s };
     return { x: s, y: g };
+}
+
+// Rendered node width (SVG x dimension) for the current orientation.
+// Rendered node width (SVG x dimension).  Always box_width so that the user-visible
+// "Node Width" setting directly controls the horizontal extent of each node on screen.
+function nodeW() { return _draw_cfg.box_width; }
+
+// y-coordinate of a node's generation-lower edge (the side that faces toward children /
+// lower-generation nodes).  In vertical trees this is the bottom (node.y + box_height)
+// because children sit at larger y.  In horizontal trees, after the y-mirror that places
+// ancestors to the right, children sit at smaller y, so the child-facing edge is the left
+// side (node.y).
+function genLowerEdgeY(node) {
+    return _draw_cfg.tree_orientation === 'horizontal' ? node.y : node.y + _draw_cfg.box_height;
+}
+
+// y-coordinate of a node's generation-higher edge (the side that faces toward ancestors /
+// higher-generation nodes).  In horizontal mode the node occupies [node.y, node.y+box_width]
+// in layout-y space (box_width = generation span after the semantics fix), so the
+// ancestor-facing edge is node.y + box_width.  In vertical mode it is node.y.
+function genHigherEdgeY(node) {
+    return _draw_cfg.tree_orientation === 'horizontal' ? node.y + _draw_cfg.box_width : node.y;
+}
+
+// Rendered node height (SVG y dimension).  Always box_height so that the user-visible
+// "Node Height" setting directly controls the vertical extent of each node on screen.
+function nodeH() { return _draw_cfg.box_height; }
+
+// Half the sibling-axis visual span of a node.  In vertical mode a node is box_width wide
+// on screen so the sibling-centre offset is box_width/2.  In horizontal mode the node's
+// vertical (sibling-axis) screen extent is box_height, so the centre offset is box_height/2.
+function nodeHalf() {
+    return _draw_cfg.tree_orientation === 'horizontal' ? _draw_cfg.box_height / 2 : _draw_cfg.box_width / 2;
 }
 
 function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
@@ -253,13 +285,13 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
 
                 // Draw link between relative and spouse
                 if (node.type === 'relative' || node.type === 'root') {
-                    if (window.vertical_inlaws) {
+                    if (!window.beside_inlaws) {
                         node.spouse_nodes.filter(spouse_node => !(spouse_node.stacked && !spouse_node.stack_top)).forEach(spouse_node => {
                             const factor = getLinkHighlightFactor(node, spouse_node);
                             if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
                             const inlaw_color = d3.hcl(hue, 0, luminance * (_draw_cfg.inlaw_link_highlight_percent / 100) * factor);
-                            drawLink(svg_node, inlaw_color, {x: node.x + _draw_cfg.box_width / 2, y: node.y + _draw_cfg.box_height}, 
-                                                            {x: spouse_node.x + _draw_cfg.box_width / 2, y: spouse_node.y}, 'inlaw', factor);
+                            drawLink(svg_node, inlaw_color, {x: node.x + nodeHalf(), y: genLowerEdgeY(node)}, 
+                                                            {x: spouse_node.x + nodeHalf(), y: genHigherEdgeY(spouse_node)}, 'inlaw', factor);
                         });
                     }
                     else {
@@ -267,8 +299,8 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                             const factor = getLinkHighlightFactor(node, spouse_node);
                             if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
                             const inlaw_color = d3.hcl(hue, 0, luminance * (_draw_cfg.inlaw_link_highlight_percent / 100) * factor);
-                            drawLink(svg_node, inlaw_color, {x: node.x + _draw_cfg.box_width / 2,         y: node.y}, 
-                                                            {x: spouse_node.x + _draw_cfg.box_width / 2,  y: spouse_node.y + _draw_cfg.box_height}, 'inlaw-center', factor);
+                            drawLink(svg_node, inlaw_color, {x: node.x + nodeHalf(),         y: genHigherEdgeY(node)}, 
+                                                            {x: spouse_node.x + nodeHalf(),  y: genLowerEdgeY(spouse_node)}, 'inlaw-center', factor);
                         });
                     }
                 }
@@ -279,26 +311,26 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                         const factor = getLinkHighlightFactor(node, spouse_node);
                         if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
                         const inlaw_color = d3.hcl(hue, 0, luminance * (_draw_cfg.inlaw_link_highlight_percent / 100) * factor);
-                        drawLink(svg_node, inlaw_color, {x: node.x + _draw_cfg.box_width / 2,         y: node.y}, 
-                                                        {x: spouse_node.x + _draw_cfg.box_width / 2,  y: spouse_node.y + _draw_cfg.box_height}, 'inlaw-center', factor);
+                        drawLink(svg_node, inlaw_color, {x: node.x + nodeHalf(),         y: genHigherEdgeY(node)}, 
+                                                        {x: spouse_node.x + nodeHalf(),  y: genLowerEdgeY(spouse_node)}, 'inlaw-center', factor);
                     });
                 }
 
                 // Draw link between in-law and child at top of stack
                 if (node.type === 'inlaw') {
-                    if (window.vertical_inlaws) {
+                    if (!window.beside_inlaws) {
                         node.children_nodes.filter(child_node => !(child_node.stacked && !child_node.stack_top)).forEach(child_node => {
                             const factor = getLinkHighlightFactor(node, child_node);
                             if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
                             const [chue, cchroma, clum] = getNodeHCL(child_node, false);
                             const child_color = d3.hcl(chue, cchroma, clum * (_draw_cfg.link_highlight_percent / 100) * factor);
-                            drawLink(svg_node, child_color, {x: node.x + _draw_cfg.box_width / 2, y: node.y + _draw_cfg.box_height}, 
-                                                            {x: child_node.x + _draw_cfg.box_width / 2, y: child_node.y}, null, factor);
+                            drawLink(svg_node, child_color, {x: node.x + nodeHalf(), y: genLowerEdgeY(node)}, 
+                                                            {x: child_node.x + nodeHalf(), y: genHigherEdgeY(child_node)}, null, factor);
                         });
                     }
                     else {
                         let left = -_draw_cfg.sibling_spacing / 2;
-                        let right = _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2;
+                        let right = nodeHalf() + nodeHalf() + _draw_cfg.sibling_spacing / 2;
                         let x_offset = (node.individual.gender === 'M') ? right : left;
                         if (node.spouse_nodes[0].type === 'ancestor') x_offset = (x_offset === right) ? left : right;
                         let radius = _draw_cfg.link_width * 1.5;
@@ -307,8 +339,9 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                             if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
                             const [chue, cchroma, clum] = getNodeHCL(child_node, false);
                             const child_color = d3.hcl(chue, cchroma, clum * (_draw_cfg.link_highlight_percent / 100) * factor);
-                            drawLink(svg_node, child_color, {x: node.x + x_offset, y: node.y + _draw_cfg.box_height / 2 + radius}, 
-                                                            {x: child_node.x + _draw_cfg.box_width / 2, y: child_node.y}, null, factor);
+                            const genMidOffset = (_draw_cfg.tree_orientation === 'horizontal' ? -1 : 1) * radius;
+                            drawLink(svg_node, child_color, {x: node.x + x_offset, y: (genLowerEdgeY(node) + genHigherEdgeY(node)) / 2 + genMidOffset}, 
+                                                            {x: child_node.x + nodeHalf(), y: genHigherEdgeY(child_node)}, null, factor);
                         });
                     }
                 }
@@ -320,8 +353,8 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                         if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
                         const [chue, cchroma, clum] = getNodeHCL(child_node, false);
                         const child_color = d3.hcl(chue, cchroma, clum * (_draw_cfg.link_highlight_percent / 100) * factor);
-                        drawLink(svg_node, child_color, {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2, y: node.y + _draw_cfg.box_height}, 
-                                                        {x: child_node.x + _draw_cfg.box_width / 2,              y: child_node.y}, null, factor);
+                        drawLink(svg_node, child_color, {x: node.x + nodeHalf() + nodeHalf() + _draw_cfg.sibling_spacing / 2, y: genLowerEdgeY(node)}, 
+                                                        {x: child_node.x + nodeHalf(),              y: genHigherEdgeY(child_node)}, null, factor);
                     });
                 }
 
@@ -332,8 +365,8 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                 if ((node.type === 'relative') && node.stacked && !node.stack_top) {
                     if (highlight_pass === null || (self_factor !== 1) === highlight_pass) {
                         const color = d3.hcl(hue, chroma, luminance * (_draw_cfg.link_highlight_percent / 100) * self_factor);
-                        drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width / 2, y: node.y}, 
-                                                  {x: node.x + _draw_cfg.box_width / 2, y: node.y - _draw_cfg.generation_spacing}, null, self_factor);
+                        drawLink(svg_node, color, {x: node.x + nodeHalf(), y: genHigherEdgeY(node)}, 
+                                                  {x: node.x + nodeHalf(), y: genHigherEdgeY(node) + (_draw_cfg.tree_orientation === 'horizontal' ? _draw_cfg.generation_spacing : -_draw_cfg.generation_spacing)}, null, self_factor);
                     }
                 }
 
@@ -341,8 +374,8 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
                 if ((node.type === 'inlaw') && node.stacked && !node.stack_top) {
                     if (highlight_pass === null || (self_factor !== 1) === highlight_pass) {
                         const inlaw_color = d3.hcl(hue, 0, luminance * (_draw_cfg.inlaw_link_highlight_percent / 100) * self_factor);
-                        drawLink(svg_node, inlaw_color, {x: node.x + _draw_cfg.box_width / 2, y: node.y},
-                                                        {x: node.x + _draw_cfg.box_width / 2, y: node.y - _draw_cfg.generation_spacing}, 'inlaw', self_factor);
+                        drawLink(svg_node, inlaw_color, {x: node.x + nodeHalf(), y: genHigherEdgeY(node)},
+                                                        {x: node.x + nodeHalf(), y: genHigherEdgeY(node) + (_draw_cfg.tree_orientation === 'horizontal' ? _draw_cfg.generation_spacing : -_draw_cfg.generation_spacing)}, 'inlaw', self_factor);
                     }
                 }
 
@@ -366,15 +399,15 @@ function drawBoldLinks(svg_node, rows, highlight_pass = null) {
                     let color = d3.hcl(hue, chroma, luminance * anc_factor * (_draw_cfg.link_highlight_percent / 100));
 
                     // Draw links from father and mother to center point
-                    if (window.vertical_inlaws) {
-                        drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width / 2,                    y: node.y}, 
-                                                  {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2, y: node.y + _draw_cfg.box_height}, 'center', anc_factor);
-                        drawLink(svg_node, color, {x: node.x + 3 * _draw_cfg.box_width / 2 + _draw_cfg.sibling_spacing, y: node.y}, 
-                                                  {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2,     y: node.y + _draw_cfg.box_height}, 'center', anc_factor);
+                    if (!window.beside_inlaws) {
+                        drawLink(svg_node, color, {x: node.x + nodeHalf(),                    y: genHigherEdgeY(node)}, 
+                                                  {x: node.x + nodeHalf() + nodeHalf() + _draw_cfg.sibling_spacing / 2, y: genLowerEdgeY(node)}, 'center', anc_factor);
+                        drawLink(svg_node, color, {x: node.x + nodeHalf() + nodeHalf() + _draw_cfg.sibling_spacing + nodeHalf(), y: genHigherEdgeY(node)}, 
+                                                  {x: node.x + nodeHalf() + nodeHalf() + _draw_cfg.sibling_spacing / 2,          y: genLowerEdgeY(node)}, 'center', anc_factor);
                     }
                     else {
-                        drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width / 2,                       y: node.y}, 
-                                                  {x: node.x + 1.5 * _draw_cfg.box_width + _draw_cfg.sibling_spacing,  y: node.y + _draw_cfg.box_height}, 'center', anc_factor);
+                        drawLink(svg_node, color, {x: node.x + nodeHalf(),                                             y: genHigherEdgeY(node)}, 
+                                                  {x: node.x + nodeHalf() + nodeHalf() + _draw_cfg.sibling_spacing + nodeHalf(), y: genLowerEdgeY(node)}, 'center', anc_factor);
                     }
 
                     if (node.children_nodes.length > 0) {
@@ -383,16 +416,16 @@ function drawBoldLinks(svg_node, rows, highlight_pass = null) {
                     }
 
                     // Draw link between ancestor and root child
-                    if (window.vertical_inlaws) {
+                    if (!window.beside_inlaws) {
                         node.children_nodes.filter(child_node => child_node.individual.is_root).forEach(child_node => {
-                            drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2, y: node.y + _draw_cfg.box_height}, 
-                                                      {x: child_node.x + _draw_cfg.box_width / 2,              y: child_node.y}, null, anc_factor);
+                            drawLink(svg_node, color, {x: node.x + nodeHalf() + nodeHalf() + _draw_cfg.sibling_spacing / 2, y: genLowerEdgeY(node)}, 
+                                                      {x: child_node.x + nodeHalf(),              y: genHigherEdgeY(child_node)}, null, anc_factor);
                         });
                     }
                     else {
                         node.children_nodes.filter(child_node => child_node.individual.is_root).forEach(child_node => {
-                            drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2, y: node.y + _draw_cfg.box_height / 2}, 
-                                                      {x: child_node.x + _draw_cfg.box_width / 2,              y: child_node.y}, null, anc_factor);
+                            drawLink(svg_node, color, {x: node.x + nodeHalf() + nodeHalf() + _draw_cfg.sibling_spacing / 2, y: (genLowerEdgeY(node) + genHigherEdgeY(node)) / 2}, 
+                                                      {x: child_node.x + nodeHalf(),              y: genHigherEdgeY(child_node)}, null, anc_factor);
                         });
                     }
 
@@ -403,13 +436,13 @@ function drawBoldLinks(svg_node, rows, highlight_pass = null) {
 
                     // Draw link between ancestor and pedigree child
                     if (node.individual.pedigree_child_node) {
-                        if (window.vertical_inlaws) {
-                            drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2,             y: node.y + _draw_cfg.box_height}, 
-                                                      {x: node.individual.pedigree_child_node.x + _draw_cfg.box_width / 2, y: node.individual.pedigree_child_node.y}, null, anc_factor);
+                        if (!window.beside_inlaws) {
+                            drawLink(svg_node, color, {x: node.x + nodeHalf() + nodeHalf() + _draw_cfg.sibling_spacing / 2,             y: genLowerEdgeY(node)}, 
+                                                      {x: node.individual.pedigree_child_node.x + nodeHalf(), y: genHigherEdgeY(node.individual.pedigree_child_node)}, null, anc_factor);
                         }
                         else {
-                            drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2,             y: node.y + _draw_cfg.box_height / 2}, 
-                                                      {x: node.individual.pedigree_child_node.x + _draw_cfg.box_width / 2, y: node.individual.pedigree_child_node.y}, null, anc_factor);
+                            drawLink(svg_node, color, {x: node.x + nodeHalf() + nodeHalf() + _draw_cfg.sibling_spacing / 2,             y: (genLowerEdgeY(node) + genHigherEdgeY(node)) / 2}, 
+                                                      {x: node.individual.pedigree_child_node.x + nodeHalf(), y: genHigherEdgeY(node.individual.pedigree_child_node)}, null, anc_factor);
                         }
                     }
 
@@ -420,8 +453,8 @@ function drawBoldLinks(svg_node, rows, highlight_pass = null) {
 
                     // Draw link between ancestor and duplicate pedigree child
                     if (node.individual.duplicate_pedigree_child_node) {
-                        drawLink(svg_node, color, {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2,                       y: node.y + _draw_cfg.box_height}, 
-                                                  {x: node.individual.duplicate_pedigree_child_node.x + _draw_cfg.box_width / 2, y: node.individual.duplicate_pedigree_child_node.y}, 
+                        drawLink(svg_node, color, {x: node.x + nodeHalf() + nodeHalf() + _draw_cfg.sibling_spacing / 2,                       y: genLowerEdgeY(node)}, 
+                                                  {x: node.individual.duplicate_pedigree_child_node.x + nodeHalf(), y: genHigherEdgeY(node.individual.duplicate_pedigree_child_node)}, 
                                                   'duplicate', anc_factor);
                     }
                 }
@@ -435,18 +468,18 @@ function drawCircles(svg_node, rows, highlight_pass = null) {
     rows.forEach(level => {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
-                if (!window.vertical_inlaws) {
+                if (window.beside_inlaws) {
                     if ((node.type === 'inlaw') && (node.children_nodes.length > 0)) {
                         const factor = getLinkHighlightFactor(node);
                         if (highlight_pass === null || (factor !== 1) === highlight_pass) {
                             const [hue, chroma, luminance] = getNodeHCL(node.children_nodes[0], false);
                             const color = d3.hcl(hue, chroma, luminance * (_draw_cfg.link_highlight_percent / 100) * factor);
                             let left = -_draw_cfg.sibling_spacing / 2;
-                            let right = _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2;
+                            let right = nodeHalf() + nodeHalf() + _draw_cfg.sibling_spacing / 2;
                             let x_offset = (node.individual.gender === 'M') ? right : left;
                             if (node.spouse_nodes[0].type === 'ancestor') x_offset = (x_offset === right) ? left : right;
                             let radius = (factor !== 1 ? (_draw_cfg.highlighted_link_width || _draw_cfg.link_width) : _draw_cfg.link_width) * 1.5;
-                            drawCircle(svg_node, color, {x: node.x + x_offset, y: node.y + _draw_cfg.box_height / 2}, radius);
+                            drawCircle(svg_node, color, {x: node.x + x_offset, y: (genLowerEdgeY(node) + genHigherEdgeY(node)) / 2}, radius);
                         }
                     }
                     if ((node.type === 'ancestor') && (node.individual.gender === 'M')) {
@@ -454,7 +487,7 @@ function drawCircles(svg_node, rows, highlight_pass = null) {
                         if (highlight_pass === null || (factor !== 1) === highlight_pass) {
                             const [hue, chroma, luminance] = getNodeHCL(node.individual.pedigree_child_node ? node.individual.pedigree_child_node : window.root_node, false);
                             const color = d3.hcl(hue, chroma, luminance * factor * (_draw_cfg.link_highlight_percent / 100));
-                            drawCircle(svg_node, color, {x: node.x + _draw_cfg.box_width + _draw_cfg.sibling_spacing / 2, y: node.y + _draw_cfg.box_height / 2}, (factor !== 1 ? (_draw_cfg.highlighted_link_width || _draw_cfg.link_width) : _draw_cfg.link_width) * 1.5);
+                            drawCircle(svg_node, color, {x: node.x + nodeHalf() + nodeHalf() + _draw_cfg.sibling_spacing / 2, y: (genLowerEdgeY(node) + genHigherEdgeY(node)) / 2}, (factor !== 1 ? (_draw_cfg.highlighted_link_width || _draw_cfg.link_width) : _draw_cfg.link_width) * 1.5);
                         }
                     }
                 }
@@ -484,21 +517,22 @@ async function drawNodes(svg_node, rows) {
 
 
 function drawNode(svg, node) {
-    const g = svg.append('g').attr('transform', `translate(${node.x}, ${node.y})`);
+    const pos = mapCoords(node.x, node.y);
+    const g = svg.append('g').attr('transform', `translate(${pos.x}, ${pos.y})`);
 
     let highlight = isNodeHighlighted(node);
 
     let [hue, chroma, luminance] = getNodeHCL(node);
-    const fill_color = d3.hcl(hue, chroma, highlight ? luminance * _draw_cfg.pedigree_highlight_percent / 100 : luminance);
+    const fill_color = d3.hcl(hue, chroma, highlight ? luminance * _draw_cfg.special_highlight_percent / 100 : luminance);
 
     [hue, chroma, luminance] = getNodeHCL(node, false);
     const border_luminance = Math.max(1, luminance * _draw_cfg.border_highlight_percent / 100);
-    const stroke_color = d3.hcl(hue, node.type === 'inlaw' ? 0 : chroma, highlight ? border_luminance * _draw_cfg.pedigree_highlight_percent / 100 : border_luminance);
+    const stroke_color = d3.hcl(hue, node.type === 'inlaw' ? 0 : chroma, highlight ? border_luminance * _draw_cfg.special_highlight_percent / 100 : border_luminance);
 
-    // Draw rectangle
+    // Draw rectangle — swap width/height for horizontal orientation
     g.append('rect')
-        .attr('width', _draw_cfg.box_width)
-        .attr('height', _draw_cfg.box_height)
+        .attr('width', nodeW())
+        .attr('height', nodeH())
         .attr('fill', fill_color)
         .attr('stroke', stroke_color)
         .attr('stroke-width', _draw_cfg.node_border_width)
@@ -550,7 +584,7 @@ function buildSecondaryStrings(individual) {
 function buildSecondaryLines(secondary_strings, place_strings, secFontSize) {
     const result = secondary_strings.slice();
     place_strings.forEach(s => {
-        const fit = fitTextInBox(s, _draw_cfg.box_width, secFontSize * 10, 'Arial, sans-serif', 'normal', secFontSize);
+        const fit = fitTextInBox(s, nodeW(), secFontSize * 10, 'Arial, sans-serif', 'normal', secFontSize);
         fit.lines.forEach(l => result.push(l));
     });
     return result;
@@ -590,7 +624,7 @@ function renderTspans(text_element, lines, nameCount, nameFontSize, secFontSize,
         else if (i === nameCount) dy = '1.7em';
         const is_name = line.type === 'name';
         text_element.append('tspan')
-            .attr('x', _draw_cfg.box_width / 2)
+            .attr('x', nodeW() / 2)
             .attr('text-anchor', 'middle')
             .attr('dy', dy)
             .attr('font-size', is_name ? nameFontSize : secFontSize)
@@ -602,8 +636,8 @@ function renderTspans(text_element, lines, nameCount, nameFontSize, secFontSize,
 // Shrink font sizes until text fits within box, returns adjusted sizes and lines
 function shrinkToFit(name_lines, secondary_strings, place_strings, lines, name_font_size, secondary_font_size, name_fits_at_desired, is_bold) {
     const min_font_size = 6;
-    const max_width = _draw_cfg.box_width;
-    const max_height = _draw_cfg.box_height;
+    const max_width = nodeW();
+    const max_height = nodeH();
     let secondary_lines = lines.filter(l => l.type === 'secondary').map(l => l.text);
     let est = estimateTextDimensions(lines, name_lines.length, name_font_size, secondary_font_size, is_bold);
 
@@ -634,27 +668,27 @@ function shrinkToFit(name_lines, secondary_strings, place_strings, lines, name_f
 }
 
 // Position text element vertically based on text_align setting.
-// bbox must be expressed relative to text.y = box_height/2:
-//   bbox.y      = box_height/2 - ascender_of_first_line
+// bbox must be expressed relative to text.y = nodeH()/2:
+//   bbox.y      = nodeH()/2 - ascender_of_first_line
 //   bbox.height = ascender_of_first_line + distance_to_bottom_of_last_glyph
 // Callers must supply a geometrically correct bbox (not raw getBBox() output, which
 // can be zero or incorrect in Chrome after scheduler.yield() in large async draw loops).
 function alignTextVertically(text_element, bbox) {
     const pad = _draw_cfg.box_padding || 0;
-    const mid = _draw_cfg.box_height / 2;
+    const mid = nodeH() / 2;
     let text_y;
     if (_draw_cfg.text_align === 'top') {
         text_y = mid + pad - bbox.y;
     } else if (_draw_cfg.text_align === 'bottom') {
-        text_y = mid + (_draw_cfg.box_height - pad - bbox.height) - bbox.y;
+        text_y = mid + (nodeH() - pad - bbox.height) - bbox.y;
     } else {
-        text_y = mid + (_draw_cfg.box_height - bbox.height) / 2 - bbox.y;
+        text_y = mid + (nodeH() - bbox.height) / 2 - bbox.y;
     }
     text_element.attr('y', text_y);
 }
 
 function getNameAvailableHeight(secondary_lines, secondary_font_size) {
-    let name_available_height = _draw_cfg.box_height;
+    let name_available_height = nodeH();
     if (secondary_lines.length > 0) {
         const gap = secondary_font_size * 0.5;
         name_available_height -= secondary_lines.length * secondary_font_size * 1.2 + gap;
@@ -674,7 +708,7 @@ function selectInitialTextLayout(name, weight, main_font_size, secondary_strings
         let name_lines = [];
         let name_font_size = main_font_size;
         if (window.show_names && name) {
-            const fit = fitTextInBox(name, _draw_cfg.box_width, name_available_height, 'Arial, sans-serif', weight, main_font_size);
+            const fit = fitTextInBox(name, nodeW(), name_available_height, 'Arial, sans-serif', weight, main_font_size);
             name_lines = fit.lines;
             name_font_size = fit.fontSize;
         }
@@ -748,11 +782,11 @@ function drawText(g, node) {
     const highlight = isNodeHighlighted(node);
     const text_luminance = highlight ? (_draw_cfg.highlighted_text_brightness ?? _draw_cfg.text_brightness ?? 0) : (_draw_cfg.text_brightness ?? 0);
     const text_color = d3.hcl(0, 0, text_luminance);
-    const is_bold = highlight && (_draw_cfg.pedigree_highlight_percent !== 100);
+    const is_bold = highlight && (_draw_cfg.special_highlight_percent !== 100);
     const text_shadow_filter_id = ensureTextShadowFilter(g);
     const text_element = g.append('text')
-        .attr('x', _draw_cfg.box_width / 2)
-        .attr('y', _draw_cfg.box_height / 2)
+        .attr('x', nodeW() / 2)
+        .attr('y', nodeH() / 2)
         .attr('text-anchor', 'middle')
         .attr('font-family', 'Arial, sans-serif')
         .attr('font-weight', is_bold ? 'bold' : 'normal')
@@ -846,7 +880,7 @@ function drawText(g, node) {
         if (sec_line_count > 1)   sum_dy += (sec_line_count - 1) * 1.2 * secondary_font_size;
     }
     const align_bbox = {
-        y: _draw_cfg.box_height / 2 - asc,
+        y: nodeH() / 2 - asc,
         height: asc + sum_dy + last_fs * 0.28,
     };
     alignTextVertically(text_element, align_bbox);
@@ -854,39 +888,49 @@ function drawText(g, node) {
 
 
 function drawLink(svg_node, color, point1, point2, special, factor = 1) {
-    const customLink = (point1, point2) => {
-        var x1 = point1.x;
-        var x2 = point2.x;
-        var y1 = point1.y;
-        var y2 = point2.y;
-        const ymid = (special && special.includes('center') ? y1 + _draw_cfg.box_height / 2 : y2 - _draw_cfg.generation_spacing / 2) - (special === 'duplicate' ? _draw_cfg.generation_spacing / 2 : 0);
-        const xmid = x1 + (x2 - x1) / 2;
+    // point1 and point2 are always in layout space: { x: sibling, y: generation }.
+    // The customLink function works entirely in (sibling, generation) coordinates and
+    // converts each path point to SVG space via mapCoords so the result is correct for
+    // both vertical and horizontal orientations.
+    const customLink = (p1, p2) => {
+        const s1 = p1.x, g1 = p1.y;
+        const s2 = p2.x, g2 = p2.y;
+        // genDir: +1 when g1 > g2 (horizontal mode after y-mirror), -1 when g1 < g2 (vertical).
+        // Used to keep the elbow geometry correct for both orientations.
+        const genDir = Math.sign(g1 - g2) || -1;
+        const genMid = (special && special.includes('center')
+            ? (g1 + g2) / 2
+            : g2 + genDir * _draw_cfg.generation_spacing / 2 * (special === 'duplicate' ? 2 : 1));
+        const sibMid = s1 + (s2 - s1) / 2;
         const corner_radius = Math.min(_draw_cfg.box_width, _draw_cfg.box_height) * _draw_cfg.link_rounding / 200;
+        const pt = (s, g) => { const c = mapCoords(s, g); return [c.x, c.y]; };
         const context = d3.path();
-        context.moveTo(x1, y1);
-        context.lineTo(x1, ymid - corner_radius);
-        if (x2 > x1) {
-            if (x1 + corner_radius > x2 - corner_radius) context.bezierCurveTo(x1, ymid, xmid, ymid, xmid, ymid);
-            else {
-                context.bezierCurveTo(x1, ymid, x1 + corner_radius, ymid, x1 + corner_radius, ymid);
-                context.lineTo(x2 - corner_radius, ymid);
+        context.moveTo(...pt(s1, g1));
+        context.lineTo(...pt(s1, genMid + genDir * corner_radius));
+        if (s2 > s1) {
+            if (s1 + corner_radius > s2 - corner_radius) {
+                context.bezierCurveTo(...pt(s1, genMid), ...pt(sibMid, genMid), ...pt(sibMid, genMid));
+            } else {
+                context.bezierCurveTo(...pt(s1, genMid), ...pt(s1 + corner_radius, genMid), ...pt(s1 + corner_radius, genMid));
+                context.lineTo(...pt(s2 - corner_radius, genMid));
             }
         }
-        if (x2 < x1) {
-            if (x1 - corner_radius < x2 + corner_radius) context.bezierCurveTo(x1, ymid, xmid, ymid, xmid, ymid);
-            else {
-                context.bezierCurveTo(x1, ymid, x1 - corner_radius, ymid, x1 - corner_radius, ymid);
-                context.lineTo(x2 + corner_radius, ymid);
+        if (s2 < s1) {
+            if (s1 - corner_radius < s2 + corner_radius) {
+                context.bezierCurveTo(...pt(s1, genMid), ...pt(sibMid, genMid), ...pt(sibMid, genMid));
+            } else {
+                context.bezierCurveTo(...pt(s1, genMid), ...pt(s1 - corner_radius, genMid), ...pt(s1 - corner_radius, genMid));
+                context.lineTo(...pt(s2 + corner_radius, genMid));
             }
         }
-        context.bezierCurveTo(x2, ymid, x2, ymid + corner_radius, x2, ymid + corner_radius);
-        context.lineTo(x2, y2);
+        context.bezierCurveTo(...pt(s2, genMid), ...pt(s2, genMid - genDir * corner_radius), ...pt(s2, genMid - genDir * corner_radius));
+        context.lineTo(...pt(s2, g2));
         return context.toString();
     };
 
     const base_link_width = _draw_cfg.link_width || 3;
     const stroke_width = (factor !== 1) ? (_draw_cfg.highlighted_link_width || base_link_width) : base_link_width;
-    if (window.vertical_inlaws || special === 'duplicate') {
+    if (!window.beside_inlaws || special === 'duplicate') {
         svg_node.append("path")
             .attr("d", customLink(point1, point2))
             .attr("fill", "none")
@@ -905,9 +949,10 @@ function drawLink(svg_node, color, point1, point2, special, factor = 1) {
 
 
 function drawCircle(svg_node, color, center, radius) {
+    const c = mapCoords(center.x, center.y);
     svg_node.append("circle")
-        .attr("cx", center.x)
-        .attr("cy", center.y)
+        .attr("cx", c.x)
+        .attr("cy", c.y)
         .attr("r", radius)
         .attr("fill", color);
 } 

@@ -75,8 +75,8 @@ window.tree_rows = null;
 window.generations_up;
 window.generations_down;
 window.max_stack_size;
-window.hide_childless_inlaws;
-window.hide_non_pedigree_family;
+window.show_childless_inlaws;
+window.show_non_pedigree_family;
 
 // Tree Styling Variables
 window.box_width; window.default_box_width;
@@ -85,7 +85,7 @@ window.sibling_spacing; window.default_sibling_spacing;
 window.generation_spacing; window.default_generation_spacing;
 window.node_rounding; window.default_node_rounding;
 window.node_brightness; window.default_node_brightness;
-window.vertical_inlaws; window.default_vertical_inlaws;
+window.beside_inlaws; window.default_beside_inlaws;
 window.tree_orientation = 'vertical'; // 'vertical' (default) or 'horizontal'
 window.show_names; window.default_show_names;
 window.show_years; window.default_show_years;
@@ -103,7 +103,7 @@ window.link_rounding; window.default_link_rounding;
 window.link_highlight_percent; window.default_link_highlight_percent;
 window.inlaw_link_highlight_percent; window.default_inlaw_link_highlight_percent;
 
-window.pedigree_highlight_percent; window.default_pedigree_highlight_percent;
+window.special_highlight_percent; window.default_special_highlight_percent;
 
 window.highlight_type;
 
@@ -125,9 +125,9 @@ const elements = [
     { id: 'show-names-checkbox',                 type: 'checkbox', default: true,  variable: 'show_names' },
     { id: 'show-years-checkbox',                 type: 'checkbox', default: true,  variable: 'show_years' },
     { id: 'show-places-checkbox',                type: 'checkbox', default: false, variable: 'show_places' },
-    { id: 'vertical-inlaws-checkbox',            type: 'checkbox', default: true,  variable: 'vertical_inlaws' },
-    { id: 'hide-childless-inlaws-checkbox',      type: 'checkbox', default: false, variable: 'hide_childless_inlaws' },
-    { id: 'hide-non-pedigree-family-checkbox',   type: 'checkbox', default: false, variable: 'hide_non_pedigree_family' },
+    { id: 'beside-inlaws-checkbox',            type: 'checkbox', default: false, variable: 'beside_inlaws' },
+    { id: 'show-childless-inlaws-checkbox',      type: 'checkbox', default: true,  variable: 'show_childless_inlaws' },
+    { id: 'show-non-pedigree-family-checkbox',   type: 'checkbox', default: true,  variable: 'show_non_pedigree_family' },
 
     // Tree Styling
     // Size
@@ -172,8 +172,8 @@ const elements = [
     { id: 'transparent-bg-rect-checkbox',        type: 'checkbox', default: false, variable: 'transparent_bg_rect' },
 
     // Highlights
-    { id: 'pedigree-highlight-percent-number',   type: 'number',   default: 175,   min: 0, max: 200, variable: 'pedigree_highlight_percent' },
-    { id: 'pedigree-highlight-percent-range',    type: 'range',    default: 175,   min: 0, max: 200, variable: 'pedigree_highlight_percent' },
+    { id: 'special-highlight-percent-number',   type: 'number',   default: 175,   min: 0, max: 200, variable: 'special_highlight_percent' },
+    { id: 'special-highlight-percent-range',    type: 'range',    default: 175,   min: 0, max: 200, variable: 'special_highlight_percent' },
     { id: 'border-highlight-percent-number',     type: 'number',   default: 125,   min: 0, max: 200, variable: 'border_highlight_percent' },
     { id: 'border-highlight-percent-range',      type: 'range',    default: 125,   min: 0, max: 200, variable: 'border_highlight_percent' },
     { id: 'link-highlight-percent-number',       type: 'number',   default: 125,   min: 0, max: 200, variable: 'link_highlight_percent' },
@@ -190,11 +190,14 @@ const elements = [
     // Select and color controls (preset_key where element id differs from the preset key convention)
     { id: 'highlights-select',  type: 'select', variable: 'highlight_type', preset_key: 'highlight-type' },
     { id: 'color-picker',       type: 'color',  variable: 'tree_color',     preset_key: 'background-color' },
+
+    // Radio group controls
+    { id: 'layout-vertical', type: 'radio', name: 'layout', variable: 'tree_orientation', preset_key: 'tree-orientation' },
 ];
 
 const none_links = [
     { id: 'no-border-highlight-percent', variable: 'border_highlight_percent' },
-    { id: 'no-pedigree-highlight-percent', variable: 'pedigree_highlight_percent' },
+    { id: 'no-special-highlight-percent', variable: 'special_highlight_percent' },
     { id: 'no-link-highlight-percent', variable: 'link_highlight_percent' },
     { id: 'no-inlaw-link-highlight-percent', variable: 'inlaw_link_highlight_percent' },
 ]
@@ -215,5 +218,6 @@ function buildRenderConfig() {
         seen.add(el.variable);
         config[el.variable] = window[el.variable];
     }
+    config.tree_orientation = window.tree_orientation;
     return config;
 }

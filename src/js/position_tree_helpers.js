@@ -7,6 +7,13 @@
 // eslint-disable-next-line no-var
 var _layout_cfg = window;
 
+// The node's extent in the sibling axis (layout x direction).
+// In vertical mode nodes are box_width wide on screen (sibling = SVG x).
+// In horizontal mode nodes are box_height tall on screen (sibling = SVG y).
+function sibNodeSize() {
+    return _layout_cfg.tree_orientation === 'horizontal' ? _layout_cfg.box_height : _layout_cfg.box_width;
+}
+
 function getPositioningLogLevel() {
     if (window.positioning_log_level) return window.positioning_log_level;
     return window.debug_positioning ? 'debug' : 'none';
@@ -55,20 +62,20 @@ function shiftPersonNextToSpouse(node) {
     let previous_x = Infinity;
     if (node.individual.gender === 'M') {
         [...node.spouse_nodes].reverse().forEach(spouse_node => {
-            if ((previous_x !== Infinity) && (spouse_node.children_nodes.length === 0)) spouse_node.x = previous_x - _layout_cfg.box_width - _layout_cfg.sibling_spacing;
+            if ((previous_x !== Infinity) && (spouse_node.children_nodes.length === 0)) spouse_node.x = previous_x - sibNodeSize() - _layout_cfg.sibling_spacing;
             previous_x = spouse_node.x;
         });
-        node.x = previous_x - _layout_cfg.box_width - _layout_cfg.sibling_spacing;
+        node.x = previous_x - sibNodeSize() - _layout_cfg.sibling_spacing;
     }
     else {
         node.spouse_nodes.forEach(spouse_node => {
-            if ((previous_x !== Infinity) && (spouse_node.children_nodes.length === 0)) spouse_node.x = previous_x + _layout_cfg.box_width + _layout_cfg.sibling_spacing;
+            if ((previous_x !== Infinity) && (spouse_node.children_nodes.length === 0)) spouse_node.x = previous_x + sibNodeSize() + _layout_cfg.sibling_spacing;
             previous_x = spouse_node.x;
         });
-        node.x = previous_x + _layout_cfg.box_width + _layout_cfg.sibling_spacing;
+        node.x = previous_x + sibNodeSize() + _layout_cfg.sibling_spacing;
         previous_x = Infinity;
         [...node.spouse_nodes].reverse().forEach(spouse_node => {
-            if ((previous_x !== Infinity) && (spouse_node.children_nodes.length === 0)) spouse_node.x = previous_x - _layout_cfg.box_width - _layout_cfg.sibling_spacing;
+            if ((previous_x !== Infinity) && (spouse_node.children_nodes.length === 0)) spouse_node.x = previous_x - sibNodeSize() - _layout_cfg.sibling_spacing;
             previous_x = spouse_node.x;
         });
     }
@@ -76,7 +83,7 @@ function shiftPersonNextToSpouse(node) {
 
 
 function centerPersonAboveSpouses(node) {
-    let shift_x = node.x + _layout_cfg.box_width / 2 - getSpouseCenter(node);
+    let shift_x = node.x + sibNodeSize() / 2 - getSpouseCenter(node);
     if (shift_x > 0) {
         node.spouse_nodes.forEach(spouse_node => { shiftSubtree(spouse_node, shift_x); });
         node.min_x += shift_x;
@@ -90,7 +97,7 @@ function getSpouseCenter(node) {
     let min_x = Infinity, max_x = -Infinity;
     node.spouse_nodes.forEach(spouse_node => {
         min_x = Math.min(min_x, spouse_node.x);
-        max_x = Math.max(max_x, spouse_node.x + _layout_cfg.box_width);
+        max_x = Math.max(max_x, spouse_node.x + sibNodeSize());
     });
     return (min_x + max_x) / 2;
 }
@@ -100,7 +107,7 @@ function getChildCenter(node) {
     let min_x = Infinity, max_x = -Infinity;
     node.children_nodes.forEach(child_node => {
         min_x = Math.min(min_x, child_node.x);
-        max_x = Math.max(max_x, child_node.x + _layout_cfg.box_width);
+        max_x = Math.max(max_x, child_node.x + sibNodeSize());
     });
     return (min_x + max_x) / 2;
 }
@@ -129,14 +136,14 @@ function alignStacks(stacks) {
         let total_extra_x = 0;
         stack.filter(n => n.stacked).forEach(n => {
             n.x = max_x;
-            if (n.left_neighbor && (n.left_neighbor.x + _layout_cfg.box_width + _layout_cfg.sibling_spacing) > n.x) {
-                let extra_x = n.left_neighbor.x + _layout_cfg.box_width + _layout_cfg.sibling_spacing - n.x;
+            if (n.left_neighbor && (n.left_neighbor.x + sibNodeSize() + _layout_cfg.sibling_spacing) > n.x) {
+                let extra_x = n.left_neighbor.x + sibNodeSize() + _layout_cfg.sibling_spacing - n.x;
                 n.x += extra_x;
                 max_x += extra_x;
                 total_extra_x += extra_x;
             }
             n.min_x = n.x;
-            n.max_x = n.x + _layout_cfg.box_width;
+            n.max_x = n.x + sibNodeSize();
         });
         logPositioning('child-stack-align', {
             stack: stack.map(getNodeLogName),
@@ -528,7 +535,7 @@ function positionNode(node, rows) {
     // Start at the left most position of the level or to the right of the last node in this sub-level
     if (length === 0) node.x = _layout_cfg.tree_padding;
     else {
-        node.x = rows[node.level][node.sub_level][length - 1].x + _layout_cfg.box_width + _layout_cfg.sibling_spacing;
+        node.x = rows[node.level][node.sub_level][length - 1].x + sibNodeSize() + _layout_cfg.sibling_spacing;
         node.left_neighbor = rows[node.level][node.sub_level][length - 1];
     }
 
@@ -611,7 +618,7 @@ function getChainSortX(node) {
 
 
 function getChainRightX(node) {
-    return node.x + _layout_cfg.box_width;
+    return node.x + sibNodeSize();
 }
 
 
@@ -768,7 +775,7 @@ function getSubtreeHorizontalMovementSpace(node, rows, extra_gap = 0) {
 
     subtree_nodes.forEach(subtree_node => {
         const subtree_left = subtree_node.x - extra_gap;
-        const subtree_right = subtree_node.x + _layout_cfg.box_width + extra_gap;
+        const subtree_right = subtree_node.x + sibNodeSize() + extra_gap;
         const subtree_top = subtree_node.y;
         const subtree_bottom = (subtree_node.y === undefined) ? undefined : subtree_node.y + _layout_cfg.box_height;
 
@@ -786,7 +793,7 @@ function getSubtreeHorizontalMovementSpace(node, rows, extra_gap = 0) {
             if (!vertical_overlap) return;
 
             const other_left = other_node.x;
-            const other_right = other_node.x + _layout_cfg.box_width;
+            const other_right = other_node.x + sibNodeSize();
 
             if (other_left >= subtree_right) {
                 // Rightward movement is limited by outside nodes that are to the right.

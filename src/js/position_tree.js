@@ -40,19 +40,19 @@ function positionMaleAncestor(node, rows) {
 
     if ((node.type === 'ancestor') || (node.type === 'root' && !node.father_node && !node.mother_node)) {
         // If inlaws are to the left and the person is root, position the person first
-        if (!_layout_cfg.vertical_inlaws && (node.type === 'root')) positionNode(node, rows);
+        if (_layout_cfg.beside_inlaws && (node.type === 'root')) positionNode(node, rows);
 
         // Position spouses
-        let [, spouse_max_x] = _layout_cfg.vertical_inlaws ? positionSpouses(node, rows, 'root') : positionSpouses(node, rows, 'inlaw');
+        let [, spouse_max_x] = !_layout_cfg.beside_inlaws ? positionSpouses(node, rows, 'root') : positionSpouses(node, rows, 'inlaw');
 
         // If inlaws are to the left and the person is root, make sure they are next to their spouse
-        if (!_layout_cfg.vertical_inlaws && (node.type === 'root')) shiftPersonNextToSpouse(node);
+        if (_layout_cfg.beside_inlaws && (node.type === 'root')) shiftPersonNextToSpouse(node);
 
         // Position children
         let [child_min_x, child_max_x] = positionChildren(node, rows, false);
         
         // Position the ancestor
-        if (_layout_cfg.vertical_inlaws || (node.type === 'ancestor')) positionNode(node, rows);
+        if (!_layout_cfg.beside_inlaws || (node.type === 'ancestor')) positionNode(node, rows);
         
         // If there is a gap between the inlaws and the ancestor, close the gap
         if (node.spouse_nodes.length > 0) {
@@ -63,13 +63,13 @@ function positionMaleAncestor(node, rows) {
             }
         }
 
-        if ((node.type === 'root') && _layout_cfg.vertical_inlaws) centerPersonAboveSpouses(node);
+        if ((node.type === 'root') && !_layout_cfg.beside_inlaws) centerPersonAboveSpouses(node);
 
         // Male ancestor needs to be to the right of his siblings and their descendants
         if (node.father_node) {
             let sib_max_x = -Infinity;
             node.father_node.children_nodes.forEach(sibling_node => { sib_max_x = Math.max(sib_max_x, sibling_node.max_x); });
-            let shift_x = sib_max_x - (node.x + _layout_cfg.box_width - _layout_cfg.sibling_spacing);
+            let shift_x = sib_max_x - (node.x + sibNodeSize() - _layout_cfg.sibling_spacing);
             if (shift_x > 0) {
                 logPositioning('male-ancestor sibling-boundary shift', {
                     name: node.individual.name,
@@ -90,7 +90,7 @@ function positionMaleAncestor(node, rows) {
 
         // Male ancestor needs to be to the right of his inlaws and their descendants
         if ((node.spouse_nodes.length > 0) && (node.type !== 'root')) {
-            let shift_x = spouse_max_x - (node.x + _layout_cfg.box_width - _layout_cfg.sibling_spacing);
+            let shift_x = spouse_max_x - (node.x + sibNodeSize() - _layout_cfg.sibling_spacing);
             if (shift_x > 0) {
                 logPositioning('male-ancestor inlaw-boundary shift', {
                     name: node.individual.name,
@@ -109,7 +109,7 @@ function positionMaleAncestor(node, rows) {
 
         // Center children under ancestor if there is no pedigree child (ie. these are the parents of root)
         if (node.children_nodes.length > 0 && !node.individual.pedigree_child_node) {
-            let shift_x = node.x + _layout_cfg.box_width + _layout_cfg.sibling_spacing / 2 - getChildCenter(node);
+            let shift_x = node.x + sibNodeSize() + _layout_cfg.sibling_spacing / 2 - getChildCenter(node);
             if (shift_x > 0) { // Move the children to the right
                 node.children_nodes.forEach(child_node => { shiftSubtree(child_node, shift_x); });
                 child_min_x += shift_x;
@@ -123,13 +123,13 @@ function positionMaleAncestor(node, rows) {
         }
 
         node.min_x = Math.min(node.x, child_min_x);
-        node.max_x = Math.max(node.x + _layout_cfg.box_width, child_max_x);
+        node.max_x = Math.max(node.x + sibNodeSize(), child_max_x);
 
         // Male ancestors need to be to the right of the level boundary's max_x
         if ((node.type !== 'root') && window.level_boundary_node_leaf[node.level] && (window.level_boundary_node_leaf[node.level] !== node)) {
             const boundary_node = window.level_boundary_node_leaf[node.level];
-            let max_x = boundary_node.x + _layout_cfg.box_width + _layout_cfg.sibling_spacing;
-            let shift_x = max_x - (node.x + _layout_cfg.box_width);
+            let max_x = boundary_node.x + sibNodeSize() + _layout_cfg.sibling_spacing;
+            let shift_x = max_x - (node.x + sibNodeSize());
             if (shift_x > 0) {
                 logPositioning('male-ancestor leaf-boundary shift', {
                     name: node.individual.name,
@@ -158,12 +158,12 @@ function positionRelative(node, rows) {
     node.max_x = -Infinity;
 
     // If inlaw is to the left of the relative, position the inlaw first
-    if (!_layout_cfg.vertical_inlaws && (node.individual.gender === 'F') && (node.type === 'relative')) {
+    if (_layout_cfg.beside_inlaws && (node.individual.gender === 'F') && (node.type === 'relative')) {
         // Position spouses
         let [spouse_min_x, spouse_max_x] = positionSpouses(node, rows, 'inlaw');
         positionNode(node, rows);
         node.min_x = Math.min(node.x, spouse_min_x);
-        node.max_x = Math.max(node.x + _layout_cfg.box_width, spouse_max_x);
+        node.max_x = Math.max(node.x + sibNodeSize(), spouse_max_x);
     }
     else positionNode(node, rows);
 
@@ -172,18 +172,18 @@ function positionRelative(node, rows) {
 
     if (node.stacked || (node.spouse_nodes.length === 0)) {
         node.min_x = node.x;
-        node.max_x = node.x + _layout_cfg.box_width;
+        node.max_x = node.x + sibNodeSize();
     }
     
     // Position spouses
-    if (_layout_cfg.vertical_inlaws || (node.individual.gender === 'M') || (node.type === 'ancestor')) {
-        let [spouse_min_x, spouse_max_x] = _layout_cfg.vertical_inlaws ? positionSpouses(node, rows, 'relative') : positionSpouses(node, rows, 'inlaw');
+    if (!_layout_cfg.beside_inlaws || (node.individual.gender === 'M') || (node.type === 'ancestor')) {
+        let [spouse_min_x, spouse_max_x] = !_layout_cfg.beside_inlaws ? positionSpouses(node, rows, 'relative') : positionSpouses(node, rows, 'inlaw');
         node.min_x = Math.min(node.min_x, spouse_min_x);
         node.max_x = Math.max(node.max_x, spouse_max_x);
     }
 
     if (node.type === 'relative') {
-        if (_layout_cfg.vertical_inlaws) centerPersonAboveSpouses(node);
+        if (!_layout_cfg.beside_inlaws) centerPersonAboveSpouses(node);
         else shiftPersonNextToSpouse(node);
     }
 
@@ -201,15 +201,15 @@ function centerAncestorCouple(node) {
     let max_x = min_x;
     if (pedigree_spouse_node && !pedigree_spouse_node.duplicate_parents) {
         if (pedigree_spouse_node.father_node && pedigree_spouse_node.mother_node) min_x = pedigree_spouse_node.mother_node.x - _layout_cfg.sibling_spacing / 2;
-        if (pedigree_spouse_node.father_node && !pedigree_spouse_node.mother_node) min_x = pedigree_spouse_node.father_node.x + _layout_cfg.box_width / 2;
-        if (!pedigree_spouse_node.father_node && pedigree_spouse_node.mother_node) min_x = pedigree_spouse_node.mother_node.x + _layout_cfg.box_width / 2;
+        if (pedigree_spouse_node.father_node && !pedigree_spouse_node.mother_node) min_x = pedigree_spouse_node.father_node.x + sibNodeSize() / 2;
+        if (!pedigree_spouse_node.father_node && pedigree_spouse_node.mother_node) min_x = pedigree_spouse_node.mother_node.x + sibNodeSize() / 2;
     }
     if (!node.duplicate_parents) {
         if (node.father_node && node.mother_node) max_x = node.mother_node.x - _layout_cfg.sibling_spacing / 2;
-        if (node.father_node && !node.mother_node) max_x = node.father_node.x + _layout_cfg.box_width / 2;
-        if (!node.father_node && node.mother_node) max_x = node.mother_node.x + _layout_cfg.box_width / 2;
+        if (node.father_node && !node.mother_node) max_x = node.father_node.x + sibNodeSize() / 2;
+        if (!node.father_node && node.mother_node) max_x = node.mother_node.x + sibNodeSize() / 2;
     }
-    else max_x = min_x + _layout_cfg.box_width / 2 - _layout_cfg.sibling_spacing / 2;
+    else max_x = min_x + sibNodeSize() / 2 - _layout_cfg.sibling_spacing / 2;
 
     if (!pedigree_spouse_node || (!pedigree_spouse_node.father_node && !pedigree_spouse_node.mother_node)) min_x = max_x;
     if (!node.father_node && !node.mother_node) max_x = min_x;
@@ -274,22 +274,22 @@ function centerAncestorCouple(node) {
 function positionInlaw(node, rows) {
     positionNode(node, rows);
     node.min_x = Infinity, node.max_x = -Infinity;
-    if (node.stacked || (node.children_nodes.length === 0) || !_layout_cfg.vertical_inlaws) {
+    if (node.stacked || (node.children_nodes.length === 0) || _layout_cfg.beside_inlaws) {
         node.min_x = node.x;
-        node.max_x = node.x + _layout_cfg.box_width;
+        node.max_x = node.x + sibNodeSize();
     }
     let [child_min_x, child_max_x] = positionChildren(node, rows, true);
     node.min_x = Math.min(node.min_x, child_min_x);
     node.max_x = Math.max(node.max_x, child_max_x);
 
-    let left = -_layout_cfg.box_width / 2 - _layout_cfg.sibling_spacing / 2;
-    let right = _layout_cfg.box_width / 2 + _layout_cfg.sibling_spacing / 2;
+    let left = -sibNodeSize() / 2 - _layout_cfg.sibling_spacing / 2;
+    let right = sibNodeSize() / 2 + _layout_cfg.sibling_spacing / 2;
     let x_offset = (node.individual.gender === 'M') ? right : left;
     if (node.spouse_nodes[0].type === 'ancestor') x_offset = (x_offset === right) ? left : right;
 
     // Center inlaw over their children
     if (node.children_nodes.length > 0) {
-        let shift_x = node.x + _layout_cfg.box_width / 2 - getChildCenter(node) + (_layout_cfg.vertical_inlaws ? 0 : x_offset);
+        let shift_x = node.x + sibNodeSize() / 2 - getChildCenter(node) + (!_layout_cfg.beside_inlaws ? 0 : x_offset);
         if (shift_x > 0) {
             let child_max_x = -Infinity;
             node.children_nodes.forEach(child_node => { 
@@ -301,7 +301,7 @@ function positionInlaw(node, rows) {
         }
         if (shift_x < 0) {
             node.x -= shift_x;
-            node.max_x = Math.max(node.max_x, node.x + _layout_cfg.box_width);
+            node.max_x = Math.max(node.max_x, node.x + sibNodeSize());
         }
     }
 }
@@ -398,14 +398,14 @@ function positionSpouses(node, rows, type_to_drop) {
 
     const ctx = makeStackCtx(initial_sub_level);
 
-    if ((node.type !== 'ancestor') && _layout_cfg.vertical_inlaws) {
+    if ((node.type !== 'ancestor') && !_layout_cfg.beside_inlaws) {
         node.spouse_nodes.filter(spouse_node => (_layout_cfg.max_stack_size > 1) && (!has_grandchildren || (spouse_node.children_nodes.length === 0))).forEach(spouse_node => {
             positionStackableNode(node, spouse_node, rows, has_grandchildren, drop_sub_level, ctx, false);
         });
         alignStacks(ctx.stacks);
     }
 
-    if (!_layout_cfg.vertical_inlaws) {
+    if (_layout_cfg.beside_inlaws) {
         node.spouse_nodes.forEach(spouse_node => {
             if (drop_sub_level) spouse_node.sub_level = node.sub_level + 1;
             positionTree(spouse_node, rows);
@@ -421,7 +421,7 @@ function positionSpouses(node, rows, type_to_drop) {
 
     let spouse_min_x = ctx.min_x, spouse_max_x = ctx.max_x;
 
-    if (_layout_cfg.vertical_inlaws && drop_sub_level && (node.spouse_nodes.length > 0)) {
+    if (!_layout_cfg.beside_inlaws && drop_sub_level && (node.spouse_nodes.length > 0)) {
         const compact_result = compactLeftMostGroupNodeRight(node.spouse_nodes, rows, 'spouses');
         if (compact_result.moved) {
             spouse_min_x = Infinity;
@@ -704,28 +704,47 @@ function getMaximumDimensions(rows, config) {
     rows.forEach(level => {
         level.forEach(sub_level => {
             sub_level.forEach(node => {
-                max_x = Math.max(max_x, node.x + _layout_cfg.box_width + _layout_cfg.tree_padding);
-                max_y = Math.max(max_y, node.y + _layout_cfg.box_height + _layout_cfg.tree_padding);
+                max_x = Math.max(max_x, node.x + sibNodeSize() + _layout_cfg.tree_padding);
+                max_y = Math.max(max_y, node.y + (_layout_cfg.tree_orientation === 'horizontal' ? _layout_cfg.box_width : _layout_cfg.box_height) + _layout_cfg.tree_padding);
                 node_count += 1;
             });
         });
     });
+    // For horizontal orientation the generation axis maps to SVG x and the sibling
+    // axis maps to SVG y, so swap the returned dimensions accordingly.
+    if (_layout_cfg.tree_orientation === 'horizontal') return [max_y, max_x, node_count.toLocaleString()];
     return [max_x, max_y, node_count.toLocaleString()];
 }
 
 
 function setHeights(rows, config) {
     _layout_cfg = (config !== undefined) ? (config ?? window) : (_layout_cfg ?? window);
+    // In horizontal mode box_width is the generation-direction node span (user's node width =
+    // horizontal screen extent = generation axis).  In vertical mode box_height is the generation span.
+    const gen_span = _layout_cfg.tree_orientation === 'horizontal' ? _layout_cfg.box_width : _layout_cfg.box_height;
     let total_height = _layout_cfg.tree_padding * 2;
-    window.level_heights.forEach(height => { total_height += height * (_layout_cfg.box_height + _layout_cfg.generation_spacing) + _layout_cfg.level_spacing; });
-    let y = total_height - _layout_cfg.box_height - _layout_cfg.generation_spacing - _layout_cfg.tree_padding; // Start from the bottom of the tree
+    window.level_heights.forEach(height => { total_height += height * (gen_span + _layout_cfg.generation_spacing) + _layout_cfg.level_spacing; });
+    let y = total_height - gen_span - _layout_cfg.generation_spacing - _layout_cfg.tree_padding; // Start from the bottom of the tree
     rows.forEach((level, index) => {
-        y -= window.level_heights[index] * (_layout_cfg.box_height + _layout_cfg.generation_spacing) + _layout_cfg.level_spacing;
+        y -= window.level_heights[index] * (gen_span + _layout_cfg.generation_spacing) + _layout_cfg.level_spacing;
         let sub_y = y;
         level.forEach(sub_level => {
-            if (sub_level.length > 0) sub_y += _layout_cfg.box_height + _layout_cfg.generation_spacing;
+            if (sub_level.length > 0) sub_y += gen_span + _layout_cfg.generation_spacing;
             sub_level.forEach(node => { node.y = sub_y; });
         });
     });
+    // In horizontal mode the generation axis maps to SVG x (node.y → SVG x via mapCoords).
+    // The loop above assigns small y to high-anchor-gen rows (ancestors) and large y to
+    // low-anchor-gen rows (descendants).  Mirror all y values so that ancestors, which
+    // should appear on the right, end up with the largest y values.
+    if (_layout_cfg.tree_orientation === 'horizontal') {
+        let min_y = Infinity, max_y = -Infinity;
+        rows.forEach(level => level.forEach(sub => sub.forEach(n => {
+            min_y = Math.min(min_y, n.y);
+            max_y = Math.max(max_y, n.y);
+        })));
+        const mirror = max_y + min_y;
+        rows.forEach(level => level.forEach(sub => sub.forEach(n => { n.y = mirror - n.y; })));
+    }
 }
 

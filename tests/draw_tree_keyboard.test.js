@@ -102,7 +102,7 @@ describe('draw tree keyboard navigation', () => {
                 tree_color: '#000000',
                 transparent_bg_rect: false,
                 inlaw_link_highlight_percent: 100,
-                pedigree_highlight_percent: 100,
+                special_highlight_percent: 100,
                 link_highlight_percent: 100,
                 box_width: 80,
                 box_height: 50,

@@ -98,7 +98,7 @@ function loadDrawTreeContext({ windowOverrides = {}, d3Overrides = {} } = {}) {
             link_rounding: 0,
             node_border_width: 2,
             link_width: 2,
-            pedigree_highlight_percent: 150,
+            special_highlight_percent: 150,
             border_highlight_percent: 120,
             node_saturation: 30,
             node_brightness: 40,
@@ -106,7 +106,7 @@ function loadDrawTreeContext({ windowOverrides = {}, d3Overrides = {} } = {}) {
             generations_down: 0,
             max_gen_up: 2,
             max_gen_down: 2,
-            vertical_inlaws: true,
+            beside_inlaws: false,
             text_size: 12,
             default_text_size: 12,
             ...windowOverrides,
@@ -160,9 +160,9 @@ describe('draw tree styling outcomes', () => {
         const fillLuminance = hclCalls[0][2];
         const strokeLuminance = hclCalls[1][2];
 
-        // fill luminance = node_brightness * pedigree_highlight_percent / 100
+        // fill luminance = node_brightness * special_highlight_percent / 100
         expect(fillLuminance).toBeCloseTo(60, 5);
-        // stroke luminance = (node_brightness * border_highlight_percent / 100) * pedigree_highlight_percent / 100
+        // stroke luminance = (node_brightness * border_highlight_percent / 100) * special_highlight_percent / 100
         expect(strokeLuminance).toBeCloseTo(72, 5);
     });
 
@@ -193,10 +193,10 @@ describe('draw tree styling outcomes', () => {
                 box_height: 40,
                 sibling_spacing: 20,
                 generation_spacing: 30,
-                vertical_inlaws: true,
+                beside_inlaws: false,
                 link_highlight_percent: 100,
                 inlaw_link_highlight_percent: 100,
-                pedigree_highlight_percent: 100,
+                special_highlight_percent: 100,
             },
         });
 
@@ -288,10 +288,10 @@ describe('draw tree styling outcomes', () => {
                 box_height: 40,
                 sibling_spacing: 20,
                 generation_spacing: 30,
-                vertical_inlaws: true,
+                beside_inlaws: false,
                 link_highlight_percent: 100,
                 inlaw_link_highlight_percent: 100,
-                pedigree_highlight_percent: 100,
+                special_highlight_percent: 100,
             },
         });
 
@@ -386,10 +386,10 @@ describe('draw tree styling outcomes', () => {
                 box_height: 40,
                 sibling_spacing: 20,
                 generation_spacing: 30,
-                vertical_inlaws: true,
+                beside_inlaws: false,
                 link_highlight_percent: 100,
                 inlaw_link_highlight_percent: 100,
-                pedigree_highlight_percent: 100,
+                special_highlight_percent: 100,
             },
             d3Overrides: {
                 hcl: (h, c, l) => ({ h, c, l }),
@@ -613,13 +613,13 @@ describe('draw tree styling outcomes', () => {
                 box_width: 80,
                 box_height: 40,
                 sibling_spacing: 24,
-                vertical_inlaws: false,
+                beside_inlaws: true,
                 link_width: 2,
                 node_saturation: 20,
                 node_brightness: 30,
                 root_hue: 180,
                 link_highlight_percent: 100,
-                pedigree_highlight_percent: 100,
+                special_highlight_percent: 100,
             },
         });
 
@@ -891,10 +891,10 @@ describe('draw tree styling outcomes', () => {
                 root_hue: 180,
                 node_saturation: 20,
                 node_brightness: 30,
-                vertical_inlaws: true,
+                beside_inlaws: false,
                 link_highlight_percent: 100,
                 inlaw_link_highlight_percent: 100,
-                pedigree_highlight_percent: 100,
+                special_highlight_percent: 100,
             },
             d3Overrides: {
                 hcl: (h, c, l) => ({ h, c, l }),
@@ -936,10 +936,10 @@ describe('draw tree styling outcomes', () => {
                 root_hue: 180,
                 node_saturation: 20,
                 node_brightness: 30,
-                vertical_inlaws: true,
+                beside_inlaws: false,
                 link_highlight_percent: 100,
                 inlaw_link_highlight_percent: 100,
-                pedigree_highlight_percent: 100,
+                special_highlight_percent: 100,
             },
             d3Overrides: {
                 hcl: (h, c, l) => ({ h, c, l }),
@@ -1082,7 +1082,7 @@ describe('draw tree styling outcomes', () => {
         const { context, dom } = loadDrawTreeContext({
             windowOverrides: {
                 highlight_type: 'none',
-                pedigree_highlight_percent: 150,
+                special_highlight_percent: 150,
                 border_highlight_percent: 120,
                 node_brightness: 40,
             },
@@ -1114,7 +1114,7 @@ describe('draw tree styling outcomes', () => {
             const { context, dom } = loadDrawTreeContext({
                 windowOverrides: {
                     highlight_type: 'root',
-                    pedigree_highlight_percent: 150,
+                    special_highlight_percent: 150,
                     border_highlight_percent: 120,
                     node_brightness: 40,
                 },
@@ -1198,7 +1198,7 @@ describe('draw tree styling outcomes', () => {
                 windowOverrides: {
                     highlight_type: 'connection',
                     connection_path_ids: path_ids,
-                    pedigree_highlight_percent: 150,
+                    special_highlight_percent: 150,
                     border_highlight_percent: 120,
                     node_brightness: 40,
                 },
@@ -1234,7 +1234,7 @@ describe('draw tree styling outcomes', () => {
             windowOverrides: {
                 highlight_type: 'connection',
                 connection_path_ids: new Set(['@I1@', '@I2@']),
-                pedigree_highlight_percent: 150,
+                special_highlight_percent: 150,
             },
         });
 
@@ -1254,7 +1254,7 @@ describe('draw tree styling outcomes', () => {
 
     it('13.17 getLinkHighlightFactor with linked_node is ignored for pedigree and none modes', () => {
         const make = (ht) => loadDrawTreeContext({
-            windowOverrides: { highlight_type: ht, connection_path_ids: new Set(['@I1@']), pedigree_highlight_percent: 150 },
+            windowOverrides: { highlight_type: ht, connection_path_ids: new Set(['@I1@']), special_highlight_percent: 150 },
         }).context;
 
         const node_a = { individual: { id: '@I1@', is_root: true, is_descendant: false } };
@@ -1401,10 +1401,10 @@ describe('draw tree styling outcomes', () => {
                 root_hue: 180,
                 node_saturation: 20,
                 node_brightness: 30,
-                vertical_inlaws: true,
+                beside_inlaws: false,
                 link_highlight_percent: 100,
                 inlaw_link_highlight_percent: 100,
-                pedigree_highlight_percent: 100,
+                special_highlight_percent: 100,
             },
             d3Overrides: {
                 hcl: (h, c, l) => `hcl(${h},${c},${l})`,
@@ -1552,7 +1552,7 @@ describe('draw tree styling outcomes', () => {
                 highlight_type: 'pedigree',
                 text_brightness: 50,
                 highlighted_text_brightness: 90,
-                pedigree_highlight_percent: 150,
+                special_highlight_percent: 150,
             },
             d3Overrides: {
                 hcl: (h, c, l) => `hcl(${h},${c},${l})`,
@@ -1575,7 +1575,7 @@ describe('draw tree styling outcomes', () => {
                 highlight_type: 'pedigree',
                 text_brightness: 50,
                 highlighted_text_brightness: 90,
-                pedigree_highlight_percent: 150,
+                special_highlight_percent: 150,
             },
             d3Overrides: {
                 hcl: (h, c, l) => `hcl(${h},${c},${l})`,

@@ -182,9 +182,9 @@ function createPipelineContext({ dom, drawTree } = {}) {
     const windowOverrides = {
         generations_up: 2,
         generations_down: 2,
-        hide_childless_inlaws: false,
-        pedigree_only: false,
-        vertical_inlaws: true,
+        show_childless_inlaws: true,
+        show_non_pedigree_family: true,
+        beside_inlaws: false,
         max_stack_size: 1,
         box_width: 80,
         box_height: 50,
@@ -279,7 +279,7 @@ function getMaleRootHorizontalInlawGedcom() {
 //           SisterB (F, married SibHusbB, children SibChildC + SibChildD + SibChildE),
 //           BrotherSib (M, married SibWife, one child SibChildF).
 // Used to verify centering of couples above their children under horizontal in-law layout.
-// Mock for hide_childless_inlaws and hide_non_pedigree_family tests (05.26–05.28).
+// Mock for show_childless_inlaws and show_non_pedigree_family tests (05.26–05.28).
 // Root (M) marries SpouseA and SpouseB (both childless in-laws).
 // Root's sibling SibA marries SibSpouse (also a childless in-law).
 // Root's parents are AncDad and AncMom.
@@ -352,7 +352,7 @@ function getInlawPriorityMock() {
 }
 
 // Mock for stackable-but-released ancestor siblings test (05.43).
-// Root (F), Gen Up=2, Gen Down=0, max_stack_size=3, hide_childless_inlaws=true.
+// Root (F), Gen Up=2, Gen Down=0, max_stack_size=3, show_childless_inlaws=false.
 // PatGF's children: Father (pedigree/excluded), AncSib (1 spouse with 13 children),
 // SibA, SibB, SibC (no spouses → eligible for stacking).
 // AncSib's spouse has 13 children which group into 5 stacking columns (sizes [2,3,3,3,2]).
@@ -396,7 +396,7 @@ function getNoStackMock() {
 
 // Mock for the in-law child centered below the in-law parent test (05.34).
 // Male ancestor (Father) has a second wife (StepMom) whose only child is ChildA.
-// In vertical_inlaws=true mode, ChildA is positioned directly below StepMom (same x).
+// In beside_inlaws=false mode, ChildA is positioned directly below StepMom (same x).
 function getInlawChildMock() {
     return [
         '0 HEAD',
@@ -581,7 +581,7 @@ function getFemRelInlawMock() {
 // Root (M) has two pedigree ancestor branches:
 //   Paternal: Father → PatGF → PatGGF+PatGGM. PatGGF also has a sibling-relative SibA (Mathias equiv).
 //   Maternal: Mother → MatGF → MatGGF+MatGGM. MatGGF also has a sibling-relative SibB (Rose equiv).
-// With vertical_inlaws=true and max_stack_size=12, SibA and SibB both land at level=2, sub_level=0.
+// With beside_inlaws=false and max_stack_size=12, SibA and SibB both land at level=2, sub_level=0.
 // The link from (PatGGF+PatGGM connector) to SibA and the link from (MatGGF+MatGGM connector) to SibB
 // must not intersect: the connector circles and the siblings must be in the same left-right order.
 function getSiblingRelativesNoLinkCrossMock() {
@@ -612,7 +612,7 @@ function getSiblingRelativesNoLinkCrossMock() {
 // Mock for ancestor in-law stacking alignment tests (05.47–05.48).
 // Root (M) has parents: Father (M) and Mother (F).
 // Mother has four additional in-law husbands (H1–H4), none with children.
-// With vertical_inlaws=true and max_stack_size>1, the husbands are stacked into columns
+// With beside_inlaws=false and max_stack_size>1, the husbands are stacked into columns
 // below the generation row. Before the fix, alignStacks was never called for ancestor
 // spouse stacks, so the bottom rows were misaligned to the far left.
 function getMotherInlawStackingGedcom() {
@@ -720,8 +720,9 @@ describe('integration test cases', () => {
                     generations_up: 2,
                     generations_down: 2,
                     max_stack_size: 50,
-                    hide_childless_inlaws: false,
-                    vertical_inlaws: true,
+                    show_childless_inlaws: true,
+                    show_non_pedigree_family: true,
+                    beside_inlaws: false,
                     pedigree_only: false,
                     box_width: 80,
                     box_height: 50,
@@ -837,11 +838,11 @@ describe('integration test cases', () => {
             { id: '@F1@', husb: '@I1@', wife: '@I2@', chil: ['@I3@'] },
         ];
 
-        function spouseY(verticalInlaws) {
+        function spouseY(besideInlaws) {
             const context = createPipelineContext();
             context.window.individuals = structuredClone(individuals);
             context.window.families = structuredClone(families);
-            context.window.vertical_inlaws = verticalInlaws;
+            context.window.beside_inlaws = besideInlaws;
             context.window.generations_up = 0;
             context.window.generations_down = 1;
 
@@ -856,21 +857,21 @@ describe('integration test cases', () => {
             };
         }
 
-        const vertical = spouseY(true);
-        const horizontal = spouseY(false);
+        const vertical = spouseY(false);
+        const horizontal = spouseY(true);
 
         expect(vertical.spouseY).toBeGreaterThan(vertical.rootY);
         expect(horizontal.spouseY).toBeLessThanOrEqual(horizontal.rootY);
     });
 
-    it('05.05 hide_childless_inlaws removes childless spouse branches only', () => {
+    it('05.05 show_childless_inlaws=false removes childless spouse branches only', () => {
         const parsed = createPipelineContext().parseGedcomData(getIntegrationGedcom());
 
-        function spouseIds(hideChildlessInlaws) {
+        function spouseIds(showChildlessInlaws) {
             const context = createPipelineContext();
             context.window.individuals = structuredClone(parsed.individuals);
             context.window.families = structuredClone(parsed.families);
-            context.window.hide_childless_inlaws = hideChildlessInlaws;
+            context.window.show_childless_inlaws = showChildlessInlaws;
             context.window.generations_up = 0;
             context.window.generations_down = 1;
 
@@ -879,8 +880,8 @@ describe('integration test cases', () => {
             return rootNode.spouse_nodes.map(node => node.individual.id).sort();
         }
 
-        const visibleAll = spouseIds(false);
-        const visibleWithoutChildless = spouseIds(true);
+        const visibleAll = spouseIds(true);
+        const visibleWithoutChildless = spouseIds(false);
 
         expect(visibleAll).toEqual(['@I2@', '@I4@']);
         expect(visibleWithoutChildless).toEqual(['@I2@']);
@@ -975,11 +976,11 @@ describe('integration test cases', () => {
     it('05.07 wide in-law subtree nodes do not cross the ancestor-to-child connector line', () => {
         const parsed = createPipelineContext().parseGedcomData(getWideInlawGedcom());
 
-        [true, false].forEach(verticalInlaws => {
+        [true, false].forEach(besideInlaws => {
             const context = createPipelineContext();
             context.window.individuals = structuredClone(parsed.individuals);
             context.window.families = structuredClone(parsed.families);
-            context.window.vertical_inlaws = verticalInlaws;
+            context.window.beside_inlaws = besideInlaws;
             context.window.generations_up = 1;
             context.window.generations_down = 1;
             context.window.suppress_positioning_log = true;
@@ -991,7 +992,7 @@ describe('integration test cases', () => {
             context.setHeights(rows);
 
             const fatherNode = rootNode.father_node;
-            expect(fatherNode, `father_node should exist (vertical_inlaws=${verticalInlaws})`).not.toBeNull();
+            expect(fatherNode, `father_node should exist (beside_inlaws=${besideInlaws})`).not.toBeNull();
 
             // The x coordinate of the vertical connector line from male ancestor couple → pedigree child
             const box_width = context.window.box_width;
@@ -1000,7 +1001,7 @@ describe('integration test cases', () => {
 
             // Collect all nodes in the in-law subtree (in-law spouse + all their descendants)
             const inlawSpouseNodes = fatherNode.spouse_nodes.filter(n => n.type === 'inlaw');
-            expect(inlawSpouseNodes.length, `in-law spouse should exist (vertical_inlaws=${verticalInlaws})`).toBeGreaterThan(0);
+            expect(inlawSpouseNodes.length, `in-law spouse should exist (beside_inlaws=${besideInlaws})`).toBeGreaterThan(0);
 
             const visited = new Set();
             function collectSubtree(node) {
@@ -1013,13 +1014,13 @@ describe('integration test cases', () => {
 
             const inlawSubtree = inlawSpouseNodes.flatMap(n => collectSubtree(n));
             // 1 in-law spouse + 5 children
-            expect(inlawSubtree.length, `in-law subtree should include spouse and 5 children (vertical_inlaws=${verticalInlaws})`).toBeGreaterThanOrEqual(6);
+            expect(inlawSubtree.length, `in-law subtree should include spouse and 5 children (beside_inlaws=${besideInlaws})`).toBeGreaterThanOrEqual(6);
 
             // No in-law subtree node should straddle the connector line
             inlawSubtree.forEach(node => {
                 if (typeof node.x !== 'number') return;
                 const crosses = node.x < connector_x && (node.x + box_width) > connector_x;
-                expect(crosses, `[vertical_inlaws=${verticalInlaws}] "${node.individual?.name}" (x=${node.x.toFixed(1)}) crosses connector_x=${connector_x.toFixed(1)}`).toBe(false);
+                expect(crosses, `[beside_inlaws=${besideInlaws}] "${node.individual?.name}" (x=${node.x.toFixed(1)}) crosses connector_x=${connector_x.toFixed(1)}`).toBe(false);
             });
         });
     });
@@ -1168,14 +1169,14 @@ describe('integration test cases', () => {
         expect(years, 'birth years should be in ascending order left to right').toEqual([...years].sort((a, b) => a - b));
     });
 
-    it('05.10 hide_non_pedigree_family excludes root sibling branches from the built tree', () => {
+    it('05.10 show_non_pedigree_family=false excludes root sibling branches from the built tree', () => {
         const parsed = createPipelineContext().parseGedcomData(getPedigreeSiblingGedcom());
 
-        function getFatherChildren(hideNonPedigreeFamily) {
+        function getFatherChildren(showNonPedigreeFamily) {
             const context = createPipelineContext();
             context.window.individuals = structuredClone(parsed.individuals);
             context.window.families = structuredClone(parsed.families);
-            context.window.hide_non_pedigree_family = hideNonPedigreeFamily;
+            context.window.show_non_pedigree_family = showNonPedigreeFamily;
             context.window.generations_up = 1;
             context.window.generations_down = 2;
 
@@ -1184,8 +1185,8 @@ describe('integration test cases', () => {
             return rootNode.father_node.children_nodes;
         }
 
-        const withBranches = getFatherChildren(false);
-        const withoutBranches = getFatherChildren(true);
+        const withBranches = getFatherChildren(true);
+        const withoutBranches = getFatherChildren(false);
 
         expect(withBranches.map(node => node.individual.id)).toEqual(['@I1@', '@I2@']);
         expect(withoutBranches.map(node => node.individual.id)).toEqual(['@I1@']);
@@ -1193,14 +1194,14 @@ describe('integration test cases', () => {
         expect(withoutBranches[0].spouse_nodes[0].children_nodes.map(node => node.individual.id)).toEqual(['@I8@']);
     });
 
-    it('05.11 hide_non_pedigree_family excludes ancestor in-law spouse branches from the built tree', () => {
+    it('05.11 show_non_pedigree_family=false excludes ancestor in-law spouse branches from the built tree', () => {
         const parsed = createPipelineContext().parseGedcomData(getWideInlawGedcom());
 
-        function getFatherInlawIds(hideNonPedigreeFamily) {
+        function getFatherInlawIds(showNonPedigreeFamily) {
             const context = createPipelineContext();
             context.window.individuals = structuredClone(parsed.individuals);
             context.window.families = structuredClone(parsed.families);
-            context.window.hide_non_pedigree_family = hideNonPedigreeFamily;
+            context.window.show_non_pedigree_family = showNonPedigreeFamily;
             context.window.generations_up = 1;
             context.window.generations_down = 1;
 
@@ -1209,8 +1210,8 @@ describe('integration test cases', () => {
             return rootNode.father_node.spouse_nodes.map(node => node.individual.id).sort();
         }
 
-        expect(getFatherInlawIds(false)).toEqual(['@I4@']);
-        expect(getFatherInlawIds(true)).toEqual([]);
+        expect(getFatherInlawIds(true)).toEqual(['@I4@']);
+        expect(getFatherInlawIds(false)).toEqual([]);
     });
 
     it('05.12 horizontal in-law male spouse is positioned to the left of female root', () => {
@@ -1219,7 +1220,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1242,7 +1243,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1267,7 +1268,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1293,7 +1294,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1324,7 +1325,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1358,7 +1359,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1387,7 +1388,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1421,7 +1422,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1447,7 +1448,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1479,7 +1480,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1519,7 +1520,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
         context.window.max_stack_size = 2;
@@ -1544,7 +1545,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
         context.window.max_stack_size = 2;
@@ -1572,7 +1573,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
         context.window.max_stack_size = 2;
@@ -1589,16 +1590,16 @@ describe('integration test cases', () => {
         expect(wifeA.x).toBe(wifeB.x);
     });
 
-    it('05.26 hide_childless_inlaws removes all childless in-law spouses from the tree', () => {
+    it('05.26 show_childless_inlaws=false removes all childless in-law spouses from the tree', () => {
         const parsed = createPipelineContext().parseGedcomData(getHcilHnpfGedcom());
 
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
-        context.window.hide_childless_inlaws = true;
+        context.window.show_childless_inlaws = false;
 
         const rootNode = buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
@@ -1609,17 +1610,17 @@ describe('integration test cases', () => {
         expect(ids).not.toContain('@I7@'); // Jessica
     });
 
-    it('05.27 hide_childless_inlaws and hide_non_pedigree_family with gen_down=0 leaves only root and direct ancestors', () => {
+    it('05.27 show_childless_inlaws=false and show_non_pedigree_family=false with gen_down=0 leaves only root and direct ancestors', () => {
         const parsed = createPipelineContext().parseGedcomData(getHcilHnpfGedcom());
 
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 1;
         context.window.generations_down = 0;
-        context.window.hide_childless_inlaws = true;
-        context.window.hide_non_pedigree_family = true;
+        context.window.show_childless_inlaws = false;
+        context.window.show_non_pedigree_family = false;
 
         const rootNode = buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
@@ -1631,17 +1632,17 @@ describe('integration test cases', () => {
         expect(uniqueIds.has('@I5@')).toBe(true); // AncMom
     });
 
-    it('05.28 hide_non_pedigree_family with gen_down=0 excludes siblings but keeps root in-law spouses', () => {
+    it('05.28 show_non_pedigree_family=false with gen_down=0 excludes siblings but keeps root in-law spouses', () => {
         const parsed = createPipelineContext().parseGedcomData(getHcilHnpfGedcom());
 
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 1;
         context.window.generations_down = 0;
-        context.window.hide_childless_inlaws = false;
-        context.window.hide_non_pedigree_family = true;
+        context.window.show_childless_inlaws = true;
+        context.window.show_non_pedigree_family = false;
 
         const rootNode = buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
@@ -1667,7 +1668,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 2;
         context.window.generations_down = 1;
 
@@ -1695,7 +1696,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 2;
         context.window.generations_down = 1;
 
@@ -1724,7 +1725,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 2;
         context.window.generations_down = 1;
 
@@ -1751,7 +1752,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 2;
         context.window.generations_down = 1;
 
@@ -1776,7 +1777,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 2;
         context.window.generations_down = 1;
 
@@ -1804,7 +1805,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1828,7 +1829,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 0;
         context.window.generations_down = 3;
 
@@ -1855,7 +1856,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1884,7 +1885,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1913,7 +1914,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1942,7 +1943,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
@@ -1971,7 +1972,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 3;
         context.window.generations_down = 1;
 
@@ -1998,7 +1999,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 3;
         context.window.generations_down = 1;
 
@@ -2021,7 +2022,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 3;
         context.window.generations_down = 1;
 
@@ -2050,8 +2051,8 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
-        context.window.hide_childless_inlaws = true;
+        context.window.beside_inlaws = false;
+        context.window.show_childless_inlaws = false;
         context.window.generations_up = 2;
         context.window.generations_down = 0;
         context.window.max_stack_size = 3;
@@ -2081,7 +2082,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 0;
         context.window.generations_down = 4;
         context.window.max_stack_size = 1;
@@ -2118,7 +2119,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = false;
+        context.window.beside_inlaws = true;
         context.window.generations_up = 0;
         context.window.generations_down = 4;
         context.window.max_stack_size = 1;
@@ -2146,7 +2147,7 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 3;
         context.window.generations_down = 0;
         context.window.max_stack_size = 12;
@@ -2190,11 +2191,11 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 1;
         context.window.generations_down = 0;
         context.window.max_stack_size = 2;
-        context.window.hide_childless_inlaws = false;
+        context.window.show_childless_inlaws = true;
 
         const rootNode = buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
@@ -2227,11 +2228,11 @@ describe('integration test cases', () => {
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
         context.window.families = structuredClone(parsed.families);
-        context.window.vertical_inlaws = true;
+        context.window.beside_inlaws = false;
         context.window.generations_up = 1;
         context.window.generations_down = 0;
         context.window.max_stack_size = 4;
-        context.window.hide_childless_inlaws = false;
+        context.window.show_childless_inlaws = true;
 
         const rootNode = buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);

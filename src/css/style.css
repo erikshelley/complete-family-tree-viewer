@@ -36,7 +36,7 @@ summary {
     cursor: pointer;
     font-weight: bold;
     color: #d0d0d0;
-    margin: 8px 0px;
+    margin: 12px 0px;
     font-size: 1.2em;
 }
 
@@ -155,8 +155,6 @@ svg {
     font-size: 0.7em;
     padding-top: 0.1em;
     padding-left: 4px;
-    color: hsl(210, 50%, 70%);
-    text-decoration: none;
 }
 
 .preset-button-disabled {
@@ -329,17 +327,23 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 input[type="checkbox"] { margin: 0px 8px 0px 4px; }
+input[type="radio"] { margin: 0px 8px 0px 4px; }
 
 input[type="checkbox"],
-label[for="vertical-inlaws-checkbox"],
+input[type="radio"],
+label[for="beside-inlaws-checkbox"],
 label[for="show-names-checkbox"],
 label[for="show-years-checkbox"],
 label[for="show-places-checkbox"],
-label[for="hide-childless-inlaws-checkbox"],
+label[for="show-childless-inlaws-checkbox"],
 label[for="text-shadow-checkbox"],
 label[for="transparent-bg-rect-checkbox"],
 label[for="pedigree-only-checkbox"],
-label[for="color-picker"] {
+label[for="color-picker"],
+label[for="layout-vertical"],
+label[for="layout-horizontal"],
+label[for="save-format-svg"],
+label[for="save-format-png"] {
     cursor: pointer;
 }
 

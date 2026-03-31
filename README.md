@@ -47,6 +47,7 @@ Here are a few examples trees to demonstrate some of the program's capabilities:
 |:----------------:|:-----------------:|:----------------:|
 | John&nbsp;Fitzgerald&nbsp;Kennedy | 202 People   | ![John Fitzgerald Kennedy](readme/John-Fitzgerald-Kennedy.png) |
 | Bart&nbsp;Simpson                 | 10 People    | ![Bart Simpson](readme/Bart-Simpson.png) |
+| Abraham&nbsp;Lincoln              | 52 People    | ![Abraham Lincoln](readme/Abraham-Lincoln.png) |
 | Johann&nbsp;Sebastian&nbsp;Bach   | 32 People    | ![Johann Sebastian Bach](readme/Johann-Sebastian-Bach.png) |
 | Me                                | 4,798 People | ![My Family Tree](readme/Erik-Michael-Shelley.svg) |
 
@@ -94,14 +95,8 @@ The example below contains the same people as the previous example in the **leve
 | Select Root Person | Click on a person to make the root of the tree. Their family tree will be drawn. |
 | Generations Up | Change this value to control how many generations above the root person will be displayed. Click the up arrow <img src="src/png/icons8-top-48-gold.png" width="18" height="18"> to use the maximum possible value for the root person. |
 | Generations Down | Change this value to control how many generations below the root person will be displayed. Click the up arrow <img src="src/png/icons8-top-48-gold.png" width="18" height="18"> to use the maximum possible value for the root person. |
-| Stack Size | Change this value to control how many leaf nodes can be stacked in a single stack. Click the up arrow <img src="src/png/icons8-top-48-gold.png" width="18" height="18"> to use the maximum possible value for the root person. |
-| Position&nbsp;In&#8209;Laws&nbsp;Below&nbsp;Spouses | Click this checkbox to position in-laws below their spouses. If it is unchecked, they will be beside their spouses. |
-| Hide Childless In-Laws | Click this checkbox to hide in-laws who are leaf nodes. |
-| Hide Non-Pedigree Family | Click this checkbox to hide all people who are not direct ancestors or descendants of the root person, or spouses of the root person and their descendants. |
-
-### Person Details
-| Option | Description |
-| ------ | ----------- |
+| Show Childless In-Laws | Click this checkbox to show in-laws who are leaf nodes. |
+| Show Non-Pedigree Family | Click this checkbox to show all people who are not direct ancestors or descendants of the root person, or spouses of the root person and their descendants. |
 | Show Names | Click this checkbox to show people's names in the tree. |
 | Show Years of Birth / Death | Click this checkbox to show people's years of birth and death in the tree. |
 | Show Places of Birth / Death | Click this checkbox to show people's places of birth and death in the tree. |
@@ -124,6 +119,14 @@ The example below contains the same people as the previous example in the **leve
 | ![](src/png/icons8-rename-48-gold.png) | Rename the current preset |
 | ![](src/png/icons8-synchronize-48-gold.png) | Reload the current preset |
 | ![](src/png/icons8-remove-48-gold.png) | Delete the current preset |
+
+### Layout
+| Option | Description |
+| ------ | ----------- |
+| Stack Size | Change this value to control how many leaf nodes can be stacked in a single stack. Click the up arrow <img src="src/png/icons8-top-48-gold.png" width="18" height="18"> to use the maximum possible value for the root person. |
+| Position&nbsp;In&#8209;Laws&nbsp;Below&nbsp;Spouses | Click this checkbox to position in-laws below their spouses. If it is unchecked, they will be beside their spouses. |
+| Vertical <img src="src/png/icons8-flow-chart-48-vertical-gold.png"> | Click this radio button to display the tree vertically |
+| Horizontal <img src="src/png/icons8-flow-chart-48-horizontal-gold.png"> | Click this radio button to display the tree horizontally |
 
 ### Size
 | Option | Description |
@@ -191,7 +194,7 @@ Two 3rd party Javascript libraries are used by this application.
 The page background came from this excellent source:
 - [Free SVG Backgrounds and Patterns by SVGBackgrounds.com](https://www.svgbackgrounds.com/set/free-svg-backgrounds-and-patterns/)
 
-The icons are from icons8 > [liquid glass](https://icons8.com/icons/all--style-liquid-glass).
+The icons are from icons8 > [liquid glass](https://icons8.com/icons/liquid-glass).
 <p>
 
 ![Add](readme/icons8-add-48.png) 
@@ -199,26 +202,33 @@ The icons are from icons8 > [liquid glass](https://icons8.com/icons/all--style-l
 ![Cancel](readme/icons8-cancel-48.png)
 ![Cloud Folder](readme/icons8-cloud-folder-48.png)
 ![Collapse](src/png/icons8-collapse-48.png)
+
+<br />
+
 ![Complete](readme/icons8-complete-48.png)
 ![Customize](readme/icons8-customize-48.png)
 ![Drag](readme/icons8-drag-48.png)
+![Enlarge](readme/icons8-enlarge-48.png)
+![Expand](src/png/icons8-expand-48.png)
 
 <br />
 
-![Enlarge](readme/icons8-enlarge-48.png)
-![Expand](src/png/icons8-expand-48.png)
 ![Filter](readme/icons8-filter-48.png)
+![Flow Chart](readme/icons8-flow-chart-48.png)
 ![Help](readme/icons8-help-48.png)
 ![Laptop](readme/icons8-laptop-48.png)
 ![Layout](readme/icons8-layout-48.png)
-![Privacy](readme/icons8-privacy-48.png)
-![Remove](readme/icons8-remove-48.png)
 
 <br />
 
+![Privacy](readme/icons8-privacy-48.png)
+![Remove](readme/icons8-remove-48.png)
 ![Rename](readme/icons8-rename-48.png)
 ![Resize](readme/icons8-resize-48.png)
 ![Resize Horizontal](readme/icons8-resize-horizontal-48.png)
+
+<br />
+
 ![Resize Vertical](readme/icons8-resize-vertical-48.png)
 ![Save](readme/icons8-save-48.png)
 ![Synchronize](readme/icons8-synchronize-48.png)

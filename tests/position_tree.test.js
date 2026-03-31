@@ -24,7 +24,7 @@ describe('position tree helpers', () => {
             generation_spacing: 20,
             level_spacing: 20,
             tree_padding: 50,
-            vertical_inlaws: true,
+            beside_inlaws: false,
             max_stack_size: 1,
         });
 
@@ -319,7 +319,7 @@ describe('position tree helpers', () => {
     it('positionChildren returns bounds covering positioned children', () => {
         const context = loadPositioningContext({
             max_stack_size: 1,
-            vertical_inlaws: true,
+            beside_inlaws: false,
             box_width: 80,
             sibling_spacing: 20,
             generation_spacing: 20,
@@ -383,7 +383,7 @@ describe('position tree helpers', () => {
     it('positionChildren keeps final child stack groups balanced for thirteen children at max stack size four', () => {
         const context = loadPositioningContext({
             max_stack_size: 4,
-            vertical_inlaws: true,
+            beside_inlaws: false,
             box_width: 80,
             sibling_spacing: 20,
             generation_spacing: 20,
@@ -453,7 +453,7 @@ describe('position tree helpers', () => {
     it('positionChildren compacts the left-most child subtree to the right before parent centering', () => {
         const context = loadPositioningContext({
             max_stack_size: 1,
-            vertical_inlaws: true,
+            beside_inlaws: false,
             box_width: 80,
             sibling_spacing: 20,
             generation_spacing: 20,

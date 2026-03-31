@@ -38,7 +38,7 @@ function loadDrawTreeContext(windowOverrides = {}) {
             show_names: true,
             show_years: true,
             show_places: false,
-            pedigree_highlight_percent: 125,
+            special_highlight_percent: 125,
             node_saturation: 30,
             node_brightness: 40,
             root_hue: 180,

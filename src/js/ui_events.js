@@ -320,6 +320,15 @@ document.addEventListener('DOMContentLoaded', function() {
     resize_tree_button.addEventListener('click', function() { zoomToFit(); });
     resize_tree_horizontal_button.addEventListener('click', function() { zoomToFitHorizontal(); });
     resize_tree_vertical_button.addEventListener('click', function() { zoomToFitVertical(); });
+
+    document.querySelectorAll('input[name="layout"]').forEach(function(radio) {
+        radio.addEventListener('change', function(event) {
+            if (event.target.checked) {
+                window.tree_orientation = event.target.value;
+                requestFamilyTreeUpdate();
+            }
+        });
+    });
     expand_styling_button.addEventListener('click', function() { expandAllStylingSections(); });
     collapse_styling_button.addEventListener('click', function() { collapseAllStylingSections(); });
 

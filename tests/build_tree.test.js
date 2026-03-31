@@ -17,7 +17,7 @@ describe('build tree utilities', () => {
             families: [],
             generations_up: 1,
             generations_down: 1,
-            hide_childless_inlaws: false,
+            show_childless_inlaws: true,
             pedigree_only: false,
             max_gen_up: 0,
             max_gen_down: 0,
@@ -46,7 +46,7 @@ describe('build tree utilities', () => {
             families,
             generations_up: 1,
             generations_down: 1,
-            hide_childless_inlaws: false,
+            show_childless_inlaws: true,
             pedigree_only: false,
             max_gen_up: 0,
             max_gen_down: 0,
@@ -81,7 +81,7 @@ describe('build tree utilities', () => {
             families,
             generations_up: 1,
             generations_down: 1,
-            hide_childless_inlaws: false,
+            show_childless_inlaws: true,
             pedigree_only: false,
             max_gen_up: 0,
             max_gen_down: 0,
@@ -208,14 +208,14 @@ describe('build tree utilities', () => {
             { id: '@F3@', husb: '@I1@', wife: '@I7@', chil: ['@I8@'] },
         ];
 
-        function buildRoot(hideNonPedigreeFamily) {
+        function buildRoot(showNonPedigreeFamily) {
             const context = loadBuildTreeContext({
                 individuals: structuredClone(individuals),
                 families: structuredClone(families),
                 generations_up: 1,
                 generations_down: 2,
-                hide_childless_inlaws: false,
-                hide_non_pedigree_family: hideNonPedigreeFamily,
+                show_childless_inlaws: true,
+                show_non_pedigree_family: showNonPedigreeFamily,
                 pedigree_only: false,
                 max_gen_up: 0,
                 max_gen_down: 0,
@@ -224,8 +224,8 @@ describe('build tree utilities', () => {
             return context.buildTree(context.window.individuals.find(person => person.id === '@I1@'));
         }
 
-        const withBranches = buildRoot(false);
-        const withoutBranches = buildRoot(true);
+        const withBranches = buildRoot(true);
+        const withoutBranches = buildRoot(false);
 
         expect(withBranches.father_node.children_nodes.map(node => node.individual.id)).toEqual(['@I1@', '@I2@']);
         expect(withBranches.father_node.children_nodes[1].spouse_nodes).toHaveLength(1);
@@ -249,14 +249,14 @@ describe('build tree utilities', () => {
             { id: '@F1@', husb: '@I2@', wife: '@I4@', chil: ['@I5@'] },
         ];
 
-        function buildRoot(hideNonPedigreeFamily) {
+        function buildRoot(showNonPedigreeFamily) {
             const context = loadBuildTreeContext({
                 individuals: structuredClone(individuals),
                 families: structuredClone(families),
                 generations_up: 1,
                 generations_down: 1,
-                hide_childless_inlaws: false,
-                hide_non_pedigree_family: hideNonPedigreeFamily,
+                show_childless_inlaws: true,
+                show_non_pedigree_family: showNonPedigreeFamily,
                 pedigree_only: false,
                 max_gen_up: 0,
                 max_gen_down: 0,
@@ -265,8 +265,8 @@ describe('build tree utilities', () => {
             return context.buildTree(context.window.individuals.find(person => person.id === '@I1@'));
         }
 
-        const withInlawBranch = buildRoot(false);
-        const withoutInlawBranch = buildRoot(true);
+        const withInlawBranch = buildRoot(true);
+        const withoutInlawBranch = buildRoot(false);
 
         expect(withInlawBranch.father_node.spouse_nodes.map(node => node.individual.id)).toEqual(['@I4@']);
         expect(withInlawBranch.father_node.spouse_nodes[0].children_nodes.map(node => node.individual.id)).toEqual(['@I5@']);
@@ -448,7 +448,7 @@ describe('computeRawConnectionPathIds', () => {
         expect(result.size).toBe(3);
     });
 
-    it('02.20 hide_non_pedigree_family with connection path keeps sibling on the connection path', () => {
+    it('02.20 show_non_pedigree_family=false with connection path keeps sibling on the connection path', () => {
         const individuals = [
             { id: '@I1@', name: 'Root', famc: '@F0@', fams: [], gender: 'M' },
             { id: '@I2@', name: 'Sibling', famc: '@F0@', fams: [], gender: 'F' },
@@ -463,8 +463,8 @@ describe('computeRawConnectionPathIds', () => {
             families: structuredClone(families),
             generations_up: 1,
             generations_down: 1,
-            hide_childless_inlaws: false,
-            hide_non_pedigree_family: true,
+            show_childless_inlaws: true,
+            show_non_pedigree_family: false,
             pedigree_only: false,
             max_gen_up: 0,
             max_gen_down: 0,
@@ -477,7 +477,7 @@ describe('computeRawConnectionPathIds', () => {
         expect(childIds).toContain('@I2@');
     });
 
-    it('02.21 hide_non_pedigree_family without connection path still excludes sibling', () => {
+    it('02.21 show_non_pedigree_family=false without connection path still excludes sibling', () => {
         const individuals = [
             { id: '@I1@', name: 'Root', famc: '@F0@', fams: [], gender: 'M' },
             { id: '@I2@', name: 'Sibling', famc: '@F0@', fams: [], gender: 'F' },
@@ -492,8 +492,8 @@ describe('computeRawConnectionPathIds', () => {
             families: structuredClone(families),
             generations_up: 1,
             generations_down: 1,
-            hide_childless_inlaws: false,
-            hide_non_pedigree_family: true,
+            show_childless_inlaws: true,
+            show_non_pedigree_family: false,
             pedigree_only: false,
             max_gen_up: 0,
             max_gen_down: 0,
@@ -506,7 +506,7 @@ describe('computeRawConnectionPathIds', () => {
         expect(childIds).toContain('@I1@');
     });
 
-    it('02.22 hide_non_pedigree_family with connection path keeps ancestor in-law spouse on the connection path', () => {
+    it('02.22 show_non_pedigree_family=false with connection path keeps ancestor in-law spouse on the connection path', () => {
         const individuals = [
             { id: '@I1@', name: 'Root', famc: '@F0@', fams: [], gender: 'M' },
             { id: '@I2@', name: 'Father', famc: null, fams: ['@F0@', '@F1@'], gender: 'M' },
@@ -523,8 +523,8 @@ describe('computeRawConnectionPathIds', () => {
             families: structuredClone(families),
             generations_up: 1,
             generations_down: 1,
-            hide_childless_inlaws: false,
-            hide_non_pedigree_family: true,
+            show_childless_inlaws: true,
+            show_non_pedigree_family: false,
             pedigree_only: false,
             max_gen_up: 0,
             max_gen_down: 0,
@@ -535,7 +535,7 @@ describe('computeRawConnectionPathIds', () => {
         expect(rootNode.father_node.spouse_nodes.map(n => n.individual.id)).toContain('@I4@');
     });
 
-    it('02.23 hide_non_pedigree_family without connection path still excludes ancestor in-law spouse', () => {
+    it('02.23 show_non_pedigree_family=false without connection path still excludes ancestor in-law spouse', () => {
         const individuals = [
             { id: '@I1@', name: 'Root', famc: '@F0@', fams: [], gender: 'M' },
             { id: '@I2@', name: 'Father', famc: null, fams: ['@F0@', '@F1@'], gender: 'M' },
@@ -552,8 +552,8 @@ describe('computeRawConnectionPathIds', () => {
             families: structuredClone(families),
             generations_up: 1,
             generations_down: 1,
-            hide_childless_inlaws: false,
-            hide_non_pedigree_family: true,
+            show_childless_inlaws: true,
+            show_non_pedigree_family: false,
             pedigree_only: false,
             max_gen_up: 0,
             max_gen_down: 0,

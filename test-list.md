@@ -245,6 +245,9 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 06.90 | savePreset checks only the checkboxes whose settings are present in the selected preset |
 |  Automated  | 06.91 | confirmAddPreset with quotes in the name generates valid loadable presets.js content |
 |  Automated  | 06.92 | confirmRenamePreset with quotes in the name generates valid loadable presets.js content |
+|  Automated  | 06.93 | All radio button inputs and their labels use the pointer cursor |
+|  Automated  | 06.99 | confirmAddPreset saves generations-up and generations-down when their checkboxes are checked |
+|  Automated  | 06.100 | confirmAddPreset omits generations-up and generations-down when their checkboxes are unchecked |
 
 ## 07 Export Test Cases
 |    Status   |  ID   | Test Description |
@@ -298,6 +301,32 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 11.13 | drawText renders long names across multiple name lines before years when places are hidden |
 |  Automated  | 11.14 | fitTextInBox does not split unbroken names mid-character; falls back to min font size instead |
 |  Automated  | 11.15 | fitTextInBox fallback returns wrapped min-size lines when height is too constrained for a full fit |
+
+## 12 Horizontal Orientation (draw_tree)
+|    Status   |  ID   | Test Description |
+| ----------- | ----- | ---------------- |
+|  Automated  | 12.01 | mapCoords returns {x: s, y: g} for vertical orientation |
+|  Automated  | 12.02 | mapCoords returns {x: g, y: s} for horizontal orientation |
+|  Automated  | 12.03 | nodeW returns box_width in both orientations |
+|  Automated  | 12.04 | nodeH returns box_height in both orientations |
+|  Automated  | 12.05 | getMaximumDimensions returns sibling extent as SVG width in vertical mode |
+|  Automated  | 12.06 | getMaximumDimensions returns generation extent as SVG width in horizontal mode |
+|  Automated  | 12.07 | drawNode uses (x, y) translate and box_width × box_height rect in vertical mode |
+|  Automated  | 12.08 | drawNode uses (y, x) translate and box_width × box_height rect in horizontal mode |
+|  Automated  | 12.09 | drawLink path advances along y-axis first in vertical mode |
+|  Automated  | 12.10 | drawLink path advances along x-axis first in horizontal mode |
+|  Automated  | 12.11 | drawCircle maps center sibling→cx, generation→cy in vertical mode |
+|  Automated  | 12.12 | drawCircle maps center generation→cx, sibling→cy in horizontal mode |
+|  Automated  | 12.13 | layout radio change to horizontal updates tree_orientation and triggers redraw |
+|  Automated  | 12.14 | layout radio change to vertical updates tree_orientation and triggers redraw |
+|  Automated  | 12.15 | layout radio change does not trigger redraw when the input is not checked |
+|  Automated  | 12.17 | in horizontal mode setHeights places ancestor levels to the right of descendant levels |
+|  Automated  | 12.18 | drawCircles places ancestor circle at sibling-axis midpoint between parents in vertical mode |
+|  Automated  | 12.19 | drawCircles places ancestor circle at sibling-axis midpoint between parents in horizontal mode |
+|  Automated  | 12.20 | drawBoldLinks mother link starts at correct sibling-axis position in horizontal mode (non-beside, box_width > box_height) |
+|  Automated  | 12.21 | drawBoldLinks beside-mode link endpoint has correct sibling-axis position in horizontal mode (box_width > box_height) |
+|  Automated  | 12.22 | drawCircles places circle at correct sibling-axis position for female inlaw (non-ancestor spouse) in horizontal mode (box_width > box_height) |
+|  Automated  | 12.23 | drawNonBoldLinks beside-inlaw link from female inlaw starts at correct sibling-axis position in horizontal mode (box_width > box_height) |
 |  Automated  | 11.16 | drawText wraps a long multi-part name before years when places are hidden |
 |  Automated  | 11.17 | drawText uses a shared SVG filter for text shadows |
 |  Automated  | 11.18 | auto_box_width equals text width at desired font size plus padding when name fits without shrinking |

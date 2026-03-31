@@ -673,24 +673,24 @@ describe('ui behavior cases', () => {
         expect(decoded.content).toContain('1 NAME José /Muñoz/');
     });
 
-    it('06.21 hide non-pedigree family checkbox updates state and triggers redraw', () => {
+    it('06.21 show non-pedigree family checkbox updates state and triggers redraw', () => {
         let redraws = 0;
         const { context, dom } = loadUiEventsContextWithDom(`
-            <input id="hide-non-pedigree-family-checkbox" type="checkbox" />
+            <input id="show-non-pedigree-family-checkbox" type="checkbox" />
         `, {
             globalOverrides: {
                 elements: [
-                    { id: 'hide-non-pedigree-family-checkbox', type: 'checkbox', default: false, variable: 'hide_non_pedigree_family' },
+                    { id: 'show-non-pedigree-family-checkbox', type: 'checkbox', default: true, variable: 'show_non_pedigree_family' },
                 ],
                 requestFamilyTreeUpdate: () => { redraws += 1; },
             },
         });
 
-        const checkbox = dom.window.document.getElementById('hide-non-pedigree-family-checkbox');
+        const checkbox = dom.window.document.getElementById('show-non-pedigree-family-checkbox');
         checkbox.checked = true;
         checkbox.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
 
-        expect(context.window.hide_non_pedigree_family).toBe(true);
+        expect(context.window.show_non_pedigree_family).toBe(true);
         expect(redraws).toBe(1);
     });
 
@@ -2460,5 +2460,57 @@ describe('ui behavior cases', () => {
         await context.openAboutModal();
         await new Promise(resolve => setTimeout(resolve, 0));
         expect(dom.window.document.getElementById('about-latest-version').textContent).toBe('Unavailable');
+    });
+
+    it('06.99 confirmAddPreset saves generations-up and generations-down when their checkboxes are checked', () => {
+        const style_presets = {};
+        const { context } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="my-preset" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings">
+                <input type="checkbox" name="preset-setting" value="generations-up" checked />
+                <input type="checkbox" name="preset-setting" value="generations-down" checked />
+            </div>
+            <select id="preset-select"></select>
+        `, {
+            style_presets,
+            elements: [
+                { id: 'generations-up-number',   type: 'number', default: 1, min: 0, max: 99, variable: 'generations_up' },
+                { id: 'generations-down-number', type: 'number', default: 1, min: 0, max: 99, variable: 'generations_down' },
+            ],
+            windowOverrides: { generations_up: 3, generations_down: 2 },
+        });
+
+        context.confirmAddPreset();
+
+        expect(style_presets['my-preset']['generations-up']).toBe(3);
+        expect(style_presets['my-preset']['generations-down']).toBe(2);
+    });
+
+    it('06.100 confirmAddPreset omits generations-up and generations-down when their checkboxes are unchecked', () => {
+        const style_presets = {};
+        const { context } = loadUiWithAddPresetDom(`
+            <div id="add-preset-modal" style="display:flex;"></div>
+            <input id="add-preset-name-input" value="my-preset" />
+            <span id="add-preset-name-error" style="display:none;"></span>
+            <div id="add-preset-settings">
+                <input type="checkbox" name="preset-setting" value="generations-up" />
+                <input type="checkbox" name="preset-setting" value="generations-down" />
+            </div>
+            <select id="preset-select"></select>
+        `, {
+            style_presets,
+            elements: [
+                { id: 'generations-up-number',   type: 'number', default: 1, min: 0, max: 99, variable: 'generations_up' },
+                { id: 'generations-down-number', type: 'number', default: 1, min: 0, max: 99, variable: 'generations_down' },
+            ],
+            windowOverrides: { generations_up: 3, generations_down: 2 },
+        });
+
+        context.confirmAddPreset();
+
+        expect(style_presets['my-preset']['generations-up']).toBeUndefined();
+        expect(style_presets['my-preset']['generations-down']).toBeUndefined();
     });
 });

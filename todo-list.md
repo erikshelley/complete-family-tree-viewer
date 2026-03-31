@@ -6,7 +6,6 @@ Backlog
 |:--------:|:-------:|:---------------- -:| ----------- |
 |    🟡    |   Bug   | Draw              | Auto box sizing sometimes seems to make errors |
 |    🟡    |   Bug   | UI                | Narrow windows push Tree Viewer header below buttons |
-|    🔴    | Feature | Position + Draw   | Horizontally oriented trees |
 |    🟡    | Feature | Parse + Draw      | Make other GEDCOM fields available for display |
 
 ## Under Considuration
