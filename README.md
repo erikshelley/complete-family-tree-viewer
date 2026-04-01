@@ -141,9 +141,9 @@ The example below contains the same people as the previous example in the **leve
 ### Spacing
 | Option | Description |
 | ------ | ----------- |
-| Boxes X | Change this value to control the horizontal space between nodes. |
-| Boxes Y | Change this value to control the vertical space between nodes. |
-| Levels Y | Change this value to control the vertical space between levels. |
+| Sibling | Change this value to control the horizontal space between nodes. |
+| Generation | Change this value to control the vertical space between nodes. |
+| Level | Change this value to control the vertical space between levels. |
 | Tree Padding | Change this value to control the padding around the tree. |
 | Vertical Text Alignment | Choose whether text is aligned to the **Top** / **Middle** / **Bottom**. |
 
