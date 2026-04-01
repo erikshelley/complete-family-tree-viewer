@@ -38,6 +38,16 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 01.15 | CONC/CONT after FAMC does not corrupt the name field |
 |  Automated  | 01.16 | CONC/CONT on a birth place appends to birth_place not to name |
 |  Automated  | 01.17 | deep source-citation CONT lines (level 4+) under a NAME do not corrupt the name |
+|  Automated  | 01.18 | extractGedcomCharset returns the declared charset value from a 1 CHAR line |
+|  Automated  | 01.19 | extractGedcomCharset is case-insensitive and trims surrounding whitespace |
+|  Automated  | 01.20 | extractGedcomCharset returns empty string when no 1 CHAR line is present |
+|  Automated  | 01.21 | resolveGedcomDecoderEncoding returns utf-8 for UTF-8, UTF8, and UNICODE |
+|  Automated  | 01.22 | resolveGedcomDecoderEncoding returns windows-1252 for ANSI, ANSEL, and ASCII |
+|  Automated  | 01.23 | resolveGedcomDecoderEncoding defaults to utf-8 for absent or unrecognised charset |
+|  Automated  | 01.24 | CRLF line endings parse identically to LF-only content |
+|  Automated  | 01.25 | date modifiers ABT BEF AFT EST CAL INT all yield the embedded four-digit year |
+|  Automated  | 01.26 | empty string input does not throw and returns empty arrays |
+|  Automated  | 01.27 | MARR and BURI records do not crash the parser and surrounding fields remain intact |
 
 ### 02 Tree Construction (build_tree)
 |    Status   |  ID   | Test Description |
@@ -65,6 +75,10 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 02.21 | hide_non_pedigree_family without connection path still excludes sibling |
 |  Automated  | 02.22 | hide_non_pedigree_family with connection path keeps ancestor in-law spouse on the connection path |
 |  Automated  | 02.23 | hide_non_pedigree_family without connection path still excludes ancestor in-law spouse |
+|  Automated  | 02.24 | calculateMaxStackSize returns 1 for a root with no siblings and no children |
+|  Automated  | 02.25 | calculateMaxStackSize returns the leaf-child count when all children are childless |
+|  Automated  | 02.26 | calculateMaxStackSize does not count children who have their own families |
+|  Automated  | 02.27 | calculateMaxStackSize counts childless in-law spouses across multiple marriages |
 
 ### 03 Positioning Helpers (position_tree)
 |    Status   |  ID   | Test Description |
@@ -173,7 +187,6 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 06.19 | decodeGedcomArrayBuffer decodes ANSI-declared bytes for Norse characters |
 |  Automated  | 06.20 | decodeGedcomArrayBuffer preserves UTF-8 multibyte characters |
 |  Automated  | 06.21 | Hide Non-Pedigree Family checkbox updates state and triggers redraw |
-|  Automated  | 06.22 | All checkbox labels use the pointer cursor |
 |  Automated  | 06.22 | Open online GEDCOM button click invokes openOnlineGedcomModal |
 |  Automated  | 06.23 | Online GEDCOM cancel button hides modal |
 |  Automated  | 06.24 | Online GEDCOM modal Escape key hides modal |
@@ -245,9 +258,29 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 06.90 | savePreset checks only the checkboxes whose settings are present in the selected preset |
 |  Automated  | 06.91 | confirmAddPreset with quotes in the name generates valid loadable presets.js content |
 |  Automated  | 06.92 | confirmRenamePreset with quotes in the name generates valid loadable presets.js content |
-|  Automated  | 06.93 | All radio button inputs and their labels use the pointer cursor |
+|  Automated  | 06.93 | about button click invokes openAboutModal |
+|  Automated  | 06.94 | about modal close button hides the about modal |
+|  Automated  | 06.95 | Escape key on about modal hides the modal |
+|  Automated  | 06.96 | openAboutModal shows the modal and sets latest version to Checking |
+|  Automated  | 06.97 | openAboutModal updates latest version span on successful fetch |
+|  Automated  | 06.98 | openAboutModal sets latest version to Unavailable on fetch error |
 |  Automated  | 06.99 | confirmAddPreset saves generations-up and generations-down when their checkboxes are checked |
 |  Automated  | 06.100 | confirmAddPreset omits generations-up and generations-down when their checkboxes are unchecked |
+|  Automated  | 06.101 | expandAllStylingSections opens all details elements and updates button visibility |
+|  Automated  | 06.102 | collapseAllStylingSections closes all details elements and updates button visibility |
+|  Automated  | 06.103 | toggleOptions adds open class when not open and removes it when already open |
+|  Automated  | 06.104 | scaleBodyForSmallScreens applies proportional scale transform when innerWidth is below 450 |
+|  Automated  | 06.105 | scaleBodyForSmallScreens resets body transform and width when innerWidth is at or above 450 |
+|  Automated  | 06.106 | DOMContentLoaded initialises range element to default value and window variable |
+|  Automated  | 06.107 | DOMContentLoaded sets number element to default; input below minimum clamps to min |
+|  Automated  | 06.108 | DOMContentLoaded sets select element to default and updates window variable on change |
+|  Automated  | 06.109 | DOMContentLoaded max-link click sets element and window variable to element maximum |
+|  Automated  | 06.110 | DOMContentLoaded none_links click resets variable to 100 and updates range and number elements |
+|  Automated  | 06.111 | DOMContentLoaded with non-local protocol adds disabled class to all preset edit buttons |
+|  Automated  | 06.112 | usePresetStyle applies a radio-type preset key by checking the matching radio input |
+|  Automated  | 06.113 | usePresetStyle removes hidden class from connection-container when highlight type becomes connection |
+|  Automated  | 06.114 | usePresetStyle adds hidden class to connection-container when highlight type is not connection |
+|  Automated  | 06.115 | requestFamilyTreeUpdate sets update_waiting when an update is already in progress |
 
 ## 07 Export Test Cases
 |    Status   |  ID   | Test Description |
@@ -256,6 +289,9 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 07.02 | Save PNG creates PNG output for visible tree content |
 |  Automated  | 07.03 | Export filename uses user-provided name and falls back to default when empty |
 |  Automated  | 07.04 | PNG export handles overly large trees by resizing within limits |
+|  Automated  | 07.05 | saveSVG preserves feDropShadow filter elements in the serialized SVG output |
+|  Automated  | 07.06 | saveSVG on an empty tree calls alert and does not trigger a download |
+|  Automated  | 07.07 | savePNG at normal scale preserves viewBox dimensions and does not alert |
 
 ## 08 Edge Cases
 |    Status   |  ID   | Test Description |
@@ -332,15 +368,18 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 11.18 | auto_box_width equals text width at desired font size plus padding when name fits without shrinking |
 |  Automated  | 11.19 | auto_box_width exceeds box_width when dates are wider than the box at the preferred secondary font size |
 |  Automated  | 11.20 | auto_box_width accumulates the maximum across multiple drawText calls |
+|  Automated  | 11.21 | alignTextVertically places text top/middle/bottom precisely using exact getBBox coords |
+|  Automated  | 11.22 | alignTextVertically works correctly for multiline text with unequal dy gaps |
+|  Automated  | 11.23 | drawText uses geometric bbox model so text is never placed at midpoint regardless of getBBox output |
 
-## 12 Content Display (draw_tree)
+## 14 Content Display (draw_tree)
 |    Status   |  ID   | Test Description |
 | ----------- | ----- | ---------------- |
-|  Automated  | 12.01 | drawText shows name only when show_years and show_places are both false |
-|  Automated  | 12.02 | drawText shows name and dates but no places when show_places is false |
-|  Automated  | 12.03 | drawText shows name and places but no standalone date line when show_years is false |
-|  Automated  | 12.04 | drawText shows name, dates embedded in places when both show_years and show_places are true |
-|  Automated  | 12.05 | drawText shows name and dates but no places when show_places is false (variant) |
+|  Automated  | 14.01 | drawText shows name only when show_years and show_places are both false |
+|  Automated  | 14.02 | drawText shows name and dates but no places when show_places is false |
+|  Automated  | 14.03 | drawText shows name and places but no standalone date line when show_years is false |
+|  Automated  | 14.04 | drawText shows name, dates embedded in places when both show_years and show_places are true |
+|  Automated  | 14.05 | drawText shows name and dates but no places when show_places is false (variant) |
 
 ## 13 Node Styling (draw_tree)
 |    Status   |  ID   | Test Description |
@@ -369,6 +408,24 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 13.22 | drawLink uses highlighted_link_width as stroke-width when the highlight factor is not 1 |
 |  Automated  | 13.23 | drawText uses text_brightness for non-highlighted nodes |
 |  Automated  | 13.24 | drawText uses highlighted_text_brightness for highlighted nodes |
+
+## 15 UI Styles
+|    Status   |  ID   | Test Description |
+| ----------- | ----- | ---------------- |
+|  Automated  | 15.01 | All checkbox labels use the pointer cursor |
+|  Automated  | 15.02 | All radio button inputs and their labels use the pointer cursor |
+
+## 16 Presets
+|    Status   |  ID   | Test Description |
+| ----------- | ----- | ---------------- |
+|  Automated  | 16.01 | style_presets is a non-empty object when presets.js is loaded |
+|  Automated  | 16.02 | each preset in style_presets is a non-empty object with at least one setting |
+
+## 17 DOM Integrity
+|    Status   |  ID   | Test Description |
+| ----------- | ----- | ---------------- |
+|  Automated  | 17.01 | every getElementById target in ui_declarations.js resolves to an element in index.html |
+|  Automated  | 17.02 | every id in the elements, none_links, and auto_links arrays exists in index.html |
 
 ## Coverage Tracking
 Mark each case as one of:

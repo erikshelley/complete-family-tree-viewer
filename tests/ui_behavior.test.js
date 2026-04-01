@@ -3,8 +3,12 @@ import { JSDOM } from 'jsdom';
 
 import { loadBrowserScript } from './helpers/load-browser-script.js';
 
-function loadUiContextWithDom(html) {
+function loadUiContextWithDom(html, overrides = {}) {
     const dom = new JSDOM(html);
+    // globalOverrides may be a function receiving dom (for DOM-dependent overrides)
+    const extraGlobals = typeof overrides.globalOverrides === 'function'
+        ? overrides.globalOverrides(dom)
+        : (overrides.globalOverrides || {});
     const context = loadBrowserScript('src/js/ui.js', {
         windowOverrides: {
             document: dom.window.document,
@@ -16,6 +20,7 @@ function loadUiContextWithDom(html) {
             individual_filter_value: '',
             selected_individual: '',
             tree_color: '#000000',
+            ...overrides.windowOverrides,
         },
         globalOverrides: {
             document: dom.window.document,
@@ -53,6 +58,7 @@ function loadUiContextWithDom(html) {
             update_in_progress: false,
             update_waiting: false,
             update_timeout: null,
+            ...extraGlobals,
         },
     });
 
@@ -178,6 +184,7 @@ function loadUiWithAddPresetDom(html, overrides = {}) {
         windowOverrides: {
             document: dom.window.document,
             addEventListener: () => {},
+            innerWidth: 1200,
             individuals: [],
             families: [],
             gedcom_content: '',
@@ -185,6 +192,7 @@ function loadUiWithAddPresetDom(html, overrides = {}) {
             selected_individual: '',
             tree_color: '#000000',
             location: { protocol: 'file:' },
+            alert: () => {},
             ...overrides.windowOverrides,
         },
         globalOverrides: {
@@ -1087,62 +1095,18 @@ describe('ui behavior cases', () => {
     });
 
     it('06.41 updateRangeThumbs sets highlighted-text-brightness-range thumb to its own value, not text-brightness-range value', () => {
-        const html = `
+        const { context, dom } = loadUiContextWithDom(`
             <input type="range" id="text-brightness-range" value="50">
             <input type="range" id="highlighted-text-brightness-range" value="80">
-        `;
-        const dom = new JSDOM(html);
-        const textBrightnessEl = dom.window.document.getElementById('text-brightness-range');
-
-        const context = loadBrowserScript('src/js/ui.js', {
-            windowOverrides: {
-                document: dom.window.document,
-                addEventListener: () => {},
-                individuals: [],
-                families: [],
-                gedcom_content: '',
-                individual_filter_value: '',
-                selected_individual: '',
-                tree_color: '#000000',
-            },
-            globalOverrides: {
-                document: dom.window.document,
-                Event: dom.window.Event,
+        `, {
+            globalOverrides: (dom) => ({
                 d3: { hcl: (h, c, l) => `hcl(${h},${c},${l})` },
-                optionsMenu: { style: {} },
-                leftColumnWrapper: { classList: { remove: () => {}, add: () => {}, contains: () => false }, style: {} },
-                leftCol: { offsetWidth: 300 },
-                rightCol: { offsetWidth: 500 },
-                family_tree_div: { querySelector: () => null, innerHTML: '' },
-                expand_styling_button: { style: {} },
-                collapse_styling_button: { style: {} },
-                file_name_span: { textContent: '' },
-                individual_filter: { value: '' },
-                connection_filter: { value: '' },
-                individual_select: { innerHTML: '' },
-                connection_select: { innerHTML: '', appendChild: () => {} },
-                generations_up_number: { value: '1' },
-                generations_down_number: { value: '1' },
-                max_stack_size_number: { value: '1' },
-                hue_element: { value: '180' },
-                sat_element: { value: '20' },
-                lum_element: { value: '30' },
-                text_lum_element: textBrightnessEl,
-                root_name: null,
-                color_picker: { value: '#000000' },
-                save_filename_input: { value: '' },
-                save_modal: { style: {} },
-                style_presets: {},
-                filter_timeout: null,
-                connection_filter_timeout: null,
-                update_in_progress: false,
-                update_waiting: false,
-                update_timeout: null,
+                text_lum_element: dom.window.document.getElementById('text-brightness-range'),
                 elements: [
                     { id: 'text-brightness-range',             type: 'range', default: 80, min: 0, max: 100, variable: 'text_brightness' },
                     { id: 'highlighted-text-brightness-range', type: 'range', default: 80, min: 0, max: 100, variable: 'highlighted_text_brightness' },
                 ],
-            },
+            }),
         });
 
         context.updateRangeThumbs();
@@ -2284,118 +2248,22 @@ describe('ui behavior cases', () => {
 
     it('06.96 openAboutModal shows the modal and sets latest version to Checking', async () => {
         const pendingFetch = new Promise(() => {});
-        const dom = new JSDOM(`
+        const { context, dom } = loadUiContextWithDom(`
             <div id="about-modal" style="display:none;"></div>
             <span id="about-latest-version">v0.0.0</span>
-        `);
-        const context = loadBrowserScript('src/js/ui.js', {
-            windowOverrides: {
-                document: dom.window.document,
-                addEventListener: () => {},
-                individuals: [],
-                families: [],
-                gedcom_content: '',
-                individual_filter_value: '',
-                selected_individual: '',
-                tree_color: '#000000',
-            },
-            globalOverrides: {
-                document: dom.window.document,
-                fetch: () => pendingFetch,
-                Event: dom.window.Event,
-                d3: { hcl: () => ({}) },
-                optionsMenu: { style: {} },
-                leftColumnWrapper: { classList: { remove: () => {}, add: () => {}, contains: () => false }, style: {} },
-                leftCol: { offsetWidth: 300 },
-                rightCol: { offsetWidth: 500 },
-                family_tree_div: { querySelector: () => null, innerHTML: '' },
-                expand_styling_button: { style: {} },
-                collapse_styling_button: { style: {} },
-                file_name_span: { textContent: '' },
-                individual_filter: { value: '' },
-                connection_filter: { value: '' },
-                individual_select: { innerHTML: '' },
-                connection_select: { innerHTML: '', appendChild: () => {} },
-                generations_up_number: { value: '1' },
-                generations_down_number: { value: '1' },
-                max_stack_size_number: { value: '1' },
-                hue_element: { value: '180' },
-                sat_element: { value: '20' },
-                lum_element: { value: '30' },
-                text_lum_element: { value: '80' },
-                root_name: null,
-                color_picker: { value: '#000000' },
-                save_filename_input: { value: '' },
-                save_modal: { style: {} },
-                style_presets: {},
-                elements: [],
-                filter_timeout: null,
-                connection_filter_timeout: null,
-                update_in_progress: false,
-                update_waiting: false,
-                update_timeout: null,
-            },
-        });
+        `, { globalOverrides: { fetch: () => pendingFetch } });
         context.openAboutModal();
         expect(dom.window.document.getElementById('about-modal').style.display).toBe('flex');
         expect(dom.window.document.getElementById('about-latest-version').textContent).toBe('Checking\u2026');
     });
 
     it('06.97 openAboutModal updates latest version span on successful fetch', async () => {
-        const dom = new JSDOM(`
+        const { context, dom } = loadUiContextWithDom(`
             <div id="about-modal" style="display:none;"></div>
             <span id="about-latest-version">Checking\u2026</span>
-        `);
-        const mockFetch = () => Promise.resolve({
-            ok: true,
-            json: () => Promise.resolve({ tag_name: 'v2.5.0' }),
-        });
-        const context = loadBrowserScript('src/js/ui.js', {
-            windowOverrides: {
-                document: dom.window.document,
-                addEventListener: () => {},
-                individuals: [],
-                families: [],
-                gedcom_content: '',
-                individual_filter_value: '',
-                selected_individual: '',
-                tree_color: '#000000',
-            },
+        `, {
             globalOverrides: {
-                document: dom.window.document,
-                fetch: mockFetch,
-                Event: dom.window.Event,
-                d3: { hcl: () => ({}) },
-                optionsMenu: { style: {} },
-                leftColumnWrapper: { classList: { remove: () => {}, add: () => {}, contains: () => false }, style: {} },
-                leftCol: { offsetWidth: 300 },
-                rightCol: { offsetWidth: 500 },
-                family_tree_div: { querySelector: () => null, innerHTML: '' },
-                expand_styling_button: { style: {} },
-                collapse_styling_button: { style: {} },
-                file_name_span: { textContent: '' },
-                individual_filter: { value: '' },
-                connection_filter: { value: '' },
-                individual_select: { innerHTML: '' },
-                connection_select: { innerHTML: '', appendChild: () => {} },
-                generations_up_number: { value: '1' },
-                generations_down_number: { value: '1' },
-                max_stack_size_number: { value: '1' },
-                hue_element: { value: '180' },
-                sat_element: { value: '20' },
-                lum_element: { value: '30' },
-                text_lum_element: { value: '80' },
-                root_name: null,
-                color_picker: { value: '#000000' },
-                save_filename_input: { value: '' },
-                save_modal: { style: {} },
-                style_presets: {},
-                elements: [],
-                filter_timeout: null,
-                connection_filter_timeout: null,
-                update_in_progress: false,
-                update_waiting: false,
-                update_timeout: null,
+                fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({ tag_name: 'v2.5.0' }) }),
             },
         });
         await context.openAboutModal();
@@ -2404,57 +2272,12 @@ describe('ui behavior cases', () => {
     });
 
     it('06.98 openAboutModal sets latest version to Unavailable on fetch error', async () => {
-        const dom = new JSDOM(`
+        const { context, dom } = loadUiContextWithDom(`
             <div id="about-modal" style="display:none;"></div>
             <span id="about-latest-version">Checking\u2026</span>
-        `);
-        const mockFetch = () => Promise.reject(new Error('network'));
-        const context = loadBrowserScript('src/js/ui.js', {
-            windowOverrides: {
-                document: dom.window.document,
-                addEventListener: () => {},
-                individuals: [],
-                families: [],
-                gedcom_content: '',
-                individual_filter_value: '',
-                selected_individual: '',
-                tree_color: '#000000',
-            },
+        `, {
             globalOverrides: {
-                document: dom.window.document,
-                fetch: mockFetch,
-                Event: dom.window.Event,
-                d3: { hcl: () => ({}) },
-                optionsMenu: { style: {} },
-                leftColumnWrapper: { classList: { remove: () => {}, add: () => {}, contains: () => false }, style: {} },
-                leftCol: { offsetWidth: 300 },
-                rightCol: { offsetWidth: 500 },
-                family_tree_div: { querySelector: () => null, innerHTML: '' },
-                expand_styling_button: { style: {} },
-                collapse_styling_button: { style: {} },
-                file_name_span: { textContent: '' },
-                individual_filter: { value: '' },
-                connection_filter: { value: '' },
-                individual_select: { innerHTML: '' },
-                connection_select: { innerHTML: '', appendChild: () => {} },
-                generations_up_number: { value: '1' },
-                generations_down_number: { value: '1' },
-                max_stack_size_number: { value: '1' },
-                hue_element: { value: '180' },
-                sat_element: { value: '20' },
-                lum_element: { value: '30' },
-                text_lum_element: { value: '80' },
-                root_name: null,
-                color_picker: { value: '#000000' },
-                save_filename_input: { value: '' },
-                save_modal: { style: {} },
-                style_presets: {},
-                elements: [],
-                filter_timeout: null,
-                connection_filter_timeout: null,
-                update_in_progress: false,
-                update_waiting: false,
-                update_timeout: null,
+                fetch: () => Promise.reject(new Error('network')),
             },
         });
         await context.openAboutModal();
@@ -2512,5 +2335,291 @@ describe('ui behavior cases', () => {
 
         expect(style_presets['my-preset']['generations-up']).toBeUndefined();
         expect(style_presets['my-preset']['generations-down']).toBeUndefined();
+    });
+
+    it('06.101 expandAllStylingSections opens all details elements and updates button visibility', () => {
+        const { context, dom } = loadUiContextWithDom(`
+            <details></details>
+            <details></details>
+            <button id="expand-styling-button"></button>
+            <button id="collapse-styling-button"></button>
+        `, {
+            globalOverrides: (dom) => ({
+                expand_styling_button: dom.window.document.getElementById('expand-styling-button'),
+                collapse_styling_button: dom.window.document.getElementById('collapse-styling-button'),
+            }),
+        });
+
+        context.expandAllStylingSections();
+
+        const allOpen = [...dom.window.document.querySelectorAll('details')].every(d => d.open);
+        expect(allOpen).toBe(true);
+        expect(dom.window.document.getElementById('expand-styling-button').style.display).toBe('none');
+        expect(dom.window.document.getElementById('collapse-styling-button').style.display).toBe('block');
+    });
+
+    it('06.102 collapseAllStylingSections closes all details elements and updates button visibility', () => {
+        const { context, dom } = loadUiContextWithDom(`
+            <details open></details>
+            <details open></details>
+            <button id="expand-styling-button"></button>
+            <button id="collapse-styling-button"></button>
+        `, {
+            globalOverrides: (dom) => ({
+                expand_styling_button: dom.window.document.getElementById('expand-styling-button'),
+                collapse_styling_button: dom.window.document.getElementById('collapse-styling-button'),
+            }),
+        });
+
+        context.collapseAllStylingSections();
+
+        const allClosed = [...dom.window.document.querySelectorAll('details')].every(d => !d.open);
+        expect(allClosed).toBe(true);
+        expect(dom.window.document.getElementById('expand-styling-button').style.display).toBe('block');
+        expect(dom.window.document.getElementById('collapse-styling-button').style.display).toBe('none');
+    });
+
+    it('06.103 toggleOptions adds open class when not open and removes it when already open', () => {
+        const { context, dom } = loadUiContextWithDom('<div id="lcw"></div>', {
+            globalOverrides: (dom) => ({
+                leftColumnWrapper: dom.window.document.getElementById('lcw'),
+            }),
+        });
+
+        context.toggleOptions();
+        expect(dom.window.document.getElementById('lcw').classList.contains('open')).toBe(true);
+
+        context.toggleOptions();
+        expect(dom.window.document.getElementById('lcw').classList.contains('open')).toBe(false);
+    });
+
+    it('06.104 scaleBodyForSmallScreens applies proportional scale transform when innerWidth is below 450', () => {
+        const { context, dom } = loadUiContextWithDom('<div></div>', {
+            windowOverrides: { innerWidth: 300 },
+        });
+
+        context.scaleBodyForSmallScreens();
+
+        const expectedScale = 300 / 450;
+        expect(dom.window.document.body.style.transform).toBe(`scale(${expectedScale})`);
+        expect(dom.window.document.body.style.transformOrigin).toBe('top left');
+        expect(dom.window.document.body.style.width).toBe('450px');
+    });
+
+    it('06.105 scaleBodyForSmallScreens resets body transform and width when innerWidth is at or above 450', () => {
+        const { context, dom } = loadUiContextWithDom('<div></div>');
+        dom.window.document.body.style.transform = 'scale(0.5)';
+        dom.window.document.body.style.width = '450px';
+
+        context.scaleBodyForSmallScreens();
+
+        expect(dom.window.document.body.style.transform).toBe('');
+        expect(dom.window.document.body.style.width).toBe('');
+    });
+
+    it('06.106 DOMContentLoaded initialises range and number elements to default; number input syncs linked range', () => {
+        let redraws = 0;
+        const { context, dom } = loadUiEventsContextWithDom(`
+            <input type="range" id="node-width-range" min="0" max="480" />
+            <input type="number" id="node-width-number" />
+        `, {
+            globalOverrides: {
+                elements: [
+                    { id: 'node-width-range', type: 'range',  default: 100, min: 20, max: 480, variable: 'box_width' },
+                ],
+                requestFamilyTreeUpdate: () => { redraws += 1; },
+                updateRangeThumbs: () => {},
+            },
+        });
+
+        const rangeEl = dom.window.document.getElementById('node-width-range');
+        expect(rangeEl.value).toBe('100');       // default was applied
+        expect(context.window.box_width).toBe(100); // window variable initialised
+        expect(redraws).toBe(0);                 // no redraw from initialisation
+    });
+
+    it('06.107 DOMContentLoaded sets number element to default; input below minimum clamps to min', () => {
+        let redraws = 0;
+        const { context, dom } = loadUiEventsContextWithDom(`
+            <input type="number" id="node-width-number" />
+            <input type="range" id="node-width-range" />
+        `, {
+            globalOverrides: {
+                elements: [
+                    { id: 'node-width-number', type: 'number', default: 100, min: 20, max: 480, variable: 'box_width' },
+                ],
+                requestFamilyTreeUpdate: () => { redraws += 1; },
+                updateRangeThumbs: () => {},
+            },
+        });
+
+        const numberEl = dom.window.document.getElementById('node-width-number');
+        const rangeEl = dom.window.document.getElementById('node-width-range');
+        expect(numberEl.value).toBe('100');
+        expect(context.window.box_width).toBe(100);
+
+        numberEl.value = '5';
+        numberEl.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+        expect(context.window.box_width).toBe(20);
+        expect(rangeEl.value).toBe('20');
+        expect(redraws).toBeGreaterThan(0);
+    });
+
+    it('06.108 DOMContentLoaded sets select element to default and updates window variable on change', () => {
+        let redraws = 0;
+        const { context, dom } = loadUiEventsContextWithDom(`
+            <select id="text-align-select">
+                <option value="left">Left</option>
+                <option value="middle">Middle</option>
+            </select>
+        `, {
+            globalOverrides: {
+                elements: [
+                    { id: 'text-align-select', type: 'select', default: 'middle', variable: 'text_align' },
+                ],
+                requestFamilyTreeUpdate: () => { redraws += 1; },
+            },
+        });
+
+        const selectEl = dom.window.document.getElementById('text-align-select');
+        expect(selectEl.value).toBe('middle');
+        expect(context.window.text_align).toBe('middle');
+
+        selectEl.value = 'left';
+        selectEl.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+        expect(context.window.text_align).toBe('left');
+        expect(redraws).toBe(1);
+    });
+
+    it('06.109 DOMContentLoaded max-link click sets element and window variable to element maximum', () => {
+        let redraws = 0;
+        const { context, dom } = loadUiEventsContextWithDom(`
+            <input type="number" id="node-width-number" value="100" />
+            <span id="node-width-number-max-link"></span>
+        `, {
+            globalOverrides: {
+                elements: [
+                    { id: 'node-width-number', type: 'number', default: 100, min: 20, max: 480, variable: 'box_width' },
+                ],
+                requestFamilyTreeUpdate: () => { redraws += 1; },
+                updateRangeThumbs: () => {},
+            },
+        });
+
+        dom.window.document.getElementById('node-width-number-max-link').click();
+
+        expect(dom.window.document.getElementById('node-width-number').value).toBe('480');
+        expect(context.window.box_width).toBe(480);
+        expect(redraws).toBe(1);
+    });
+
+    it('06.110 DOMContentLoaded none_links click resets variable to 100 and updates range and number elements', () => {
+        let redraws = 0;
+        const { context, dom } = loadUiEventsContextWithDom(`
+            <a id="no-border-highlight-percent"></a>
+            <input type="range" id="border-highlight-percent-range" value="125" />
+            <input type="number" id="border-highlight-percent-number" value="125" />
+        `, {
+            globalOverrides: {
+                none_links: [
+                    { id: 'no-border-highlight-percent', variable: 'border_highlight_percent' },
+                ],
+                requestFamilyTreeUpdate: () => { redraws += 1; },
+                updateRangeThumbs: () => {},
+            },
+            windowOverrides: { border_highlight_percent: 125 },
+        });
+
+        dom.window.document.getElementById('no-border-highlight-percent').click();
+
+        expect(context.window.border_highlight_percent).toBe(100);
+        expect(dom.window.document.getElementById('border-highlight-percent-range').value).toBe('100');
+        expect(dom.window.document.getElementById('border-highlight-percent-number').value).toBe('100');
+        expect(redraws).toBe(1);
+    });
+
+    it('06.111 DOMContentLoaded with non-local protocol adds disabled class to all preset edit buttons', () => {
+        const { dom } = loadUiEventsContextWithDom(`
+            <select id="preset-select"></select>
+            <div><button id="add-preset-button"></button></div>
+            <div><button id="save-preset-button"></button></div>
+            <div><button id="rename-preset-button"></button></div>
+            <div><button id="reload-preset-button"></button></div>
+            <div><button id="delete-preset-button"></button></div>
+        `, {
+            windowOverrides: { location: { protocol: 'https:' } },
+        });
+
+        expect(dom.window.document.getElementById('add-preset-button').parentElement.classList.contains('preset-button-disabled')).toBe(true);
+        expect(dom.window.document.getElementById('delete-preset-button').parentElement.classList.contains('preset-button-disabled')).toBe(true);
+    });
+
+    it('06.112 usePresetStyle applies a radio-type preset key by checking the matching radio input', () => {
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <input type="radio" name="layout" value="vertical" id="layout-vertical" checked />
+            <input type="radio" name="layout" value="horizontal" />
+        `, {
+            style_presets: { Horizontal: { 'tree-orientation': 'horizontal' } },
+            elements: [
+                { id: 'layout-vertical', type: 'radio', name: 'layout', variable: 'tree_orientation', preset_key: 'tree-orientation' },
+            ],
+        });
+
+        context.usePresetStyle('Horizontal');
+
+        expect(dom.window.document.querySelector('input[value="horizontal"]').checked).toBe(true);
+        expect(dom.window.document.querySelector('input[value="vertical"]').checked).toBe(false);
+        expect(context.window.tree_orientation).toBe('horizontal');
+    });
+
+    it('06.113 usePresetStyle removes hidden class from connection-container when highlight type becomes connection', () => {
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="connection-container" class="hidden"></div>
+            <select id="highlights-select">
+                <option value="none">None</option>
+                <option value="connection">Connection</option>
+            </select>
+        `, {
+            style_presets: { 'By Connection': { 'highlight-type': 'connection' } },
+            elements: [
+                { id: 'highlights-select', type: 'select', variable: 'highlight_type', preset_key: 'highlight-type' },
+            ],
+        });
+
+        context.usePresetStyle('By Connection');
+
+        expect(dom.window.document.getElementById('connection-container').classList.contains('hidden')).toBe(false);
+        expect(context.window.highlight_type).toBe('connection');
+    });
+
+    it('06.114 usePresetStyle adds hidden class to connection-container when highlight type is not connection', () => {
+        const { context, dom } = loadUiWithAddPresetDom(`
+            <div id="connection-container"></div>
+            <select id="highlights-select">
+                <option value="none">None</option>
+                <option value="connection">Connection</option>
+            </select>
+        `, {
+            style_presets: { 'Highlight None': { 'highlight-type': 'none' } },
+            elements: [
+                { id: 'highlights-select', type: 'select', variable: 'highlight_type', preset_key: 'highlight-type' },
+            ],
+            windowOverrides: { highlight_type: 'connection' },
+        });
+
+        context.usePresetStyle('Highlight None');
+
+        expect(dom.window.document.getElementById('connection-container').classList.contains('hidden')).toBe(true);
+    });
+
+    it('06.115 requestFamilyTreeUpdate sets update_waiting when an update is already in progress', () => {
+        const { context } = loadUiContextWithDom('<div></div>', {
+            globalOverrides: { update_in_progress: true, update_waiting: false },
+            windowOverrides: { gedcom_content: '0 HEAD\n0 TRLR' },
+        });
+
+        context.requestFamilyTreeUpdate();
+
+        expect(context.update_waiting).toBe(true);
     });
 });

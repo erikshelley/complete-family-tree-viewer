@@ -197,7 +197,6 @@ const elements = [
 
 const none_links = [
     { id: 'no-border-highlight-percent', variable: 'border_highlight_percent' },
-    { id: 'no-special-highlight-percent', variable: 'special_highlight_percent' },
     { id: 'no-link-highlight-percent', variable: 'link_highlight_percent' },
     { id: 'no-inlaw-link-highlight-percent', variable: 'inlaw_link_highlight_percent' },
 ]

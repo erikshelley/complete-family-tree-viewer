@@ -1,0 +1,118 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for presets.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="prettify.css" />
+    <link rel="stylesheet" href="base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="index.html">All files</a> presets.js</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>1/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/0</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/0</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>1/1</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line high'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const style_presets = {
+    "Balanced": {"max-stack-size":2,"show-names":true,"show-years":false,"show-places":false,"beside-inlaws":false,"show-childless-inlaws":true,"show-non-pedigree-family":true,"node-width":100,"node-height":75,"node-border-width":2,"link-width":4,"highlighted-link-width":4,"text-size":16,"sibling-spacing":25,"generation-spacing":50,"level-spacing":50,"box-padding":5,"tree-padding":50,"text-align":"middle","hue":180,"saturation":20,"node-brightness":25,"text-brightness":75,"highlighted-text-brightness":85,"text-shadow":true,"transparent-bg-rect":false,"special-highlight-percent":150,"border-highlight-percent":125,"link-highlight-percent":125,"inlaw-link-highlight-percent":150,"node-rounding":25,"link-rounding":25,"highlight-type":"root","background-color":"#000000"},
+    "Default": {"max-stack-size":1,"show-names":true,"show-years":true,"show-places":false,"beside-inlaws":true,"show-childless-inlaws":true,"show-non-pedigree-family":true,"node-width":48,"node-height":48,"node-border-width":1,"link-width":2,"highlighted-link-width":2,"text-size":8,"sibling-spacing":12,"generation-spacing":24,"level-spacing":12,"box-padding":4,"tree-padding":12,"text-align":"top","hue":180,"saturation":20,"node-brightness":25,"text-brightness":75,"highlighted-text-brightness":85,"text-shadow":true,"transparent-bg-rect":false,"special-highlight-percent":150,"border-highlight-percent":125,"link-highlight-percent":125,"inlaw-link-highlight-percent":125,"node-rounding":10,"link-rounding":10,"highlight-type":"root","background-color":"#000000","tree-orientation":"vertical"},
+    "Detailed": {"show-names":true,"show-years":true,"show-places":true,"show-childless-inlaws":true,"show-non-pedigree-family":true,"node-width":150,"node-height":150,"node-border-width":5,"link-width":5,"highlighted-link-width":5,"text-size":16,"sibling-spacing":25,"generation-spacing":50,"level-spacing":50,"box-padding":10,"tree-padding":100,"text-align":"top","hue":180,"saturation":20,"node-brightness":25,"text-brightness":75,"highlighted-text-brightness":85,"text-shadow":true,"transparent-bg-rect":false,"special-highlight-percent":150,"border-highlight-percent":125,"link-highlight-percent":125,"inlaw-link-highlight-percent":125,"node-rounding":10,"link-rounding":25,"highlight-type":"root","background-color":"#000000"},
+    "Orbs": {"show-names":true,"show-years":false,"show-places":false,"node-width":100,"node-height":100,"node-border-width":5,"link-width":5,"highlighted-link-width":5,"text-size":16,"sibling-spacing":25,"generation-spacing":50,"level-spacing":100,"box-padding":5,"tree-padding":50,"text-align":"middle","hue":180,"saturation":20,"node-brightness":25,"text-brightness":75,"highlighted-text-brightness":85,"text-shadow":true,"transparent-bg-rect":false,"special-highlight-percent":150,"border-highlight-percent":125,"link-highlight-percent":125,"inlaw-link-highlight-percent":150,"node-rounding":50,"link-rounding":50,"background-color":"#000000","highlight-type":"root"},
+    "Print": {"max-stack-size":1,"show-names":true,"show-years":true,"show-places":false,"beside-inlaws":true,"show-childless-inlaws":true,"show-non-pedigree-family":true,"node-width":150,"node-height":150,"node-border-width":5,"link-width":10,"highlighted-link-width":10,"text-size":24,"sibling-spacing":50,"generation-spacing":100,"level-spacing":100,"box-padding":10,"tree-padding":150,"text-align":"top","hue":300,"saturation":20,"node-brightness":80,"text-brightness":40,"highlighted-text-brightness":80,"text-shadow":false,"transparent-bg-rect":false,"special-highlight-percent":150,"border-highlight-percent":90,"link-highlight-percent":90,"inlaw-link-highlight-percent":90,"node-rounding":25,"link-rounding":50,"background-color":"#ffffff","highlight-type":"none"},
+    "Stacked": {"max-stack-size":99,"beside-inlaws":false,"node-width":75,"node-height":50,"node-border-width":2,"link-width":4,"highlighted-link-width":4,"text-size":12,"sibling-spacing":25,"generation-spacing":25,"level-spacing":50,"box-padding":5,"tree-padding":50,"text-align":"middle","hue":180,"saturation":20,"node-brightness":25,"text-brightness":75,"highlighted-text-brightness":85,"text-shadow":true,"transparent-bg-rect":false,"special-highlight-percent":150,"border-highlight-percent":125,"link-highlight-percent":125,"inlaw-link-highlight-percent":125,"node-rounding":25,"link-rounding":25,"highlight-type":"pedigree","background-color":"#000000"},
+    "Sharp": {"max-stack-size":1,"beside-inlaws":false,"show-names":true,"show-years":true,"show-places":false,"node-width":100,"node-height":100,"node-border-width":3,"link-width":6,"highlighted-link-width":6,"text-size":16,"sibling-spacing":50,"generation-spacing":75,"level-spacing":100,"box-padding":10,"tree-padding":150,"text-align":"top","hue":180,"saturation":20,"node-brightness":25,"text-brightness":80,"highlighted-text-brightness":80,"text-shadow":true,"transparent-bg-rect":false,"background-color":"#000000","highlight-type":"root","special-highlight-percent":150,"border-highlight-percent":125,"link-highlight-percent":125,"inlaw-link-highlight-percent":150,"node-rounding":0,"link-rounding":0},
+    "Compact": {"node-width":70,"node-height":50,"node-border-width":6,"link-width":3,"highlighted-link-width":3,"text-size":12,"sibling-spacing":15,"generation-spacing":30,"level-spacing":15,"box-padding":0,"tree-padding":30,"text-align":"middle","hue":330,"saturation":25,"node-brightness":33,"text-brightness":80,"highlighted-text-brightness":85,"text-shadow":true,"transparent-bg-rect":false,"special-highlight-percent":150,"border-highlight-percent":100,"link-highlight-percent":100,"inlaw-link-highlight-percent":125,"node-rounding":25,"link-rounding":25,"highlight-type":"none","background-color":"#000000"},
+    "Pedigree": {"generations-up":99,"generations-down":99,"max-stack-size":1,"show-names":true,"show-years":true,"show-places":false,"beside-inlaws":true,"show-childless-inlaws":false,"show-non-pedigree-family":false,"node-width":125,"node-height":75,"node-border-width":2,"link-width":4,"highlighted-link-width":4,"text-size":16,"sibling-spacing":25,"generation-spacing":50,"level-spacing":50,"box-padding":5,"tree-padding":50,"text-align":"middle","hue":0,"saturation":20,"node-brightness":33,"text-brightness":80,"highlighted-text-brightness":85,"text-shadow":true,"transparent-bg-rect":false,"special-highlight-percent":150,"border-highlight-percent":125,"link-highlight-percent":125,"inlaw-link-highlight-percent":150,"node-rounding":20,"link-rounding":20,"highlight-type":"none","background-color":"#000000","tree-orientation":"horizontal"},
+};
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-04-01T05:58:04.901Z
+            </div>
+        <script src="prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="sorter.js"></script>
+        <script src="block-navigation.js"></script>
+    </body>
+</html>
+    

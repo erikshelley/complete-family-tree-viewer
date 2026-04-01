@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { JSDOM } from 'jsdom';
 
 import { loadBrowserScript } from './helpers/load-browser-script.js';
 
@@ -10,6 +11,62 @@ function loadGedcomFunctions() {
         extractYear: context.extractYear,
         replaceUSStateNamesWithAbbr: context.replaceUSStateNamesWithAbbr,
         replaceCountryNamesWithAlpha3: context.replaceCountryNamesWithAlpha3,
+    };
+}
+
+function loadGedcomCharsetFunctions() {
+    const dom = new JSDOM('<div></div>');
+    const noop = { style: {}, addEventListener: () => {} };
+    const context = loadBrowserScript('src/js/ui.js', {
+        windowOverrides: {
+            document: dom.window.document,
+            addEventListener: () => {},
+            individuals: [],
+            families: [],
+            gedcom_content: '',
+            individual_filter_value: '',
+            selected_individual: '',
+            tree_color: '#000000',
+        },
+        globalOverrides: {
+            document: dom.window.document,
+            Event: dom.window.Event,
+            d3: { hcl: () => ({}) },
+            optionsMenu: noop,
+            leftColumnWrapper: { classList: { remove: () => {}, add: () => {}, contains: () => false }, style: {} },
+            leftCol: { offsetWidth: 300 },
+            rightCol: { offsetWidth: 500 },
+            family_tree_div: { querySelector: () => null, innerHTML: '' },
+            expand_styling_button: noop,
+            collapse_styling_button: noop,
+            file_name_span: { textContent: '' },
+            individual_filter: { value: '' },
+            connection_filter: { value: '' },
+            individual_select: { innerHTML: '' },
+            connection_select: { innerHTML: '', appendChild: () => {} },
+            generations_up_number: { value: '1' },
+            generations_down_number: { value: '1' },
+            max_stack_size_number: { value: '1' },
+            hue_element: { value: '180' },
+            sat_element: { value: '20' },
+            lum_element: { value: '30' },
+            text_lum_element: { value: '80' },
+            root_name: null,
+            color_picker: { value: '#000000' },
+            save_filename_input: { value: '' },
+            save_modal: noop,
+            style_presets: {},
+            elements: [],
+            filter_timeout: null,
+            connection_filter_timeout: null,
+            update_in_progress: false,
+            update_waiting: false,
+            update_timeout: null,
+        },
+    });
+    return {
+        extractGedcomCharset: context.extractGedcomCharset,
+        resolveGedcomDecoderEncoding: context.resolveGedcomDecoderEncoding,
     };
 }
 
@@ -280,5 +337,141 @@ describe('gedcom utilities', () => {
         expect(result.individuals[0].birth_place).toBe('Göteborg, Västra Götaland, SWE');
         expect(result.individuals[1].name).toBe('李 小龍');
         expect(result.individuals[1].birth_place).toBe('Hong Kong, CHN');
+    });
+});
+
+describe('GEDCOM charset detection and decoder resolution', () => {
+    it('01.18 extractGedcomCharset returns the declared charset value from a 1 CHAR line', () => {
+        const { extractGedcomCharset } = loadGedcomCharsetFunctions();
+
+        expect(extractGedcomCharset('0 HEAD\n1 SOUR Test\n1 CHAR UTF-8\n0 TRLR')).toBe('UTF-8');
+        expect(extractGedcomCharset('0 HEAD\n1 CHAR ANSI\n0 TRLR')).toBe('ANSI');
+        expect(extractGedcomCharset('0 HEAD\n1 CHAR ANSEL\n0 TRLR')).toBe('ANSEL');
+        expect(extractGedcomCharset('0 HEAD\n1 CHAR ASCII\n0 TRLR')).toBe('ASCII');
+    });
+
+    it('01.19 extractGedcomCharset is case-insensitive and trims surrounding whitespace', () => {
+        const { extractGedcomCharset } = loadGedcomCharsetFunctions();
+
+        expect(extractGedcomCharset('0 HEAD\n1 CHAR utf-8\n0 TRLR')).toBe('UTF-8');
+        expect(extractGedcomCharset('0 HEAD\n1 char  ANSI  \n0 TRLR')).toBe('ANSI');
+    });
+
+    it('01.20 extractGedcomCharset returns empty string when no 1 CHAR line is present', () => {
+        const { extractGedcomCharset } = loadGedcomCharsetFunctions();
+
+        expect(extractGedcomCharset('0 HEAD\n1 SOUR Test\n0 TRLR')).toBe('');
+        expect(extractGedcomCharset('')).toBe('');
+        expect(extractGedcomCharset(null)).toBe('');
+    });
+
+    it('01.21 resolveGedcomDecoderEncoding returns utf-8 for UTF-8, UTF8, and UNICODE', () => {
+        const { resolveGedcomDecoderEncoding } = loadGedcomCharsetFunctions();
+
+        expect(resolveGedcomDecoderEncoding('UTF-8')).toBe('utf-8');
+        expect(resolveGedcomDecoderEncoding('UTF8')).toBe('utf-8');
+        expect(resolveGedcomDecoderEncoding('UNICODE')).toBe('utf-8');
+        expect(resolveGedcomDecoderEncoding('utf-8')).toBe('utf-8');
+    });
+
+    it('01.22 resolveGedcomDecoderEncoding returns windows-1252 for ANSI, ANSEL, and ASCII', () => {
+        const { resolveGedcomDecoderEncoding } = loadGedcomCharsetFunctions();
+
+        expect(resolveGedcomDecoderEncoding('ANSI')).toBe('windows-1252');
+        expect(resolveGedcomDecoderEncoding('ANSEL')).toBe('windows-1252');
+        expect(resolveGedcomDecoderEncoding('ASCII')).toBe('windows-1252');
+    });
+
+    it('01.23 resolveGedcomDecoderEncoding defaults to utf-8 for absent or unrecognised charset', () => {
+        const { resolveGedcomDecoderEncoding } = loadGedcomCharsetFunctions();
+
+        expect(resolveGedcomDecoderEncoding('')).toBe('utf-8');
+        expect(resolveGedcomDecoderEncoding(null)).toBe('utf-8');
+        expect(resolveGedcomDecoderEncoding('LATIN-1')).toBe('utf-8');
+    });
+});
+
+describe('GEDCOM parser robustness', () => {
+    it('01.24 CRLF line endings parse identically to LF-only content', () => {
+        const { validateGedcom, parseGedcomData } = loadGedcomFunctions();
+
+        const lf   = '0 HEAD\n1 SOUR Test\n0 @I1@ INDI\n1 NAME Jane /Doe/\n1 SEX F\n0 TRLR';
+        const crlf = lf.replace(/\n/g, '\r\n');
+
+        expect(validateGedcom(crlf)).toBe(true);
+
+        const result = parseGedcomData(crlf);
+        expect(result.individuals).toHaveLength(1);
+        expect(result.individuals[0].name).toBe('Jane Doe');
+        expect(result.individuals[0].gender).toBe('F');
+    });
+
+    it('01.25 date modifiers ABT BEF AFT EST CAL INT all yield the embedded four-digit year', () => {
+        const { extractYear } = loadGedcomFunctions();
+
+        expect(extractYear('ABT 1850')).toBe('1850');
+        expect(extractYear('BEF 1900')).toBe('1900');
+        expect(extractYear('AFT 1776')).toBe('1776');
+        expect(extractYear('EST 1492')).toBe('1492');
+        expect(extractYear('CAL 2001')).toBe('2001');
+        expect(extractYear('INT 1066 (from tax record)')).toBe('1066');
+        expect(extractYear('BET 1800 AND 1810')).toBe('1800');
+    });
+
+    it('01.26 empty string input does not throw and returns empty arrays', () => {
+        const { validateGedcom, parseGedcomData } = loadGedcomFunctions();
+
+        expect(() => validateGedcom('')).not.toThrow();
+        expect(validateGedcom('')).toBe(false);
+
+        expect(() => parseGedcomData('')).not.toThrow();
+        const result = parseGedcomData('');
+        expect(result.individuals).toEqual([]);
+        expect(result.families).toEqual([]);
+    });
+
+    it('01.27 MARR and BURI records do not crash the parser and surrounding fields remain intact', () => {
+        const { parseGedcomData } = loadGedcomFunctions();
+
+        const content = [
+            '0 HEAD',
+            '0 @I1@ INDI',
+            '1 NAME Alice /Smith/',
+            '1 SEX F',
+            '1 BIRT',
+            '2 DATE 1920',
+            '1 BURI',
+            '2 DATE 1995',
+            '2 PLAC Springfield, Illinois, United States',
+            '1 FAMS @F1@',
+            '0 @I2@ INDI',
+            '1 NAME Bob /Jones/',
+            '1 SEX M',
+            '1 FAMS @F1@',
+            '0 @F1@ FAM',
+            '1 HUSB @I2@',
+            '1 WIFE @I1@',
+            '1 MARR',
+            '2 DATE 1945',
+            '2 PLAC Chicago, Illinois, United States',
+            '0 TRLR',
+        ].join('\n');
+
+        expect(() => parseGedcomData(content)).not.toThrow();
+
+        const result = parseGedcomData(content);
+        expect(result.individuals).toHaveLength(2);
+        expect(result.families).toHaveLength(1);
+
+        const alice = result.individuals.find(p => p.id === '@I1@');
+        expect(alice.name).toBe('Alice Smith');
+        expect(alice.birth).toBe('1920');
+        // BURI not captured by the parser — fields are empty strings, not corrupted
+        expect(alice.death).toBe('');
+        expect(alice.death_place).toBe('');
+
+        const family = result.families[0];
+        expect(family.husb).toBe('@I2@');
+        expect(family.wife).toBe('@I1@');
     });
 });

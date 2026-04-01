@@ -564,3 +564,88 @@ describe('computeRawConnectionPathIds', () => {
         expect(rootNode.father_node.spouse_nodes).toHaveLength(0);
     });
 });
+
+describe('calculateMaxStackSize', () => {
+    function loadMaxStackContext(individuals, families, windowOverrides = {}) {
+        return loadBuildTreeContext({
+            individuals: structuredClone(individuals),
+            families: structuredClone(families),
+            generations_up: 2,
+            generations_down: 2,
+            show_childless_inlaws: true,
+            pedigree_only: false,
+            max_gen_up: 0,
+            max_gen_down: 0,
+            visited_individuals: null,
+            ...windowOverrides,
+        });
+    }
+
+    it('02.24 calculateMaxStackSize returns 1 for a root with no siblings and no children', () => {
+        const individuals = [
+            { id: '@I1@', name: 'Root', famc: null, fams: [], gender: 'M' },
+        ];
+        const context = loadMaxStackContext(individuals, []);
+        context.window.visited_individuals = null;
+
+        expect(context.calculateMaxStackSize(context.window.individuals[0])).toBe(1);
+    });
+
+    it('02.25 calculateMaxStackSize returns the leaf-child count when all children are childless', () => {
+        // Root has 4 childless children — the max stack size should be 4
+        const individuals = [
+            { id: '@I1@', name: 'Root',   famc: null,   fams: ['@F1@'], gender: 'M' },
+            { id: '@I2@', name: 'Spouse', famc: null,   fams: ['@F1@'], gender: 'F' },
+            { id: '@I3@', name: 'C1',     famc: '@F1@', fams: [],       gender: 'M' },
+            { id: '@I4@', name: 'C2',     famc: '@F1@', fams: [],       gender: 'F' },
+            { id: '@I5@', name: 'C3',     famc: '@F1@', fams: [],       gender: 'M' },
+            { id: '@I6@', name: 'C4',     famc: '@F1@', fams: [],       gender: 'F' },
+        ];
+        const families = [
+            { id: '@F1@', husb: '@I1@', wife: '@I2@', chil: ['@I3@', '@I4@', '@I5@', '@I6@'] },
+        ];
+        const context = loadMaxStackContext(individuals, families);
+        context.window.visited_individuals = null;
+
+        expect(context.calculateMaxStackSize(context.window.individuals[0])).toBe(4);
+    });
+
+    it('02.26 calculateMaxStackSize does not count children who have their own families', () => {
+        // Root has 3 children but only 2 are childless — one non-leaf should not inflate the count
+        const individuals = [
+            { id: '@I1@', name: 'Root',   famc: null,   fams: ['@F1@'], gender: 'M' },
+            { id: '@I2@', name: 'Spouse', famc: null,   fams: ['@F1@'], gender: 'F' },
+            { id: '@I3@', name: 'C1',     famc: '@F1@', fams: [],       gender: 'M' },
+            { id: '@I4@', name: 'C2',     famc: '@F1@', fams: [],       gender: 'F' },
+            { id: '@I5@', name: 'C3',     famc: '@F1@', fams: ['@F2@'], gender: 'M' },
+            { id: '@I6@', name: 'GC1',    famc: '@F2@', fams: [],       gender: 'F' },
+        ];
+        const families = [
+            { id: '@F1@', husb: '@I1@', wife: '@I2@', chil: ['@I3@', '@I4@', '@I5@'] },
+            { id: '@F2@', husb: '@I5@', wife: null,   chil: ['@I6@'] },
+        ];
+        const context = loadMaxStackContext(individuals, families);
+        context.window.visited_individuals = null;
+
+        expect(context.calculateMaxStackSize(context.window.individuals[0])).toBe(2);
+    });
+
+    it('02.27 calculateMaxStackSize counts childless in-law spouses across multiple marriages', () => {
+        // Root has 3 marriages with no children — all three in-law spouses are stackable
+        const individuals = [
+            { id: '@I1@', name: 'Root',    famc: null, fams: ['@F1@', '@F2@', '@F3@'], gender: 'M' },
+            { id: '@I2@', name: 'Spouse1', famc: null, fams: ['@F1@'],                  gender: 'F' },
+            { id: '@I3@', name: 'Spouse2', famc: null, fams: ['@F2@'],                  gender: 'F' },
+            { id: '@I4@', name: 'Spouse3', famc: null, fams: ['@F3@'],                  gender: 'F' },
+        ];
+        const families = [
+            { id: '@F1@', husb: '@I1@', wife: '@I2@', chil: [] },
+            { id: '@F2@', husb: '@I1@', wife: '@I3@', chil: [] },
+            { id: '@F3@', husb: '@I1@', wife: '@I4@', chil: [] },
+        ];
+        const context = loadMaxStackContext(individuals, families);
+        context.window.visited_individuals = null;
+
+        expect(context.calculateMaxStackSize(context.window.individuals[0])).toBe(3);
+    });
+});

@@ -9,7 +9,7 @@ const htmlPath = resolve(workspaceRoot, 'index.html');
 const cssPath = resolve(workspaceRoot, 'src/css/style.css');
 
 describe('ui styles', () => {
-    it('06.22 all checkbox labels use the pointer cursor', () => {
+    it('15.01 all checkbox labels use the pointer cursor', () => {
         const html = readFileSync(htmlPath, 'utf8');
         const css = readFileSync(cssPath, 'utf8');
         const dom = new JSDOM(html);
@@ -27,7 +27,7 @@ describe('ui styles', () => {
         });
     });
 
-    it('06.93 all radio button inputs and their labels use the pointer cursor', () => {
+    it('15.02 all radio button inputs and their labels use the pointer cursor', () => {
         const html = readFileSync(htmlPath, 'utf8');
         const css = readFileSync(cssPath, 'utf8');
         const dom = new JSDOM(html);

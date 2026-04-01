@@ -673,7 +673,7 @@ describe('draw tree styling outcomes', () => {
         expect(ancestorCircle, 'circle should exist between ancestor pair').toBeDefined();
     });
 
-    it('12.01 drawText renders the name but no dates or places when show_years and show_places are both false', () => {
+    it('14.01 drawText renders the name but no dates or places when show_years and show_places are both false', () => {
         const { context, dom } = loadDrawTreeContext({
             windowOverrides: {
                 show_names: true,
@@ -705,7 +705,7 @@ describe('draw tree styling outcomes', () => {
         expect(allText).not.toContain('Bergen');
     });
 
-    it('12.02 drawText renders the name and dates but no places when show_places is false', () => {
+    it('14.02 drawText renders the name and dates but no places when show_places is false', () => {
         const { context, dom } = loadDrawTreeContext({
             windowOverrides: {
                 show_names: true,
@@ -739,7 +739,7 @@ describe('draw tree styling outcomes', () => {
         expect(allText).not.toContain('D:');
     });
 
-    it('12.03 drawText renders the name and places but no year-only line when show_years is false', () => {
+    it('14.03 drawText renders the name and places but no year-only line when show_years is false', () => {
         const { context, dom } = loadDrawTreeContext({
             windowOverrides: {
                 show_names: true,
@@ -772,7 +772,7 @@ describe('draw tree styling outcomes', () => {
         expect(tspanTexts.some(t => t === '1980-2024')).toBe(false);
     });
 
-    it('12.04 drawText renders the name and dates and places when all show flags are true', () => {
+    it('14.04 drawText renders the name and dates and places when all show flags are true', () => {
         const { context, dom } = loadDrawTreeContext({
             windowOverrides: {
                 show_names: true,
@@ -803,7 +803,7 @@ describe('draw tree styling outcomes', () => {
         expect(tspanTexts.some(t => t.includes('Bergen') && t.includes('2024'))).toBe(true);
     });
 
-    it('12.05 drawText renders the name and dates but no places when show_places is false (variant)', () => {
+    it('14.05 drawText renders the name and dates but no places when show_places is false (variant)', () => {
         const { context, dom } = loadDrawTreeContext({
             windowOverrides: {
                 show_names: true,

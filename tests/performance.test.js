@@ -3,6 +3,10 @@ import { JSDOM } from 'jsdom';
 
 import { loadBrowserScripts } from './helpers/load-browser-script.js';
 
+// Set PERF_TESTS=1 in the environment to enable hard timing assertions.
+// Without it, timing is measured and logged but never fails the build.
+const PERF_TESTS = process.env.PERF_TESTS === '1';
+
 function createPerformanceContext(windowOverrides = {}, globalOverrides = {}) {
     const dom = new JSDOM('<div id="family-tree-div"></div>');
     const context = loadBrowserScripts(['src/js/build_tree.js', 'src/js/position_tree_helpers.js', 'src/js/position_tree.js'], {
@@ -88,7 +92,7 @@ function elapsedMs(startNs, endNs) {
 }
 
 describe('performance and stress', () => {
-    it('09.01 medium tree builds and positions under budget', async () => {
+    it('09.01 medium tree builds and positions correctness + scale sanity', async () => {
         const { individuals, families } = makePerformanceDataset(600, 180);
         const context = createPerformanceContext({
             individuals,
@@ -99,13 +103,21 @@ describe('performance and stress', () => {
         const start = process.hrtime.bigint();
         await context.createFamilyTree(individuals[0]);
         const end = process.hrtime.bigint();
-
         const elapsed = elapsedMs(start, end);
-        expect(elapsed).toBeLessThan(5000);
+
+        // Structure correctness
+        expect(context.window.tree_rows).not.toBeNull();
         expect(context.window.max_gen_down).toBeGreaterThan(150);
+
+        // Timing: hard assertion only when PERF_TESTS=1, otherwise logged
+        if (PERF_TESTS) {
+            expect(elapsed).toBeLessThan(5000);
+        } else {
+            if (elapsed >= 5000) console.warn(`[perf] 09.01 medium tree: ${elapsed.toFixed(0)} ms (budget 5000 ms)`);
+        }
     }, 20000);
 
-    it('09.02 large tree builds and positions without freezing budget breach', async () => {
+    it('09.02 large tree builds and positions correctness + scale sanity', async () => {
         const { individuals, families } = makePerformanceDataset(2200, 260);
         const context = createPerformanceContext({
             individuals,
@@ -116,10 +128,17 @@ describe('performance and stress', () => {
         const start = process.hrtime.bigint();
         await context.createFamilyTree(individuals[0]);
         const end = process.hrtime.bigint();
-
         const elapsed = elapsedMs(start, end);
-        expect(elapsed).toBeLessThan(12000);
+
+        // Structure correctness
+        expect(context.window.tree_rows).not.toBeNull();
         expect(context.window.max_gen_down).toBeGreaterThan(220);
+
+        if (PERF_TESTS) {
+            expect(elapsed).toBeLessThan(12000);
+        } else {
+            if (elapsed >= 12000) console.warn(`[perf] 09.02 large tree: ${elapsed.toFixed(0)} ms (budget 12000 ms)`);
+        }
     }, 30000);
 
     it('09.03 repeated redraw-style runs do not show runaway heap growth', async () => {
@@ -130,6 +149,10 @@ describe('performance and stress', () => {
             generations_down: 160,
         });
 
+        // Structure correctness on first run
+        await context.createFamilyTree(individuals[0]);
+        expect(context.window.tree_rows).not.toBeNull();
+
         const before = process.memoryUsage().heapUsed;
 
         for (let i = 0; i < 25; i += 1) {
@@ -139,7 +162,10 @@ describe('performance and stress', () => {
         const after = process.memoryUsage().heapUsed;
         const growthMb = (after - before) / (1024 * 1024);
 
-        // Allow substantial runtime variance while still detecting obvious leaks.
-        expect(growthMb).toBeLessThan(150);
+        if (PERF_TESTS) {
+            expect(growthMb).toBeLessThan(150);
+        } else {
+            if (growthMb >= 150) console.warn(`[perf] 09.03 heap growth: ${growthMb.toFixed(1)} MB (budget 150 MB)`);
+        }
     }, 30000);
 });

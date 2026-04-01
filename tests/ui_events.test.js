@@ -89,6 +89,7 @@ function loadUiEventsWithDom(html) {
             updatePresetEditButtonState: () => {},
             openSaveModal: () => {},
             openOnlineGedcomModal: () => {},
+            openAboutModal: () => {},
             loadGedcomFromUrl: () => {},
             zoomToFit: () => {},
             zoomToFitHorizontal: () => {},
@@ -99,6 +100,11 @@ function loadUiEventsWithDom(html) {
             calculateMaxGenUp: () => 0,
             calculateMaxGenDown: () => 0,
             calculateMaxStackSize: () => 1,
+            d3: { select: () => ({ on: () => {} }) },
+            treeKeyboardEvent: () => {},
+            about_button: { addEventListener: () => {} },
+            about_modal: { addEventListener: () => {}, style: {} },
+            about_modal_close_button: { addEventListener: () => {} },
         },
     });
 

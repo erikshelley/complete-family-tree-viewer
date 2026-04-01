@@ -748,6 +748,7 @@ describe('integration test cases', () => {
                         individuals: [{ id: '@I1@', name: 'Root' }],
                         families: [],
                     }),
+                    buildRenderConfig: () => ({}),
                     createFamilyTree: async () => {
                         elements.family_tree_div.innerHTML = '<svg></svg>';
                         context.window.max_gen_up = 1;

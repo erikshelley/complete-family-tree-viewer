@@ -95,6 +95,9 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
         resize_tree_vertical_button: { addEventListener: () => {} },
         expand_styling_button: { addEventListener: () => {} },
         collapse_styling_button: { addEventListener: () => {} },
+        about_button: dom.window.document.getElementById('about-button') || { addEventListener: () => {} },
+        about_modal: dom.window.document.getElementById('about-modal') || { addEventListener: () => {}, style: {} },
+        about_modal_close_button: dom.window.document.getElementById('about-modal-close-button') || { addEventListener: () => {} },
     };
 
     const context = loadBrowserScript('src/js/ui_events.js', {
@@ -139,6 +142,7 @@ function loadUiEventsContextWithDom(html, overrides = {}) {
             updatePresetEditButtonState: () => {},
             openSaveModal: () => {},
             openOnlineGedcomModal: () => {},
+            openAboutModal: () => {},
             loadGedcomFromUrl: () => {},
             zoomToFit: () => {},
             zoomToFitHorizontal: () => {},
@@ -391,5 +395,120 @@ describe('export behavior', () => {
         expect(width).toBeLessThanOrEqual(1000);
         expect(height).toBeLessThanOrEqual(1000);
         expect(alerts.some(message => message.startsWith('Note: The saved PNG has been scaled down'))).toBe(true);
+    });
+
+    it('07.05 saveSVG preserves feDropShadow filter elements in the serialized SVG output', () => {
+        const { XMLSerializer: JsdomXMLSerializer } = new JSDOM('').window;
+        const capturedContent = [];
+
+        const { context } = loadUiContextWithDom(`
+            <div id="family-tree-div">
+                <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="tree-text-shadow-filter">
+                            <feDropShadow dx="1" dy="1" stdDeviation="1"/>
+                        </filter>
+                    </defs>
+                    <rect x="10" y="10" width="80" height="40"/>
+                </svg>
+            </div>`, {
+            windowOverrides: { save_filename: 'shadow-test' },
+            globalOverrides: {
+                XMLSerializer: class {
+                    serializeToString(node) {
+                        const result = new JsdomXMLSerializer().serializeToString(node);
+                        capturedContent.push(result);
+                        return result;
+                    }
+                },
+                Blob: class { constructor(parts) { this.parts = parts; } },
+                URL: { createObjectURL: () => 'blob:x', revokeObjectURL: () => {} },
+                alert: () => {},
+            },
+        });
+
+        context.saveSVG();
+
+        expect(capturedContent).toHaveLength(1);
+        expect(capturedContent[0]).toContain('tree-text-shadow-filter');
+        // JSDOM's HTML parser lowercases SVG filter primitive names; the
+        // meaningful check is that the filter structure is in the output.
+        expect(capturedContent[0]).toContain('fedropshadow');
+    });
+
+    it('07.06 saveSVG on an empty tree calls alert and does not trigger a download', () => {
+        const alerts = [];
+        const downloadClicks = [];
+
+        const { context, dom } = loadUiContextWithDom('<div id="family-tree-div"><p>No tree loaded.</p></div>', {
+            globalOverrides: {
+                alert: (msg) => alerts.push(msg),
+                Blob: class {},
+                URL: { createObjectURL: () => '', revokeObjectURL: () => {} },
+            },
+        });
+
+        const anchorClick = dom.window.HTMLAnchorElement.prototype.click;
+        dom.window.HTMLAnchorElement.prototype.click = function() {
+            downloadClicks.push(this.download);
+        };
+
+        context.saveSVG();
+
+        dom.window.HTMLAnchorElement.prototype.click = anchorClick;
+
+        expect(alerts).toHaveLength(1);
+        expect(alerts[0]).toContain('No SVG');
+        expect(downloadClicks).toHaveLength(0);
+    });
+
+    it('07.07 savePNG at normal scale preserves viewBox dimensions and does not alert', () => {
+        const alerts = [];
+        let canvasWidth = 0;
+        let canvasHeight = 0;
+
+        const { context, dom } = loadUiContextWithDom('<div id="family-tree-div"><svg viewBox="0 0 400 300"></svg></div>', {
+            windowOverrides: {
+                save_filename: 'normal-scale',
+                max_canvas_width: 4000,
+                max_canvas_height: 4000,
+            },
+            globalOverrides: {
+                XMLSerializer: class {
+                    serializeToString() {
+                        return '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"></svg>';
+                    }
+                },
+                URL: { createObjectURL: () => 'blob:x', revokeObjectURL: () => {} },
+                Blob: class {},
+                Image: class {
+                    set src(_v) { if (this.onload) this.onload(); }
+                },
+                alert: (msg) => alerts.push(msg),
+            },
+        });
+
+        const origCreateElement = dom.window.document.createElement.bind(dom.window.document);
+        dom.window.document.createElement = (tag) => {
+            if (tag === 'canvas') {
+                return {
+                    get width()  { return canvasWidth; },
+                    set width(v) { canvasWidth = v; },
+                    get height()  { return canvasHeight; },
+                    set height(v) { canvasHeight = v; },
+                    getContext: () => ({ drawImage: () => {} }),
+                    toBlob: (cb) => cb({}),
+                };
+            }
+            return origCreateElement(tag);
+        };
+
+        context.savePNG();
+
+        dom.window.document.createElement = origCreateElement;
+
+        expect(canvasWidth).toBe(400);
+        expect(canvasHeight).toBe(300);
+        expect(alerts).toHaveLength(0);
     });
 });
