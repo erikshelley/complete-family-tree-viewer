@@ -34,8 +34,22 @@ flowchart LR
 
     addInlawChildren --> buildTree
 
-    classDef one fill:#5f3f1f,stroke:#bf7f3f,color:#fff
-    class createFamilyTree,buildTree one
+    style createFamilyTree fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style rebuildLookupMaps fill:#305047,stroke:#60989f,stroke-width:2px,color:#fff
+    style resolveGenders fill:#304650,stroke:#608e9f,stroke-width:2px,color:#fff
+    style computeRawConnectionPathIds fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style buildTree fill:#4e5030,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style resolveDuplicate fill:#304050,stroke:#609f8e,stroke-width:2px,color:#fff
+    style detachNode fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style removeSubTree fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style addParents fill:#405030,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style resolveParent fill:#304050,stroke:#609f65,stroke-width:2px,color:#fff
+    style prepareParent fill:#304050,stroke:#609f65,stroke-width:2px,color:#fff
+    style createUnknownIndividual fill:#304150,stroke:#609f63,stroke-width:2px,color:#fff
+    style addSpousesAndRelatives fill:#3a5030,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style addPedigreeChildren fill:#30503a,stroke:#609f65,stroke-width:2px,color:#fff
+    style addInlawSpouse fill:#345030,stroke:#979f60,stroke-width:2px,color:#fff
+    style addInlawChildren fill:#325030,stroke:#9f8c60,stroke-width:2px,color:#fff
 ```
 
 ## Position Tree
@@ -83,6 +97,8 @@ flowchart LR
         getFixedAdjacentOuterNodes
         getFixedStackOuterNodes
         getSubtreeHorizontalMovementSpace
+        collectShiftableSubtreeNodes
+        enforceBoundary
     end
 
     createFamilyTree(["createFamilyTree
@@ -155,6 +171,55 @@ flowchart LR
 
     adjustInnerNodesSpacingForChain --> getSubtreeHorizontalMovementSpace
     adjustInnerNodesSpacingForChain --> shiftSubtree
+
+    getSubtreeHorizontalMovementSpace --> collectShiftableSubtreeNodes
+    positionNode --> enforceBoundary
+    compactLeftMostGroupNodeRight --> getSubtreeHorizontalMovementSpace
+    compactLeftMostGroupNodeRight --> shiftSubtree
+    centerPersonAboveSpouses --> shiftSubtree
+    shiftSuperTree --> shiftSubtree
+    shiftSiblings --> shiftSubtree
+
+    style createFamilyTree fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style positionTree fill:#503030,stroke:#9f8b60,stroke-width:2px,color:#fff
+    style positionMaleAncestor fill:#504130,stroke:#609f73,stroke-width:2px,color:#fff
+    style positionRelative fill:#503f30,stroke:#9f9460,stroke-width:2px,color:#fff
+    style centerAncestorCouple fill:#305046,stroke:#609f74,stroke-width:2px,color:#fff
+    style positionInlaw fill:#504d30,stroke:#979f60,stroke-width:2px,color:#fff
+    style positionSpouses fill:#504930,stroke:#9f9460,stroke-width:2px,color:#fff
+    style positionChildren fill:#504630,stroke:#989f60,stroke-width:2px,color:#fff
+    style positionStackableNode fill:#503e30,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style layoutChildrenWithPlan fill:#504830,stroke:#989f60,stroke-width:2px,color:#fff
+    style adjustInnerChildrenSpacingGlobal fill:#504530,stroke:#608e9f,stroke-width:2px,color:#fff
+    style adjustInnerNodesSpacingForChain fill:#504630,stroke:#9f8760,stroke-width:2px,color:#fff
+    style normalizeTreeX fill:#304c50,stroke:#60989f,stroke-width:2px,color:#fff
+    style setHeights fill:#304350,stroke:#608e9f,stroke-width:2px,color:#fff
+    style positionNode fill:#305041,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style shiftSubtree fill:#325030,stroke:#9f7960,stroke-width:2px,color:#fff
+    style shiftSuperTree fill:#30504c,stroke:#609f67,stroke-width:2px,color:#fff
+    style shiftSiblings fill:#304e50,stroke:#609f73,stroke-width:2px,color:#fff
+    style shiftPersonNextToSpouse fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style centerPersonAboveSpouses fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style getChildCenter fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style hasGrandChildren fill:#304950,stroke:#9f8b60,stroke-width:2px,color:#fff
+    style makeStackCtx fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style resetStackCtx fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style alignStacks fill:#304550,stroke:#9f8160,stroke-width:2px,color:#fff
+    style planOrderedChildStacks fill:#304a50,stroke:#989f60,stroke-width:2px,color:#fff
+    style buildChildLayoutOrder fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style collectChildLayoutNodes fill:#305045,stroke:#989f60,stroke-width:2px,color:#fff
+    style snapshotChildLayoutState fill:#304550,stroke:#989f60,stroke-width:2px,color:#fff
+    style restoreChildLayoutState fill:#304350,stroke:#989f60,stroke-width:2px,color:#fff
+    style resetChildLayoutNodes fill:#304350,stroke:#989f60,stroke-width:2px,color:#fff
+    style compactLeftMostGroupNodeRight fill:#375030,stroke:#9f9960,stroke-width:2px,color:#fff
+    style removeMatchingStackGroup fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style shouldAcceptChildLayoutTrial fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style getBalancingChains fill:#30504a,stroke:#608e9f,stroke-width:2px,color:#fff
+    style getFixedAdjacentOuterNodes fill:#304f50,stroke:#609f87,stroke-width:2px,color:#fff
+    style getFixedStackOuterNodes fill:#304150,stroke:#609f87,stroke-width:2px,color:#fff
+    style getSubtreeHorizontalMovementSpace fill:#504630,stroke:#9f6a60,stroke-width:2px,color:#fff
+    style collectShiftableSubtreeNodes fill:#385030,stroke:#9f6060,stroke-width:2px,color:#fff
+    style enforceBoundary fill:#30504b,stroke:#9f8c60,stroke-width:2px,color:#fff
 ```
 
 ## Draw Tree
@@ -162,8 +227,10 @@ flowchart LR
 ```mermaid
 flowchart LR
     subgraph entry["Entry points"]
-        drawTree["drawTree\nasync"]
-        drawNodes["drawNodes\nasync"]
+        drawTree["drawTree
+        async"]
+        drawNodes["drawNodes
+        async"]
     end
 
     subgraph links["Link drawing"]
@@ -209,7 +276,8 @@ flowchart LR
         nodeHalf
         genLowerEdgeY
         genHigherEdgeY
-        getMaximumDimensions["getMaximumDimensions\nposition_tree.js"]
+        getMaximumDimensions["getMaximumDimensions
+        position_tree.js"]
     end
 
     subgraph status["Status"]
@@ -281,6 +349,41 @@ flowchart LR
     shrinkToFit --> buildSecondaryLines
     shrinkToFit --> buildAllLines
     shrinkToFit --> estimateTextDimensions
+
+    style drawTree fill:#4b5030,stroke:#608e9f,stroke-width:2px,color:#fff
+    style drawNodes fill:#503f30,stroke:#608e9f,stroke-width:2px,color:#fff
+    style drawNonBoldLinks fill:#465030,stroke:#60989f,stroke-width:2px,color:#fff
+    style drawBoldLinks fill:#304f50,stroke:#60989f,stroke-width:2px,color:#fff
+    style drawCircles fill:#304650,stroke:#60989f,stroke-width:2px,color:#fff
+    style drawLink fill:#415030,stroke:#9f8b60,stroke-width:2px,color:#fff
+    style drawCircle fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style drawNode fill:#503f30,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style drawText fill:#504430,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style renderTspans fill:#4f5030,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style alignTextVertically fill:#305044,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style ensureTextShadowFilter fill:#304350,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style buildSecondaryStrings fill:#305050,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style buildSecondaryLines fill:#304650,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style buildAllLines fill:#304650,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style selectInitialTextLayout fill:#3c5030,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style shrinkToFit fill:#305045,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style estimateTextDimensions fill:#30504b,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style fitTextInBox fill:#395030,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style getNameAvailableHeight fill:#304950,stroke:#9f8c60,stroke-width:2px,color:#fff
+    style findConnectionPath fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style promoteConnectionNodesInStacks fill:#304050,stroke:#608e9f,stroke-width:2px,color:#fff
+    style getLinkHighlightFactor fill:#30504a,stroke:#9f6d60,stroke-width:2px,color:#fff
+    style getAncestorLinkHighlightFactor fill:#304050,stroke:#609f65,stroke-width:2px,color:#fff
+    style isNodeHighlighted fill:#30504e,stroke:#9f7c60,stroke-width:2px,color:#fff
+    style getNodeHCL fill:#305040,stroke:#9f6960,stroke-width:2px,color:#fff
+    style mapCoords fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style nodeW fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style nodeH fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style nodeHalf fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style genLowerEdgeY fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style genHigherEdgeY fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
+    style getMaximumDimensions fill:#30504d,stroke:#608e9f,stroke-width:2px,color:#fff
+    style setStatusBarContent fill:#304050,stroke:#60809f,stroke-width:2px,color:#fff
 ```
 
 ## Open Page

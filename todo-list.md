@@ -20,7 +20,6 @@ Backlog
 - Highlight immigrants
 - Highlight people with military service
 - Explain hcl vs hsl - colors seem to shift depending on brightness (hue 0 doesn't look red at high brightness)
-- Slower rendering for very large trees seems to be due to the text - without text it is quick
 - Click on node to make them the new root person - making a large tree interactive could be problematic
 - Show images
 

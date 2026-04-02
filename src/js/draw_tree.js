@@ -12,6 +12,8 @@ let _draw_cfg = window;
 
 async function drawTree(rows, config) {
     _draw_cfg = (config !== undefined) ? (config ?? window) : (_draw_cfg ?? window);
+    _fitTextInBoxCache = new Map();
+    _textShadowFilterCreated = false;
     window.tree_rows = rows;
     window.connection_path_ids = ((_draw_cfg.highlight_type || 'pedigree') === 'connection')
         ? findConnectionPath(window.connection_selected_id)
@@ -738,9 +740,11 @@ function selectInitialTextLayout(name, weight, main_font_size, secondary_strings
 }
 
 const TREE_TEXT_SHADOW_FILTER_ID = 'tree-text-shadow-filter';
+let _textShadowFilterCreated = false;
 
 function ensureTextShadowFilter(selection) {
     if (_draw_cfg.text_shadow === false) return null;
+    if (_textShadowFilterCreated) return TREE_TEXT_SHADOW_FILTER_ID;
 
     const selection_node = selection && typeof selection.node === 'function' ? selection.node() : null;
     if (!selection_node) return null;
@@ -749,7 +753,7 @@ function ensureTextShadowFilter(selection) {
     if (!svg) return null;
 
     let filter = svg.querySelector(`#${TREE_TEXT_SHADOW_FILTER_ID}`);
-    if (filter) return TREE_TEXT_SHADOW_FILTER_ID;
+    if (filter) { _textShadowFilterCreated = true; return TREE_TEXT_SHADOW_FILTER_ID; }
 
     let defs = svg.querySelector('defs');
     if (!defs) {
@@ -774,6 +778,7 @@ function ensureTextShadowFilter(selection) {
 
     filter.appendChild(drop_shadow);
     defs.appendChild(filter);
+    _textShadowFilterCreated = true;
 
     return TREE_TEXT_SHADOW_FILTER_ID;
 }
@@ -974,10 +979,17 @@ function getNodeHCL(node, inlaw_desaturated = true) {
 // Shared off-screen canvas for text measurement (created once)
 const _measureCanvas = document.createElement('canvas');
 const _measureCtx = _measureCanvas.getContext('2d');
+let _fitTextInBoxCache = null;
 
 function fitTextInBox(str, width, height, fontFamily = 'Arial, sans-serif', fontWeight = 'normal', maxFontSize = null) {
     // Returns { lines: string[], fontSize: number } with the largest font size
     // such that the wrapped lines fit within the given width and height.
+
+    const _cacheKey = _fitTextInBoxCache !== null && `${str}|${width}|${height}|${fontFamily}|${fontWeight}|${maxFontSize}`;
+    if (_cacheKey) {
+        const _cached = _fitTextInBoxCache.get(_cacheKey);
+        if (_cached) return _cached;
+    }
 
     // Reduce effective box size by box padding on all sides
     const padding = _draw_cfg.box_padding || 0;
@@ -1051,5 +1063,7 @@ function fitTextInBox(str, width, height, fontFamily = 'Arial, sans-serif', font
         }
     }
 
-    return { lines: bestLines, fontSize: bestSize };
+    const _result = { lines: bestLines, fontSize: bestSize };
+    if (_cacheKey) _fitTextInBoxCache.set(_cacheKey, _result);
+    return _result;
 }

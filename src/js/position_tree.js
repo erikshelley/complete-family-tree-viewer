@@ -11,8 +11,11 @@ window.auto_box_width = 0;
 window.auto_box_height = 0;
 window.tree_padding = 160;
 
-function positionTree(node, rows = [], config) {
+let _position_yield_counter = 0;
+
+async function positionTree(node, rows = [], config) {
     _layout_cfg = (config !== undefined) ? (config ?? window) : (_layout_cfg ?? window);
+    if (config !== undefined) _position_yield_counter = 0;
     if (!node || node.is_positioned) return rows;
 
     node.level = node.anchor_generation;
@@ -26,30 +29,33 @@ function positionTree(node, rows = [], config) {
     }
     if (!rows[node.level][node.sub_level]) rows[node.level][node.sub_level] = [];
 
-    if ((node.type === 'root') || (node.individual.gender === 'M' && node.type === 'ancestor')) positionMaleAncestor(node, rows);
-    if ((node.type === 'relative') || (node.individual.gender === 'F' && node.type === 'ancestor')) positionRelative(node, rows);
-    if (node.type === 'inlaw') positionInlaw(node, rows);
+    _position_yield_counter++;
+    if (_position_yield_counter % 100 === 0) await scheduler.yield();
+
+    if ((node.type === 'root') || (node.individual.gender === 'M' && node.type === 'ancestor')) await positionMaleAncestor(node, rows);
+    if ((node.type === 'relative') || (node.individual.gender === 'F' && node.type === 'ancestor')) await positionRelative(node, rows);
+    if (node.type === 'inlaw') await positionInlaw(node, rows);
 
     return rows;
 }
 
 
-function positionMaleAncestor(node, rows) {
-    positionTree(node.father_node, rows);
-    positionTree(node.mother_node, rows);
+async function positionMaleAncestor(node, rows) {
+    await positionTree(node.father_node, rows);
+    await positionTree(node.mother_node, rows);
 
     if ((node.type === 'ancestor') || (node.type === 'root' && !node.father_node && !node.mother_node)) {
         // If inlaws are to the left and the person is root, position the person first
         if (_layout_cfg.beside_inlaws && (node.type === 'root')) positionNode(node, rows);
 
         // Position spouses
-        let [, spouse_max_x] = !_layout_cfg.beside_inlaws ? positionSpouses(node, rows, 'root') : positionSpouses(node, rows, 'inlaw');
+        let [, spouse_max_x] = await (!_layout_cfg.beside_inlaws ? positionSpouses(node, rows, 'root') : positionSpouses(node, rows, 'inlaw'));
 
         // If inlaws are to the left and the person is root, make sure they are next to their spouse
         if (_layout_cfg.beside_inlaws && (node.type === 'root')) shiftPersonNextToSpouse(node);
 
         // Position children
-        let [child_min_x, child_max_x] = positionChildren(node, rows, false);
+        let [child_min_x, child_max_x] = await positionChildren(node, rows, false);
         
         // Position the ancestor
         if (!_layout_cfg.beside_inlaws || (node.type === 'ancestor')) positionNode(node, rows);
@@ -153,14 +159,14 @@ function positionMaleAncestor(node, rows) {
 }
 
 
-function positionRelative(node, rows) {
+async function positionRelative(node, rows) {
     node.min_x = Infinity;
     node.max_x = -Infinity;
 
     // If inlaw is to the left of the relative, position the inlaw first
     if (_layout_cfg.beside_inlaws && (node.individual.gender === 'F') && (node.type === 'relative')) {
         // Position spouses
-        let [spouse_min_x, spouse_max_x] = positionSpouses(node, rows, 'inlaw');
+        let [spouse_min_x, spouse_max_x] = await positionSpouses(node, rows, 'inlaw');
         positionNode(node, rows);
         node.min_x = Math.min(node.x, spouse_min_x);
         node.max_x = Math.max(node.x + sibNodeSize(), spouse_max_x);
@@ -177,7 +183,7 @@ function positionRelative(node, rows) {
     
     // Position spouses
     if (!_layout_cfg.beside_inlaws || (node.individual.gender === 'M') || (node.type === 'ancestor')) {
-        let [spouse_min_x, spouse_max_x] = !_layout_cfg.beside_inlaws ? positionSpouses(node, rows, 'relative') : positionSpouses(node, rows, 'inlaw');
+        let [spouse_min_x, spouse_max_x] = await (!_layout_cfg.beside_inlaws ? positionSpouses(node, rows, 'relative') : positionSpouses(node, rows, 'inlaw'));
         node.min_x = Math.min(node.min_x, spouse_min_x);
         node.max_x = Math.max(node.max_x, spouse_max_x);
     }
@@ -188,8 +194,8 @@ function positionRelative(node, rows) {
     }
 
     if (node.type === 'ancestor') {
-        positionTree(node.father_node, rows);
-        positionTree(node.mother_node, rows);
+        await positionTree(node.father_node, rows);
+        await positionTree(node.mother_node, rows);
         centerAncestorCouple(node);
     }
 }
@@ -271,14 +277,14 @@ function centerAncestorCouple(node) {
 }
 
 
-function positionInlaw(node, rows) {
+async function positionInlaw(node, rows) {
     positionNode(node, rows);
     node.min_x = Infinity, node.max_x = -Infinity;
     if (node.stacked || (node.children_nodes.length === 0) || _layout_cfg.beside_inlaws) {
         node.min_x = node.x;
         node.max_x = node.x + sibNodeSize();
     }
-    let [child_min_x, child_max_x] = positionChildren(node, rows, true);
+    let [child_min_x, child_max_x] = await positionChildren(node, rows, true);
     node.min_x = Math.min(node.min_x, child_min_x);
     node.max_x = Math.max(node.max_x, child_max_x);
 
@@ -307,7 +313,7 @@ function positionInlaw(node, rows) {
 }
 
 
-function positionStackableNode(parent_node, target_node, rows, has_grandchildren, drop_sub_level, ctx, check_spouse_nodes = true, force_stack = null) {
+async function positionStackableNode(parent_node, target_node, rows, has_grandchildren, drop_sub_level, ctx, check_spouse_nodes = true, force_stack = null) {
     const auto_stackable = (_layout_cfg.max_stack_size > 1) && (!has_grandchildren || (target_node.children_nodes.length === 0 && (!check_spouse_nodes || target_node.spouse_nodes.length === 0)));
     const is_stackable = (force_stack === null) ? auto_stackable : force_stack;
     if (is_stackable) {
@@ -327,7 +333,7 @@ function positionStackableNode(parent_node, target_node, rows, has_grandchildren
     else {
         if (drop_sub_level) target_node.sub_level = parent_node.sub_level + 1;
     }
-    positionTree(target_node, rows);
+    await positionTree(target_node, rows);
     ctx.min_x = Math.min(ctx.min_x, target_node.min_x);
     ctx.max_x = Math.max(ctx.max_x, target_node.max_x);
     logPositioning('child-stack-placement', {
@@ -346,7 +352,7 @@ function positionStackableNode(parent_node, target_node, rows, has_grandchildren
 }
 
 
-function layoutChildrenWithPlan(node, ordered_children, rows, drop_sub_level, has_grandchildren, stacked_children, stack_groups, child_layout_nodes, layout_snapshot, enable_logging = true) {
+async function layoutChildrenWithPlan(node, ordered_children, rows, drop_sub_level, has_grandchildren, stacked_children, stack_groups, child_layout_nodes, layout_snapshot, enable_logging = true) {
     const previous_suppressed = !!window.suppress_positioning_log;
     window.suppress_positioning_log = previous_suppressed || !enable_logging;
     const stack_top_children = new Set((stack_groups || []).map(stack_group => stack_group[0]).filter(Boolean));
@@ -357,7 +363,7 @@ function layoutChildrenWithPlan(node, ordered_children, rows, drop_sub_level, ha
     const initial_sub_level = node.sub_level + (drop_sub_level ? 1 : 0);
     const ctx = makeStackCtx(initial_sub_level);
 
-    ordered_children.forEach(child_node => {
+    for (const child_node of ordered_children) {
         if (stacked_children.has(child_node) && stack_top_children.has(child_node) && (ctx.stacks.length > 0)) {
             alignStacks(ctx.stacks);
             resetStackCtx(ctx, initial_sub_level);
@@ -368,7 +374,7 @@ function layoutChildrenWithPlan(node, ordered_children, rows, drop_sub_level, ha
             resetStackCtx(ctx, initial_sub_level);
         }
 
-        positionStackableNode(
+        await positionStackableNode(
             node,
             child_node,
             rows,
@@ -378,7 +384,7 @@ function layoutChildrenWithPlan(node, ordered_children, rows, drop_sub_level, ha
             true,
             stacked_children.has(child_node),
         );
-    });
+    }
 
     alignStacks(ctx.stacks);
     window.suppress_positioning_log = previous_suppressed;
@@ -391,7 +397,7 @@ function layoutChildrenWithPlan(node, ordered_children, rows, drop_sub_level, ha
 }
 
 
-function positionSpouses(node, rows, type_to_drop) {
+async function positionSpouses(node, rows, type_to_drop) {
     const has_grandchildren = hasGrandChildren(node);
     const drop_sub_level = node.type === type_to_drop;
     const initial_sub_level = node.sub_level + (drop_sub_level ? 1 : 0);
@@ -399,23 +405,23 @@ function positionSpouses(node, rows, type_to_drop) {
     const ctx = makeStackCtx(initial_sub_level);
 
     if ((node.type !== 'ancestor') && !_layout_cfg.beside_inlaws) {
-        node.spouse_nodes.filter(spouse_node => (_layout_cfg.max_stack_size > 1) && (!has_grandchildren || (spouse_node.children_nodes.length === 0))).forEach(spouse_node => {
-            positionStackableNode(node, spouse_node, rows, has_grandchildren, drop_sub_level, ctx, false);
-        });
+        for (const spouse_node of node.spouse_nodes.filter(spouse_node => (_layout_cfg.max_stack_size > 1) && (!has_grandchildren || (spouse_node.children_nodes.length === 0)))) {
+            await positionStackableNode(node, spouse_node, rows, has_grandchildren, drop_sub_level, ctx, false);
+        }
         alignStacks(ctx.stacks);
     }
 
     if (_layout_cfg.beside_inlaws) {
-        node.spouse_nodes.forEach(spouse_node => {
+        for (const spouse_node of node.spouse_nodes) {
             if (drop_sub_level) spouse_node.sub_level = node.sub_level + 1;
-            positionTree(spouse_node, rows);
+            await positionTree(spouse_node, rows);
             ctx.min_x = Math.min(ctx.min_x, spouse_node.min_x);
             ctx.max_x = Math.max(ctx.max_x, spouse_node.max_x);
-        });
+        }
     } else {
-        node.spouse_nodes.filter(spouse_node => (_layout_cfg.max_stack_size === 1) || (node.type === 'ancestor') || (spouse_node.children_nodes.length > 0)).forEach(spouse_node => {
-            positionStackableNode(node, spouse_node, rows, has_grandchildren, drop_sub_level, ctx, false);
-        });
+        for (const spouse_node of node.spouse_nodes.filter(spouse_node => (_layout_cfg.max_stack_size === 1) || (node.type === 'ancestor') || (spouse_node.children_nodes.length > 0))) {
+            await positionStackableNode(node, spouse_node, rows, has_grandchildren, drop_sub_level, ctx, false);
+        }
         alignStacks(ctx.stacks);
     }
 
@@ -438,7 +444,7 @@ function positionSpouses(node, rows, type_to_drop) {
 
 
 // drop_sub_level will be true for inlaws so that their children are positioned one sub-level lower than the inlaw
-function positionChildren(node, rows, drop_sub_level) {
+async function positionChildren(node, rows, drop_sub_level) {
     const has_grandchildren = hasGrandChildren(node);
 
     // Sort children by birth year (ascending), nodes without a birth year go to the right end
@@ -467,7 +473,7 @@ function positionChildren(node, rows, drop_sub_level) {
     const child_layout_nodes = collectChildLayoutNodes(node.children_nodes);
     const layout_snapshot = snapshotChildLayoutState();
     let { stacked_children, stack_groups, layout_order } = planOrderedChildStacks(node, node.children_nodes, has_grandchildren);
-    let best_layout = layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, stack_groups, child_layout_nodes, layout_snapshot, true);
+    let best_layout = await layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, stack_groups, child_layout_nodes, layout_snapshot, true);
 
     let released_stack_group = true;
     while (released_stack_group) {
@@ -480,7 +486,7 @@ function positionChildren(node, rows, drop_sub_level) {
             const trial_stack_groups = removeMatchingStackGroup(stack_groups, stack_group);
             const trial_layout_order = buildChildLayoutOrder(node.children_nodes, trial_stack_groups);
 
-            const trial_layout = layoutChildrenWithPlan(node, trial_layout_order, rows, drop_sub_level, has_grandchildren, trial_stacked_children, trial_stack_groups, child_layout_nodes, layout_snapshot, false);
+            const trial_layout = await layoutChildrenWithPlan(node, trial_layout_order, rows, drop_sub_level, has_grandchildren, trial_stacked_children, trial_stack_groups, child_layout_nodes, layout_snapshot, false);
             const accepted = shouldAcceptChildLayoutTrial(best_layout, trial_layout);
 
             logPositioning('child-stack-width-check', {
@@ -502,7 +508,7 @@ function positionChildren(node, rows, drop_sub_level) {
                 stacked_children = trial_stacked_children;
                 stack_groups = trial_stack_groups;
                 layout_order = trial_layout_order;
-                best_layout = layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, stack_groups, child_layout_nodes, layout_snapshot, true);
+                best_layout = await layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, stack_groups, child_layout_nodes, layout_snapshot, true);
                 released_stack_group = true;
                 logPositioning('child-stack-release', {
                     parent: getNodeLogName(node),
@@ -513,7 +519,7 @@ function positionChildren(node, rows, drop_sub_level) {
                 break;
             }
 
-            best_layout = layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, stack_groups, child_layout_nodes, layout_snapshot, false);
+            best_layout = await layoutChildrenWithPlan(node, layout_order, rows, drop_sub_level, has_grandchildren, stacked_children, stack_groups, child_layout_nodes, layout_snapshot, false);
         }
     }
 
@@ -588,10 +594,12 @@ function adjustInnerNodesSpacingForChain(chain_nodes, rows, direction = 'right-t
             return;
         }
 
-        const child_index = sorted_children.indexOf(child_node);
-        const left_sibling = sorted_children[child_index - 1];
-        const right_sibling = sorted_children[child_index + 1];
         const movement_space = getSubtreeHorizontalMovementSpace(child_node, rows, _layout_cfg.sibling_spacing);
+        // Issue C: indexOf + sibling lookups are only needed for logging; skip
+        // them entirely when logging is off to avoid O(N) scans per inner node.
+        const child_index = getPositioningLogLevel() !== 'none' ? sorted_children.indexOf(child_node) : -1;
+        const left_sibling  = child_index >= 0 ? sorted_children[child_index - 1] : null;
+        const right_sibling = child_index >= 0 ? sorted_children[child_index + 1] : null;
 
         let left_space = movement_space.left;
         let right_space = movement_space.right;
@@ -651,6 +659,13 @@ function adjustInnerNodesSpacingForChain(chain_nodes, rows, direction = 'right-t
 function adjustInnerChildrenSpacingGlobal(rows, max_rounds = 12) {
     if (!rows || max_rounds < 1) return;
 
+    _all_nodes_cache = flattenRows(rows);
+    _all_nodes_by_y = new Map();
+    for (const n of _all_nodes_cache) {
+        const y = n.y;
+        if (!_all_nodes_by_y.has(y)) _all_nodes_by_y.set(y, []);
+        _all_nodes_by_y.get(y).push(n);
+    }
     const chains = getBalancingChains(rows);
 
     for (let round = 0; round < max_rounds; round++) {
@@ -665,6 +680,9 @@ function adjustInnerChildrenSpacingGlobal(rows, max_rounds = 12) {
         });
         if (!moved) break;
     }
+
+    _all_nodes_cache = null;
+    _all_nodes_by_y = null;
 }
 
 

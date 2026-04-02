@@ -1,5 +1,18 @@
 # Complete Family Tree Viewer - Test Cases
 
+## How to Run Tests
+
+| Command | Description |
+| ------- | ----------- |
+| `npm test` | Run all automated tests once |
+| `npm run test:watch` | Run tests in watch mode (re-runs on file changes) |
+| `npm run test:coverage` | Run all tests and generate an HTML coverage report in `coverage/` |
+| `npm run test:check-ids` | Check for duplicate or missing test IDs across all test files |
+| `npm run lint` | Lint source files in `src/js/` |
+| `npx vitest run tests/performance.test.js` | Run only the performance and profiling tests |
+| `PERF_TESTS=1 npx vitest run tests/performance.test.js` | Run performance tests with hard timing budget assertions enabled |
+| `node update-mermaid-perf-colors.mjs` | Run 09.05 and update the `style` colors in all flowcharts in `mermaid.md` |
+
 ## Scope
 This file defines test cases for:
 - GEDCOM parsing and normalization

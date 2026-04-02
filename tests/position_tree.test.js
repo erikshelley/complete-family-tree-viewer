@@ -16,7 +16,7 @@ function createChild(name, spouseCount = 0) {
 }
 
 describe('position tree helpers', () => {
-    it('assigns row buckets and level metadata in positionTree', () => {
+    it('assigns row buckets and level metadata in positionTree', async () => {
         const context = loadPositioningContext({
             box_width: 80,
             box_height: 50,
@@ -47,7 +47,7 @@ describe('position tree helpers', () => {
             mother_node: null,
         };
 
-        const rows = context.positionTree(rootNode);
+        const rows = await context.positionTree(rootNode);
 
         expect(rootNode.level).toBe(2);
         expect(rootNode.sub_level).toBe(1);
@@ -316,7 +316,7 @@ describe('position tree helpers', () => {
         expect(rows[0][0][1].x - rows[0][0][1].min_x).toBe(10);
     });
 
-    it('positionChildren returns bounds covering positioned children', () => {
+    it('positionChildren returns bounds covering positioned children', async () => {
         const context = loadPositioningContext({
             max_stack_size: 1,
             beside_inlaws: false,
@@ -370,7 +370,7 @@ describe('position tree helpers', () => {
             };
         };
 
-        const [childMinX, childMaxX] = context.positionChildren(parent, [], false);
+        const [childMinX, childMaxX] = await context.positionChildren(parent, [], false);
 
         expect(childMinX).toBe(120);
         expect(childMaxX).toBe(310);
@@ -380,7 +380,7 @@ describe('position tree helpers', () => {
         expect(childMaxX).toBeGreaterThanOrEqual(maxChildMax);
     });
 
-    it('positionChildren keeps final child stack groups balanced for thirteen children at max stack size four', () => {
+    it('positionChildren keeps final child stack groups balanced for thirteen children at max stack size four', async () => {
         const context = loadPositioningContext({
             max_stack_size: 4,
             beside_inlaws: false,
@@ -429,7 +429,7 @@ describe('position tree helpers', () => {
         context.shouldAcceptChildLayoutTrial = () => false;
 
         const rows = [[]];
-        context.positionChildren(parent, rows, false);
+        await context.positionChildren(parent, rows, false);
 
         const finalStackGroups = [];
         let currentGroup = [];
@@ -450,7 +450,7 @@ describe('position tree helpers', () => {
         expect(children.every(child => child.stacked)).toBe(true);
     });
 
-    it('positionChildren compacts the left-most child subtree to the right before parent centering', () => {
+    it('positionChildren compacts the left-most child subtree to the right before parent centering', async () => {
         const context = loadPositioningContext({
             max_stack_size: 1,
             beside_inlaws: false,
@@ -532,7 +532,7 @@ describe('position tree helpers', () => {
             node.max_x += shiftX;
         };
 
-        const [childMinX, childMaxX] = context.positionChildren(parent, [[]], false);
+        const [childMinX, childMaxX] = await context.positionChildren(parent, [[]], false);
 
         expect(children[0].x).toBe(180);
         expect(children[0].min_x).toBe(180);

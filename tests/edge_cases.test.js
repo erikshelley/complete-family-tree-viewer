@@ -57,7 +57,7 @@ describe('edge cases', () => {
         expect(context.window.root_node.individual.id).toBe('@I1@');
     });
 
-    it('08.02 unknown gender still builds and positions safely', () => {
+    it('08.02 unknown gender still builds and positions safely', async () => {
         const individuals = [
             { id: '@I1@', name: 'Root Unknown', famc: null, fams: ['@F1@'], gender: 'U' },
             { id: '@I2@', name: 'Spouse Person', famc: null, fams: ['@F1@'], gender: 'F' },
@@ -70,7 +70,7 @@ describe('edge cases', () => {
 
         const root = individuals.find(person => person.id === '@I1@');
         const rootNode = context.buildTree(root);
-        const rows = context.positionTree(rootNode);
+        const rows = await context.positionTree(rootNode);
 
         expect(rootNode).not.toBeNull();
         expect(rows.length).toBeGreaterThan(0);

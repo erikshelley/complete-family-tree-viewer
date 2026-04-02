@@ -53,6 +53,7 @@ async function createFamilyTree(selected_individual, config = null) {
     // Clear previous content
     const family_tree_div = document.getElementById('family-tree-div');
     family_tree_div.innerHTML = '';
+    await scheduler.yield(); // let browser repaint the cleared state before blocking positioning work
     window.level_boundary_node_leaf = [];
     window.level_boundary_node_ancestor = [];
     window.level_heights = [];
@@ -71,7 +72,7 @@ async function createFamilyTree(selected_individual, config = null) {
 
     const tree_data = buildTree(selected_individual);
 
-    const tree_positions = positionTree(tree_data, undefined, config);
+    const tree_positions = await positionTree(tree_data, undefined, config);
     normalizeTreeX(tree_positions, config);
     setHeights(tree_positions, config);
     adjustInnerChildrenSpacingGlobal(tree_positions);

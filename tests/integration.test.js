@@ -634,10 +634,10 @@ function getMotherInlawStackingGedcom() {
     ].join('\n');
 }
 
-function buildAndPositionTree(context, rootId) {
+async function buildAndPositionTree(context, rootId) {
     const root = context.window.individuals.find(person => person.id === rootId);
     const rootNode = context.buildTree(root);
-    const rows = context.positionTree(rootNode);
+    const rows = await context.positionTree(rootNode);
     context.normalizeTreeX(rows);
     context.setHeights(rows);
     return rootNode;
@@ -790,7 +790,7 @@ describe('integration test cases', () => {
         expect(elements.max_stack_size_number.value).toBe('99');
     });
 
-    it('05.03 larger stack size produces narrower layout for leaf-heavy children', () => {
+    it('05.03 larger stack size produces narrower layout for leaf-heavy children', async () => {
         const individuals = [
             { id: '@I1@', name: 'Root', famc: null, fams: ['@F1@'], gender: 'M' },
             { id: '@I2@', name: 'Spouse', famc: null, fams: ['@F1@'], gender: 'F' },
@@ -805,7 +805,7 @@ describe('integration test cases', () => {
             { id: '@F1@', husb: '@I1@', wife: '@I2@', chil: ['@I3@', '@I4@', '@I5@', '@I6@', '@I7@', '@I8@'] },
         ];
 
-        function layoutWidth(maxStackSize) {
+        async function layoutWidth(maxStackSize) {
             const context = createPipelineContext();
             context.window.individuals = structuredClone(individuals);
             context.window.families = structuredClone(families);
@@ -815,7 +815,7 @@ describe('integration test cases', () => {
 
             const root = context.window.individuals.find(person => person.id === '@I1@');
             const rootNode = context.buildTree(root);
-            const rows = context.positionTree(rootNode);
+            const rows = await context.positionTree(rootNode);
             context.normalizeTreeX(rows);
             context.setHeights(rows);
             context.adjustInnerChildrenSpacingGlobal(rows);
@@ -823,13 +823,13 @@ describe('integration test cases', () => {
             return getLayoutWidth(rootNode);
         }
 
-        const widthWithoutStacking = layoutWidth(1);
-        const widthWithStacking = layoutWidth(99);
+        const widthWithoutStacking = await layoutWidth(1);
+        const widthWithStacking = await layoutWidth(99);
 
         expect(widthWithStacking).toBeLessThan(widthWithoutStacking);
     });
 
-    it('05.04 toggling vertical in-laws changes spouse placement from side to below', () => {
+    it('05.04 toggling vertical in-laws changes spouse placement from side to below', async () => {
         const individuals = [
             { id: '@I1@', name: 'Root', famc: null, fams: ['@F1@'], gender: 'M' },
             { id: '@I2@', name: 'Spouse', famc: null, fams: ['@F1@'], gender: 'F' },
@@ -839,7 +839,7 @@ describe('integration test cases', () => {
             { id: '@F1@', husb: '@I1@', wife: '@I2@', chil: ['@I3@'] },
         ];
 
-        function spouseY(besideInlaws) {
+        async function spouseY(besideInlaws) {
             const context = createPipelineContext();
             context.window.individuals = structuredClone(individuals);
             context.window.families = structuredClone(families);
@@ -849,7 +849,7 @@ describe('integration test cases', () => {
 
             const root = context.window.individuals.find(person => person.id === '@I1@');
             const rootNode = context.buildTree(root);
-            const rows = context.positionTree(rootNode);
+            const rows = await context.positionTree(rootNode);
             context.normalizeTreeX(rows);
             context.setHeights(rows);
             return {
@@ -858,14 +858,14 @@ describe('integration test cases', () => {
             };
         }
 
-        const vertical = spouseY(false);
-        const horizontal = spouseY(true);
+        const vertical = await spouseY(false);
+        const horizontal = await spouseY(true);
 
         expect(vertical.spouseY).toBeGreaterThan(vertical.rootY);
         expect(horizontal.spouseY).toBeLessThanOrEqual(horizontal.rootY);
     });
 
-    it('05.05 show_childless_inlaws=false removes childless spouse branches only', () => {
+    it('05.05 show_childless_inlaws=false removes childless spouse branches only', async () => {
         const parsed = createPipelineContext().parseGedcomData(getIntegrationGedcom());
 
         function spouseIds(showChildlessInlaws) {
@@ -888,7 +888,7 @@ describe('integration test cases', () => {
         expect(visibleWithoutChildless).toEqual(['@I2@']);
     });
 
-    it('05.06 usePresetStyle updates linked UI inputs and requests redraw', () => {
+    it('05.06 usePresetStyle updates linked UI inputs and requests redraw', async () => {
         const dom = new JSDOM(`
             <input id="max-stack-size-number" value="1" />
             <input id="max-stack-size-range" value="1" />
@@ -974,10 +974,10 @@ describe('integration test cases', () => {
         expect(redrawRequests).toBe(1);
     });
 
-    it('05.07 wide in-law subtree nodes do not cross the ancestor-to-child connector line', () => {
+    it('05.07 wide in-law subtree nodes do not cross the ancestor-to-child connector line', async () => {
         const parsed = createPipelineContext().parseGedcomData(getWideInlawGedcom());
 
-        [true, false].forEach(besideInlaws => {
+        for (const besideInlaws of [true, false]) {
             const context = createPipelineContext();
             context.window.individuals = structuredClone(parsed.individuals);
             context.window.families = structuredClone(parsed.families);
@@ -988,7 +988,7 @@ describe('integration test cases', () => {
 
             const root = context.window.individuals.find(ind => ind.id === '@I1@');
             const rootNode = context.buildTree(root);
-            const rows = context.positionTree(rootNode);
+            const rows = await context.positionTree(rootNode);
             context.normalizeTreeX(rows);
             context.setHeights(rows);
 
@@ -1023,7 +1023,7 @@ describe('integration test cases', () => {
                 const crosses = node.x < connector_x && (node.x + box_width) > connector_x;
                 expect(crosses, `[beside_inlaws=${besideInlaws}] "${node.individual?.name}" (x=${node.x.toFixed(1)}) crosses connector_x=${connector_x.toFixed(1)}`).toBe(false);
             });
-        });
+        }
     });
 
     it('05.08 createFamilyTree runs without network/upload calls (privacy/serverless)', async () => {
@@ -1073,7 +1073,7 @@ describe('integration test cases', () => {
         expect(dom.window.document.querySelector('#family-tree-div svg')).not.toBeNull();
     });
 
-    it('05.09 siblings are positioned left-to-right in birth-year order with no-year nodes rightmost', () => {
+    it('05.09 siblings are positioned left-to-right in birth-year order with no-year nodes rightmost', async () => {
         // Children are listed in deliberate non-birth-year order in the GEDCOM CHIL list:
         //   @I5@ (2000), @I8@ (no year), @I4@ (1985), @I1@ (root, 1990), @I6@ (no year), @I7@ (1995)
         // After sorting, father's children_nodes x positions should be in order: 1985, 1990, 1995, 2000, no-year, no-year
@@ -1141,7 +1141,7 @@ describe('integration test cases', () => {
 
         const root = parsed.individuals.find(ind => ind.id === '@I1@');
         const rootNode = context.buildTree(root);
-        const rows = context.positionTree(rootNode);
+        const rows = await context.positionTree(rootNode);
         context.normalizeTreeX(rows);
 
         const fatherNode = rootNode.father_node;
@@ -1170,7 +1170,7 @@ describe('integration test cases', () => {
         expect(years, 'birth years should be in ascending order left to right').toEqual([...years].sort((a, b) => a - b));
     });
 
-    it('05.10 show_non_pedigree_family=false excludes root sibling branches from the built tree', () => {
+    it('05.10 show_non_pedigree_family=false excludes root sibling branches from the built tree', async () => {
         const parsed = createPipelineContext().parseGedcomData(getPedigreeSiblingGedcom());
 
         function getFatherChildren(showNonPedigreeFamily) {
@@ -1195,7 +1195,7 @@ describe('integration test cases', () => {
         expect(withoutBranches[0].spouse_nodes[0].children_nodes.map(node => node.individual.id)).toEqual(['@I8@']);
     });
 
-    it('05.11 show_non_pedigree_family=false excludes ancestor in-law spouse branches from the built tree', () => {
+    it('05.11 show_non_pedigree_family=false excludes ancestor in-law spouse branches from the built tree', async () => {
         const parsed = createPipelineContext().parseGedcomData(getWideInlawGedcom());
 
         function getFatherInlawIds(showNonPedigreeFamily) {
@@ -1215,7 +1215,7 @@ describe('integration test cases', () => {
         expect(getFatherInlawIds(false)).toEqual([]);
     });
 
-    it('05.12 horizontal in-law male spouse is positioned to the left of female root', () => {
+    it('05.12 horizontal in-law male spouse is positioned to the left of female root', async () => {
         const parsed = createPipelineContext().parseGedcomData(getFemaleRootHorizontalInlawGedcom());
 
         const context = createPipelineContext();
@@ -1225,7 +1225,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
 
         // The root is female, so the positioned copy lives in father's children_nodes.
         // Male in-law (InlawSpouse) is accessible via that copy's spouse_nodes.
@@ -1238,7 +1238,7 @@ describe('integration test cases', () => {
         expect(jonNode.x).toBeLessThan(rootRelativeNode.x);
     });
 
-    it('05.13 horizontal in-law female spouses are positioned to the right of male root', () => {
+    it('05.13 horizontal in-law female spouses are positioned to the right of male root', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootHorizontalInlawGedcom());
 
         const context = createPipelineContext();
@@ -1248,7 +1248,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
 
         // The root is male; his positioned copy lives in father's children_nodes.
         // Female in-laws (WifeA, WifeB) are in that copy's spouse_nodes.
@@ -1263,7 +1263,7 @@ describe('integration test cases', () => {
         });
     });
 
-    it('05.14 horizontal in-law female spouses of male root are positioned to the left of male ancestors', () => {
+    it('05.14 horizontal in-law female spouses of male root are positioned to the left of male ancestors', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootHorizontalInlawGedcom());
 
         const context = createPipelineContext();
@@ -1273,7 +1273,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
 
         const rootRelativeNode = rootNode.father_node.children_nodes.find(n => n.individual.id === '@I1@');
         expect(rootRelativeNode, 'positioned root node should exist under father').toBeDefined();
@@ -1289,7 +1289,7 @@ describe('integration test cases', () => {
         });
     });
 
-    it('05.15 horizontal in-law male spouse and female sibling are centered above their two children', () => {
+    it('05.15 horizontal in-law male spouse and female sibling are centered above their two children', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1299,7 +1299,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1320,7 +1320,7 @@ describe('integration test cases', () => {
         expect(coupleCenter).toBe(childrenCenter);
     });
 
-    it('05.16 horizontal in-law male spouse and female sibling are centered above their three children', () => {
+    it('05.16 horizontal in-law male spouse and female sibling are centered above their three children', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1330,7 +1330,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1354,7 +1354,7 @@ describe('integration test cases', () => {
         expect(coupleCenter).toBe(childrenCenter);
     });
 
-    it('05.17 horizontal in-law female spouse and male sibling are centered above their one child', () => {
+    it('05.17 horizontal in-law female spouse and male sibling are centered above their one child', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1364,7 +1364,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1383,7 +1383,7 @@ describe('integration test cases', () => {
         expect(coupleCenter).toBe(childCenter);
     });
 
-    it('05.18 ancestor couple is centered above all of their children', () => {
+    it('05.18 ancestor couple is centered above all of their children', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1393,7 +1393,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1417,7 +1417,7 @@ describe('integration test cases', () => {
         expect(coupleCenter).toBe(childrenCenter);
     });
 
-    it('05.20 vertical in-law root is centered above their spouses', () => {
+    it('05.20 vertical in-law root is centered above their spouses', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1427,7 +1427,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const rootCopy = rootNode.father_node.children_nodes.find(n => n.individual.id === '@I1@');
         const nodes = collectAllNodes(rootNode);
         const wifeA = nodes.find(n => n.individual.id === '@I2@');
@@ -1443,7 +1443,7 @@ describe('integration test cases', () => {
         expect(rootCenter).toBe(spousesCenter);
     });
 
-    it('05.21 vertical in-law siblings are each centered above their own spouse', () => {
+    it('05.21 vertical in-law siblings are each centered above their own spouse', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1453,7 +1453,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1475,7 +1475,7 @@ describe('integration test cases', () => {
         expect(centerX(brotherSib)).toBe(centerX(sibWife));
     });
 
-    it('05.22 vertical in-law sibling spouses are centered above their children', () => {
+    it('05.22 vertical in-law sibling spouses are centered above their children', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1485,7 +1485,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1515,7 +1515,7 @@ describe('integration test cases', () => {
         expect(centerX(sibWife)).toBe(centerX(sibChildF));
     });
 
-    it('05.23 vertical in-law children of a couple are in a single stack when count is within max_stack_size', () => {
+    it('05.23 vertical in-law children of a couple are in a single stack when count is within max_stack_size', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1526,7 +1526,7 @@ describe('integration test cases', () => {
         context.window.generations_down = 1;
         context.window.max_stack_size = 2;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1540,7 +1540,7 @@ describe('integration test cases', () => {
         expect(sibChildA.x).toBe(sibChildB.x);
     });
 
-    it('05.24 vertical in-law children exceeding max_stack_size are split into a stack of two and a stack of one', () => {
+    it('05.24 vertical in-law children exceeding max_stack_size are split into a stack of two and a stack of one', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1551,7 +1551,7 @@ describe('integration test cases', () => {
         context.window.generations_down = 1;
         context.window.max_stack_size = 2;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1568,7 +1568,7 @@ describe('integration test cases', () => {
         expect(xValues.size).toBe(2);
     });
 
-    it('05.25 vertical in-law childless spouses of root are stacked into a single column', () => {
+    it('05.25 vertical in-law childless spouses of root are stacked into a single column', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1579,7 +1579,7 @@ describe('integration test cases', () => {
         context.window.generations_down = 1;
         context.window.max_stack_size = 2;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const wifeA = nodes.find(n => n.individual.id === '@I2@');
         const wifeB = nodes.find(n => n.individual.id === '@I3@');
@@ -1591,7 +1591,7 @@ describe('integration test cases', () => {
         expect(wifeA.x).toBe(wifeB.x);
     });
 
-    it('05.26 show_childless_inlaws=false removes all childless in-law spouses from the tree', () => {
+    it('05.26 show_childless_inlaws=false removes all childless in-law spouses from the tree', async () => {
         const parsed = createPipelineContext().parseGedcomData(getHcilHnpfGedcom());
 
         const context = createPipelineContext();
@@ -1602,7 +1602,7 @@ describe('integration test cases', () => {
         context.window.generations_down = 1;
         context.window.show_childless_inlaws = false;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const ids = nodes.filter(n => n.individual).map(n => n.individual.id);
 
@@ -1611,7 +1611,7 @@ describe('integration test cases', () => {
         expect(ids).not.toContain('@I7@'); // Jessica
     });
 
-    it('05.27 show_childless_inlaws=false and show_non_pedigree_family=false with gen_down=0 leaves only root and direct ancestors', () => {
+    it('05.27 show_childless_inlaws=false and show_non_pedigree_family=false with gen_down=0 leaves only root and direct ancestors', async () => {
         const parsed = createPipelineContext().parseGedcomData(getHcilHnpfGedcom());
 
         const context = createPipelineContext();
@@ -1623,7 +1623,7 @@ describe('integration test cases', () => {
         context.window.show_childless_inlaws = false;
         context.window.show_non_pedigree_family = false;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const uniqueIds = new Set(nodes.filter(n => n.individual).map(n => n.individual.id));
 
@@ -1633,7 +1633,7 @@ describe('integration test cases', () => {
         expect(uniqueIds.has('@I5@')).toBe(true); // AncMom
     });
 
-    it('05.28 show_non_pedigree_family=false with gen_down=0 excludes siblings but keeps root in-law spouses', () => {
+    it('05.28 show_non_pedigree_family=false with gen_down=0 excludes siblings but keeps root in-law spouses', async () => {
         const parsed = createPipelineContext().parseGedcomData(getHcilHnpfGedcom());
 
         const context = createPipelineContext();
@@ -1645,7 +1645,7 @@ describe('integration test cases', () => {
         context.window.show_childless_inlaws = true;
         context.window.show_non_pedigree_family = false;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const uniqueIds = new Set(nodes.filter(n => n.individual).map(n => n.individual.id));
 
@@ -1659,7 +1659,7 @@ describe('integration test cases', () => {
         expect(uniqueIds.has('@I7@')).toBe(false); // SibSpouse excluded
     });
 
-    it('05.29 in-law subtree to the left of the ancestor connector is separated by 1.5 * sibling_spacing', () => {
+    it('05.29 in-law subtree to the left of the ancestor connector is separated by 1.5 * sibling_spacing', async () => {
         // Tests the positioning constraint: the rightmost edge of an in-law subtree hanging off a male
         // ancestor's secondary family must stay at least sibling_spacing to the left of the connector circle
         // between the ancestor and his pedigree spouse. The connector is at ancestor.x + box_width + sibling_spacing/2.
@@ -1673,7 +1673,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 2;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1691,7 +1691,7 @@ describe('integration test cases', () => {
         expect(connectorX - marineSpouseRightEdge).toBe(1.5 * hs);
     });
 
-    it('05.30 siblings of the female pedigree ancestor are positioned to her right', () => {
+    it('05.30 siblings of the female pedigree ancestor are positioned to her right', async () => {
         const parsed = createPipelineContext().parseGedcomData(getGenUp2Gedcom());
 
         const context = createPipelineContext();
@@ -1701,7 +1701,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 2;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1717,7 +1717,7 @@ describe('integration test cases', () => {
         expect(sibB.x).toBeGreaterThan(ancMom.x);
     });
 
-    it('05.31 grandchildren of a sibling of the female ancestor are positioned one level_spacing + generation_spacing above the root generation', () => {
+    it('05.31 grandchildren of a sibling of the female ancestor are positioned one level_spacing + generation_spacing above the root generation', async () => {
         // The bottom edge of the deepest relatives hanging off the parent level is exactly
         // level_spacing + generation_spacing above the top of the root generation row.
         // (Note: test-examples.md lists 2 * generation_spacing, but the computed gap is generation_spacing.)
@@ -1730,7 +1730,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 2;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1747,7 +1747,7 @@ describe('integration test cases', () => {
         expect(rootRel.y - (gcLeft.y + bh)).toBe(ls + vs);
     });
 
-    it('05.32 the in-law husband of a female ancestor is sibling_spacing to her right', () => {
+    it('05.32 the in-law husband of a female ancestor is sibling_spacing to her right', async () => {
         const parsed = createPipelineContext().parseGedcomData(getGenUp2Gedcom());
 
         const context = createPipelineContext();
@@ -1757,7 +1757,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 2;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1772,7 +1772,7 @@ describe('integration test cases', () => {
         expect(ancInlaw.x - (patGM.x + bw)).toBe(hs);
     });
 
-    it('05.33 child of a female ancestor and her in-law husband is centered below the two parents', () => {
+    it('05.33 child of a female ancestor and her in-law husband is centered below the two parents', async () => {
         const parsed = createPipelineContext().parseGedcomData(getGenUp2Gedcom());
 
         const context = createPipelineContext();
@@ -1782,7 +1782,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 2;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1800,7 +1800,7 @@ describe('integration test cases', () => {
         expect(childCenter).toBe(parentCenter);
     });
 
-    it('05.34 vertical in-law child of ancestor is centered below the in-law parent', () => {
+    it('05.34 vertical in-law child of ancestor is centered below the in-law parent', async () => {
         const parsed = createPipelineContext().parseGedcomData(getInlawChildMock());
 
         const context = createPipelineContext();
@@ -1810,7 +1810,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1824,7 +1824,7 @@ describe('integration test cases', () => {
         expect(childA.x).toBe(stepMom.x);
     });
 
-    it('05.35 sibling with no family is centered between the two flanking siblings with families', () => {
+    it('05.35 sibling with no family is centered between the two flanking siblings with families', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMiddleSibMock());
 
         const context = createPipelineContext();
@@ -1834,7 +1834,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 0;
         context.window.generations_down = 3;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -1851,7 +1851,7 @@ describe('integration test cases', () => {
         expect(childB.x + bw / 2).toBe(flanksCenter);
     });
 
-    it('05.36 all nodes are separated horizontally by at least sibling_spacing', () => {
+    it('05.36 all nodes are separated horizontally by at least sibling_spacing', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1861,7 +1861,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
 
         const bw = context.window.box_width;
@@ -1880,7 +1880,7 @@ describe('integration test cases', () => {
         }
     });
 
-    it('05.37 all nodes are separated vertically by at least generation_spacing', () => {
+    it('05.37 all nodes are separated vertically by at least generation_spacing', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1890,7 +1890,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
 
         const bw = context.window.box_width;
@@ -1909,7 +1909,7 @@ describe('integration test cases', () => {
         }
     });
 
-    it('05.38 all nodes are separated horizontally by at least sibling_spacing (vertical in-laws)', () => {
+    it('05.38 all nodes are separated horizontally by at least sibling_spacing (vertical in-laws)', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1919,7 +1919,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
 
         const bw = context.window.box_width;
@@ -1938,7 +1938,7 @@ describe('integration test cases', () => {
         }
     });
 
-    it('05.39 all nodes are separated vertically by at least generation_spacing (vertical in-laws)', () => {
+    it('05.39 all nodes are separated vertically by at least generation_spacing (vertical in-laws)', async () => {
         const parsed = createPipelineContext().parseGedcomData(getMaleRootCenteringGedcom());
 
         const context = createPipelineContext();
@@ -1948,7 +1948,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 1;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
 
         const bw = context.window.box_width;
@@ -1967,7 +1967,7 @@ describe('integration test cases', () => {
         }
     });
 
-    it('05.40 shared great-grandparents of two ancestor lines appear exactly once and are linked to the first ancestor', () => {
+    it('05.40 shared great-grandparents of two ancestor lines appear exactly once and are linked to the first ancestor', async () => {
         const parsed = createPipelineContext().parseGedcomData(getEndogamyMock());
 
         const context = createPipelineContext();
@@ -1977,7 +1977,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 3;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual && n.individual.id === id);
 
@@ -1994,7 +1994,7 @@ describe('integration test cases', () => {
         expect(sharedGM.individual.pedigree_child_node).toBe(patGF);
     });
 
-    it('05.41 shared great-grandparents have a duplicate pedigree link to the second ancestor', () => {
+    it('05.41 shared great-grandparents have a duplicate pedigree link to the second ancestor', async () => {
         const parsed = createPipelineContext().parseGedcomData(getEndogamyMock());
 
         const context = createPipelineContext();
@@ -2004,7 +2004,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 3;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual && n.individual.id === id);
 
@@ -2017,7 +2017,7 @@ describe('integration test cases', () => {
         expect(sharedGM.individual.duplicate_pedigree_child_node).toBe(matGM);
     });
 
-    it('05.42 root inlaw spouse and their descendants are not duplicated as relatives under an ancestor', () => {
+    it('05.42 root inlaw spouse and their descendants are not duplicated as relatives under an ancestor', async () => {
         const parsed = createPipelineContext().parseGedcomData(getInlawPriorityMock());
 
         const context = createPipelineContext();
@@ -2027,7 +2027,7 @@ describe('integration test cases', () => {
         context.window.generations_up = 3;
         context.window.generations_down = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
 
         // Inlaw (@I2@) and InlawChild (@I3@) must each appear exactly once
@@ -2046,7 +2046,7 @@ describe('integration test cases', () => {
             'AncMomInlaw should have no children (Inlaw was re-homed under Root)').toBe(0);
     });
 
-    it('05.43 ancestor stackable siblings are not stacked when they fit into existing horizontal space', () => {
+    it('05.43 ancestor stackable siblings are not stacked when they fit into existing horizontal space', async () => {
         const parsed = createPipelineContext().parseGedcomData(getNoStackMock());
 
         const context = createPipelineContext();
@@ -2058,7 +2058,7 @@ describe('integration test cases', () => {
         context.window.generations_down = 0;
         context.window.max_stack_size = 3;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
 
         const sibA = nodes.find(n => n.individual && n.individual.id === '@I7@');
@@ -2077,7 +2077,7 @@ describe('integration test cases', () => {
         expect(sibC.stacked, 'SibC should not be stacked').toBe(false);
     });
 
-    it('05.44 each descendant child is centered below the connector circle to the right of their male relative father', () => {
+    it('05.44 each descendant child is centered below the connector circle to the right of their male relative father', async () => {
         const parsed = createPipelineContext().parseGedcomData(getHorizInlawFourGenMock());
 
         const context = createPipelineContext();
@@ -2088,7 +2088,7 @@ describe('integration test cases', () => {
         context.window.generations_down = 4;
         context.window.max_stack_size = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -2115,7 +2115,7 @@ describe('integration test cases', () => {
         expect(childB.x + bw / 2).toBe(coupleCenterB);
     });
 
-    it('05.45 child of female relative and male inlaw is centered below the connector circle to the left of the female relative', () => {        const parsed = createPipelineContext().parseGedcomData(getFemRelInlawMock());
+    it('05.45 child of female relative and male inlaw is centered below the connector circle to the left of the female relative', async () => {        const parsed = createPipelineContext().parseGedcomData(getFemRelInlawMock());
 
         const context = createPipelineContext();
         context.window.individuals = structuredClone(parsed.individuals);
@@ -2125,7 +2125,7 @@ describe('integration test cases', () => {
         context.window.generations_down = 4;
         context.window.max_stack_size = 1;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -2142,7 +2142,7 @@ describe('integration test cases', () => {
         expect(childD.x + bw / 2).toBe(coupleCenter);
     });
 
-    it('05.46 pedigree-sibling link from parents does not intersect with another branch pedigree-sibling link from parents', () => {
+    it('05.46 pedigree-sibling link from parents does not intersect with another branch pedigree-sibling link from parents', async () => {
         const parsed = createPipelineContext().parseGedcomData(getSiblingRelativesNoLinkCrossMock());
 
         const context = createPipelineContext();
@@ -2153,7 +2153,7 @@ describe('integration test cases', () => {
         context.window.generations_down = 0;
         context.window.max_stack_size = 12;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -2181,7 +2181,7 @@ describe('integration test cases', () => {
         expect(sibA.x < sibB.x).toBe(sibAConnector < sibBConnector);
     });
 
-    it('05.47 stacked in-law spouses of female ancestor are aligned to their column (two stacks of two)', () => {
+    it('05.47 stacked in-law spouses of female ancestor are aligned to their column (two stacks of two)', async () => {
         // Root's mother has four in-law husbands with no children.
         // With max_stack_size=2, they form two stacks of two: [H1,H2] and [H3,H4].
         // Each stack column must have both nodes at the same x.
@@ -2198,7 +2198,7 @@ describe('integration test cases', () => {
         context.window.max_stack_size = 2;
         context.window.show_childless_inlaws = true;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 
@@ -2220,7 +2220,7 @@ describe('integration test cases', () => {
         expect(h1.x).not.toBe(h3.x);
     });
 
-    it('05.48 stacked in-law spouses of female ancestor are aligned to their column (single deeper stack)', () => {
+    it('05.48 stacked in-law spouses of female ancestor are aligned to their column (single deeper stack)', async () => {
         // Root's mother has four in-law husbands with no children.
         // With max_stack_size=4 all four are placed in a single column at sub-levels 0–3.
         // All four must share the same x after alignment.
@@ -2235,7 +2235,7 @@ describe('integration test cases', () => {
         context.window.max_stack_size = 4;
         context.window.show_childless_inlaws = true;
 
-        const rootNode = buildAndPositionTree(context, '@I1@');
+        const rootNode = await buildAndPositionTree(context, '@I1@');
         const nodes = collectAllNodes(rootNode);
         const find = id => nodes.find(n => n.individual.id === id);
 

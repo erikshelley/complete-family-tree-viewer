@@ -7,6 +7,17 @@
 // eslint-disable-next-line no-var
 var _layout_cfg = window;
 
+// Flat list of all positioned nodes, cached for the duration of
+// adjustInnerChildrenSpacingGlobal so flattenRows() is not called repeatedly.
+// Null outside of that phase; functions fall back to flattenRows(rows).
+let _all_nodes_cache = null;
+
+// Nodes indexed by y coordinate for O(1) row lookup inside
+// adjustInnerChildrenSpacingGlobal. Sub-level spacing always exceeds box_height
+// (spacing = box_height + generation_spacing), so vertical overlap is only
+// possible between nodes that share the exact same y value.
+let _all_nodes_by_y = null;
+
 // The node's extent in the sibling axis (layout x direction).
 // In vertical mode nodes are box_width wide on screen (sibling = SVG x).
 // In horizontal mode nodes are box_height tall on screen (sibling = SVG y).
@@ -647,7 +658,7 @@ function addBalancingChain(chains, seen_keys, nodes, source = 'unknown') {
 function getBalancingChains(rows) {
     if (!rows) return [];
 
-    const all_nodes = flattenRows(rows);
+    const all_nodes = _all_nodes_cache ?? flattenRows(rows);
     const chains = [];
     const seen_keys = new Set();
     const ancestor_row_keys = new Set();
@@ -707,7 +718,7 @@ function getFixedAdjacentOuterNodes(rows) {
     const fixed_nodes = new Set();
     if (!rows) return fixed_nodes;
 
-    const all_nodes = flattenRows(rows);
+    const all_nodes = _all_nodes_cache ?? flattenRows(rows);
 
     all_nodes.filter(node => node.type === 'ancestor').forEach(node => {
         const sibling_nodes = node.father_node ? node.father_node.children_nodes : [];
@@ -739,7 +750,7 @@ function getFixedStackOuterNodes(rows) {
     const fixed_nodes = new Set();
     if (!rows || (_layout_cfg.max_stack_size <= 1)) return fixed_nodes;
 
-    const all_nodes = flattenRows(rows);
+    const all_nodes = _all_nodes_cache ?? flattenRows(rows);
 
     all_nodes.filter(node => node.children_nodes && node.children_nodes.length > 0).forEach(node => {
         const all_children_stacked = node.children_nodes.every(child_node => child_node.stacked);
@@ -764,57 +775,88 @@ function getFixedStackOuterNodes(rows) {
 function getSubtreeHorizontalMovementSpace(node, rows, extra_gap = 0) {
     if (!node || !rows) return { left: 0, right: 0 };
 
-    const subtree_nodes = collectShiftableSubtreeNodes(node);
-    const all_nodes = flattenRows(rows);
-    const other_nodes = all_nodes.filter(other_node => !subtree_nodes.has(other_node));
+    const subtree_nodes = node._subtree_nodes ?? (node._subtree_nodes = collectShiftableSubtreeNodes(node));
+    const node_size = sibNodeSize();
+
+    // ── Issue A: group subtree nodes by row key before scanning candidates ──
+    // Instead of iterating every subtree node × every candidate, consolidate
+    // the subtree's footprint per row to a single (min_left, max_right) pair,
+    // then scan candidates only for those unique rows.
+    //
+    // Row key when y is known: the y value (used with _all_nodes_by_y).
+    // Row key when y is undefined: "level:sub_level" (used with rows[][] lookup).
+    //
+    // For each row key we track the representative subtree_node that produced
+    // the tightest bound (needed for blocker logging).
+
+    // Map<rowKey, { min_left, max_right, left_rep, right_rep }>
+    const row_bounds = new Map();
+
+    subtree_nodes.forEach(subtree_node => {
+        const subtree_top = subtree_node.y;
+        const row_key = subtree_top !== undefined ? subtree_top : `${subtree_node.level}:${subtree_node.sub_level}`;
+        const s_left  = subtree_node.x - extra_gap;
+        const s_right = subtree_node.x + node_size + extra_gap;
+
+        const existing = row_bounds.get(row_key);
+        if (!existing) {
+            row_bounds.set(row_key, { min_left: s_left, max_right: s_right, left_rep: subtree_node, right_rep: subtree_node, y: subtree_top });
+        } else {
+            if (s_left < existing.min_left)  { existing.min_left  = s_left;  existing.left_rep  = subtree_node; }
+            if (s_right > existing.max_right){ existing.max_right = s_right; existing.right_rep = subtree_node; }
+        }
+    });
 
     let max_left = Infinity;
     let max_right = Infinity;
     let left_blocker = null;
     let right_blocker = null;
 
-    subtree_nodes.forEach(subtree_node => {
-        const subtree_left = subtree_node.x - extra_gap;
-        const subtree_right = subtree_node.x + sibNodeSize() + extra_gap;
-        const subtree_top = subtree_node.y;
-        const subtree_bottom = (subtree_node.y === undefined) ? undefined : subtree_node.y + _layout_cfg.box_height;
+    row_bounds.forEach((bounds, row_key) => {
+        const { min_left, max_right: row_max_right, left_rep, right_rep, y: subtree_top } = bounds;
 
-        other_nodes.forEach(other_node => {
-            const other_top = other_node.y;
-            const other_bottom = (other_node.y === undefined) ? undefined : other_node.y + _layout_cfg.box_height;
+        // ── Issue B: choose candidates without a full flat scan ──────────────
+        // When _all_nodes_by_y is active (balancing phase, y is a number key),
+        // use it directly. Otherwise look up the exact row from rows[][] instead
+        // of scanning all_nodes and filtering by level/sub_level equality.
+        let candidates;
+        if (_all_nodes_by_y !== null && typeof row_key === 'number') {
+            candidates = _all_nodes_by_y.get(row_key) ?? [];
+        } else if (typeof row_key === 'string') {
+            const colon = row_key.indexOf(':');
+            const level     = Number(row_key.slice(0, colon));
+            const sub_level = Number(row_key.slice(colon + 1));
+            candidates = rows[level]?.[sub_level] ?? [];
+        } else {
+            candidates = _all_nodes_cache ?? flattenRows(rows);
+        }
 
-            let vertical_overlap = false;
-            if (subtree_top !== undefined && subtree_bottom !== undefined && other_top !== undefined && other_bottom !== undefined) {
-                vertical_overlap = subtree_top < other_bottom && other_top < subtree_bottom;
-            } else {
-                vertical_overlap = subtree_node.level === other_node.level && subtree_node.sub_level === other_node.sub_level;
-            }
+        candidates.forEach(other_node => {
+            if (subtree_nodes.has(other_node)) return;
 
-            if (!vertical_overlap) return;
+            const other_left  = other_node.x;
+            const other_right = other_node.x + node_size;
 
-            const other_left = other_node.x;
-            const other_right = other_node.x + sibNodeSize();
-
-            if (other_left >= subtree_right) {
-                // Rightward movement is limited by outside nodes that are to the right.
-                const candidate_right = other_left - subtree_right;
+            if (other_left >= row_max_right) {
+                // Rightward movement is limited by nodes to the right.
+                const candidate_right = other_left - row_max_right;
                 if (candidate_right < max_right) {
                     max_right = candidate_right;
                     right_blocker = {
-                        subtree_node: subtree_node.individual.name,
+                        subtree_node: right_rep.individual.name,
                         blocker_node: other_node.individual.name,
                         blocker_x: other_node.x,
                         available_space: candidate_right,
                     };
                 }
             }
-            if (other_right <= subtree_left) {
-                // Leftward movement is limited by outside nodes that are to the left.
-                const candidate_left = subtree_left - other_right;
+            if (other_right <= min_left) {
+                // Leftward movement is limited by nodes to the left.
+                const candidate_left = min_left - other_right;
                 if (candidate_left < max_left) {
                     max_left = candidate_left;
                     left_blocker = {
-                        subtree_node: subtree_node.individual.name,
+                        subtree_node: left_rep.individual.name,
                         blocker_node: other_node.individual.name,
                         blocker_x: other_node.x,
                         available_space: candidate_left,

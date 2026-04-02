@@ -13,6 +13,7 @@ export function createBrowserContext(options = {}) {
         clearTimeout,
         TextDecoder,
         TextEncoder,
+        scheduler: { yield: () => Promise.resolve() },
     };
 
     Object.assign(context, globalOverrides);
