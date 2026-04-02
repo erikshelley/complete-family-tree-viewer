@@ -5,7 +5,7 @@
 This is a one-page application for viewing the complete family tree of any person in a [GEDCOM](https://en.wikipedia.org/wiki/GEDCOM) file. A person's "*complete family tree*" includes every one of their biological relatives and all of those relatives' spouses (in-laws).
 
 - [Try it out online](https://www.erikshelley.com/complete-family-tree-viewer) 
-- [Download the latest release](https://github.com/erikshelley/complete-family-tree-viewer/releases/download/v1.5.2/complete-family-tree-viewer-v1.5.2.zip) and try it out on your local device (unzip the file and open index.html in your browser)
+- [Download the latest release](https://github.com/erikshelley/complete-family-tree-viewer/releases/download/v1.5.3/complete-family-tree-viewer-v1.5.3.zip) and try it out on your local device (unzip the file and open index.html in your browser)
 
 If you don't have a GEDCOM file available, you can download one of these [GEDCOM sample files](https://github.com/D-Jeffrey/gedcom-samples). Feel free to ask questions, report issues, or request new features using the [issue tracker](https://github.com/erikshelley/complete-family-tree-viewer/issues).
 
