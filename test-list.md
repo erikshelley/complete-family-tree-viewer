@@ -381,6 +381,8 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 11.18 | auto_box_width equals text width at desired font size plus padding when name fits without shrinking |
 |  Automated  | 11.19 | auto_box_width exceeds box_width when dates are wider than the box at the preferred secondary font size |
 |  Automated  | 11.20 | auto_box_width accumulates the maximum across multiple drawText calls |
+|  Automated  | 11.25 | auto_box_height reflects preferred secondary font size when box height is too small for unshrunk text |
+|  Automated  | 11.26 | auto_box_height reflects preferred secondary even when selectInitialTextLayout reduced it to fit the name |
 |  Automated  | 11.21 | alignTextVertically places text top/middle/bottom precisely using exact getBBox coords |
 |  Automated  | 11.22 | alignTextVertically works correctly for multiline text with unequal dy gaps |
 |  Automated  | 11.23 | drawText uses geometric bbox model so text is never placed at midpoint regardless of getBBox output |

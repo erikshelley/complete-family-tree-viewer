@@ -1482,6 +1482,93 @@ describe('draw tree styling outcomes', () => {
         expect(context.window.auto_box_width).toBeCloseTo(125.4, 1);
     });
 
+    it('11.25 auto_box_height reflects preferred secondary font size when box height is too small for unshrunk text', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                box_width: 200,
+                box_height: 20,
+                box_padding: 0,
+                text_size: 12,
+                default_text_size: 12,
+                show_names: true,
+                show_years: true,
+                show_places: false,
+                text_shadow: false,
+                auto_box_width: 0,
+                auto_box_height: 0,
+                min_text_size: 12,
+                max_text_size: 6,
+            },
+        });
+
+        // Return the shrunk height so old code would give auto_box_height=20
+        dom.window.SVGElement.prototype.getBBox = function () {
+            return { width: 40, height: 20, x: 0, y: 0 };
+        };
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        context.drawText(new SvgSelection(svg).append('g'), {
+            type: 'relative', generation: 0,
+            individual: {
+                name: 'Alice',
+                birth: '1900', death: '1980', birth_place: '', death_place: '',
+                is_root: false, is_descendant: false,
+            },
+        });
+
+        // Name "Alice" (1 line, 12px) + "1900-1980" (1 line, preferred secondary 9px):
+        // estimateTextDimensions height = 12 + 1.7 * 9 = 27.3
+        // auto_box_height must exceed box_height=20 to allow secondary at preferred 9px
+        expect(context.window.auto_box_height).toBeGreaterThan(context.window.box_height);
+        expect(context.window.auto_box_height).toBeCloseTo(27.3, 1);
+    });
+
+    it('11.26 auto_box_height reflects preferred secondary even when selectInitialTextLayout reduced it to fit the name', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                box_width: 100,
+                box_height: 40,
+                box_padding: 0,
+                text_size: 12,
+                default_text_size: 12,
+                show_names: true,
+                show_years: true,
+                show_places: false,
+                text_shadow: false,
+                auto_box_width: 0,
+                auto_box_height: 0,
+                min_text_size: 12,
+                max_text_size: 6,
+            },
+        });
+
+        dom.window.SVGElement.prototype.getBBox = function () {
+            // selectInitialTextLayout picks secondary_font_size=6 to fit the long name at 12px,
+            // so rendered height ≈ 12 + 12*1.2 + 6*1.7 = 36.6; old code would give auto_box_height≈36.6→40
+            return { width: 70, height: 36.6, x: 0, y: 0 };
+        };
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        context.drawText(new SvgSelection(svg).append('g'), {
+            type: 'relative', generation: 0,
+            individual: {
+                name: 'John William Smith',
+                birth: '1900', death: '1980', birth_place: '', death_place: '',
+                is_root: false, is_descendant: false,
+            },
+        });
+
+        // Name "John William Smith" wraps to 2 lines at 12px in a 100px-wide box.
+        // With box_height=40, selectInitialTextLayout uses secondary_font_size=6 (not preferred 9px)
+        // so the name can fit at 12px; rendered height ≈ 36.6 ≤ 40, no shrinkToFit needed.
+        // Old code: auto_box_height = bbox.height ≈ 36.6 → rounds to 40 (same as current box_height).
+        // New code measures at preferred sizes:
+        //   name 2 lines at 12px + secondary 1 line at 9px: 12 + 12*1.2 + 9*1.7 = 41.7
+        // auto_box_height must exceed box_height=40 to allow secondary at preferred 9px
+        expect(context.window.auto_box_height).toBeGreaterThan(context.window.box_height);
+        expect(context.window.auto_box_height).toBeCloseTo(41.7, 1);
+    });
+
     it('13.09 links drawn to in-law spouses have stroke-dasharray equal to link_width,link_width', () => {
         const { context, dom } = loadDrawTreeContext({
             windowOverrides: {

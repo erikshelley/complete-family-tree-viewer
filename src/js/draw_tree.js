@@ -867,7 +867,20 @@ function drawText(g, node) {
         required_text_width = Math.max(required_text_width, _measureCtx.measureText(line.text).width);
     });
     window.auto_box_width = Math.max(window.auto_box_width, required_text_width + 2 * padding, 20);
-    window.auto_box_height = Math.max(window.auto_box_height, bbox.height, 20);
+    // Compute the height required to render both name and secondary at their preferred font sizes.
+    // We cannot use bbox.height (post-shrink DOM measurement) or initial_layout (which may already
+    // have reduced secondary_font_size to maximize name size), so we estimate directly:
+    //   name lines at main_font_size (wrapped for current box width, no height constraint)
+    //   secondary lines at preferred_secondary_size
+    const pref_sec_lines = buildSecondaryLines(secondary_strings, place_strings, preferred_secondary_size);
+    let pref_name_lines = [];
+    if (window.show_names && name) {
+        const pref_name_fit = fitTextInBox(name, nodeW(), main_font_size * 24, 'Arial, sans-serif', weight, main_font_size);
+        pref_name_lines = pref_name_fit.lines;
+    }
+    const pref_all_lines = buildAllLines(pref_name_lines, pref_sec_lines);
+    const pref_height_est = estimateTextDimensions(pref_all_lines, pref_name_lines.length, main_font_size, preferred_secondary_size, is_bold);
+    window.auto_box_height = Math.max(window.auto_box_height, pref_height_est.height + 2 * padding, 20);
 
     // Compute text position from the known line geometry (dy values + font sizes) rather than
     // getBBox().  getBBox() can return incorrect bbox.y values in Chrome after each
