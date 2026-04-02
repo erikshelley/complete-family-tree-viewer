@@ -384,6 +384,7 @@ Use these fixture profiles when implementing tests:
 |  Automated  | 11.21 | alignTextVertically places text top/middle/bottom precisely using exact getBBox coords |
 |  Automated  | 11.22 | alignTextVertically works correctly for multiline text with unequal dy gaps |
 |  Automated  | 11.23 | drawText uses geometric bbox model so text is never placed at midpoint regardless of getBBox output |
+|  Automated  | 11.24 | Non-top stacked in-law of a female ancestor links to the in-law above and not directly to the ancestor |
 
 ## 14 Content Display (draw_tree)
 |    Status   |  ID   | Test Description |

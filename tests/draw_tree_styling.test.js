@@ -379,6 +379,93 @@ describe('draw tree styling outcomes', () => {
         expect(inlawToAboveInlaw).toBeDefined();
     });
 
+    it('11.24 non-top stacked in-law of ancestor links to in-law above and not directly to ancestor', () => {
+        const { context, dom } = loadDrawTreeContext({
+            windowOverrides: {
+                box_width: 80,
+                box_height: 40,
+                sibling_spacing: 20,
+                generation_spacing: 30,
+                beside_inlaws: false,
+                link_highlight_percent: 100,
+                inlaw_link_highlight_percent: 100,
+                special_highlight_percent: 100,
+            },
+        });
+
+        const recordedLinks = [];
+        context.drawLink = (_svg, _color, p1, p2, special) => {
+            recordedLinks.push({ p1, p2, special });
+        };
+
+        const ancestor = {
+            type: 'ancestor',
+            generation: 1,
+            x: 300,
+            y: 60,
+            stacked: false,
+            stack_top: false,
+            spouse_nodes: [],
+            children_nodes: [],
+            individual: { name: 'Female Ancestor', gender: 'F', is_root: false, is_descendant: false },
+        };
+
+        const topInlaw = {
+            type: 'inlaw',
+            generation: 1,
+            x: 300,
+            y: 130,
+            stacked: true,
+            stack_top: true,
+            spouse_nodes: [ancestor],
+            children_nodes: [],
+            individual: { name: 'Top InLaw', gender: 'M', is_root: false, is_descendant: false },
+        };
+
+        const lowerInlaw = {
+            type: 'inlaw',
+            generation: 1,
+            x: 300,
+            y: 160,
+            stacked: true,
+            stack_top: false,
+            spouse_nodes: [ancestor],
+            children_nodes: [],
+            individual: { name: 'Lower InLaw', gender: 'M', is_root: false, is_descendant: false },
+        };
+
+        ancestor.spouse_nodes = [topInlaw, lowerInlaw];
+
+        const rows = [
+            [
+                [ancestor, topInlaw, lowerInlaw],
+            ],
+        ];
+
+        const svg = dom.window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        const svgSelection = new SvgSelection(svg);
+
+        context.drawNonBoldLinks(svgSelection, rows);
+
+        const ancestorCenterX = ancestor.x + context.window.box_width / 2;
+        const lowerInlawCenterX = lowerInlaw.x + context.window.box_width / 2;
+
+        // The ancestor must NOT draw a link directly to the non-top stacked in-law
+        const ancestorToLowerInlaw = recordedLinks.find(link =>
+            Math.abs(link.p1.x - ancestorCenterX) < 1 &&
+            Math.abs(link.p2.x - lowerInlawCenterX) < 1 &&
+            link.p2.y === lowerInlaw.y
+        );
+        expect(ancestorToLowerInlaw).toBeUndefined();
+
+        // The stacked link from lowerInlaw upward must exist
+        const inlawToAboveInlaw = recordedLinks.find(link =>
+            Math.abs(link.p1.x - lowerInlawCenterX) < 1 &&
+            link.p1.y === lowerInlaw.y
+        );
+        expect(inlawToAboveInlaw).toBeDefined();
+    });
+
     it('11.11 all in-law spouse/stack links are desaturated (grey)', () => {
         const { context, dom } = loadDrawTreeContext({
             windowOverrides: {

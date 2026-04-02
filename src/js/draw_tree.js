@@ -309,7 +309,7 @@ function drawNonBoldLinks(svg_node, rows, highlight_pass = null) {
 
                 // Draw link between ancestor and spouse
                 if (node.type === 'ancestor') {
-                    node.spouse_nodes.forEach(spouse_node => {
+                    node.spouse_nodes.filter(spouse_node => !(spouse_node.stacked && !spouse_node.stack_top)).forEach(spouse_node => {
                         const factor = getLinkHighlightFactor(node, spouse_node);
                         if (highlight_pass !== null && (factor !== 1) !== highlight_pass) return;
                         const inlaw_color = d3.hcl(hue, 0, luminance * (_draw_cfg.inlaw_link_highlight_percent / 100) * factor);
