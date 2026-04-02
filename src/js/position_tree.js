@@ -314,7 +314,7 @@ async function positionInlaw(node, rows) {
 
 
 async function positionStackableNode(parent_node, target_node, rows, has_grandchildren, drop_sub_level, ctx, check_spouse_nodes = true, force_stack = null) {
-    const auto_stackable = (_layout_cfg.max_stack_size > 1) && (!has_grandchildren || (target_node.children_nodes.length === 0 && (!check_spouse_nodes || target_node.spouse_nodes.length === 0)));
+    const auto_stackable = (_layout_cfg.max_stack_size > 1) && (target_node.children_nodes.length === 0) && (!check_spouse_nodes || !has_grandchildren || target_node.spouse_nodes.length === 0);
     const is_stackable = (force_stack === null) ? auto_stackable : force_stack;
     if (is_stackable) {
         const min_stack_level = parent_node.sub_level + (drop_sub_level ? 1 : 0);

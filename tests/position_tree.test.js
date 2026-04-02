@@ -540,4 +540,68 @@ describe('position tree helpers', () => {
         expect(childMinX).toBe(180);
         expect(childMaxX).toBe(420);
     });
+
+    it('does not auto-stack an inlaw with children even when has_grandchildren is false', async () => {
+        const context = loadPositioningContext({
+            max_stack_size: 3,
+            beside_inlaws: false,
+            box_width: 80,
+            box_height: 50,
+            sibling_spacing: 20,
+            generation_spacing: 20,
+            level_spacing: 20,
+            tree_padding: 50,
+            tree_orientation: 'vertical',
+            level_boundary_node_leaf: [],
+            level_boundary_node_ancestor: [],
+            level_heights: [],
+        });
+
+        const grandchild = {
+            individual: { name: 'Grandchild', gender: 'M', is_root: false },
+            type: 'relative',
+            spouse_nodes: [],
+            children_nodes: [],
+            stacked: false,
+            stack_top: false,
+            left_neighbor: null,
+            anchor_generation: 0,
+            generation: 0,
+            sub_level: 0,
+        };
+
+        // Inlaw has a child — must not be stacked
+        const inlaw = {
+            individual: { name: 'Inlaw', gender: 'F', is_root: false },
+            type: 'inlaw',
+            spouse_nodes: [{}],
+            children_nodes: [grandchild],
+            stacked: false,
+            stack_top: false,
+            left_neighbor: null,
+            anchor_generation: 1,
+            generation: 1,
+            sub_level: 1,
+            x: 50,
+            min_x: 50,
+            max_x: 130,
+        };
+
+        const ancestor = {
+            individual: { name: 'Ancestor', gender: 'M', is_root: false },
+            type: 'ancestor',
+            spouse_nodes: [],
+            children_nodes: [],
+            sub_level: 1,
+            level: 1,
+            x: 50,
+        };
+
+        const ctx = context.makeStackCtx(1);
+        // force_stack = null → auto_stackable is evaluated; has_grandchildren = false
+        await context.positionStackableNode(ancestor, inlaw, [[]], false, false, ctx, false, null);
+
+        expect(inlaw.stacked).toBe(false);
+        expect(inlaw.stack_top).toBe(false);
+    });
 });
