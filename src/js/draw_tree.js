@@ -44,7 +44,8 @@ async function drawTree(rows, config) {
     const svg = d3.select('#family-tree-div')
         .append('svg')
         .attr('width', svg_width)
-        .attr('height', svg_height);
+        .attr('height', svg_height)
+        .attr('overflow', 'visible');
 
     const [max_x, max_y, node_count] = getMaximumDimensions(rows);
     const scale_x = max_x / svg_width;
@@ -72,9 +73,7 @@ async function drawTree(rows, config) {
     svg_node.append('rect')
         .attr('width', max_x)
         .attr('height', max_y)
-        .attr('fill', _draw_cfg.transparent_bg_rect ? "rgba(0,0,0,0)" : _draw_cfg.tree_color || "#000")
-        .attr('stroke', "#000")
-        .attr('stroke-width', 0);
+        .attr('fill', _draw_cfg.transparent_bg_rect ? "rgba(0,0,0,0)" : _draw_cfg.tree_color || "#000");
 
     drawNonBoldLinks(svg_node, rows, false);
     drawBoldLinks(svg_node, rows, false);
